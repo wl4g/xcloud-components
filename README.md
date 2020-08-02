@@ -1,1 +1,1 @@
-Super DevOps Tool - A suite of peripheral tools related to the life cycle of micro services.
+A enterprise level common build component based on spring cloud.
