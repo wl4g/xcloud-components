@@ -97,7 +97,7 @@ public class JedisOperatorFactory implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		initCompositeJedisOperator();
+		initializeJedisOperatorAll();
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * 
 	 * @throws Exception
 	 */
-	private void initCompositeJedisOperator() throws Exception {
+	private void initializeJedisOperatorAll() throws Exception {
 		if (nonNull(jedisCluster)) {
 			jedisOperator = new DelegateJedisCluster(jedisCluster);
 		} else if (nonNull(jedisPool)) {
@@ -113,20 +113,19 @@ public class JedisOperatorFactory implements InitializingBean {
 		} else {
 			notNull(config,
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
-					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(),
-					JedisCluster.class.getSimpleName(), JedisProperties.class.getSimpleName());
-			initCompositeJedisOperatorForConfiguration(config);
+					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
+					JedisProperties.class.getSimpleName());
+			initializeJedisOperatorForConfiguration(config);
 		}
 	}
 
 	/**
-	 * New create {@link JedisOperator} instance with
-	 * {@link JedisProperties}
+	 * New create {@link JedisOperator} instance with {@link JedisProperties}
 	 * 
 	 * @param config
 	 * @throws Exception
 	 */
-	private void initCompositeJedisOperatorForConfiguration(JedisProperties config) throws Exception {
+	private void initializeJedisOperatorForConfiguration(JedisProperties config) throws Exception {
 		// Parse cluster node's
 		Set<HostAndPort> haps = config.parseHostAndPort();
 		notEmptyOf(haps, "redisNodes");
