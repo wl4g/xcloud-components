@@ -173,9 +173,11 @@
 			<artifactId>validation-api</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Tests -->
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>

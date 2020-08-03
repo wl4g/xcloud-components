@@ -69,7 +69,7 @@ import static com.wl4g.devops.support.redis.jedis.EnhancedJedisClusterCommand.En
  * @version 2020年3月28日 v1.0.0
  * @see
  */
-public class EnhancedJedisCluster extends JedisCluster implements CompositeJedisOperatorsAdapter {
+public class EnhancedJedisCluster extends JedisCluster implements CompositeJedisOperator {
 
 	final protected SmartLogger log = getLogger(getClass());
 

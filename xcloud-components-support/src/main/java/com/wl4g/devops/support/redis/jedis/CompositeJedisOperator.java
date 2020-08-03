@@ -85,7 +85,7 @@ import redis.clients.util.Slowlog;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public interface CompositeJedisOperatorsAdapter extends JedisCommands, MultiKeyJedisClusterCommands, JedisClusterScriptingCommands,
+public interface CompositeJedisOperator extends JedisCommands, MultiKeyJedisClusterCommands, JedisClusterScriptingCommands,
 		BasicCommands, BinaryJedisClusterCommands, MultiKeyBinaryJedisClusterCommands, JedisClusterBinaryScriptingCommands,
 		MultiKeyCommands, AdvancedJedisCommands, ScriptingCommands, ClusterCommands, SentinelCommands, BinaryJedisCommands,
 		MultiKeyBinaryCommands, AdvancedBinaryJedisCommands, BinaryScriptingCommands, Closeable {

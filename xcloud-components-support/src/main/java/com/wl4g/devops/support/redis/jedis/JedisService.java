@@ -23,7 +23,6 @@ import com.wl4g.devops.components.tools.common.log.SmartLogger;
 import com.wl4g.devops.components.tools.common.serialize.JdkSerializeUtils;
 import com.wl4g.devops.components.tools.common.serialize.ProtostuffUtils;
 
-import org.springframework.util.Assert;
 import redis.clients.jedis.ScanParams;
 
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static com.wl4g.devops.components.tools.common.collection.Collections2.safeList;
+import static com.wl4g.devops.components.tools.common.lang.Assert2.notNullOf;
 import static com.wl4g.devops.components.tools.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.devops.components.tools.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.devops.components.tools.common.serialize.JacksonUtils.toJSONString;
@@ -53,17 +53,17 @@ public class JedisService {
 	final protected SmartLogger log = getLogger(getClass());
 
 	/**
-	 * {@link CompositeJedisOperatorsAdapter}
+	 * {@link CompositeJedisOperator}
 	 */
-	final protected CompositeJedisOperatorsAdapter jedisAdapter;
+	final protected CompositeJedisOperator jedisOperator;
 
-	public JedisService(CompositeJedisOperatorsAdapter jedisAdapter) {
-		Assert.isTrue(jedisAdapter != null, "jedisAdapter");
-		this.jedisAdapter = jedisAdapter;
+	public JedisService(CompositeJedisOperator jedisOperator) {
+		notNullOf(jedisOperator, "jedisOperator");
+		this.jedisOperator = jedisOperator;
 	}
 
-	public CompositeJedisOperatorsAdapter getJedisAdapter() {
-		return this.jedisAdapter;
+	public CompositeJedisOperator getJedisAdapter() {
+		return this.jedisOperator;
 	}
 
 	// --- Basic ---
@@ -607,9 +607,9 @@ public class JedisService {
 	 * @param invoker
 	 * @return
 	 */
-	private <T> T doExecuteWithRedis(Function<CompositeJedisOperatorsAdapter, T> invoker) {
+	private <T> T doExecuteWithRedis(Function<CompositeJedisOperator, T> invoker) {
 		try {
-			return invoker.apply(jedisAdapter);
+			return invoker.apply(jedisOperator);
 		} catch (Throwable t) {
 			log.error("Redis processing fail.", t);
 			throw t;

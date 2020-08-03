@@ -19,8 +19,10 @@ import static java.lang.System.out;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import org.junit.Test;
+
 import com.wl4g.devops.support.config.JedisAutoConfiguration.JedisProperties;
-import com.wl4g.devops.support.redis.jedis.CompositeJedisOperatorsAdapter.RedisProtoUtil;
+import com.wl4g.devops.support.redis.jedis.CompositeJedisOperator.RedisProtoUtil;
 
 /**
  * {@link CompositeJedisOperatorsAdapterTests}
@@ -31,13 +33,8 @@ import com.wl4g.devops.support.redis.jedis.CompositeJedisOperatorsAdapter.RedisP
  */
 public class CompositeJedisOperatorsAdapterTests {
 
-	public static void main(String[] args) throws Exception {
-		// checkKeyFormatTest1();
-		createWithJedisSingleTest2();
-		// createWithJedisClusterTest3();
-	}
-
-	public static void checkKeyFormatTest1() {
+	@Test
+	public void checkKeyFormatTest1() {
 		System.out.println("-----11-----");
 		RedisProtoUtil.checkArgumentsSpecification(asList("safecloud_support_appinfo_admin"));
 
@@ -55,33 +52,35 @@ public class CompositeJedisOperatorsAdapterTests {
 		System.out.println(RedisProtoUtil.keyFormat("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
 	}
 
-	public static void createWithJedisSingleTest2() throws Exception {
+	@Test
+	public void createWithJedisSingleTest2() throws Exception {
 		JedisProperties config = new JedisProperties();
 		config.setNodes(singletonList("127.0.0.1:6379"));
 
 		out.println("Instantiating composite operators adapter with single ...");
-		CompositeJedisFactoryBean factory = new CompositeJedisFactoryBean(config);
+		CompositeJedisOperatorFactory factory = new CompositeJedisOperatorFactory(config);
 		factory.afterPropertiesSet();
-		CompositeJedisOperatorsAdapter adapter = factory.getObject();
+		CompositeJedisOperator operator = factory.getJedisOperator();
 
-		out.printf("\nadapter.set() result: %s", adapter.set("foo", "bar"));
-		out.printf("\nadapter.get() result: %s", adapter.get("foo"));
+		out.printf("\nadapter.set() result: %s", operator.set("foo", "bar"));
+		out.printf("\nadapter.get() result: %s", operator.get("foo"));
 
 	}
 
-	public static void createWithJedisClusterTest3() throws Exception {
+	@Test
+	public void createWithJedisClusterTest3() throws Exception {
 		JedisProperties config = new JedisProperties();
 		config.setNodes(asList(new String[] { "127.0.0.1:6379", "127.0.0.1:6380", "127.0.0.1:6381", "127.0.0.1:7379",
 				"127.0.0.1:7380", "127.0.0.1:7381" }));
 		config.setPasswd("123456");
 
 		out.println("Instantiating composite operators adapter with cluster ...");
-		CompositeJedisFactoryBean factory = new CompositeJedisFactoryBean(config);
+		CompositeJedisOperatorFactory factory = new CompositeJedisOperatorFactory(config);
 		factory.afterPropertiesSet();
-		CompositeJedisOperatorsAdapter adapter = factory.getObject();
+		CompositeJedisOperator operator = factory.getJedisOperator();
 
-		out.printf("\nadapter.set() result: %s", adapter.set("foo", "bar"));
-		out.printf("\nadapter.get() result: %s", adapter.get("foo"));
+		out.printf("\nadapter.set() result: %s", operator.set("foo", "bar"));
+		out.printf("\nadapter.get() result: %s", operator.get("foo"));
 
 	}
 
