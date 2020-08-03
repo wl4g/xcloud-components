@@ -53,16 +53,16 @@ public class JedisService {
 	final protected SmartLogger log = getLogger(getClass());
 
 	/**
-	 * {@link CompositeJedisOperator}
+	 * {@link JedisOperator}
 	 */
-	final protected CompositeJedisOperator jedisOperator;
+	final protected JedisOperator jedisOperator;
 
-	public JedisService(CompositeJedisOperator jedisOperator) {
+	public JedisService(JedisOperator jedisOperator) {
 		notNullOf(jedisOperator, "jedisOperator");
 		this.jedisOperator = jedisOperator;
 	}
 
-	public CompositeJedisOperator getJedisAdapter() {
+	public JedisOperator getJedisAdapter() {
 		return this.jedisOperator;
 	}
 
@@ -607,7 +607,7 @@ public class JedisService {
 	 * @param invoker
 	 * @return
 	 */
-	private <T> T doExecuteWithRedis(Function<CompositeJedisOperator, T> invoker) {
+	private <T> T doExecuteWithRedis(Function<JedisOperator, T> invoker) {
 		try {
 			return invoker.apply(jedisOperator);
 		} catch (Throwable t) {

@@ -22,7 +22,7 @@ import static java.util.Collections.singletonList;
 import org.junit.Test;
 
 import com.wl4g.devops.support.config.JedisAutoConfiguration.JedisProperties;
-import com.wl4g.devops.support.redis.jedis.CompositeJedisOperator.RedisProtoUtil;
+import com.wl4g.devops.support.redis.jedis.JedisOperator.RedisProtoUtil;
 
 /**
  * {@link CompositeJedisOperatorsAdapterTests}
@@ -58,9 +58,9 @@ public class CompositeJedisOperatorsAdapterTests {
 		config.setNodes(singletonList("127.0.0.1:6379"));
 
 		out.println("Instantiating composite operators adapter with single ...");
-		CompositeJedisOperatorFactory factory = new CompositeJedisOperatorFactory(config);
+		JedisOperatorFactory factory = new JedisOperatorFactory(config);
 		factory.afterPropertiesSet();
-		CompositeJedisOperator operator = factory.getJedisOperator();
+		JedisOperator operator = factory.getJedisOperator();
 
 		out.printf("\nadapter.set() result: %s", operator.set("foo", "bar"));
 		out.printf("\nadapter.get() result: %s", operator.get("foo"));
@@ -75,9 +75,9 @@ public class CompositeJedisOperatorsAdapterTests {
 		config.setPasswd("123456");
 
 		out.println("Instantiating composite operators adapter with cluster ...");
-		CompositeJedisOperatorFactory factory = new CompositeJedisOperatorFactory(config);
+		JedisOperatorFactory factory = new JedisOperatorFactory(config);
 		factory.afterPropertiesSet();
-		CompositeJedisOperator operator = factory.getJedisOperator();
+		JedisOperator operator = factory.getJedisOperator();
 
 		out.printf("\nadapter.set() result: %s", operator.set("foo", "bar"));
 		out.printf("\nadapter.get() result: %s", operator.get("foo"));

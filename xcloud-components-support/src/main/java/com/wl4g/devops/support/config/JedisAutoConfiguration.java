@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.devops.components.tools.common.log.SmartLogger;
 import com.wl4g.devops.support.concurrent.locks.JedisLockManager;
-import com.wl4g.devops.support.redis.jedis.CompositeJedisOperatorFactory;
+import com.wl4g.devops.support.redis.jedis.JedisOperatorFactory;
 import com.wl4g.devops.support.redis.jedis.JedisService;
 
 import redis.clients.jedis.HostAndPort;
@@ -65,14 +65,14 @@ public class JedisAutoConfiguration {
 
 	// Requires
 	@Bean
-	public CompositeJedisOperatorFactory compositeJedisOperatorFactory(@Autowired(required = false) JedisProperties config,
+	public JedisOperatorFactory compositeJedisOperatorFactory(@Autowired(required = false) JedisProperties config,
 			@Autowired(required = false) JedisCluster jedisCluster, @Autowired(required = false) JedisPool jedisPool) {
-		return new CompositeJedisOperatorFactory(config, jedisCluster, jedisPool);
+		return new JedisOperatorFactory(config, jedisCluster, jedisPool);
 	}
 
 	// Requires
 	@Bean(BEAN_NAME_REDIS)
-	public JedisService jedisService(CompositeJedisOperatorFactory jedisFactory) {
+	public JedisService jedisService(JedisOperatorFactory jedisFactory) {
 		return new JedisService(jedisFactory.getJedisOperator());
 	}
 

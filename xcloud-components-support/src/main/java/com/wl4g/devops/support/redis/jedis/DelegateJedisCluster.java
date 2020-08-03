@@ -52,7 +52,7 @@ import redis.clients.jedis.params.sortedset.ZIncrByParams;
  * @since
  */
 @SuppressWarnings("deprecation")
-public class DelegateJedisCluster implements CompositeJedisOperator {
+public class DelegateJedisCluster implements JedisOperator {
 
 	/** {@link JedisCluster} */
 	protected final JedisCluster jedisCluster;

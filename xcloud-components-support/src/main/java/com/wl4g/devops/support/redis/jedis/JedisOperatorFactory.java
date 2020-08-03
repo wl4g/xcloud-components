@@ -32,14 +32,14 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 
 /**
- * Bean factory of {@link CompositeJedisOperator}.
+ * Bean factory of {@link JedisOperator}.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
  * @date 2018年11月13日
  * @since
  */
-public class CompositeJedisOperatorFactory implements InitializingBean {
+public class JedisOperatorFactory implements InitializingBean {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -58,11 +58,11 @@ public class CompositeJedisOperatorFactory implements InitializingBean {
 	protected final JedisPool jedisPool;
 
 	/**
-	 * {@link CompositeJedisOperator}
+	 * {@link JedisOperator}
 	 */
-	private CompositeJedisOperator jedisOperator;
+	private JedisOperator jedisOperator;
 
-	public CompositeJedisOperatorFactory(JedisCluster jedisCluster, JedisPool jedisPool) {
+	public JedisOperatorFactory(JedisCluster jedisCluster, JedisPool jedisPool) {
 		notNullOf(jedisCluster, "jedisCluster");
 		notNullOf(jedisPool, "jedisPool");
 		this.config = null;
@@ -70,14 +70,14 @@ public class CompositeJedisOperatorFactory implements InitializingBean {
 		this.jedisPool = jedisPool;
 	}
 
-	public CompositeJedisOperatorFactory(JedisProperties config) {
+	public JedisOperatorFactory(JedisProperties config) {
 		notNullOf(config, "jedisProperties");
 		this.config = config;
 		this.jedisCluster = null;
 		this.jedisPool = null;
 	}
 
-	public CompositeJedisOperatorFactory(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
+	public JedisOperatorFactory(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
 		// notNullOf(config, "jedisProperties");
 		// notNullOf(jedisCluster, "jedisCluster");
 		// notNullOf(jedisPool, "jedisPool");
@@ -87,11 +87,11 @@ public class CompositeJedisOperatorFactory implements InitializingBean {
 	}
 
 	/**
-	 * Gets {@link CompositeJedisOperator}
+	 * Gets {@link JedisOperator}
 	 * 
 	 * @return
 	 */
-	public CompositeJedisOperator getJedisOperator() {
+	public JedisOperator getJedisOperator() {
 		return jedisOperator;
 	}
 
@@ -101,7 +101,7 @@ public class CompositeJedisOperatorFactory implements InitializingBean {
 	}
 
 	/**
-	 * New create instance of {@link CompositeJedisOperator}
+	 * New create instance of {@link JedisOperator}
 	 * 
 	 * @throws Exception
 	 */
@@ -113,14 +113,14 @@ public class CompositeJedisOperatorFactory implements InitializingBean {
 		} else {
 			notNull(config,
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
-					CompositeJedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(),
+					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(),
 					JedisCluster.class.getSimpleName(), JedisProperties.class.getSimpleName());
 			initCompositeJedisOperatorForConfiguration(config);
 		}
 	}
 
 	/**
-	 * New create {@link CompositeJedisOperator} instance with
+	 * New create {@link JedisOperator} instance with
 	 * {@link JedisProperties}
 	 * 
 	 * @param config

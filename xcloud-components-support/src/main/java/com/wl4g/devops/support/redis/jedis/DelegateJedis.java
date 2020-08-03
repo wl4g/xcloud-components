@@ -55,7 +55,7 @@ import redis.clients.util.Slowlog;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public class DelegateJedis implements CompositeJedisOperator {
+public class DelegateJedis implements JedisOperator {
 
 	/** Jedis single pool */
 	final protected JedisPool jedisPool;
