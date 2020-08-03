@@ -1,42 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-components</artifactId>
-	<packaging>pom</packaging>
-	<name>XCloud Components</name>
-	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud module of components.</description>
+	<artifactId>xcloud-dao</artifactId>
+	<packaging>jar</packaging>
+	<name>XCloud Data Access Object Module</name>
+	<url>http://maven.apache.org</url>
 	<parent>
 		<groupId>com.wl4g</groupId>
 		<artifactId>xcloud-parent</artifactId>
 		<version>master</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<modules>
-		<module>xcloud-components-common</module>
-		<module>xcloud-components-opencv</module>
-		<module>xcloud-components-core</module>
-		<module>xcloud-components-support</module>
-		<module>xcloud-dao</module>
-	</modules>
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>aliyun-public</id>
-			<name>Aliyun public</name>
-			<url>https://maven.aliyun.com/repository/public</url>
-		</repository>
-		<repository>
-			<id>spring-snapshots</id>
-			<name>Spring Snapshots</name>
-			<url>https://repo.spring.io/libs-snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -48,6 +26,35 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>com.wl4g</groupId>
+			<artifactId>xcloud-components-support</artifactId>
+		</dependency>
+		<!-- Database -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-autoconfigure</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -56,8 +63,6 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<showWarnings>true</showWarnings>
-					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
