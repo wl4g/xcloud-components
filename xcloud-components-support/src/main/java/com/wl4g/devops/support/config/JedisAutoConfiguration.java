@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -33,12 +35,13 @@ import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.devops.components.tools.common.log.SmartLogger;
 import com.wl4g.devops.support.concurrent.locks.JedisLockManager;
-import com.wl4g.devops.support.redis.jedis.AdvancedJedisCluster;
-import com.wl4g.devops.support.redis.jedis.CompositeJedisFactoryBean;
+import com.wl4g.devops.support.redis.jedis.CompositeJedisOperatorsAdapter;
+import com.wl4g.devops.support.redis.jedis.CompositeJedisOperatorsAdapterFactory;
 import com.wl4g.devops.support.redis.jedis.JedisService;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisException;
 
@@ -55,21 +58,24 @@ public class JedisAutoConfiguration {
 	@Bean
 	@ConditionalOnProperty(name = KEY_JEDIS_PREFIX + ".enable", matchIfMissing = true)
 	@ConfigurationProperties(prefix = KEY_JEDIS_PREFIX)
-	@ConditionalOnClass(JedisCluster.class)
+	@ConditionalOnClass({ JedisCluster.class, JedisPool.class }) // or-relationship
 	public JedisProperties jedisProperties() {
 		return new JedisProperties();
 	}
 
 	@Bean
 	@ConditionalOnBean(JedisProperties.class)
-	public CompositeJedisFactoryBean compositeJedisFactoryBean(JedisProperties properties) {
-		return new CompositeJedisFactoryBean(properties);
+	@ConditionalOnMissingBean({ JedisCluster.class, JedisPool.class })
+	public CompositeJedisOperatorsAdapterFactory compositeJedisOperatorsAdapterFactory(
+			@Autowired(required = false) JedisCluster jedisCluster, @Autowired(required = false) JedisPool jedisPool,
+			JedisProperties config) {
+		return new CompositeJedisOperatorsAdapterFactory(config, jedisCluster, jedisPool);
 	}
 
 	@Bean(BEAN_NAME_REDIS)
 	@ConditionalOnBean(JedisProperties.class)
-	public JedisService jedisService(AdvancedJedisCluster jedisCluster) {
-		return new JedisService(jedisCluster);
+	public JedisService jedisService(CompositeJedisOperatorsAdapter jedisAdapter) {
+		return new JedisService(jedisAdapter);
 	}
 
 	@Bean

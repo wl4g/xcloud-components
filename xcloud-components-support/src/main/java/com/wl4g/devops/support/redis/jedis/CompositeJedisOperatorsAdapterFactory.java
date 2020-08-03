@@ -17,12 +17,12 @@ package com.wl4g.devops.support.redis.jedis;
 
 import static com.wl4g.devops.components.tools.common.lang.Assert2.*;
 import static java.lang.String.format;
+import static java.util.Objects.nonNull;
 
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.wl4g.devops.support.config.JedisAutoConfiguration.JedisProperties;
@@ -32,43 +32,80 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 
 /**
- * Factory bean of {@link CompositeJedisOperatorsAdapter}.
+ * Bean factory of {@link CompositeJedisOperatorsAdapter}.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
  * @date 2018年11月13日
  * @since
  */
-@Deprecated
-public class CompositeJedisFactoryBean implements FactoryBean<CompositeJedisOperatorsAdapter>, InitializingBean {
+public class CompositeJedisOperatorsAdapterFactory implements InitializingBean {
 	final protected Logger log = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * {@link JedisProperties}
+	 */
 	private final JedisProperties config;
 
+	/**
+	 * {@link JedisCluster}
+	 */
+	private final JedisCluster jedisCluster;
+
+	/**
+	 * {@link JedisPool}
+	 */
+	private final JedisPool jedisPool;
+
+	/**
+	 * {@link CompositeJedisOperatorsAdapter}
+	 */
 	private CompositeJedisOperatorsAdapter jedisAdapter;
 
-	public CompositeJedisFactoryBean(JedisProperties config) {
-		notNullOf(config, "jedisProperties");
+	public CompositeJedisOperatorsAdapterFactory(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
+		// notNullOf(config, "jedisProperties");
+		// notNullOf(jedisCluster, "jedisCluster");
+		// notNullOf(jedisPool, "jedisPool");
 		this.config = config;
+		this.jedisCluster = jedisCluster;
+		this.jedisPool = jedisPool;
 	}
 
-	@Override
-	public CompositeJedisOperatorsAdapter getObject() throws Exception {
+	public CompositeJedisOperatorsAdapter getJedisAdapter() {
 		return jedisAdapter;
 	}
 
 	@Override
-	public Class<? extends CompositeJedisOperatorsAdapter> getObjectType() {
-		return (jedisAdapter != null ? jedisAdapter.getClass() : CompositeJedisOperatorsAdapter.class);
-	}
-
-	@Override
-	public boolean isSingleton() {
-		return true;
-	}
-
-	@Override
 	public void afterPropertiesSet() throws Exception {
+		initInstantiateJedisOperators();
+	}
+
+	/**
+	 * New create instance of {@link CompositeJedisOperatorsAdapter}
+	 * 
+	 * @throws Exception
+	 */
+	private void initInstantiateJedisOperators() throws Exception {
+		if (nonNull(jedisPool)) {
+			jedisAdapter = new DelegateJedis(jedisPool, false);
+		} else if (nonNull(jedisCluster)) {
+			jedisAdapter = new DelegateJedisCluster(jedisCluster);
+		} else {
+			notNull(config, "Cannot to automatically instantiate the %s. One of %s, %s and %s must not be null",
+					CompositeJedisOperatorsAdapter.class.getSimpleName(), JedisPool.class.getSimpleName(),
+					JedisCluster.class.getSimpleName(), JedisProperties.class.getSimpleName());
+			doInstantiateJedisOperatorsWithConfiguration(config);
+		}
+	}
+
+	/**
+	 * New create {@link CompositeJedisOperatorsAdapter} instance with
+	 * {@link JedisProperties}
+	 * 
+	 * @param config
+	 * @throws Exception
+	 */
+	private void doInstantiateJedisOperatorsWithConfiguration(JedisProperties config) throws Exception {
 		// Parse cluster node's
 		Set<HostAndPort> haps = config.parseHostAndPort();
 		notEmptyOf(haps, "redisNodes");
@@ -87,6 +124,7 @@ public class CompositeJedisFactoryBean implements FactoryBean<CompositeJedisOper
 		} catch (Exception e) {
 			throw new IllegalStateException(format("Can't connect to redis servers: %s", haps), e);
 		}
+
 	}
 
 	/**

@@ -39,18 +39,18 @@ import redis.clients.jedis.exceptions.JedisNoReachableClusterNodeException;
 import redis.clients.jedis.exceptions.JedisRedirectionException;
 
 /**
- * {@link AdvancedJedisClusterCommand}
+ * {@link EnhancedJedisClusterCommand}
  * 
  * @param <T>
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年3月28日 v1.0.0
  * @see
  */
-public abstract class AdvancedJedisClusterCommand<T> extends JedisClusterCommand<T> {
+public abstract class EnhancedJedisClusterCommand<T> extends JedisClusterCommand<T> {
 
 	final protected SmartLogger log = getLogger(getClass());
 
-	public AdvancedJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
+	public EnhancedJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
 		super(connectionHandler, maxAttempts);
 	}
 
