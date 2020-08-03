@@ -17,7 +17,7 @@ public class GWCluster extends BaseBean {
 
     private Integer idcId;
 
-    private String stauts;
+    private String status;
 
     public String getName() {
         return name;
@@ -59,12 +59,11 @@ public class GWCluster extends BaseBean {
         this.idcId = idcId;
     }
 
-    public String getStauts() {
-        return stauts;
+    public String getStatus() {
+        return status;
     }
 
-    public void setStauts(String stauts) {
-        this.stauts = stauts == null ? null : stauts.trim();
+    public void setStatus(String status) {
+        this.status = status;
     }
-
 }

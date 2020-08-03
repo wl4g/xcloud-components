@@ -8,7 +8,7 @@
     <result column="address" property="address" jdbcType="VARCHAR" />
     <result column="address_type" property="addressType" jdbcType="VARCHAR" />
     <result column="idc_id" property="idcId" jdbcType="INTEGER" />
-    <result column="stauts" property="stauts" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
     <result column="create_by" property="createBy" jdbcType="VARCHAR" />
@@ -18,11 +18,11 @@
     <result column="organization_code" property="organizationCode" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, name, namespace, address, address_type, idc_id, stauts, remark, create_date, 
+    id, name, namespace, address, address_type, idc_id, status, remark, create_date,
     create_by, update_date, update_by, del_flag, organization_code
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from gw_cluster
     where id = #{id,jdbcType=INTEGER}
@@ -32,15 +32,15 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wl4g.devops.common.bean.gw.GWCluster" >
-    insert into gw_cluster (id, name, namespace, 
-      address, address_type, idc_id, 
-      stauts, remark, create_date, 
-      create_by, update_date, update_by, 
+    insert into gw_cluster (id, name, namespace,
+      address, address_type, idc_id,
+      status, remark, create_date,
+      create_by, update_date, update_by,
       del_flag, organization_code)
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{namespace,jdbcType=VARCHAR}, 
-      #{address,jdbcType=VARCHAR}, #{addressType,jdbcType=VARCHAR}, #{idcId,jdbcType=INTEGER}, 
-      #{stauts,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
-      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{namespace,jdbcType=VARCHAR},
+      #{address,jdbcType=VARCHAR}, #{addressType,jdbcType=VARCHAR}, #{idcId,jdbcType=INTEGER},
+      #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
+      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},
       #{delFlag,jdbcType=INTEGER}, #{organizationCode,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.gw.GWCluster" >
@@ -64,8 +64,8 @@
       <if test="idcId != null" >
         idc_id,
       </if>
-      <if test="stauts != null" >
-        stauts,
+      <if test="status != null" >
+        status,
       </if>
       <if test="remark != null" >
         remark,
@@ -108,8 +108,8 @@
       <if test="idcId != null" >
         #{idcId,jdbcType=INTEGER},
       </if>
-      <if test="stauts != null" >
-        #{stauts,jdbcType=VARCHAR},
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
       </if>
       <if test="remark != null" >
         #{remark,jdbcType=VARCHAR},
@@ -152,8 +152,8 @@
       <if test="idcId != null" >
         idc_id = #{idcId,jdbcType=INTEGER},
       </if>
-      <if test="stauts != null" >
-        stauts = #{stauts,jdbcType=VARCHAR},
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
       </if>
       <if test="remark != null" >
         remark = #{remark,jdbcType=VARCHAR},
@@ -186,7 +186,7 @@
       address = #{address,jdbcType=VARCHAR},
       address_type = #{addressType,jdbcType=VARCHAR},
       idc_id = #{idcId,jdbcType=INTEGER},
-      stauts = #{stauts,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},
       create_by = #{createBy,jdbcType=VARCHAR},

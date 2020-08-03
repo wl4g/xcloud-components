@@ -11,7 +11,7 @@
     id, upstream_id, upstream_group_id, weight
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from gw_upstream_group_ref
     where id = #{id,jdbcType=INTEGER}
@@ -20,12 +20,28 @@
     delete from gw_upstream_group_ref
     where id = #{id,jdbcType=INTEGER}
   </delete>
+
+  <delete id="deleteByUpstreamGroupId" parameterType="java.lang.Integer" >
+    delete from gw_upstream_group_ref
+    where upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER}
+  </delete>
+
   <insert id="insert" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
-    insert into gw_upstream_group_ref (id, upstream_id, upstream_group_id, 
+    insert into gw_upstream_group_ref (id, upstream_id, upstream_group_id,
       weight)
-    values (#{id,jdbcType=INTEGER}, #{upstreamId,jdbcType=INTEGER}, #{upstreamGroupId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER}, #{upstreamId,jdbcType=INTEGER}, #{upstreamGroupId,jdbcType=INTEGER},
       #{weight,jdbcType=INTEGER})
   </insert>
+
+  <insert id="insertBatch" parameterType="java.util.Map">
+    insert into gw_upstream_group_ref (id, upstream_id, upstream_group_id, weight)
+    VALUES
+    <foreach collection="gwUpstreamGroupRefs" item="gwUpstreamGroupRef" separator=",">
+      (#{gwUpstreamGroupRef.id,jdbcType=INTEGER}, #{gwUpstreamGroupRef.upstreamId,jdbcType=INTEGER},
+      #{gwUpstreamGroupRef.upstreamGroupId,jdbcType=INTEGER},#{gwUpstreamGroupRef.weight,jdbcType=INTEGER})
+    </foreach>
+  </insert>
+
   <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
     insert into gw_upstream_group_ref
     <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -79,4 +95,12 @@
       weight = #{weight,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="getByupstreamGroupId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from gw_upstream_group_ref
+    where upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER}
+  </select>
+
+
 </mapper>
