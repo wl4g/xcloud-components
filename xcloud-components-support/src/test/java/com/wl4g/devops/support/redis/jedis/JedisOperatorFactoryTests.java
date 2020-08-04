@@ -25,13 +25,13 @@ import com.wl4g.devops.support.config.JedisAutoConfiguration.JedisProperties;
 import com.wl4g.devops.support.redis.jedis.JedisOperator.RedisProtoUtil;
 
 /**
- * {@link CompositeJedisOperatorsAdapterTests}
+ * {@link JedisOperatorFactoryTests}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public class CompositeJedisOperatorsAdapterTests {
+public class JedisOperatorFactoryTests {
 
 	@Test
 	public void checkKeyFormatTest1() {
