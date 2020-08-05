@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.support.mybatis.session;
+package com.wl4g.components.data.mybatis.session;
 
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.nonNull;
@@ -31,7 +31,7 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.core.io.Resource;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.support.mybatis.logging.LogbackImpl;
+import com.wl4g.components.data.mybatis.logging.LogbackImpl;
 
 /**
  * Multiple DB connection composite sqlSessionFactory.

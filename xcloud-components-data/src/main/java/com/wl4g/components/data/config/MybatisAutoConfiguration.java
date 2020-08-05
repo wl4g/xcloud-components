@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.support.config;
+package com.wl4g.components.data.config;
 
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -22,8 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.components.core.annotation.conditional.ConditionalOnJdwpDebug;
-import com.wl4g.components.support.mybatis.loader.SqlSessionMapperHotspotLoader;
-import com.wl4g.components.support.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoadProperties;
+import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader;
+import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoaderProperties;
 
 /**
  * {@link SqlSessionMapperHotspotLoader} auto configuration.
@@ -33,23 +33,32 @@ import com.wl4g.components.support.mybatis.loader.SqlSessionMapperHotspotLoader.
  * @since
  */
 @Configuration
-public class SqlSessionHotspotAutoConfiguration {
+public class MybatisAutoConfiguration {
 
 	@Bean
-	@ConditionalOnJdwpDebug(enableProperty = KEY_PREFIX + ".enable")
-	@ConfigurationProperties(prefix = KEY_PREFIX)
+	@ConfigurationProperties(prefix = KEY_MYBATIS_PREFIX)
+	public MybatisProperties mybatisProperties() {
+		return new MybatisProperties();
+	}
+
+	// --- SqlSession hotspot loader. ---
+
+	@Bean
+	@ConditionalOnJdwpDebug(enableProperty = KEY_HOTSPOT_LOADER_PREFIX + ".enable")
+	@ConfigurationProperties(prefix = KEY_HOTSPOT_LOADER_PREFIX)
 	@ConditionalOnBean(SqlSessionFactoryBean.class)
-	public HotspotLoadProperties hotspotLoaderProperties() {
-		return new HotspotLoadProperties();
+	public HotspotLoaderProperties hotspotLoaderProperties() {
+		return new HotspotLoaderProperties();
 	}
 
 	@Bean
-	@ConditionalOnBean(value = { HotspotLoadProperties.class })
+	@ConditionalOnBean(value = { HotspotLoaderProperties.class })
 	public SqlSessionMapperHotspotLoader sqlSessionMapperHotspotLoader(SqlSessionFactoryBean sessionFactory,
-			HotspotLoadProperties config) {
+			HotspotLoaderProperties config) {
 		return new SqlSessionMapperHotspotLoader(sessionFactory, config);
 	}
 
-	final public static String KEY_PREFIX = "spring.cloud.devops.support.devel.mybatis-loader";
+	final public static String KEY_MYBATIS_PREFIX = "mybatis";
+	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.cloud.devops.support.devel.mybatis-loader";
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.support.mybatis.loader;
+package com.wl4g.components.data.mybatis.loader;
 
 import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.lang.Assert2.notNull;
@@ -63,7 +63,7 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 	final protected SmartLogger log = getLogger(getClass());
 
 	/** Refresh configuration properties. */
-	final protected HotspotLoadProperties config;
+	final protected HotspotLoaderProperties config;
 	/** Monitor objectives for {@link SqlSessionFactory} */
 	final protected SqlSessionFactoryBean sessionFactory;
 
@@ -75,7 +75,7 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 	private Configuration configuration;
 	private Resource[] mapperLocations;
 
-	public SqlSessionMapperHotspotLoader(SqlSessionFactoryBean sessionFactory, HotspotLoadProperties config) {
+	public SqlSessionMapperHotspotLoader(SqlSessionFactoryBean sessionFactory, HotspotLoaderProperties config) {
 		notNull(sessionFactory, "SqlSessionFactory can't is null.");
 		notNull(config, "MapperHotspotLoader properties config can't is null.");
 		this.sessionFactory = sessionFactory;
@@ -295,7 +295,7 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 	 * @version v1.0 2019年11月14日
 	 * @since
 	 */
-	public static class HotspotLoadProperties implements Serializable {
+	public static class HotspotLoaderProperties implements Serializable {
 		private static final long serialVersionUID = -2662416556401160389L;
 
 		/** {@link SqlSessionFactory} watching intervalMs. */

@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.devops.dao.config;
+package com.wl4g.components.data.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
-import com.github.pagehelper.PageHelper;
 import com.wl4g.components.common.codec.CodecSource;
 import com.wl4g.components.common.crypto.symmetric.AES128ECBPKCS5;
-import com.wl4g.components.support.mybatis.session.MultipleSqlSessionFactoryBean;
 
-import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -36,25 +29,12 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.util.ClassUtils;
-
-import javax.sql.DataSource;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * DataSource configuration
@@ -65,101 +45,71 @@ import java.util.Properties;
  * @since
  */
 @Configuration
-public class DataSourceAutoConfiguration {
-	final protected Logger log = LoggerFactory.getLogger(getClass());
-
-	@Value("${mybatis.typeAliasesPackage}")
-	private String typeAliasesPackage;
-	@Value("${mybatis.configLocation}")
-	private String configLocation;
-	@Value("${mybatis.mapperLocations}")
-	private String mapperLocations;
-	@Autowired
-	private Environment env;
+public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration {
 
 	@Bean
 	@RefreshScope
 	@ConditionalOnMissingBean
-	public DruidDataSource dataSource(DruidProperties prop) {
-		DruidDataSource datasource = new DruidDataSource();
-		datasource.setUrl(prop.getUrl());
-		datasource.setUsername(prop.getUsername());
-		String plain = prop.getPassword();
-		if (valueOf(env.getProperty("spring.profiles.active")).startsWith("pro")) {
+	public DruidDataSource druidDataSource(DruidProperties config) {
+		DruidDataSource druid = new DruidDataSource();
+		druid.setUrl(config.getUrl());
+		druid.setUsername(config.getUsername());
+		String plain = config.getPassword();
+		if (valueOf(environment.getProperty("spring.profiles.active")).startsWith("pro")) {
 			try {
 				// TODO using dynamic cipherKey??
 				byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DEVOPS_CIPHER_KEY");
-				plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(prop.getPassword())).toString();
+				plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(config.getPassword())).toString();
 			} catch (Throwable th) {
-				throw new IllegalStateException(format("Unable to decryption database password for '%s'", prop.getPassword()),
+				throw new IllegalStateException(format("Unable to decryption database password for '%s'", config.getPassword()),
 						th);
 			}
 		}
-		datasource.setPassword(plain);
-		datasource.setDriverClassName(prop.getDriverClassName());
-		datasource.setInitialSize(prop.getInitialSize());
-		datasource.setMinIdle(prop.getMinIdle());
-		datasource.setMaxActive(prop.getMaxActive());
-		datasource.setMaxWait(prop.getMaxWait());
-		datasource.setTimeBetweenEvictionRunsMillis(prop.getTimeBetweenEvictionRunsMillis());
-		datasource.setMinEvictableIdleTimeMillis(prop.getMinEvictableIdleTimeMillis());
-		datasource.setValidationQuery(prop.getValidationQuery());
-		datasource.setTestWhileIdle(prop.isTestWhileIdle());
-		datasource.setTestOnBorrow(prop.isTestOnBorrow());
-		datasource.setTestOnReturn(prop.isTestOnReturn());
+		druid.setPassword(plain);
+		druid.setDriverClassName(config.getDriverClassName());
+		druid.setInitialSize(config.getInitialSize());
+		druid.setMinIdle(config.getMinIdle());
+		druid.setMaxActive(config.getMaxActive());
+		druid.setMaxWait(config.getMaxWait());
+		druid.setTimeBetweenEvictionRunsMillis(config.getTimeBetweenEvictionRunsMillis());
+		druid.setMinEvictableIdleTimeMillis(config.getMinEvictableIdleTimeMillis());
+		druid.setValidationQuery(config.getValidationQuery());
+		druid.setTestWhileIdle(config.isTestWhileIdle());
+		druid.setTestOnBorrow(config.isTestOnBorrow());
+		druid.setTestOnReturn(config.isTestOnReturn());
 		try {
-			datasource.setFilters(prop.getFilters());
+			druid.setFilters(config.getFilters());
 		} catch (SQLException e) {
-			log.error("druid configuration initialization filter", e);
+			log.error("Cannot initialization druid filter", e);
 		}
-		return datasource;
+		return druid;
 	}
 
 	@Bean
-	public SqlSessionFactoryBean SqlSessionFactoryBean(DataSource dataSource) throws Exception {
-		// Define path matcher resolver.
-		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-
-		// SqlSessionFactory
-		SqlSessionFactoryBean factory = new MultipleSqlSessionFactoryBean();
-		factory.setDataSource(dataSource);
-		factory.setTypeAliases(getTypeAliases(resolver));
-		factory.setConfigLocation(new ClassPathResource(configLocation));
-
-		// Page.
-		PageHelper pageHelper = new PageHelper();
-		Properties props = new Properties();
-		props.setProperty("dialect", "mysql");
-		props.setProperty("reasonable", "true");
-		props.setProperty("supportMethodsArguments", "true");
-		props.setProperty("returnPageInfo", "check");
-		props.setProperty("params", "count=countSql");
-		pageHelper.setProperties(props); // 添加插件
-		factory.setPlugins(new Interceptor[] { pageHelper });
-
-		factory.setMapperLocations(resolver.getResources(mapperLocations));
-		return factory;
+	public SqlSessionFactoryBean multiSqlSessionFactoryBean(DataSource dataSource, MybatisProperties mybatisConfig)
+			throws Exception {
+		return createMultiSqlSessionFactoryBean(dataSource, mybatisConfig);
 	}
 
 	@Bean
-	public ServletRegistrationBean<StatViewServlet> druidServlet(DruidProperties prop) {
-		ServletRegistrationBean<StatViewServlet> reg = new ServletRegistrationBean<>();
-		reg.setServlet(new StatViewServlet());
-		reg.addUrlMappings("/druid/*");
-		reg.addInitParameter("loginUsername", prop.getWebLoginUsername());
-		reg.addInitParameter("loginPassword", prop.getWebLoginPassword());
-		reg.addInitParameter("logSlowSql", prop.getLogSlowSql());
-		return reg;
+	public ServletRegistrationBean<StatViewServlet> druidStatViewServlet(DruidProperties druidConfig) {
+		ServletRegistrationBean<StatViewServlet> registrar = new ServletRegistrationBean<>();
+		registrar.setServlet(new StatViewServlet());
+		registrar.addUrlMappings("/druid/*");
+		registrar.addInitParameter("loginUsername", druidConfig.getWebLoginUsername());
+		registrar.addInitParameter("loginPassword", druidConfig.getWebLoginPassword());
+		registrar.addInitParameter("logSlowSql", druidConfig.getLogSlowSql());
+		return registrar;
 	}
 
 	@Bean
-	public FilterRegistrationBean<WebStatFilter> filterRegistrationBean() {
-		FilterRegistrationBean<WebStatFilter> filterRegistrationBean = new FilterRegistrationBean<>();
-		filterRegistrationBean.setFilter(new WebStatFilter());
-		filterRegistrationBean.addUrlPatterns("/druid/*");
-		filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
-		filterRegistrationBean.addInitParameter("profileEnable", "true");
-		return filterRegistrationBean;
+	public FilterRegistrationBean<WebStatFilter> druidWebStatFilter() {
+		FilterRegistrationBean<WebStatFilter> registrar = new FilterRegistrationBean<>();
+		registrar.setFilter(new WebStatFilter());
+		registrar.addUrlPatterns("/druid/*");
+		registrar.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
+		registrar.addInitParameter("profileEnable", "true");
+		return registrar;
 	}
 
 	@Bean
@@ -168,35 +118,10 @@ public class DataSourceAutoConfiguration {
 	}
 
 	/**
-	 * Let typeAliasesPackage alias bean support wildcards.
-	 * 
-	 * @return
+	 * {@link DruidProperties}
+	 *
+	 * @since
 	 */
-	private Class<?>[] getTypeAliases(PathMatchingResourcePatternResolver resolver) throws Exception {
-		List<Class<?>> typeAliases = new ArrayList<>();
-
-		// Define metadataReader
-		MetadataReaderFactory metadataReaderFty = new CachingMetadataReaderFactory(resolver);
-
-		for (String pkg : typeAliasesPackage.split(",")) {
-			// Get location
-			String location = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ClassUtils.convertClassNameToResourcePath(pkg)
-					+ "**/*.class";
-			// Get resources.
-			Resource[] resources = resolver.getResources(location);
-			if (resources != null) {
-				for (Resource resource : resources) {
-					if (resource.isReadable()) {
-						MetadataReader metadataReader = metadataReaderFty.getMetadataReader(resource);
-						typeAliases.add(Class.forName(metadataReader.getClassMetadata().getClassName()));
-					}
-				}
-			}
-		}
-
-		return typeAliases.toArray(new Class<?>[] {});
-	}
-
 	@ConfigurationProperties(prefix = "spring.datasource.druid")
 	public static class DruidProperties {
 
