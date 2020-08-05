@@ -19,7 +19,6 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.components.core.annotation.conditional.ConditionalOnJdwpDebug;
 import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader;
@@ -32,7 +31,6 @@ import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader.Hot
  * @version v1.0 2019年11月14日
  * @since
  */
-@Configuration
 public class MybatisAutoConfiguration {
 
 	@Bean

@@ -28,7 +28,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
@@ -44,7 +43,6 @@ import java.sql.SQLException;
  * @date 2018年11月13日
  * @since
  */
-@Configuration
 public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration {
 
 	@Bean
