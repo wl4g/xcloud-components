@@ -143,11 +143,14 @@ public class ClassPathNativeLibraryLoader extends PlatformInfo {
 	 * @return {@link ClassPathNativeLibraryLoader}
 	 */
 	@SuppressWarnings("unchecked")
-	public final synchronized <T extends ClassPathNativeLibraryLoader> T loadLibrarys(String... libLocationPatterns)
+	public final <T extends ClassPathNativeLibraryLoader> T loadLibrarys(String... libLocationPatterns)
 			throws IOException, LoadNativeLibraryError {
-		if (!loadedState.compareAndSet(false, true)) { // Loaded?
+
+		// Loaded?
+		if (!loadedState.compareAndSet(false, true)) {
 			return (T) this;
 		}
+
 		assertLibLocationPatterns(libLocationPatterns);
 
 		// Scanning native library resources.
@@ -194,9 +197,8 @@ public class ClassPathNativeLibraryLoader extends PlatformInfo {
 		if (loadLibFiles.isEmpty()) {
 			throw new LoadNativeLibraryError("No match native library, there is no shared library file of current os/arch: '"
 					+ OS_NAME + "/" + OS_ARCH + "' or the path does not meet the specification?"
-					+ "\n\n----- Refer to os arch name transformation mapping: \n" + archMapping
-					+ "\n\n----- Scan matching patterns: \n" + asList(libLocationPatterns)
-					+ "\n\n----- All was found native library resources: \n" + rss);
+					+ "\nRefer to os arch name transformation mapping: " + archMapping + "\nScan matching patterns: "
+					+ asList(libLocationPatterns) + "\nAll was found native library resources: " + rss);
 		}
 
 		// Cleanup nativelib temporary files.

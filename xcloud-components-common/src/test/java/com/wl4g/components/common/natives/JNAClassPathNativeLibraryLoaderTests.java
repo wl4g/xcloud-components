@@ -39,12 +39,19 @@ public class JNAClassPathNativeLibraryLoaderTests {
 		out.println(OS_NAME);
 		out.println(OS_ARCH);
 
-		JNAClassPathNativeLibraryLoader loader = new JNAClassPathNativeLibraryLoader()
-				.loadLibrarys("com/wl4g/devops/components/tools/common/natives/library/**/*.*");
+		JNAClassPathNativeLibraryLoader loader = new JNAClassPathNativeLibraryLoader().loadLibrarys(locationPattern);
 		LibSample1 sample1 = loader.loadInstance(LibSample1.class);
 
 		System.out.println("Load instance: " + sample1);
 		System.out.println("Call Sum() Result: " + sample1.Sum(111, 222));
+	}
+
+	private static final String locationPattern;
+
+	static {
+		String location = JNAClassPathNativeLibraryLoaderTests.class.getName().replace(".", "/")
+				.replace(JNAClassPathNativeLibraryLoaderTests.class.getSimpleName(), "");
+		locationPattern = location.concat("library/**/*.*");
 	}
 
 }

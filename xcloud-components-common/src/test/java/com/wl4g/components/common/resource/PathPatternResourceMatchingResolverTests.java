@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.common.resource;
 
+import static java.lang.String.format;
+
 import java.util.Set;
 
 import com.wl4g.components.common.resource.StreamResource;
@@ -29,11 +31,19 @@ public class PathPatternResourceMatchingResolverTests {
 	public static void getPatternResourcesTests() throws Exception {
 		ClassPathResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
 		System.out.println("start scanning ...");
-		Set<StreamResource> ress = resolver.getResources("classpath*:/com/wl4g/devops/tool/common/resource/**/*.*");
+		Set<StreamResource> ress = resolver.getResources(locationPattern);
 		for (StreamResource r : ress) {
 			System.out.println(r);
 		}
-		System.out.println(ress.size());
+		System.out.println(format("Scanned: '%s' size of: %s", locationPattern, ress.size()));
+	}
+
+	private static final String locationPattern;
+
+	static {
+		String location = PathPatternResourceMatchingResolverTests.class.getName().replace(".", "/")
+				.replace(PathPatternResourceMatchingResolverTests.class.getSimpleName(), "");
+		locationPattern = "classpath*:/" + location.concat("**/*.*");
 	}
 
 }

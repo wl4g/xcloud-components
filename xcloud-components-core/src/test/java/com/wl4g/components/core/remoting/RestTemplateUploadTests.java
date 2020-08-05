@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core;
+package com.wl4g.components.core.remoting;
 
 import java.io.File;
 import java.io.FileOutputStream;
