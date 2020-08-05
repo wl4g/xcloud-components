@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.components.dao.ci.PipelineDao">
+<mapper namespace="com.wl4g.devops.dao.ci.PipelineDao">
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.Pipeline">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="pipe_name" jdbcType="VARCHAR" property="pipeName" />
@@ -50,7 +50,7 @@
   </sql>
 
 
-  <select id="selectInstancesByDeployId" resultMap="com.wl4g.components.dao.erm.AppInstanceDao.BaseResultMap" parameterType="java.util.Map">
+  <select id="selectInstancesByDeployId" resultMap="com.wl4g.devops.dao.erm.AppInstanceDao.BaseResultMap" parameterType="java.util.Map">
         select
             i.id,h.`hostname`,i.remark
         from erm_app_instance i
