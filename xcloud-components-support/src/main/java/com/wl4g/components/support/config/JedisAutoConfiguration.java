@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.support.concurrent.locks.JedisLockManager;
+import com.wl4g.components.support.redis.jedis.JedisOperator;
 import com.wl4g.components.support.redis.jedis.JedisOperatorFactory;
 import com.wl4g.components.support.redis.jedis.JedisService;
 
@@ -44,7 +45,9 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisException;
 
 /**
- * JEDIS properties configuration.
+ * Jedis auto configuration, Support automatic adaptation to current
+ * environment, use jedis singleton, jedis cluster, and then create
+ * {@link JedisOperatorFactory} and {@link JedisOperator}
  * 
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2018年9月16日
@@ -65,7 +68,7 @@ public class JedisAutoConfiguration {
 
 	// Requires
 	@Bean
-	public JedisOperatorFactory compositeJedisOperatorFactory(@Autowired(required = false) JedisProperties config,
+	public JedisOperatorFactory jedisOperatorFactory(@Autowired(required = false) JedisProperties config,
 			@Autowired(required = false) JedisCluster jedisCluster, @Autowired(required = false) JedisPool jedisPool) {
 		return new JedisOperatorFactory(config, jedisCluster, jedisPool);
 	}
