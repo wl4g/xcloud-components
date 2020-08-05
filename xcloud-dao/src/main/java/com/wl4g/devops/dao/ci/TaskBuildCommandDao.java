@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.ci;
 
-import com.wl4g.devops.common.bean.ci.TaskBuildCommand;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.ci.TaskBuildCommand;
 
 public interface TaskBuildCommandDao {
 	int deleteByPrimaryKey(Integer id);

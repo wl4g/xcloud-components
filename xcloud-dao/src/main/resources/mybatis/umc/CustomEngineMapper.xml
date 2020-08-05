@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.umc.CustomEngineDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.CustomEngine">
+<mapper namespace="com.wl4g.components.dao.umc.CustomEngineDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomEngine">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="datasource_id" jdbcType="INTEGER" property="datasourceId" />
@@ -53,7 +53,7 @@
     delete from umc_custom_engine
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.CustomEngine">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     insert into umc_custom_engine (id, name, datasource_id, 
       status, notify_group_ids, notify_template, 
       cron, code_content, arguments, 
@@ -67,7 +67,7 @@
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.CustomEngine">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     insert into umc_custom_engine
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -164,7 +164,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.CustomEngine">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     update umc_custom_engine
     <set>
       <if test="name != null">
@@ -212,7 +212,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.CustomEngine">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     update umc_custom_engine
     set name = #{name,jdbcType=VARCHAR},
       datasource_id = #{datasourceId,jdbcType=INTEGER},

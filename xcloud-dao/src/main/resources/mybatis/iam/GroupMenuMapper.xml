@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.GroupMenuDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.GroupMenu" >
+<mapper namespace="com.wl4g.components.dao.iam.GroupMenuDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.GroupMenu" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="group_id" property="groupId" jdbcType="INTEGER" />
     <result column="menu_id" property="menuId" jdbcType="INTEGER" />
@@ -35,7 +35,7 @@
     where group_id = #{groupId,jdbcType=INTEGER}
   </delete>
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.GroupMenu" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.GroupMenu" >
     insert into sys_group_menu (id, group_id, menu_id, 
       create_by, create_date)
     values (#{id,jdbcType=INTEGER}, #{groupId,jdbcType=INTEGER}, #{menuId,jdbcType=INTEGER}, 
@@ -51,7 +51,7 @@
     </foreach>
   </insert>
 
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.GroupMenu" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.GroupMenu" useGeneratedKeys="true" keyProperty="id" >
     insert into sys_group_menu
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -88,7 +88,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.GroupMenu" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.GroupMenu" >
     update sys_group_menu
     <set >
       <if test="groupId != null" >
@@ -106,7 +106,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.GroupMenu" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.GroupMenu" >
     update sys_group_menu
     set group_id = #{groupId,jdbcType=INTEGER},
       menu_id = #{menuId,jdbcType=INTEGER},

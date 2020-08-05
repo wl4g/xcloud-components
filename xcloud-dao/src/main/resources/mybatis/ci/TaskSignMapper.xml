@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.ci.TaskSignDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.TaskSign" >
+<mapper namespace="com.wl4g.components.dao.ci.TaskSignDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.TaskSign" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="task_id" property="taskId" jdbcType="INTEGER" />
     <result column="dependency_id" property="dependencyId" jdbcType="INTEGER" />
@@ -20,13 +20,13 @@
     delete from ci_task_sign
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.TaskSign" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.TaskSign" >
     insert into ci_task_sign (id, task_id, dependency_id,
       sha_git)
     values (#{id,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER}, #{dependencyId,jdbcType=INTEGER},
       #{shaGit,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.TaskSign" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.TaskSign" >
     insert into ci_task_sign
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -57,7 +57,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.TaskSign" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.TaskSign" >
     update ci_task_sign
     <set >
       <if test="taskId != null" >
@@ -72,7 +72,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.TaskSign" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.TaskSign" >
     update ci_task_sign
     set task_id = #{taskId,jdbcType=INTEGER},
       dependency_id = #{dependencyId,jdbcType=INTEGER},

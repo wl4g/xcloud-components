@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.ci.PipeStepNotificationDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.PipeStepNotification">
+<mapper namespace="com.wl4g.components.dao.ci.PipeStepNotificationDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.PipeStepNotification">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="pipe_id" jdbcType="INTEGER" property="pipeId" />
     <result column="enable" jdbcType="INTEGER" property="enable" />
@@ -34,13 +34,13 @@
     where pipe_id = #{pipeId,jdbcType=INTEGER}
   </delete>
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.PipeStepNotification">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
     insert into ci_pipe_step_notification (id, pipe_id, enable, 
       contact_group_ids)
     values (#{id,jdbcType=INTEGER}, #{pipeId,jdbcType=INTEGER}, #{enable,jdbcType=INTEGER}, 
       #{contactGroupIds,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepNotification">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
     insert into ci_pipe_step_notification
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -71,7 +71,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepNotification">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
     update ci_pipe_step_notification
     <set>
       <if test="pipeId != null">
@@ -86,7 +86,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.PipeStepNotification">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
     update ci_pipe_step_notification
     set pipe_id = #{pipeId,jdbcType=INTEGER},
       enable = #{enable,jdbcType=INTEGER},

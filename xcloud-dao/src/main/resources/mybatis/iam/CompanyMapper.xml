@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.CompanyDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.Company" >
+<mapper namespace="com.wl4g.components.dao.iam.CompanyDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.Company" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="group_id" property="groupId" jdbcType="INTEGER" />
     <result column="display_name" property="displayName" jdbcType="VARCHAR" />
@@ -30,7 +30,7 @@
     delete from sys_company
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.Company" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.Company" >
     insert into sys_company (id, group_id, display_name, 
       contact, contact_phone, address
       )
@@ -38,7 +38,7 @@
       #{contact,jdbcType=VARCHAR}, #{contactPhone,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.Company" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.Company" >
     insert into sys_company
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -81,7 +81,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.Company" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.Company" >
     update sys_company
     <set >
       <if test="groupId != null" >
@@ -102,7 +102,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.Company" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.Company" >
     update sys_company
     set group_id = #{groupId,jdbcType=INTEGER},
       display_name = #{displayName,jdbcType=VARCHAR},

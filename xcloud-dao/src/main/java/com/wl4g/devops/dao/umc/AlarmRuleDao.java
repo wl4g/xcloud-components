@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.umc;
 
-import com.wl4g.devops.common.bean.umc.AlarmRule;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.umc.AlarmRule;
 
 public interface AlarmRuleDao {
 	int deleteByPrimaryKey(Integer id);

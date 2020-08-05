@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.gw.GWUpstreamGroupDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.gw.GWUpstreamGroup" >
+<mapper namespace="com.wl4g.components.dao.gw.GWUpstreamGroupDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.gw.GWUpstreamGroup" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
@@ -25,7 +25,7 @@
     delete from gw_upstream_group
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroup" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroup" >
     insert into gw_upstream_group (id, name, remark, 
       create_date, create_by, update_date, 
       update_by, del_flag, organization_code
@@ -35,7 +35,7 @@
       #{updateBy,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER}, #{organizationCode,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroup" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroup" >
     insert into gw_upstream_group
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -96,7 +96,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroup" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroup" >
     update gw_upstream_group
     <set >
       <if test="name != null" >
@@ -126,7 +126,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroup" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroup" >
     update gw_upstream_group
     set name = #{name,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},

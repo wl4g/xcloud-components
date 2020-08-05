@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.GroupUserDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.GroupUser" >
+<mapper namespace="com.wl4g.components.dao.iam.GroupUserDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.GroupUser" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="group_id" property="groupId" jdbcType="INTEGER" />
     <result column="user_id" property="userId" jdbcType="INTEGER" />
@@ -39,13 +39,13 @@
 
 
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.GroupUser" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.GroupUser" >
     insert into sys_group_user (id, group_id, user_id, 
       create_by, create_date)
     values (#{id,jdbcType=INTEGER}, #{groupId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
       #{createBy,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.GroupUser" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.GroupUser" useGeneratedKeys="true" keyProperty="id" >
     insert into sys_group_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -82,7 +82,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.GroupUser" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.GroupUser" >
     update sys_group_user
     <set >
       <if test="groupId != null" >
@@ -100,7 +100,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.GroupUser" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.GroupUser" >
     update sys_group_user
     set group_id = #{groupId,jdbcType=INTEGER},
       user_id = #{userId,jdbcType=INTEGER},

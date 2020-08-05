@@ -15,7 +15,7 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.Park;
+import com.wl4g.components.core.bean.iam.Park;
 
 public interface ParkDao {
     int deleteByPrimaryKey(Integer id);

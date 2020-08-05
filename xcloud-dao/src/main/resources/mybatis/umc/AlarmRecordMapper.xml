@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.umc.AlarmRecordDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.AlarmRecord" >
+<mapper namespace="com.wl4g.components.dao.umc.AlarmRecordDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.AlarmRecord" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="template_id" property="templateId" jdbcType="INTEGER" />
@@ -24,7 +24,7 @@
     delete from umc_alarm_record
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.AlarmRecord" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" >
     insert into umc_alarm_record (id, name, template_id,
       gather_time, create_time,
       alarm_type,alarm_note)
@@ -32,7 +32,7 @@
       #{gatherTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP},
       #{alarmType,jdbcType=VARCHAR},#{alarmNote,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.AlarmRecord" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" useGeneratedKeys="true" keyProperty="id">
     insert into umc_alarm_record
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -81,7 +81,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.AlarmRecord" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" >
     update umc_alarm_record
     <set >
       <if test="name != null" >
@@ -105,7 +105,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.AlarmRecord" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" >
     update umc_alarm_record
     set name = #{name,jdbcType=VARCHAR},
       template_id = #{templateId,jdbcType=INTEGER},

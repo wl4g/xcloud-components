@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.NotificationContact;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.iam.NotificationContact;
 
 public interface NotificationContactDao {
 	int deleteByPrimaryKey(Integer id);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.ci.TaskHistoryDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.TaskHistory" >
+<mapper namespace="com.wl4g.components.dao.ci.TaskHistoryDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.TaskHistory" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="type" property="type" jdbcType="INTEGER" />
     <result column="project_id" property="projectId" jdbcType="INTEGER" />
@@ -36,7 +36,7 @@
     <result column="name" property="groupName" jdbcType="VARCHAR" />
     <result column="create_by_name" property="createByName" jdbcType="VARCHAR" />
   </resultMap>
-  <resultMap id="ResultMapWithBLOBs" type="com.wl4g.devops.common.bean.ci.TaskHistory" extends="BaseResultMap" >
+  <resultMap id="ResultMapWithBLOBs" type="com.wl4g.components.core.bean.ci.TaskHistory" extends="BaseResultMap" >
     <result column="result" property="result" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
@@ -62,7 +62,7 @@
     delete from ci_task_history
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.TaskHistory" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.TaskHistory" >
     insert into ci_task_history (id, type, project_id,
       status, branch_name, sha_git,sha_local,
       ref_id, provider_kind, branch_type, build_command,pre_command,post_command,remark, del_flag,
@@ -77,7 +77,7 @@
       #{trackId,jdbcType=VARCHAR},#{trackType,jdbcType=INTEGER},#{costTime,jdbcType=BIGINT},#{envType,jdbcType=VARCHAR},
       #{annex,jdbcType=VARCHAR},#{parentAppHome,jdbcType=VARCHAR},#{assetsPath,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.TaskHistory" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.TaskHistory" useGeneratedKeys="true" keyProperty="id">
     insert into ci_task_history
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -252,7 +252,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.TaskHistory" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.TaskHistory" >
     update ci_task_history
     <set >
       <if test="type != null" >
@@ -339,7 +339,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wl4g.devops.common.bean.ci.TaskHistory" >
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wl4g.components.core.bean.ci.TaskHistory" >
     update ci_task_history
     set type = #{type,jdbcType=INTEGER},
       project_id = #{projectId,jdbcType=INTEGER},
@@ -370,7 +370,7 @@
       assets_path = #{assetsPath,jdbcType=VARCHAR},
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.TaskHistory" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.TaskHistory" >
     update ci_task_history
     set type = #{type,jdbcType=INTEGER},
       project_id = #{projectId,jdbcType=INTEGER},

@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.umc;
 
-import com.wl4g.devops.common.bean.umc.MetricTemplate;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.umc.MetricTemplate;
 
 import java.util.List;
 

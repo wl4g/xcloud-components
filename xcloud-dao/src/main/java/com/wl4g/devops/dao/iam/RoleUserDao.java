@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.RoleUser;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.iam.RoleUser;
 
 public interface RoleUserDao {
     int deleteByPrimaryKey(Integer id);

@@ -15,7 +15,7 @@
  */
 package com.wl4g.devops.dao.umc;
 
-import com.wl4g.devops.common.bean.umc.AlarmRecordRule;
+import com.wl4g.components.core.bean.umc.AlarmRecordRule;
 
 public interface AlarmRecordRuleDao {
 	int deleteByPrimaryKey(Integer id);

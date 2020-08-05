@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.Area;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.iam.Area;
 
 public interface AreaDao {
     int deleteByPrimaryKey(Integer id);

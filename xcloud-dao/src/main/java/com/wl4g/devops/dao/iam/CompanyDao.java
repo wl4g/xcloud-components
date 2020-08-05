@@ -15,7 +15,7 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.Company;
+import com.wl4g.components.core.bean.iam.Company;
 
 public interface CompanyDao {
     int deleteByPrimaryKey(Integer id);

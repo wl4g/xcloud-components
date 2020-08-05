@@ -1,8 +1,9 @@
 package com.wl4g.devops.dao.gw;
 
-import com.wl4g.devops.common.bean.gw.GWCluster;
-import com.wl4g.devops.common.bean.gw.GWUpstreamGroup;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.gw.GWCluster;
+import com.wl4g.components.core.bean.gw.GWUpstreamGroup;
 
 import java.util.List;
 

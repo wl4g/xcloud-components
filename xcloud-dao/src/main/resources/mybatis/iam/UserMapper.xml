@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.UserDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.User" >
+<mapper namespace="com.wl4g.components.dao.iam.UserDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.User" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="user_name" property="userName" jdbcType="VARCHAR" />
     <result column="display_name" property="displayName" jdbcType="VARCHAR" />
@@ -87,7 +87,7 @@
     delete from sys_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.User" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.User" >
     insert into sys_user (id, user_name,
       display_name, password, user_type, 
       enable, status, email, 
@@ -107,7 +107,7 @@
       #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP}, 
       #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.User" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.User" useGeneratedKeys="true" keyProperty="id" >
     insert into sys_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -258,7 +258,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.User" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.User" >
     update sys_user
     <set >
       <if test="userName != null" >
@@ -333,7 +333,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.User" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.User" >
     update sys_user
     set user_name = #{userName,jdbcType=VARCHAR},
       display_name = #{displayName,jdbcType=VARCHAR},

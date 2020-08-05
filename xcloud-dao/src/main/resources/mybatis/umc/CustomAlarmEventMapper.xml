@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.umc.CustomAlarmEventDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.CustomAlarmEvent">
+<mapper namespace="com.wl4g.components.dao.umc.CustomAlarmEventDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="custom_engine_id" jdbcType="INTEGER" property="customEngineId" />
     <result column="notify_group_ids" jdbcType="VARCHAR" property="notifyGroupIds" />
@@ -39,13 +39,13 @@
     delete from umc_custom_alarm_event
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.CustomAlarmEvent">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     insert into umc_custom_alarm_event (id, custom_engine_id, notify_group_ids, 
       message,create_date)
     values (#{id,jdbcType=INTEGER}, #{customEngineId,jdbcType=INTEGER}, #{notifyGroupIds,jdbcType=VARCHAR}, 
       #{message,jdbcType=VARCHAR},#{createDate,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.CustomAlarmEvent">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     insert into umc_custom_alarm_event
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -82,7 +82,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.CustomAlarmEvent">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     update umc_custom_alarm_event
     <set>
       <if test="customEngineId != null">
@@ -100,7 +100,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.CustomAlarmEvent">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     update umc_custom_alarm_event
     set custom_engine_id = #{customEngineId,jdbcType=INTEGER},
       notify_group_ids = #{notifyGroupIds,jdbcType=VARCHAR},

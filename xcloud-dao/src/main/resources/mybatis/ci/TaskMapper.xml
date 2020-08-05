@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.ci.TaskDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.Task" >
+<mapper namespace="com.wl4g.components.dao.ci.TaskDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.Task" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="task_name" property="taskName" jdbcType="VARCHAR" />
     <result column="app_cluster_id" property="appClusterId" jdbcType="INTEGER" />
@@ -28,7 +28,7 @@
     <!-- other -->
     <result column="group_name" property="groupName" jdbcType="LONGVARCHAR" />
 
-    <collection property="instances" javaType="list" ofType="com.wl4g.devops.common.bean.erm.AppInstance">
+    <collection property="instances" javaType="list" ofType="com.wl4g.components.core.bean.erm.AppInstance">
       <result column="i.id" property="id" jdbcType="INTEGER" />
       <result column="i.hostname" property="hostname" jdbcType="VARCHAR" />
       <result column="i.endpoint" property="endpoint" jdbcType="INTEGER" />
@@ -64,7 +64,7 @@
     delete from ci_task
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.Task" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.Task" >
     insert into ci_task (id, task_name, app_cluster_id,
       project_id, branch_name, provider_kind,
       branch_type, remark, enable, pcm_id,
@@ -78,7 +78,7 @@
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{buildCommand,jdbcType=LONGVARCHAR},#{preCommand,jdbcType=LONGVARCHAR},
       #{postCommand,jdbcType=LONGVARCHAR},#{contactGroupId,jdbcType=INTEGER},#{envType,jdbcType=VARCHAR},#{parentAppHome,jdbcType=VARCHAR},#{assetsPath,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.Task" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.Task" useGeneratedKeys="true" keyProperty="id" >
     insert into ci_task
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -217,7 +217,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.Task" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.Task" >
     update ci_task
     <set >
       <if test="taskName != null" >
@@ -286,7 +286,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wl4g.devops.common.bean.ci.Task" >
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wl4g.components.core.bean.ci.Task" >
     update ci_task
     set task_name = #{taskName,jdbcType=VARCHAR},
       app_cluster_id = #{appClusterId,jdbcType=INTEGER},
@@ -311,7 +311,7 @@
       assets_path = #{assetsPath,jdbcType=VARCHAR},
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.Task" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.Task" >
     update ci_task
     set task_name = #{taskName,jdbcType=VARCHAR},
       app_cluster_id = #{appClusterId,jdbcType=INTEGER},

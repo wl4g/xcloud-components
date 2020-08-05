@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.doc;
 
-import com.wl4g.devops.common.bean.doc.FileChanges;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.doc.FileChanges;
 
 import java.util.List;
 

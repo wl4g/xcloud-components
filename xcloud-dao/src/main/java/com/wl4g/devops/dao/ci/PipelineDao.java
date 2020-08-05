@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.ci;
 
-import com.wl4g.devops.common.bean.ci.Pipeline;
-import com.wl4g.devops.common.bean.erm.AppInstance;
+import com.wl4g.components.core.bean.ci.Pipeline;
+import com.wl4g.components.core.bean.erm.AppInstance;
+
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.erm.ClusterConfigDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.erm.ClusterConfig" >
+<mapper namespace="com.wl4g.components.dao.erm.ClusterConfigDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.erm.ClusterConfig" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="cluster_id" property="clusterId" jdbcType="INTEGER" />
     <result column="display_name" property="displayName" jdbcType="VARCHAR" />
@@ -39,7 +39,7 @@
     delete from erm_cluster_config
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.erm.ClusterConfig" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.ClusterConfig" >
     insert into erm_cluster_config (id, cluster_id, display_name,
       type, env_type, view_extranet_base_uri, 
       extranet_base_uri, intranet_base_uri, remark, 
@@ -51,7 +51,7 @@
       #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
       #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.erm.ClusterConfig" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.erm.ClusterConfig" useGeneratedKeys="true" keyProperty="id">
     insert into erm_cluster_config
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -142,7 +142,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.erm.ClusterConfig" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.erm.ClusterConfig" >
     update erm_cluster_config
     <set >
       <if test="clusterId != null" >
@@ -187,7 +187,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.erm.ClusterConfig" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.ClusterConfig" >
     update erm_cluster_config
     set cluster_id = #{clusterId,jdbcType=INTEGER},
       display_name = #{displayName,jdbcType=VARCHAR},

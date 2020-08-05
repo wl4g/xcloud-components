@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.erm.IdcDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.erm.Idc">
+<mapper namespace="com.wl4g.components.dao.erm.IdcDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.erm.Idc">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="organization_code" jdbcType="VARCHAR" property="organizationCode" />
@@ -32,7 +32,7 @@
     delete from erm_idc
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.erm.Idc">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.Idc">
     insert into erm_idc (id, name, organization_code, area_code,
       provider, loc_x, loc_y, 
       enable, adress, time_zone, 
@@ -44,7 +44,7 @@
       #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP},
       #{updateBy,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.erm.Idc">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.erm.Idc">
     insert into erm_idc
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -141,7 +141,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.erm.Idc">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.erm.Idc">
     update erm_idc
     <set>
       <if test="name != null">
@@ -189,7 +189,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.erm.Idc">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.Idc">
     update erm_idc
     set name = #{name,jdbcType=VARCHAR},
       organization_code = #{organizationCode,jdbcType=VARCHAR},

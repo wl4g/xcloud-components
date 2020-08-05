@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.RoleDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.Role" >
+<mapper namespace="com.wl4g.components.dao.iam.RoleDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.Role" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="role_code" property="roleCode" jdbcType="VARCHAR" />
     <result column="display_name" property="displayName" jdbcType="VARCHAR" />
@@ -113,7 +113,7 @@
     delete from sys_role
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.Role" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.Role" >
     insert into sys_role (id, role_code, display_name,
       type, enable, status, 
       create_by, create_date, update_by, 
@@ -123,7 +123,7 @@
       #{createBy,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, 
       #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.Role" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.Role" useGeneratedKeys="true" keyProperty="id" >
     insert into sys_role
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -196,7 +196,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.Role" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.Role" >
     update sys_role
     <set >
       <if test="roleCode != null" >
@@ -232,7 +232,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.Role" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.Role" >
     update sys_role
     set role_code = #{roleCode,jdbcType=VARCHAR},
       display_name = #{displayName,jdbcType=VARCHAR},

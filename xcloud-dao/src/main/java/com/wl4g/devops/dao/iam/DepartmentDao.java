@@ -15,7 +15,7 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.Department;
+import com.wl4g.components.core.bean.iam.Department;
 
 public interface DepartmentDao {
     int deleteByPrimaryKey(Integer id);

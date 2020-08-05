@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef;
+import com.wl4g.components.core.bean.gw.GWUpstreamGroupRef;
 
 public interface GWUpstreamGroupRefDao {
     int deleteByPrimaryKey(Integer id);

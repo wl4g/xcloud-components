@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.umc.AlarmRuleDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.AlarmRule" >
+<mapper namespace="com.wl4g.components.dao.umc.AlarmRuleDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.AlarmRule" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="template_id" property="templateId" jdbcType="INTEGER" />
     <result column="aggregator" property="aggregator" jdbcType="VARCHAR" />
@@ -36,7 +36,7 @@
     delete from umc_alarm_rule
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.AlarmRule" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmRule" >
     insert into umc_alarm_rule (id, template_id, aggregator, 
       relate_operator, logical_operator, queue_time_window, 
       value, alarm_level,del_flag)
@@ -44,7 +44,7 @@
       #{relateOperator,jdbcType=INTEGER}, #{logicalOperator,jdbcType=INTEGER}, #{queueTimeWindow,jdbcType=BIGINT}, 
       #{value,jdbcType=DOUBLE}, #{alarmLevel,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.AlarmRule" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.AlarmRule" useGeneratedKeys="true" keyProperty="id">
     insert into umc_alarm_rule
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -105,7 +105,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.AlarmRule" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.AlarmRule" >
     update umc_alarm_rule
     <set >
       <if test="templateId != null" >
@@ -135,7 +135,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.AlarmRule" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRule" >
     update umc_alarm_rule
     set template_id = #{templateId,jdbcType=INTEGER},
       aggregator = #{aggregator,jdbcType=VARCHAR},

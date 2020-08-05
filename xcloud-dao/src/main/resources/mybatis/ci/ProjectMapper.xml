@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.ci.ProjectDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.Project">
+<mapper namespace="com.wl4g.components.dao.ci.ProjectDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.Project">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="project_name" jdbcType="VARCHAR" property="projectName" />
     <result column="organization_code" jdbcType="VARCHAR" property="organizationCode" />
@@ -20,7 +20,7 @@
     <!-- other -->
     <result column="group_name" property="groupName" jdbcType="VARCHAR" />
 
-    <association property="vcs" javaType="com.wl4g.devops.common.bean.ci.Vcs">
+    <association property="vcs" javaType="com.wl4g.components.core.bean.ci.Vcs">
       <id column="v.id" property="id" jdbcType="INTEGER" />
       <result column="v.name" property="name" jdbcType="VARCHAR" />
       <result column="v.provider_kind" property="providerKind" jdbcType="INTEGER" />
@@ -68,7 +68,7 @@
     delete from ci_project
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.Project">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.Project">
     insert into ci_project (id, project_name, organization_code, vcs_id,http_url,ssh_url
       app_cluster_id,
       lock_status, is_boot, remark, del_flag,
@@ -80,7 +80,7 @@
       #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP},
       #{updateBy,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.Project" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.Project" useGeneratedKeys="true" keyProperty="id">
     insert into ci_project
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -177,7 +177,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.Project">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.Project">
     update ci_project
     <set>
       <if test="vcsId != null">
@@ -225,7 +225,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.Project">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.Project">
     update ci_project
     set
       vcs_id = #{vcsId,jdbcType=INTEGER},

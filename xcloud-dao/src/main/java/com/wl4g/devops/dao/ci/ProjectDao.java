@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.ci;
 
-import com.wl4g.devops.common.bean.ci.Project;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.ci.Project;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.gw.GWClusterDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.gw.GWCluster" >
+<mapper namespace="com.wl4g.components.dao.gw.GWClusterDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.gw.GWCluster" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="namespace" property="namespace" jdbcType="VARCHAR" />
@@ -31,7 +31,7 @@
     delete from gw_cluster
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.gw.GWCluster" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.gw.GWCluster" >
     insert into gw_cluster (id, name, namespace,
       address, address_type, idc_id,
       status, remark, create_date,
@@ -43,7 +43,7 @@
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},
       #{delFlag,jdbcType=INTEGER}, #{organizationCode,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.gw.GWCluster" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.gw.GWCluster" >
     insert into gw_cluster
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -134,7 +134,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.gw.GWCluster" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.gw.GWCluster" >
     update gw_cluster
     <set >
       <if test="name != null" >
@@ -179,7 +179,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.gw.GWCluster" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.gw.GWCluster" >
     update gw_cluster
     set name = #{name,jdbcType=VARCHAR},
       namespace = #{namespace,jdbcType=VARCHAR},

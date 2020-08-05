@@ -15,7 +15,7 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.ContactChannel;
+import com.wl4g.components.core.bean.iam.ContactChannel;
 
 public interface ContactChannelDao {
     int deleteByPrimaryKey(Integer id);

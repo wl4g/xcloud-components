@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.erm;
 
-import com.wl4g.devops.common.bean.erm.DnsOperationLog;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.erm.DnsOperationLog;
 
 import java.util.List;
 

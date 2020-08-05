@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.ci;
 
-import com.wl4g.devops.common.bean.ci.PipelineHistoryInstance;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.ci.PipelineHistoryInstance;
 
 public interface PipelineHistoryInstanceDao {
     int deleteByPrimaryKey(Integer id);

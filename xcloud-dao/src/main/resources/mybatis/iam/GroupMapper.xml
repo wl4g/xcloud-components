@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.GroupDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.Group" >
+<mapper namespace="com.wl4g.components.dao.iam.GroupDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.Group" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="organization_code" property="organizationCode" jdbcType="VARCHAR" />
@@ -71,7 +71,7 @@
     delete from sys_group
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.Group" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.Group" >
     insert into sys_group (id, name,organization_code,  display_name,
       type, parent_id,
       enable, status, area_id, create_by,
@@ -83,7 +83,7 @@
       #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP}, 
       #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.Group" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.Group" useGeneratedKeys="true" keyProperty="id" >
     insert into sys_group
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -174,7 +174,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.Group" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.Group" >
     update sys_group
     <set >
       <if test="name != null" >
@@ -219,7 +219,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.Group" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.Group" >
     update sys_group
     set name = #{name,jdbcType=VARCHAR},
       organization_code = #{organizationCode,jdbcType=VARCHAR},

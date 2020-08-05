@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.iam.GroupRoleDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.iam.GroupRole" >
+<mapper namespace="com.wl4g.components.dao.iam.GroupRoleDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.GroupRole" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="group_id" property="groupId" jdbcType="INTEGER" />
     <result column="role_id" property="roleId" jdbcType="INTEGER" />
@@ -47,7 +47,7 @@
     where group_id = #{groupId,jdbcType=INTEGER}
   </delete>
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.iam.GroupRole" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.iam.GroupRole" >
     insert into sys_group_role (id, group_id, role_id, 
       create_by, create_date)
     values (#{id,jdbcType=INTEGER}, #{groupId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER}, 
@@ -64,7 +64,7 @@
   </insert>
 
 
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.iam.GroupRole" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.GroupRole" useGeneratedKeys="true" keyProperty="id" >
     insert into sys_group_role
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -101,7 +101,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.iam.GroupRole" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.iam.GroupRole" >
     update sys_group_role
     <set >
       <if test="groupId != null" >
@@ -119,7 +119,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.iam.GroupRole" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.GroupRole" >
     update sys_group_role
     set group_id = #{groupId,jdbcType=INTEGER},
       role_id = #{roleId,jdbcType=INTEGER},

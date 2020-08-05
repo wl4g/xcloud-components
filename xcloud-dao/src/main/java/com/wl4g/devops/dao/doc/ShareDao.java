@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.doc;
 
-import com.wl4g.devops.common.bean.doc.Share;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.doc.Share;
 
 public interface ShareDao {
     int deleteByPrimaryKey(Integer id);

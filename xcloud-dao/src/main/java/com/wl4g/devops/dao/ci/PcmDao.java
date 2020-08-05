@@ -16,7 +16,8 @@
 package com.wl4g.devops.dao.ci;
 
 import com.github.pagehelper.Page;
-import com.wl4g.devops.common.bean.ci.Pcm;
+import com.wl4g.components.core.bean.ci.Pcm;
+
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.ci;
 
-import com.wl4g.devops.common.bean.ci.PipeStepBuildingProject;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.ci.PipeStepBuildingProject;
 
 import java.util.List;
 

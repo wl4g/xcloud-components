@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.GroupUser;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.iam.GroupUser;
 
 public interface GroupUserDao {
     int deleteByPrimaryKey(Integer id);

@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.ContactGroupRef;
-
 import java.util.List;
+
+import com.wl4g.components.core.bean.iam.ContactGroupRef;
 
 public interface ContactGroupRefDao {
 	int deleteByPrimaryKey(Integer id);

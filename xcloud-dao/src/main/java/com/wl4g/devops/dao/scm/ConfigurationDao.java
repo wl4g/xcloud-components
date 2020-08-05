@@ -15,9 +15,9 @@
  */
 package com.wl4g.devops.dao.scm;
 
-import com.wl4g.devops.common.bean.scm.*;
-import com.wl4g.devops.common.bean.scm.model.GetRelease;
-import com.wl4g.devops.common.bean.scm.model.ReportInfo;
+import com.wl4g.components.core.bean.scm.*;
+import com.wl4g.components.core.bean.scm.model.GetRelease;
+import com.wl4g.components.core.bean.scm.model.ReportInfo;
 
 import java.util.List;
 import java.util.Map;

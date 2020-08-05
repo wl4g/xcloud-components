@@ -15,10 +15,10 @@
  */
 package com.wl4g.devops.dao.scm;
 
-import com.wl4g.devops.common.bean.scm.*;
-
 import java.util.List;
 import java.util.Map;
+
+import com.wl4g.components.core.bean.scm.*;
 
 /**
  * 应用组管理DAO接口

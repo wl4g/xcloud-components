@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.umc.AlarmConfigDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.AlarmConfig" >
+<mapper namespace="com.wl4g.components.dao.umc.AlarmConfigDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.AlarmConfig" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="collect_id" property="collectId" jdbcType="INTEGER" />
     <result column="template_id" property="templateId" jdbcType="INTEGER" />
@@ -18,7 +18,7 @@
     <result column="contact_group_name" property="contactGroupName" jdbcType="VARCHAR" />
   </resultMap>
 
-  <resultMap id="BaseResultMap2" type="com.wl4g.devops.common.bean.umc.AlarmConfig" >
+  <resultMap id="BaseResultMap2" type="com.wl4g.components.core.bean.umc.AlarmConfig" >
     <id column="c.id" property="id" jdbcType="INTEGER" />
     <result column="c.collect_id" property="collectId" jdbcType="INTEGER" />
     <result column="c.template_id" property="templateId" jdbcType="INTEGER" />
@@ -32,7 +32,7 @@
     <result column="c.callback_url" property="callbackUrl" jdbcType="VARCHAR" />
 
     <!-- template -->
-    <association property="alarmTemplate" javaType="com.wl4g.devops.common.bean.umc.AlarmTemplate">
+    <association property="alarmTemplate" javaType="com.wl4g.components.core.bean.umc.AlarmTemplate">
       <id column="t.id" property="id" jdbcType="INTEGER" />
       <result column="t.name" property="name" jdbcType="VARCHAR" />
       <result column="t.metric_id" property="metricId" jdbcType="INTEGER" />
@@ -50,7 +50,7 @@
       <result column="m.metric" property="metric" jdbcType="VARCHAR" />
       <result column="m.classify" property="classify" jdbcType="VARCHAR" />
 
-      <collection property="rules" ofType="com.wl4g.devops.common.bean.umc.AlarmRule" javaType="list">
+      <collection property="rules" ofType="com.wl4g.components.core.bean.umc.AlarmRule" javaType="list">
         <id column="r.id" property="id" jdbcType="INTEGER" />
         <result column="r.template_id" property="templateId" jdbcType="INTEGER" />
         <result column="r.aggregator" property="aggregator" jdbcType="VARCHAR" />
@@ -65,7 +65,7 @@
     </association>
 
     <!-- contacts -->
-    <collection property="contacts" ofType="com.wl4g.devops.common.bean.iam.Contact" javaType="list">
+    <collection property="contacts" ofType="com.wl4g.components.core.bean.iam.Contact" javaType="list">
       <id column="ct.id" property="id" jdbcType="INTEGER" />
       <result column="ct.name" property="name" jdbcType="VARCHAR" />
       <result column="ct.email" property="email" jdbcType="VARCHAR" />
@@ -144,7 +144,7 @@
     delete from umc_alarm_config
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.AlarmConfig" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" >
     insert into umc_alarm_config (id, collect_id, template_id, 
       contact_group_id, enable, create_date, 
       create_by, update_date, update_by, 
@@ -154,7 +154,7 @@
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
       #{delFlag,jdbcType=INTEGER}, #{callbackUrl,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.AlarmConfig" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" useGeneratedKeys="true" keyProperty="id">
     insert into umc_alarm_config
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -227,7 +227,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.AlarmConfig" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" >
     update umc_alarm_config
     <set >
       <if test="collectId != null" >
@@ -263,7 +263,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.AlarmConfig" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" >
     update umc_alarm_config
     set collect_id = #{collectId,jdbcType=INTEGER},
       template_id = #{templateId,jdbcType=INTEGER},

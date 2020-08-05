@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.ci.PipeStepBuildingProjectDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.PipeStepBuildingProject">
+<mapper namespace="com.wl4g.components.dao.ci.PipeStepBuildingProjectDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="building_id" jdbcType="INTEGER" property="buildingId" />
     <result column="project_id" jdbcType="INTEGER" property="projectId" />
@@ -52,7 +52,7 @@
     delete t1 from ci_pipe_step_building_project t1,ci_pipe_step_building t2 where t1.building_id=t2.id and t2.pipe_id=#{pipeId,jdbcType=INTEGER};
   </delete>
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.PipeStepBuildingProject">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
     insert into ci_pipe_step_building_project (id, building_id, project_id, 
       build_command, ref, enable, sort
       )
@@ -72,7 +72,7 @@
     </foreach>
   </insert>
 
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepBuildingProject">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
     insert into ci_pipe_step_building_project
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -121,7 +121,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepBuildingProject">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
     update ci_pipe_step_building_project
     <set>
       <if test="buildingId != null">
@@ -145,7 +145,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.PipeStepBuildingProject">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
     update ci_pipe_step_building_project
     set building_id = #{buildingId,jdbcType=INTEGER},
       project_id = #{projectId,jdbcType=INTEGER},

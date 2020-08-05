@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.umc.CustomHistoryDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.CustomHistory">
+<mapper namespace="com.wl4g.components.dao.umc.CustomHistoryDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomHistory">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="custom_engine_id" jdbcType="INTEGER" property="customEngineId" />
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
@@ -45,7 +45,7 @@
     delete from umc_custom_history
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.CustomHistory">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomHistory">
     insert into umc_custom_history (id, custom_engine_id, start_time, 
       end_time,cost_time, state, create_by
       )
@@ -53,7 +53,7 @@
       #{endTime,jdbcType=TIMESTAMP},#{costTime,jdbcType=BIGINT}, #{state,jdbcType=INTEGER}, #{createBy,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.CustomHistory">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomHistory">
     insert into umc_custom_history
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -102,7 +102,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.CustomHistory">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.CustomHistory">
     update umc_custom_history
     <set>
       <if test="customEngineId != null">
@@ -126,7 +126,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.CustomHistory">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomHistory">
     update umc_custom_history
     set custom_engine_id = #{customEngineId,jdbcType=INTEGER},
       start_time = #{startTime,jdbcType=TIMESTAMP},

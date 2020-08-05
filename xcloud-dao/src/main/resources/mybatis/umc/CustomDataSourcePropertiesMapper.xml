@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.umc.CustomDataSourcePropertiesDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.CustomDataSourceProperties">
+<mapper namespace="com.wl4g.components.dao.umc.CustomDataSourcePropertiesDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="data_source_id" jdbcType="INTEGER" property="dataSourceId" />
     <result column="key" jdbcType="VARCHAR" property="key" />
@@ -24,7 +24,7 @@
     delete from umc_custom_datasource_properties
     where data_source_id = #{dataSourceId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSourceProperties">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     insert into umc_custom_datasource_properties (id, data_source_id, key, 
       value)
     values (#{id,jdbcType=INTEGER}, #{dataSourceId,jdbcType=INTEGER}, #{key,jdbcType=VARCHAR}, 
@@ -41,7 +41,7 @@
   </insert>
 
 
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSourceProperties">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     insert into umc_custom_datasource_properties
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -72,7 +72,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSourceProperties">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     update umc_custom_datasource_properties
     <set>
       <if test="dataSourceId != null">
@@ -87,7 +87,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSourceProperties">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     update umc_custom_datasource_properties
     set data_source_id = #{dataSourceId,jdbcType=INTEGER},
       key = #{key,jdbcType=VARCHAR},

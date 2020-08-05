@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wl4g.devops.dao.gw.GWUpstreamGroupRefDao" >
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
+<mapper namespace="com.wl4g.components.dao.gw.GWUpstreamGroupRefDao" >
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="upstream_id" property="upstreamId" jdbcType="INTEGER" />
     <result column="upstream_group_id" property="upstreamGroupId" jdbcType="INTEGER" />
@@ -26,7 +26,7 @@
     where upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER}
   </delete>
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     insert into gw_upstream_group_ref (id, upstream_id, upstream_group_id,
       weight)
     values (#{id,jdbcType=INTEGER}, #{upstreamId,jdbcType=INTEGER}, #{upstreamGroupId,jdbcType=INTEGER},
@@ -42,7 +42,7 @@
     </foreach>
   </insert>
 
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     insert into gw_upstream_group_ref
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -73,7 +73,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     update gw_upstream_group_ref
     <set >
       <if test="upstreamId != null" >
@@ -88,7 +88,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.gw.GWUpstreamGroupRef" >
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     update gw_upstream_group_ref
     set upstream_id = #{upstreamId,jdbcType=INTEGER},
       upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER},

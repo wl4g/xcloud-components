@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.erm;
 
-import com.wl4g.devops.common.bean.erm.AppEnvironment;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.erm.AppEnvironment;
 
 import java.util.List;
 

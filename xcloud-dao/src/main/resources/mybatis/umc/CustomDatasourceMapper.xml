@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.umc.CustomDatasourceDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.umc.CustomDataSource">
+<mapper namespace="com.wl4g.components.dao.umc.CustomDatasourceDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomDataSource">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="provider" jdbcType="VARCHAR" property="provider" />
@@ -12,7 +12,7 @@
     <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
     <result column="del_flag" jdbcType="INTEGER" property="delFlag" />
 
-    <collection property="customDataSourceProperties" javaType="list" ofType="com.wl4g.devops.common.bean.umc.CustomDataSourceProperties">
+    <collection property="customDataSourceProperties" javaType="list" ofType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
       <id column="pid" jdbcType="INTEGER" property="id" />
       <result column="data_source_id" jdbcType="INTEGER" property="dataSourceId" />
       <result column="key" jdbcType="VARCHAR" property="key" />
@@ -54,7 +54,7 @@
     delete from umc_custom_datasource
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSource">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomDataSource">
     insert into umc_custom_datasource (id, name, provider, 
       status, create_date, create_by,
       update_date, update_by, del_flag
@@ -64,7 +64,7 @@
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSource">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomDataSource">
     insert into umc_custom_datasource
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -125,7 +125,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSource">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.umc.CustomDataSource">
     update umc_custom_datasource
     <set>
       <if test="name != null">
@@ -155,7 +155,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.umc.CustomDataSource">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomDataSource">
     update umc_custom_datasource
     set name = #{name,jdbcType=VARCHAR},
       provider = #{provider,jdbcType=VARCHAR},

@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.umc;
 
-import com.wl4g.devops.common.bean.umc.AlarmTemplate;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.umc.AlarmTemplate;
 
 import java.io.Serializable;
 import java.util.List;

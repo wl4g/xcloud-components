@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.ci.PipeStepInstanceCommandDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.PipeStepInstanceCommand">
+<mapper namespace="com.wl4g.components.dao.ci.PipeStepInstanceCommandDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.PipeStepInstanceCommand">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="pipe_id" jdbcType="INTEGER" property="pipeId" />
     <result column="enable" jdbcType="INTEGER" property="enable" />
@@ -33,13 +33,13 @@
     delete from ci_pipe_step_deploy_instance_command
     where pipe_id = #{pipeId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.PipeStepInstanceCommand">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepInstanceCommand">
     insert into ci_pipe_step_deploy_instance_command (id, enable, pipe_id, pre_command,
       post_command)
     values (#{id,jdbcType=INTEGER},#{enable,jdbcType=INTEGER}, #{pipeId,jdbcType=INTEGER}, #{preCommand,jdbcType=VARCHAR},
       #{postCommand,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepInstanceCommand">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepInstanceCommand">
     insert into ci_pipe_step_deploy_instance_command
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -76,7 +76,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepInstanceCommand">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepInstanceCommand">
     update ci_pipe_step_deploy_instance_command
     <set>
       <if test="enable != null">
@@ -94,7 +94,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.PipeStepInstanceCommand">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepInstanceCommand">
     update ci_pipe_step_deploy_instance_command
     set pipe_id = #{pipeId,jdbcType=INTEGER},
       enable = #{enable,jdbcType=INTEGER},

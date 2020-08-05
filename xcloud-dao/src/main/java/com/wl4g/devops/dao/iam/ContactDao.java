@@ -15,8 +15,9 @@
  */
 package com.wl4g.devops.dao.iam;
 
-import com.wl4g.devops.common.bean.iam.Contact;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.iam.Contact;
 
 import java.util.List;
 

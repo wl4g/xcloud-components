@@ -15,9 +15,10 @@
  */
 package com.wl4g.devops.dao.erm;
 
-import com.wl4g.devops.common.bean.erm.DnsPrivateZone;
-import com.wl4g.devops.common.bean.erm.DnsPublicZone;
 import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.erm.DnsPrivateZone;
+import com.wl4g.components.core.bean.erm.DnsPublicZone;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wl4g.devops.dao.ci.PipeStepPcmDao">
-  <resultMap id="BaseResultMap" type="com.wl4g.devops.common.bean.ci.PipeStepPcm">
+<mapper namespace="com.wl4g.components.dao.ci.PipeStepPcmDao">
+  <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.PipeStepPcm">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="enable" jdbcType="INTEGER" property="enable" />
     <result column="pipe_id" jdbcType="INTEGER" property="pipeId" />
@@ -41,7 +41,7 @@
     where pipe_id = #{pipeId,jdbcType=INTEGER}
   </delete>
 
-  <insert id="insert" parameterType="com.wl4g.devops.common.bean.ci.PipeStepPcm">
+  <insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepPcm">
     insert into ci_pipe_step_pcm (id, enable, pipe_id, 
       pcm_id, x_project_id, x_tracker, x_assign_to,
       x_status,
@@ -53,7 +53,7 @@
       #{xPriority,jdbcType=VARCHAR},
       #{xCustomFields,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepPcm">
+  <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepPcm">
     insert into ci_pipe_step_pcm
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -120,7 +120,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.devops.common.bean.ci.PipeStepPcm">
+  <update id="updateByPrimaryKeySelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepPcm">
     update ci_pipe_step_pcm
     <set>
       <if test="enable != null">
@@ -153,7 +153,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.wl4g.devops.common.bean.ci.PipeStepPcm">
+  <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepPcm">
     update ci_pipe_step_pcm
     set enable = #{enable,jdbcType=INTEGER},
       pipe_id = #{pipeId,jdbcType=INTEGER},
