@@ -129,7 +129,8 @@ public class JedisOperatorFactory implements InitializingBean {
 		// Parse cluster node's
 		Set<HostAndPort> haps = config.parseHostAndPort();
 		notEmptyOf(haps, "redisNodes");
-		haps.forEach(n -> log.info("=> Connecting to redis nodes: {}", n));
+		haps.forEach(n -> log.info("Connecting to redis node: {}", n));
+		log.info("Redis configuration info: {}", config.toString());
 
 		try {
 			if (isJedisCluster()) { // cluster?

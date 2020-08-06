@@ -16,6 +16,7 @@
 package com.wl4g.components.support.config;
 
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -188,7 +189,7 @@ public class JedisAutoConfiguration {
 			this.safeMode = safeMode;
 		}
 
-		public synchronized Set<HostAndPort> parseHostAndPort() throws Exception {
+		public final Set<HostAndPort> parseHostAndPort() throws Exception {
 			try {
 				Set<HostAndPort> haps = new HashSet<HostAndPort>();
 				for (String node : getNodes()) {
@@ -205,6 +206,11 @@ public class JedisAutoConfiguration {
 			} catch (Exception e) {
 				throw new JedisException("Resolve of redis cluster configuration failure.", e);
 			}
+		}
+
+		@Override
+		public String toString() {
+			return getClass().getSimpleName().concat(" - ").concat(toJSONString(this));
 		}
 
 		private final static Pattern defaultNodePattern = Pattern.compile("^.+[:]\\d{1,9}\\s*$");
