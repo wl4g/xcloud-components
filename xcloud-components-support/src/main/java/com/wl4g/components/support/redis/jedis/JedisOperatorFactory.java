@@ -97,15 +97,15 @@ public class JedisOperatorFactory implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		initializeJedisOperatorAll();
+		initJedisOperatorWithCompositing();
 	}
 
 	/**
-	 * New create instance of {@link JedisOperator}
+	 * Create a new {@link JedisOperator} instance in a composite way.
 	 * 
 	 * @throws Exception
 	 */
-	private void initializeJedisOperatorAll() throws Exception {
+	private void initJedisOperatorWithCompositing() throws Exception {
 		if (nonNull(jedisCluster)) {
 			jedisOperator = new DelegateJedisCluster(jedisCluster);
 		} else if (nonNull(jedisPool)) {
@@ -115,7 +115,7 @@ public class JedisOperatorFactory implements InitializingBean {
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
 					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
 					JedisProperties.class.getSimpleName());
-			initializeJedisOperatorForConfiguration(config);
+			createJedisOperatorWithConfiguration(config);
 		}
 	}
 
@@ -125,25 +125,25 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * @param config
 	 * @throws Exception
 	 */
-	private void initializeJedisOperatorForConfiguration(JedisProperties config) throws Exception {
+	private void createJedisOperatorWithConfiguration(JedisProperties config) throws Exception {
 		// Parse cluster node's
-		Set<HostAndPort> haps = config.parseHostAndPort();
-		notEmptyOf(haps, "redisNodes");
-		haps.forEach(n -> log.info("Connecting to redis node: {}", n));
+		Set<HostAndPort> nodes = config.parseHostAndPort();
+		notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
+		nodes.forEach(n -> log.info("Connecting to redis node: {}", n));
 		log.info("Redis configuration info: {}", config.toString());
 
 		try {
 			if (isJedisCluster()) { // cluster?
-				jedisOperator = new EnhancedJedisCluster(haps, config.getConnTimeout(), config.getSoTimeout(),
+				jedisOperator = new EnhancedJedisCluster(nodes, config.getConnTimeout(), config.getSoTimeout(),
 						config.getMaxAttempts(), config.getPasswd(), config.getPoolConfig(), config.isSafeMode());
 			} else { // single
-				HostAndPort hap = haps.iterator().next();
+				HostAndPort hap = nodes.iterator().next();
 				JedisPool pool = new JedisPool(config.getPoolConfig(), hap.getHost(), hap.getPort(), config.getConnTimeout(),
 						config.getSoTimeout(), config.getPasswd(), 0, config.getClientName(), false, null, null, null);
 				jedisOperator = new DelegateJedis(pool, config.isSafeMode());
 			}
 		} catch (Exception e) {
-			throw new IllegalStateException(format("Can't connect to redis servers: %s", haps), e);
+			throw new IllegalStateException(format("Can't connect to redis servers: %s", nodes), e);
 		}
 
 	}
