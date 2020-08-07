@@ -15,6 +15,7 @@
  */
 package com.wl4g.components.support.redis.jedis;
 
+import static com.wl4g.components.common.collection.Collections2.safeList; 
 import static com.wl4g.components.common.lang.Assert2.*;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
@@ -98,6 +99,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		initJedisOperatorWithCompositing();
+		log.info("Initialized the {} instantiation as: {}", JedisOperator.class.getSimpleName(), jedisOperator);
 	}
 
 	/**
@@ -115,7 +117,7 @@ public class JedisOperatorFactory implements InitializingBean {
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
 					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
 					JedisProperties.class.getSimpleName());
-			createJedisOperatorWithConfiguration(config);
+			initJedisOperatorWithConfiguration(config);
 		}
 	}
 
@@ -125,7 +127,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * @param config
 	 * @throws Exception
 	 */
-	private void createJedisOperatorWithConfiguration(JedisProperties config) throws Exception {
+	private void initJedisOperatorWithConfiguration(JedisProperties config) throws Exception {
 		// Parse cluster node's
 		Set<HostAndPort> nodes = config.parseHostAndPort();
 		notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
@@ -154,7 +156,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * @return
 	 */
 	private boolean isJedisCluster() {
-		return config.getNodes().size() > 1;
+		return safeList(config.getNodes()).size() > 1;
 	}
 
 }
