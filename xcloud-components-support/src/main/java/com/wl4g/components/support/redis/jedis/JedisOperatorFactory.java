@@ -15,7 +15,7 @@
  */
 package com.wl4g.components.support.redis.jedis;
 
-import static com.wl4g.components.common.collection.Collections2.safeList; 
+import static com.wl4g.components.common.collection.Collections2.safeList;
 import static com.wl4g.components.common.lang.Assert2.*;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
@@ -110,8 +110,11 @@ public class JedisOperatorFactory implements InitializingBean {
 	private void initJedisOperatorWithCompositing() throws Exception {
 		if (nonNull(jedisCluster)) {
 			jedisOperator = new DelegateJedisCluster(jedisCluster);
+			log.info("Use already initialized jedis cluster: {}, finally auto adapt instantiation as: {}", jedisCluster,
+					jedisOperator);
 		} else if (nonNull(jedisPool)) {
 			jedisOperator = new DelegateJedis(jedisPool, false);
+			log.info("Use already initialized jedis pool: {}, finally auto adapt instantiation as: {}", jedisPool, jedisOperator);
 		} else {
 			notNull(config,
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
@@ -131,8 +134,8 @@ public class JedisOperatorFactory implements InitializingBean {
 		// Parse cluster node's
 		Set<HostAndPort> nodes = config.parseHostAndPort();
 		notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
-		nodes.forEach(n -> log.info("Connecting to redis node: {}", n));
-		log.info("Redis configuration info: {}", config.toString());
+		// nodes.forEach(n -> log.info("Connecting to redis node: {}", n));
+		log.info("Connecting to redis nodes configuration: {}", config.toString());
 
 		try {
 			if (isJedisCluster()) { // cluster?
@@ -144,8 +147,9 @@ public class JedisOperatorFactory implements InitializingBean {
 						config.getSoTimeout(), config.getPasswd(), 0, config.getClientName(), false, null, null, null);
 				jedisOperator = new DelegateJedis(pool, config.isSafeMode());
 			}
+			log.info("Use jedis configuration initialized instantiation as: {}", jedisOperator);
 		} catch (Exception e) {
-			throw new IllegalStateException(format("Can't connect to redis servers: %s", nodes), e);
+			throw new IllegalStateException(format("Cannot connect to redis nodes: %s", nodes), e);
 		}
 
 	}
