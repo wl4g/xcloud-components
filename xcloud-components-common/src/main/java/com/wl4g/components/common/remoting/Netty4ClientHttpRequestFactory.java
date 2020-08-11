@@ -73,9 +73,9 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	@Nullable
 	private SslContext sslContext;
 	private boolean debug = false;
-	private int connectTimeout = -1;
-	private int readTimeout = -1;
-	private int maxResponseSize = DEFAULT_MAX_RESPONSE_SIZE;
+	private int connectTimeout;
+	private int readTimeout;
+	private int maxResponseSize;
 
 	@Nullable
 	private volatile Bootstrap bootstrap;
@@ -85,7 +85,15 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	 * {@link NioEventLoopGroup}.
 	 */
 	public Netty4ClientHttpRequestFactory() {
-		this(false);
+		this(false, -1, -1, DEFAULT_MAX_RESPONSE_SIZE);
+	}
+
+	/**
+	 * Create a new {@code Netty4ClientHttpRequestFactory} with a default
+	 * {@link NioEventLoopGroup}.
+	 */
+	public Netty4ClientHttpRequestFactory(boolean debug) {
+		this(debug, -1, -1, DEFAULT_MAX_RESPONSE_SIZE);
 	}
 
 	/**
@@ -94,8 +102,11 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	 * 
 	 * @param debug
 	 */
-	public Netty4ClientHttpRequestFactory(boolean debug) {
+	public Netty4ClientHttpRequestFactory(boolean debug, int connectTimeout, int readTimeout, int maxResponseSize) {
 		this(new NioEventLoopGroup(getRuntime().availableProcessors() * 2), debug);
+		setConnectTimeout(connectTimeout);
+		setReadTimeout(readTimeout);
+		setMaxResponseSize(maxResponseSize);
 	}
 
 	/**

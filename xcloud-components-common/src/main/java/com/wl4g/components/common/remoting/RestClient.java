@@ -101,6 +101,16 @@ public class RestClient {
 	}
 
 	/**
+	 * Create a new instance of the {@link RestClient} using default settings.
+	 * Default {@link HttpMessageParser} are initialized.
+	 * 
+	 * @param debug
+	 */
+	public RestClient(boolean debug, int connectTimeout, int readTimeout, int maxResponseSize) {
+		this(new Netty4ClientHttpRequestFactory(debug, connectTimeout, readTimeout, maxResponseSize));
+	}
+
+	/**
 	 * Create a new instance of the {@link RestClient} using the given list of
 	 * {@link HttpMessageParser} to use.
 	 * 
