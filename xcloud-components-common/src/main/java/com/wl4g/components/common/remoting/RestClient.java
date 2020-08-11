@@ -96,19 +96,8 @@ public class RestClient {
 	 * 
 	 * @param debug
 	 */
-	@SuppressWarnings("serial")
 	public RestClient(boolean debug) {
-		this(new Netty4ClientHttpRequestFactory(debug), new ArrayList<HttpMessageParser<?>>() {
-			{
-				add(new AllEncompassingFormHttpMessageParser());
-				add(new ByteArrayHttpMessageParser());
-				add(new StringHttpMessageParser());
-				add(new ResourceHttpMessageParser(false));
-				if (jackson2Present) {
-					add(new MappingJackson2HttpMessageParser());
-				}
-			}
-		});
+		this(new Netty4ClientHttpRequestFactory(debug));
 	}
 
 	/**
@@ -120,12 +109,18 @@ public class RestClient {
 	 * @param messageParsers
 	 *            the list of {@link HttpMessageParser} to use
 	 */
-	public RestClient(ClientHttpRequestFactory requestFactory, List<HttpMessageParser<?>> messageParsers) {
+	public RestClient(ClientHttpRequestFactory requestFactory) {
 		notNullOf(requestFactory, "requestFactory");
 		this.requestFactory = requestFactory;
-		notEmpty(messageParsers, "At least one HttpMessageParser is required");
-		this.messageParsers.addAll(messageParsers);
 		this.uriTemplateHandler = new DefaultUriBuilderFactory(EncodingMode.URI_COMPONENT);
+		// Message parsers
+		this.messageParsers.add(new AllEncompassingFormHttpMessageParser());
+		this.messageParsers.add(new ByteArrayHttpMessageParser());
+		this.messageParsers.add(new StringHttpMessageParser());
+		this.messageParsers.add(new ResourceHttpMessageParser(false));
+		if (jackson2Present) {
+			this.messageParsers.add(new MappingJackson2HttpMessageParser());
+		}
 	}
 
 	/**
