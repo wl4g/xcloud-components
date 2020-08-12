@@ -155,9 +155,7 @@ public class StandardFormatter extends HelpFormatter {
 	 * @version v1.0 2019年5月2日
 	 * @since
 	 */
-	class ValueWrap implements Serializable {
-		private static final long serialVersionUID = -5349480039109094085L;
-
+	class ValueWrap  {
 		private String name;
 		private Object value;
 		private String desc;

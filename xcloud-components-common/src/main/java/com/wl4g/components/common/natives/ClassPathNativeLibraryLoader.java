@@ -257,7 +257,7 @@ public class ClassPathNativeLibraryLoader extends PlatformInfo {
 					try {
 						unloadNativeLibrary(loadFile);
 					} catch (Throwable th) {
-						log.warn(format("Failed to unload native library tmpfile: %", loadFile), th);
+						log.warn(format("Failed to unload native library tmpfile: %", valueOf(loadFile.toString())), th);
 					}
 				}
 			}

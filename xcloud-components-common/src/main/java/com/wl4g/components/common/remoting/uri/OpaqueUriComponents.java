@@ -24,7 +24,7 @@ import java.util.List;
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 
 /**
  * Extension of {@link UriComponents} for opaque URIs.
@@ -158,16 +158,16 @@ final class OpaqueUriComponents extends UriComponents {
 			return false;
 		}
 		OpaqueUriComponents otherComp = (OpaqueUriComponents) other;
-		return (ObjectUtils.nullSafeEquals(getScheme(), otherComp.getScheme())
-				&& ObjectUtils.nullSafeEquals(this.ssp, otherComp.ssp)
-				&& ObjectUtils.nullSafeEquals(getFragment(), otherComp.getFragment()));
+		return (ObjectUtils2.nullSafeEquals(getScheme(), otherComp.getScheme())
+				&& ObjectUtils2.nullSafeEquals(this.ssp, otherComp.ssp)
+				&& ObjectUtils2.nullSafeEquals(getFragment(), otherComp.getFragment()));
 	}
 
 	@Override
 	public int hashCode() {
-		int result = ObjectUtils.nullSafeHashCode(getScheme());
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.ssp);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(getFragment());
+		int result = ObjectUtils2.nullSafeHashCode(getScheme());
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.ssp);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(getFragment());
 		return result;
 	}
 

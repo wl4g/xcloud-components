@@ -34,7 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 
 /**
  * Miscellaneous collection utility methods. Mainly for internal use within the
@@ -72,12 +72,12 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 * @param source
 	 *            the (potentially primitive) array
 	 * @return the converted List result
-	 * @see ObjectUtils#toObjectArray(Object)
+	 * @see ObjectUtils2#toObjectArray(Object)
 	 * @see Arrays#asList(Object[])
 	 */
 	@SuppressWarnings("rawtypes")
 	public static List arrayToList(Object source) {
-		return Arrays.asList(ObjectUtils.toObjectArray(source));
+		return Arrays.asList(ObjectUtils2.toObjectArray(source));
 	}
 
 	/**
@@ -93,7 +93,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 		if (collection == null) {
 			throw new IllegalArgumentException("Collection must not be null");
 		}
-		Object[] arr = ObjectUtils.toObjectArray(array);
+		Object[] arr = ObjectUtils2.toObjectArray(array);
 		for (Object elem : arr) {
 			collection.add((E) elem);
 		}
@@ -143,7 +143,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 		if (iterator != null) {
 			while (iterator.hasNext()) {
 				Object candidate = iterator.next();
-				if (ObjectUtils.nullSafeEquals(candidate, element)) {
+				if (ObjectUtils2.nullSafeEquals(candidate, element)) {
 					return true;
 				}
 			}
@@ -164,7 +164,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 		if (enumeration != null) {
 			while (enumeration.hasMoreElements()) {
 				Object candidate = enumeration.nextElement();
-				if (ObjectUtils.nullSafeEquals(candidate, element)) {
+				if (ObjectUtils2.nullSafeEquals(candidate, element)) {
 					return true;
 				}
 			}
@@ -261,7 +261,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 *         match, or {@code null} if none or more than one such value found
 	 */
 	public static Object findValueOfType(Collection<?> collection, Class<?>[] types) {
-		if (isEmpty(collection) || ObjectUtils.isEmpty(types)) {
+		if (isEmpty(collection) || ObjectUtils2.isEmpty(types)) {
 			return null;
 		}
 		for (Class<?> type : types) {

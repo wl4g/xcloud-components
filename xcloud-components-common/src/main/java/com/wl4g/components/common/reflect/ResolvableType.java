@@ -47,7 +47,7 @@ import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.ConcurrentReferenceHashMap;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.ClassUtils2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;
 import com.wl4g.components.common.reflect.ResolvableType.SerializableTypeWrapper.FieldTypeProvider;
 import com.wl4g.components.common.reflect.ResolvableType.SerializableTypeWrapper.MethodParameterTypeProvider;
@@ -928,7 +928,7 @@ public class ResolvableType implements Serializable {
 			}
 			TypeVariable<?>[] variables = resolved.getTypeParameters();
 			for (int i = 0; i < variables.length; i++) {
-				if (ObjectUtils.nullSafeEquals(variables[i].getName(), variable.getName())) {
+				if (ObjectUtils2.nullSafeEquals(variables[i].getName(), variable.getName())) {
 					Type actualType = parameterizedType.getActualTypeArguments()[i];
 					return forType(actualType, this.variableResolver);
 				}
@@ -960,19 +960,19 @@ public class ResolvableType implements Serializable {
 		}
 
 		ResolvableType otherType = (ResolvableType) other;
-		if (!ObjectUtils.nullSafeEquals(this.type, otherType.type)) {
+		if (!ObjectUtils2.nullSafeEquals(this.type, otherType.type)) {
 			return false;
 		}
 		if (this.typeProvider != otherType.typeProvider && (this.typeProvider == null || otherType.typeProvider == null
-				|| !ObjectUtils.nullSafeEquals(this.typeProvider.getType(), otherType.typeProvider.getType()))) {
+				|| !ObjectUtils2.nullSafeEquals(this.typeProvider.getType(), otherType.typeProvider.getType()))) {
 			return false;
 		}
 		if (this.variableResolver != otherType.variableResolver && (this.variableResolver == null
 				|| otherType.variableResolver == null
-				|| !ObjectUtils.nullSafeEquals(this.variableResolver.getSource(), otherType.variableResolver.getSource()))) {
+				|| !ObjectUtils2.nullSafeEquals(this.variableResolver.getSource(), otherType.variableResolver.getSource()))) {
 			return false;
 		}
-		if (!ObjectUtils.nullSafeEquals(this.componentType, otherType.componentType)) {
+		if (!ObjectUtils2.nullSafeEquals(this.componentType, otherType.componentType)) {
 			return false;
 		}
 		return true;
@@ -984,15 +984,15 @@ public class ResolvableType implements Serializable {
 	}
 
 	private int calculateHashCode() {
-		int hashCode = ObjectUtils.nullSafeHashCode(this.type);
+		int hashCode = ObjectUtils2.nullSafeHashCode(this.type);
 		if (this.typeProvider != null) {
-			hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.typeProvider.getType());
+			hashCode = 31 * hashCode + ObjectUtils2.nullSafeHashCode(this.typeProvider.getType());
 		}
 		if (this.variableResolver != null) {
-			hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.variableResolver.getSource());
+			hashCode = 31 * hashCode + ObjectUtils2.nullSafeHashCode(this.variableResolver.getSource());
 		}
 		if (this.componentType != null) {
-			hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.componentType);
+			hashCode = 31 * hashCode + ObjectUtils2.nullSafeHashCode(this.componentType);
 		}
 		return hashCode;
 	}
@@ -1664,7 +1664,7 @@ public class ResolvableType implements Serializable {
 			TypeVariable<?> variableToCompare = SerializableTypeWrapper.unwrap(variable);
 			for (int i = 0; i < this.variables.length; i++) {
 				TypeVariable<?> resolvedVariable = SerializableTypeWrapper.unwrap(this.variables[i]);
-				if (ObjectUtils.nullSafeEquals(resolvedVariable, variableToCompare)) {
+				if (ObjectUtils2.nullSafeEquals(resolvedVariable, variableToCompare)) {
 					return this.generics[i];
 				}
 			}
@@ -2007,9 +2007,9 @@ public class ResolvableType implements Serializable {
 					if (other instanceof Type) {
 						other = unwrap((Type) other);
 					}
-					return ObjectUtils.nullSafeEquals(this.provider.getType(), other);
+					return ObjectUtils2.nullSafeEquals(this.provider.getType(), other);
 				} else if (method.getName().equals("hashCode")) {
-					return ObjectUtils.nullSafeHashCode(this.provider.getType());
+					return ObjectUtils2.nullSafeHashCode(this.provider.getType());
 				} else if (method.getName().equals("getTypeProvider")) {
 					return this.provider;
 				}
@@ -2962,7 +2962,7 @@ public class ResolvableType implements Serializable {
 			}
 			MethodParameter otherParam = (MethodParameter) other;
 			return (getContainingClass() == otherParam.getContainingClass()
-					&& ObjectUtils.nullSafeEquals(this.typeIndexesPerLevel, otherParam.typeIndexesPerLevel)
+					&& ObjectUtils2.nullSafeEquals(this.typeIndexesPerLevel, otherParam.typeIndexesPerLevel)
 					&& this.nestingLevel == otherParam.nestingLevel && this.parameterIndex == otherParam.parameterIndex
 					&& this.executable.equals(otherParam.executable));
 		}

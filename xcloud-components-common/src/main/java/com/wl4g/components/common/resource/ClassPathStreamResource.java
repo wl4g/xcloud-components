@@ -43,7 +43,7 @@ import java.net.URL;
 
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.ClassUtils2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;
 
 /**
@@ -277,8 +277,8 @@ public class ClassPathStreamResource extends AbstractFileResolvingResource {
 		}
 		if (obj instanceof ClassPathStreamResource) {
 			ClassPathStreamResource otherRes = (ClassPathStreamResource) obj;
-			return (this.path.equals(otherRes.path) && ObjectUtils.nullSafeEquals(this.classLoader, otherRes.classLoader)
-					&& ObjectUtils.nullSafeEquals(this.clazz, otherRes.clazz));
+			return (this.path.equals(otherRes.path) && ObjectUtils2.nullSafeEquals(this.classLoader, otherRes.classLoader)
+					&& ObjectUtils2.nullSafeEquals(this.clazz, otherRes.clazz));
 		}
 		return false;
 	}

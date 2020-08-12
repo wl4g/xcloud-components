@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.common.io;
 
+import static java.util.Objects.nonNull;
+
 import java.io.File;
 
 /**
@@ -85,9 +87,11 @@ public class FileDeletionUtils {
 			// System.out.println("目录删除失败"+dirName+"目录不存在！" );
 			return false;
 		}
-		File[] fileArrays = file.listFiles();// 列出源文件下所有文件，包括子目录
-		for (int i = 0; i < fileArrays.length; i++) {// 将源文件下的所有文件逐个删除
-			deleteAnyone(fileArrays[i].getAbsolutePath());
+		File[] files = file.listFiles();// 列出源文件下所有文件，包括子目录
+		if (nonNull(files)) {
+			for (int i = 0; i < files.length; i++) {// 将源文件下的所有文件逐个删除
+				deleteAnyone(files[i].getAbsolutePath());
+			}
 		}
 		return file.delete();
 	}

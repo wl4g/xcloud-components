@@ -16,7 +16,7 @@
 package com.wl4g.components.common.remoting;
 
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
 
 /**
@@ -107,13 +107,13 @@ public class HttpEntity<T> {
 			return false;
 		}
 		HttpEntity<?> otherEntity = (HttpEntity<?>) other;
-		return (ObjectUtils.nullSafeEquals(this.headers, otherEntity.headers)
-				&& ObjectUtils.nullSafeEquals(this.body, otherEntity.body));
+		return (ObjectUtils2.nullSafeEquals(this.headers, otherEntity.headers)
+				&& ObjectUtils2.nullSafeEquals(this.body, otherEntity.body));
 	}
 
 	@Override
 	public int hashCode() {
-		return (ObjectUtils.nullSafeHashCode(this.headers) * 29 + ObjectUtils.nullSafeHashCode(this.body));
+		return (ObjectUtils2.nullSafeHashCode(this.headers) * 29 + ObjectUtils2.nullSafeHashCode(this.body));
 	}
 
 	@Override

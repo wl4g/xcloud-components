@@ -23,7 +23,7 @@ import java.util.Map;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;
 
 /**
@@ -327,7 +327,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
 
 		@Override
 		public URI build(Object... uriVars) {
-			if (ObjectUtils.isEmpty(uriVars) && !defaultUriVariables.isEmpty()) {
+			if (ObjectUtils2.isEmpty(uriVars) && !defaultUriVariables.isEmpty()) {
 				return build(Collections.emptyMap());
 			}
 			if (encodingMode.equals(EncodingMode.VALUES_ONLY)) {

@@ -42,9 +42,9 @@ import org.apache.commons.lang3.StringUtils;
  * @see CollectionUtils
  * @see StringUtils
  * @see {@link org.apache.commons.lang3.ObjectUtils}
- * @see {@link org.springframework.util.ObjectUtils}
+ * @see {@link org.ObjectUtils2.util.ObjectUtils}
  */
-public abstract class ObjectUtils extends org.apache.commons.lang3.ObjectUtils {
+public abstract class ObjectUtils2 extends org.apache.commons.lang3.ObjectUtils {
 
 	private static final int INITIAL_HASH = 7;
 	private static final int MULTIPLIER = 31;
@@ -136,7 +136,7 @@ public abstract class ObjectUtils extends org.apache.commons.lang3.ObjectUtils {
 	 *            the object to check
 	 * @return {@code true} if the object is {@code null} or <em>empty</em>
 	 * @since 4.2
-	 * @see ObjectUtils#isEmpty(Object[])
+	 * @see ObjectUtils2#isEmpty(Object[])
 	 * @see StringUtils#hasLength(CharSequence)
 	 * @see StringUtils#isEmpty(Object)
 	 * @see CollectionUtils#isEmpty(java.util.Collection)

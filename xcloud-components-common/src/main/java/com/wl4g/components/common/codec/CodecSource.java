@@ -19,6 +19,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -120,7 +121,7 @@ public class CodecSource implements Serializable {
 	}
 
 	public boolean equals(final CodecSource o) {
-		if (o == this) {
+		if (nonNull(o) && o == this) {
 			return true;
 		}
 		return Arrays.equals(getBytes(), o.getBytes());

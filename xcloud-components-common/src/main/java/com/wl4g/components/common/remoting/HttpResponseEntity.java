@@ -22,7 +22,7 @@ import java.util.Set;
 
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.remoting.standard.CacheControl;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
 import com.wl4g.components.common.remoting.standard.HttpMediaType;
@@ -147,12 +147,12 @@ public class HttpResponseEntity<T> extends HttpEntity<T> {
 			return false;
 		}
 		HttpResponseEntity<?> otherEntity = (HttpResponseEntity<?>) other;
-		return ObjectUtils.nullSafeEquals(this.status, otherEntity.status);
+		return ObjectUtils2.nullSafeEquals(this.status, otherEntity.status);
 	}
 
 	@Override
 	public int hashCode() {
-		return (super.hashCode() * 29 + ObjectUtils.nullSafeHashCode(this.status));
+		return (super.hashCode() * 29 + ObjectUtils2.nullSafeHashCode(this.status));
 	}
 
 	@Override

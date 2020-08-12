@@ -38,7 +38,7 @@ import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedCaseInsensitiveMap;
 import com.wl4g.components.common.lang.Assert2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;
 
 /**
@@ -495,10 +495,10 @@ public class HttpMimeType implements Comparable<HttpMimeType>, Serializable {
 				return false;
 			}
 			if (PARAM_CHARSET.equals(key)) {
-				if (!ObjectUtils.nullSafeEquals(getCharset(), other.getCharset())) {
+				if (!ObjectUtils2.nullSafeEquals(getCharset(), other.getCharset())) {
 					return false;
 				}
-			} else if (!ObjectUtils.nullSafeEquals(entry.getValue(), other.parameters.get(key))) {
+			} else if (!ObjectUtils2.nullSafeEquals(entry.getValue(), other.parameters.get(key))) {
 				return false;
 			}
 		}

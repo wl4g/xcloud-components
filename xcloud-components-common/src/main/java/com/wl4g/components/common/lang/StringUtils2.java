@@ -390,7 +390,7 @@ public abstract class StringUtils2 extends org.apache.commons.lang3.StringUtils 
 	 * @param source
 	 */
 	public static void setValueIfNotBlank(String target, String source) {
-		if (source != null && isNotBlank(source)) {
+		if (isNotBlank(source)) {
 			target = source;
 		}
 	}
@@ -977,7 +977,7 @@ public abstract class StringUtils2 extends org.apache.commons.lang3.StringUtils 
 	 */
 	public static Properties splitArrayElementsIntoProperties(String[] array, String delimiter, String charsToDelete) {
 
-		if (ObjectUtils.isEmpty(array)) {
+		if (ObjectUtils2.isEmpty(array)) {
 			return null;
 		}
 
@@ -1240,11 +1240,11 @@ public abstract class StringUtils2 extends org.apache.commons.lang3.StringUtils 
 	 * @return the delimited {@code String}
 	 */
 	public static String arrayToDelimitedString(Object[] arr, String delim) {
-		if (ObjectUtils.isEmpty(arr)) {
+		if (ObjectUtils2.isEmpty(arr)) {
 			return "";
 		}
 		if (arr.length == 1) {
-			return ObjectUtils.nullSafeToString(arr[0]);
+			return ObjectUtils2.nullSafeToString(arr[0]);
 		}
 
 		StringBuilder sb = new StringBuilder();

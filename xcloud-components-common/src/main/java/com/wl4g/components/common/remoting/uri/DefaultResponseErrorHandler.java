@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.io.ByteStreamUtils;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.remoting.ClientHttpResponse;
 import com.wl4g.components.common.remoting.RestClient.ResponseErrorHandler;
 import com.wl4g.components.common.remoting.exception.HttpClientErrorException;
@@ -136,7 +136,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 			@Nullable Charset charset) {
 
 		String preface = rawStatusCode + " " + statusText + ": ";
-		if (ObjectUtils.isEmpty(responseBody)) {
+		if (ObjectUtils2.isEmpty(responseBody)) {
 			return preface + "[no body]";
 		}
 

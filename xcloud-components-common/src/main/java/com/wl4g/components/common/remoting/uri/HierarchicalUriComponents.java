@@ -33,7 +33,7 @@ import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;
 
 /**
@@ -564,22 +564,22 @@ final class HierarchicalUriComponents extends UriComponents {
 			return false;
 		}
 		HierarchicalUriComponents otherComp = (HierarchicalUriComponents) other;
-		return (ObjectUtils.nullSafeEquals(getScheme(), otherComp.getScheme())
-				&& ObjectUtils.nullSafeEquals(getUserInfo(), otherComp.getUserInfo())
-				&& ObjectUtils.nullSafeEquals(getHost(), otherComp.getHost()) && getPort() == otherComp.getPort()
+		return (ObjectUtils2.nullSafeEquals(getScheme(), otherComp.getScheme())
+				&& ObjectUtils2.nullSafeEquals(getUserInfo(), otherComp.getUserInfo())
+				&& ObjectUtils2.nullSafeEquals(getHost(), otherComp.getHost()) && getPort() == otherComp.getPort()
 				&& this.path.equals(otherComp.path) && this.queryParams.equals(otherComp.queryParams)
-				&& ObjectUtils.nullSafeEquals(getFragment(), otherComp.getFragment()));
+				&& ObjectUtils2.nullSafeEquals(getFragment(), otherComp.getFragment()));
 	}
 
 	@Override
 	public int hashCode() {
-		int result = ObjectUtils.nullSafeHashCode(getScheme());
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.userInfo);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.host);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.port);
+		int result = ObjectUtils2.nullSafeHashCode(getScheme());
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.userInfo);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.host);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.port);
 		result = 31 * result + this.path.hashCode();
 		result = 31 * result + this.queryParams.hashCode();
-		result = 31 * result + ObjectUtils.nullSafeHashCode(getFragment());
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(getFragment());
 		return result;
 	}
 
@@ -1072,8 +1072,8 @@ final class HierarchicalUriComponents extends UriComponents {
 		@Override
 		public Object getValue(@Nullable String name) {
 			Object value = this.delegate.getValue(name);
-			if (ObjectUtils.isArray(value)) {
-				value = StringUtils2.arrayToCommaDelimitedString(ObjectUtils.toObjectArray(value));
+			if (ObjectUtils2.isArray(value)) {
+				value = StringUtils2.arrayToCommaDelimitedString(ObjectUtils2.toObjectArray(value));
 			}
 			return value;
 		}

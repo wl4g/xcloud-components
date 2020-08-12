@@ -265,7 +265,7 @@ public class SshdHolder extends SSH2Holders<ChannelExec, ScpClient> {
 	private ClientSession authWithPrivateKey(SshClient client, String host, Integer port, String user, char[] pemPrivateKey,
 			String password) throws IOException, GeneralSecurityException {
 		ClientSession session = client.connect(user, host, Objects.isNull(port) ? 22 : port).verify(10000).getSession();
-		if (!Collections2.isEmptyArray(pemPrivateKey)) {
+		if (nonNull(pemPrivateKey)) {
 			Iterable<KeyPair> keyPairs = SecurityUtils.loadKeyPairIdentities(session, null,
 					getStrToStream(new String(pemPrivateKey)), null);
 			Iterator<KeyPair> iterator = keyPairs.iterator();

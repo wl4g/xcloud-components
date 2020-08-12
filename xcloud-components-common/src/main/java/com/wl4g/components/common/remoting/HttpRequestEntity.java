@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
 import com.wl4g.components.common.remoting.standard.HttpMediaType;
 
@@ -179,15 +179,15 @@ public class HttpRequestEntity<T> extends HttpEntity<T> {
 			return false;
 		}
 		HttpRequestEntity<?> otherEntity = (HttpRequestEntity<?>) other;
-		return (ObjectUtils.nullSafeEquals(getMethod(), otherEntity.getMethod())
-				&& ObjectUtils.nullSafeEquals(getUrl(), otherEntity.getUrl()));
+		return (ObjectUtils2.nullSafeEquals(getMethod(), otherEntity.getMethod())
+				&& ObjectUtils2.nullSafeEquals(getUrl(), otherEntity.getUrl()));
 	}
 
 	@Override
 	public int hashCode() {
 		int hashCode = super.hashCode();
-		hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.method);
-		hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.url);
+		hashCode = 29 * hashCode + ObjectUtils2.nullSafeHashCode(this.method);
+		hashCode = 29 * hashCode + ObjectUtils2.nullSafeHashCode(this.url);
 		return hashCode;
 	}
 

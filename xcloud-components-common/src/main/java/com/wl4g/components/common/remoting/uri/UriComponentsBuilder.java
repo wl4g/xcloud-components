@@ -31,7 +31,7 @@ import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;
 import com.wl4g.components.common.remoting.ClientHttpRequest;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
@@ -650,7 +650,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 	@Override
 	public UriComponentsBuilder queryParam(String name, Object... values) {
 		Assert2.notNull(name, "Name must not be null");
-		if (!ObjectUtils.isEmpty(values)) {
+		if (!ObjectUtils2.isEmpty(values)) {
 			for (Object value : values) {
 				String valueAsString = (value != null ? value.toString() : null);
 				this.queryParams.add(name, valueAsString);
@@ -684,7 +684,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 	public UriComponentsBuilder replaceQueryParam(String name, Object... values) {
 		Assert2.notNull(name, "Name must not be null");
 		this.queryParams.remove(name);
-		if (!ObjectUtils.isEmpty(values)) {
+		if (!ObjectUtils2.isEmpty(values)) {
 			queryParam(name, values);
 		}
 		resetSchemeSpecificPart();
@@ -873,7 +873,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 		private final LinkedList<PathComponentBuilder> builders = new LinkedList<>();
 
 		public void addPathSegments(String... pathSegments) {
-			if (!ObjectUtils.isEmpty(pathSegments)) {
+			if (!ObjectUtils2.isEmpty(pathSegments)) {
 				PathSegmentComponentBuilder psBuilder = getLastBuilder(PathSegmentComponentBuilder.class);
 				FullPathComponentBuilder fpBuilder = getLastBuilder(FullPathComponentBuilder.class);
 				if (psBuilder == null) {

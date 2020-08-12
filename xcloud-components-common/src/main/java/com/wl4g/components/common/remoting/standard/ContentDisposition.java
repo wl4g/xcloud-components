@@ -25,7 +25,7 @@ import java.util.List;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.lang.Assert2;
-import com.wl4g.components.common.lang.ObjectUtils;
+import com.wl4g.components.common.lang.ObjectUtils2;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -184,22 +184,22 @@ public final class ContentDisposition {
 			return false;
 		}
 		ContentDisposition otherCd = (ContentDisposition) other;
-		return (ObjectUtils.nullSafeEquals(this.type, otherCd.type) && ObjectUtils.nullSafeEquals(this.name, otherCd.name)
-				&& ObjectUtils.nullSafeEquals(this.filename, otherCd.filename)
-				&& ObjectUtils.nullSafeEquals(this.charset, otherCd.charset)
-				&& ObjectUtils.nullSafeEquals(this.size, otherCd.size)
-				&& ObjectUtils.nullSafeEquals(this.creationDate, otherCd.creationDate)
-				&& ObjectUtils.nullSafeEquals(this.modificationDate, otherCd.modificationDate)
-				&& ObjectUtils.nullSafeEquals(this.readDate, otherCd.readDate));
+		return (ObjectUtils2.nullSafeEquals(this.type, otherCd.type) && ObjectUtils2.nullSafeEquals(this.name, otherCd.name)
+				&& ObjectUtils2.nullSafeEquals(this.filename, otherCd.filename)
+				&& ObjectUtils2.nullSafeEquals(this.charset, otherCd.charset)
+				&& ObjectUtils2.nullSafeEquals(this.size, otherCd.size)
+				&& ObjectUtils2.nullSafeEquals(this.creationDate, otherCd.creationDate)
+				&& ObjectUtils2.nullSafeEquals(this.modificationDate, otherCd.modificationDate)
+				&& ObjectUtils2.nullSafeEquals(this.readDate, otherCd.readDate));
 	}
 
 	@Override
 	public int hashCode() {
-		int result = ObjectUtils.nullSafeHashCode(this.type);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.name);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.filename);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.charset);
-		result = 31 * result + ObjectUtils.nullSafeHashCode(this.size);
+		int result = ObjectUtils2.nullSafeHashCode(this.type);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.name);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.filename);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.charset);
+		result = 31 * result + ObjectUtils2.nullSafeHashCode(this.size);
 		result = 31 * result + (this.creationDate != null ? this.creationDate.hashCode() : 0);
 		result = 31 * result + (this.modificationDate != null ? this.modificationDate.hashCode() : 0);
 		result = 31 * result + (this.readDate != null ? this.readDate.hashCode() : 0);

@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.common.web;
 
+import static java.util.Objects.isNull;
+
 import javax.servlet.http.HttpServletRequest;
 
 import nl.bitwalker.useragentutils.Browser;
@@ -51,7 +53,7 @@ public class UserAgentUtils {
 	 */
 	public static DeviceType getDeviceType(HttpServletRequest request) {
 		UserAgent ua = getUserAgent(request);
-		return (ua == null ? null : (ua.getOperatingSystem() == null ? null : ua.getOperatingSystem()).getDeviceType());
+		return (isNull(ua) ? null : ((isNull(ua.getOperatingSystem()) ? null : ua.getOperatingSystem()).getDeviceType()));
 	}
 
 	/**
