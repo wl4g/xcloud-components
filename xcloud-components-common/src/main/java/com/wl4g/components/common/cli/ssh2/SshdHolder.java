@@ -15,7 +15,6 @@
  */
 package com.wl4g.components.common.cli.ssh2;
 
-import com.wl4g.components.common.collection.Collections2;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
 
