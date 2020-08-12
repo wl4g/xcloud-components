@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.bean.scm;
+package com.wl4g.components.common.web.rest;
+
+import com.wl4g.components.common.web.rest.RespBase.RetCode;
 
 /**
- * 列表展示实体
+ * RESTful exception response status definition.
  * 
- * @date 2018年9月20日
+ * @author Wangl.sir
+ * @version v1.0 2019年9月2日
+ * @since
  */
-public class VersionList extends Version {
-	private static final long serialVersionUID = 96129446638218612L;
+public interface RESTfulException {
 
-	private Integer instanceCount; // 节点（实例）数
+	/**
+	 * Restful exception HTTP status code.
+	 * 
+	 * @return
+	 */
+	RetCode getCode();
 
-	public Integer getInstanceCount() {
-		return instanceCount;
-	}
-
-	public void setInstanceCount(Integer instanceCount) {
-		this.instanceCount = instanceCount;
-	}
 }

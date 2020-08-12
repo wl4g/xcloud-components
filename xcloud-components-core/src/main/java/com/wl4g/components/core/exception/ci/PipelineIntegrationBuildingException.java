@@ -15,9 +15,9 @@
  */
 package com.wl4g.components.core.exception.ci;
 
-import com.wl4g.components.core.exception.restful.InvalidParamsRestfulException;
+import com.wl4g.components.common.web.rest.InvalidParametersException;
 
-public class PipelineIntegrationBuildingException extends CiException implements InvalidParamsRestfulException {
+public class PipelineIntegrationBuildingException extends CiException implements InvalidParametersException {
 	private static final long serialVersionUID = -7034899390745766939L;
 
 	/**

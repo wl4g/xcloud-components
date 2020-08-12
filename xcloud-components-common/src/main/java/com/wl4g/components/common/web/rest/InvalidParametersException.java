@@ -13,37 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.bean.scm;
+package com.wl4g.components.common.web.rest;
 
-/***
- * 版本查询条件bean zzh
+import com.wl4g.components.common.web.rest.RespBase.RetCode;
+
+/**
+ * Invalid argument exception, When this exception API is caught, the response
+ * code is {@link HttpStatus.BAD_REQUEST}
+ * 
+ * @author Wangl.sir
+ * @version v1.0 2019年9月2日
+ * @since
  */
-public class ConfigQuery {
-	private int clusterId; // 组id
-	private int instanceId; // 节点id
-	private int envId;// 环境id=
+public interface InvalidParametersException extends RESTfulException {
 
-	public int getClusterId() {
-		return clusterId;
+	/**
+	 * Get exception response code.
+	 * 
+	 * @return
+	 */
+	@Override
+	default RetCode getCode() {
+		return RetCode.PARAM_ERR;
 	}
 
-	public void setClusterId(int clusterId) {
-		this.clusterId = clusterId;
-	}
-
-	public int getInstanceId() {
-		return instanceId;
-	}
-
-	public void setInstanceId(int instanceId) {
-		this.instanceId = instanceId;
-	}
-
-	public int getEnvId() {
-		return envId;
-	}
-
-	public void setEnvId(int envId) {
-		this.envId = envId;
-	}
 }

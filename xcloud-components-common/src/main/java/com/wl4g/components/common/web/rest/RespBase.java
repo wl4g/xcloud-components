@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web;
+package com.wl4g.components.common.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.annotations.Beta;
-import com.wl4g.components.core.exception.restful.BizRuleRestrictRestfulException;
-import com.wl4g.components.core.exception.restful.InvalidParamsRestfulException;
-import com.wl4g.components.core.exception.restful.RESTfulException;
-import com.wl4g.components.core.exception.restful.ServiceUnavailableRestfulException;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -33,10 +26,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.wl4g.components.common.collection.CollectionUtils2;
+import com.wl4g.components.common.remoting.standard.HttpStatus;
+
+import static com.wl4g.components.common.lang.Assert2.hasText;
+import static com.wl4g.components.common.lang.Assert2.state;
+import static com.wl4g.components.common.remoting.standard.HttpStatus.*;
 import static com.wl4g.components.common.lang.Exceptions.getRootCausesString;
 import static com.wl4g.components.common.serialize.JacksonUtils.convertBean;
 import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
-import static com.wl4g.components.core.web.RespBase.RetCode.newCode;
+import static com.wl4g.components.common.web.rest.RespBase.RetCode.newCode;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.lang.reflect.Modifier.isFinal;
@@ -47,9 +46,6 @@ import static java.util.Locale.US;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.*;
-import static org.springframework.http.HttpStatus.*;
-import static org.springframework.util.Assert.hasText;
-import static org.springframework.util.Assert.state;
 
 /**
  * Generic restful response base model wrapper.
@@ -359,9 +355,9 @@ public class RespBase<D> implements Serializable {
 	 *            default status code
 	 * @return
 	 * @see {@link RESTfulException}
-	 * @see {@link BizRuleRestrictRestfulException}
-	 * @see {@link InvalidParamsRestfulException}
-	 * @see {@link ServiceUnavailableRestfulException}
+	 * @see {@link FunctionalRuleRestrictException}
+	 * @see {@link InvalidParametersException}
+	 * @see {@link ServiceUnavailableException}
 	 */
 	public final static RetCode getRestfulCode(Throwable th, RetCode defaultCode) {
 		if (nonNull(th) && (th instanceof RESTfulException)) {
@@ -513,7 +509,7 @@ public class RespBase<D> implements Serializable {
 
 		@Override
 		public void putAll(Map<? extends String, ? extends V> m) {
-			if (!CollectionUtils.isEmpty(m)) {
+			if (!CollectionUtils2.isEmpty(m)) {
 				super.putAll(m);
 			}
 		}
@@ -781,7 +777,7 @@ public class RespBase<D> implements Serializable {
 		/**
 		 * Errors prefix definition.
 		 * 
-		 * @see {@link com.wl4g.components.core.web.RespBase#globalErrPrefix()}
+		 * @see {@link com.wl4g.components.common.web.rest.RespBase#globalErrPrefix()}
 		 */
 		private static String errorPrompt = getProperty("spring.cloud.devops.global.respbase.error-prompt", "API");
 

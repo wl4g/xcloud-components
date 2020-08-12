@@ -15,9 +15,9 @@
  */
 package com.wl4g.components.core.exception.iam;
 
-import com.wl4g.components.core.exception.restful.BizRuleRestrictRestfulException;
+import com.wl4g.components.common.web.rest.FunctionalRuleRestrictException;
 
-public class VerificationException extends IamException implements BizRuleRestrictRestfulException {
+public class VerificationException extends IamException implements FunctionalRuleRestrictException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

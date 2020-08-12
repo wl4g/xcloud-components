@@ -15,9 +15,9 @@
  */
 package com.wl4g.components.core.exception.iam;
 
-import com.wl4g.components.core.exception.restful.InvalidParamsRestfulException;
+import com.wl4g.components.common.web.rest.InvalidParametersException;
 
-public class InvalidAccessTokenAuthenticationException extends UnauthenticatedException implements InvalidParamsRestfulException {
+public class InvalidAccessTokenAuthenticationException extends UnauthenticatedException implements InvalidParametersException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

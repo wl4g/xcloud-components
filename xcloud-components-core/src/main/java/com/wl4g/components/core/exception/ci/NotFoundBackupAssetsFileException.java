@@ -15,9 +15,9 @@
  */
 package com.wl4g.components.core.exception.ci;
 
-import com.wl4g.components.core.exception.restful.LockStateRestfulException;
+import com.wl4g.components.common.web.rest.LockStateException;
 
-public class NotFoundBackupAssetsFileException extends CiException implements LockStateRestfulException {
+public class NotFoundBackupAssetsFileException extends CiException implements LockStateException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

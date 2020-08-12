@@ -55,10 +55,10 @@ import static com.wl4g.components.core.constants.DevOpsConstants.PARAM_STACK_TRA
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.common.web.rest.RespBase;
+import com.wl4g.components.common.web.rest.RespBase.RetCode;
 import com.wl4g.components.core.annotation.DevopsErrorController;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorControllerProperties;
-import com.wl4g.components.core.web.RespBase;
-import com.wl4g.components.core.web.RespBase.RetCode;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;

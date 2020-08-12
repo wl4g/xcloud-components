@@ -15,10 +15,10 @@
  */
 package com.wl4g.components.core.exception.scm;
 
+import com.wl4g.components.common.web.rest.FunctionalRuleRestrictException;
 import com.wl4g.components.core.exception.iam.IamException;
-import com.wl4g.components.core.exception.restful.BizRuleRestrictRestfulException;
 
-public class TooManyRefreshException extends IamException implements BizRuleRestrictRestfulException {
+public class TooManyRefreshException extends IamException implements FunctionalRuleRestrictException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

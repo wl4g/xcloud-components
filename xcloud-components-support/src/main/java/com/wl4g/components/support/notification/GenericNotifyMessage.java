@@ -17,7 +17,7 @@ package com.wl4g.components.support.notification;
 
 import org.springframework.validation.annotation.Validated;
 
-import com.wl4g.components.core.web.RespBase.DataMap;
+import com.wl4g.components.common.web.rest.RespBase.DataMap;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;

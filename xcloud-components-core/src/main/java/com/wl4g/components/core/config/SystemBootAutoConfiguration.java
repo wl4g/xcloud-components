@@ -43,12 +43,12 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.common.web.rest.RespBase.ErrorPromptMessageBuilder;
 import com.wl4g.components.core.framework.operator.EmptyOperator;
 import com.wl4g.components.core.framework.operator.GenericOperatorAdapter;
 import com.wl4g.components.core.framework.operator.Operator;
 import com.wl4g.components.core.framework.operator.OperatorAutoHandleInterceptor;
 import com.wl4g.components.core.logging.TraceLoggingMDCFilter;
-import com.wl4g.components.core.web.RespBase.ErrorPromptMessageBuilder;
 
 /**
  * System boot defaults auto configuration.

@@ -15,9 +15,9 @@
  */
 package com.wl4g.components.core.exception.iam;
 
-import com.wl4g.components.core.exception.restful.InvalidParamsRestfulException;
+import com.wl4g.components.common.web.rest.InvalidParametersException;
 
-public class UnableDecryptionCipherParameterException extends IamException implements InvalidParamsRestfulException {
+public class UnableDecryptionCipherParameterException extends IamException implements InvalidParametersException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.wl4g.components.core.web.RespBase.RetCode.*;
+import static com.wl4g.components.common.web.rest.RespBase.RetCode.*;
 import static java.util.Collections.sort;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;

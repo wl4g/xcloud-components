@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.exception.restful;
+package com.wl4g.components.common.web.rest;
 
-import org.springframework.http.HttpStatus;
-
-import com.wl4g.components.core.web.RespBase.RetCode;
+import com.wl4g.components.common.web.rest.RespBase.RetCode;
 
 /**
- * Business required argument exception, When this exception API is caught, the
- * response code is {@link HttpStatus.SERVICE_UNAVAILABLE}
+ * Business logic restriction exception, When this exception API is caught, the
+ * response code is {@link HttpStatus.PRECONDITION_FAILED}
  * 
  * @author Wangl.sir
  * @version v1.0 2019年9月2日
  * @since
  */
-public interface ServiceUnavailableRestfulException extends RESTfulException {
+public interface LockStateException extends RESTfulException {
 
 	/**
 	 * Get exception response code.
@@ -36,7 +34,7 @@ public interface ServiceUnavailableRestfulException extends RESTfulException {
 	 */
 	@Override
 	default RetCode getCode() {
-		return RetCode.SYS_ERR;
+		return RetCode.LOCKD_ERR;
 	}
 
 }

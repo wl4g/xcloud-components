@@ -15,8 +15,8 @@
  */
 package com.wl4g.components.core.web.error;
 
-import static com.wl4g.components.core.web.RespBase.*;
-import static com.wl4g.components.core.web.RespBase.RetCode.*;
+import static com.wl4g.components.common.web.rest.RespBase.*;
+import static com.wl4g.components.common.web.rest.RespBase.RetCode.*;
 import static java.util.Objects.isNull;
 
 import java.util.ArrayList;

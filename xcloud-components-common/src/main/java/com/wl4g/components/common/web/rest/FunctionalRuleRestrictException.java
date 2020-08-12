@@ -13,35 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.bean.scm;
+package com.wl4g.components.common.web.rest;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.wl4g.components.common.web.rest.RespBase.RetCode;
 
-public class ConfigSourceBean {
+/**
+ * Business logic restriction exception, When this exception API is caught, the
+ * response code is {@link HttpStatus.PRECONDITION_FAILED}
+ * 
+ * @author Wangl.sir
+ * @version v1.0 2019年9月2日
+ * @since
+ */
+public interface FunctionalRuleRestrictException extends RESTfulException {
 
-	private ConfigReleaseMeta releaseMeta = new ConfigReleaseMeta();
-
-	private List<VersionContentBean> contents = new ArrayList<>();
-
-	public ConfigReleaseMeta getReleaseMeta() {
-		return releaseMeta;
-	}
-
-	public void setReleaseMeta(ConfigReleaseMeta releaseMeta) {
-		if (releaseMeta != null) {
-			this.releaseMeta = releaseMeta;
-		}
-	}
-
-	public List<VersionContentBean> getContents() {
-		return contents;
-	}
-
-	public void setContents(List<VersionContentBean> versions) {
-		if (versions != null) {
-			this.contents = versions;
-		}
+	/**
+	 * Get exception response code.
+	 * 
+	 * @return
+	 */
+	@Override
+	default RetCode getCode() {
+		return RetCode.PRECONDITITE_LIMITED;
 	}
 
 }
