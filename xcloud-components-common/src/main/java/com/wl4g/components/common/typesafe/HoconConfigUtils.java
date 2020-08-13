@@ -45,8 +45,8 @@ public abstract class HoconConfigUtils {
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> T loadHoconConfig(Class<T> clazz) {
-		return loadHoconConfig(CLASSPATH_ALL_URL_PREFIX.concat("application.conf"), clazz);
+	public static <T> T loadConfig(Class<T> clazz) {
+		return loadConfig(CLASSPATH_ALL_URL_PREFIX.concat("application.conf"), clazz);
 	}
 
 	/**
@@ -56,8 +56,8 @@ public abstract class HoconConfigUtils {
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> T loadHoconConfig(String location, Class<T> clazz) {
-		Config conf = loadHoconConfig(location);
+	public static <T> T loadConfig(String location, Class<T> clazz) {
+		Config conf = loadConfig(location);
 		return create(conf, clazz);
 	}
 
@@ -68,7 +68,7 @@ public abstract class HoconConfigUtils {
 	 * @param clazz
 	 * @return
 	 */
-	public static Config loadHoconConfig(String location) {
+	public static Config loadConfig(String location) {
 		ClassPathResourcePatternResolver resovler = new ClassPathResourcePatternResolver();
 		try {
 			Set<StreamResource> ress = resovler.getResources(new String[] { CLASSPATH_ALL_URL_PREFIX.concat(location) });

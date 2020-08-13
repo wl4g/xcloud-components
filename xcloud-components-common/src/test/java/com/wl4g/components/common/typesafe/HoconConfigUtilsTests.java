@@ -30,7 +30,7 @@ public class HoconConfigUtilsTests {
 
 	@Test
 	public void loadAndParseTest1() {
-		UserHoconConfig user = HoconConfigUtils.loadHoconConfig("hocon/application-sample.conf", UserHoconConfig.class);
+		UserHoconConfig user = HoconConfigUtils.loadConfig("hocon/application-sample.conf", UserHoconConfig.class);
 		System.out.println(user);
 	}
 
