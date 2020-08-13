@@ -15,6 +15,7 @@
  */
 package com.wl4g.components.common.resource.resolver;
 
+import static com.wl4g.components.common.lang.Assert2.notNull;
 import static java.util.stream.Collectors.toCollection;
 
 /**
@@ -321,7 +322,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 
 	@Override
 	public Set<StreamResource> getResources(String... locationPatterns) throws IOException {
-		Assert2.notNull(locationPatterns, "Path locationPatterns can't null");
+		notNull(locationPatterns, "Path locationPatterns can't null");
 		return Arrays.asList(locationPatterns).stream().map(pattern -> {
 			try {
 				return doGetResources(pattern);
