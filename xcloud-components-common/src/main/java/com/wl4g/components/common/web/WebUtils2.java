@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import static java.util.Locale.*;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toMap;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -48,6 +49,7 @@ import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.StringUtils2;
 
 import static com.wl4g.components.common.collection.Collections2.isEmptyArray;
+import static com.wl4g.components.common.collection.Collections2.safeMap;
 import static com.wl4g.components.common.lang.Assert2.*;
 import static com.wl4g.components.common.lang.StringUtils2.isDomain;
 import static com.wl4g.components.common.web.UserAgentUtils.*;
@@ -320,6 +322,17 @@ public abstract class WebUtils2 {
 			hasTextOf(cleanedValue, paramName);
 		}
 		return cleanedValue;
+	}
+
+	/**
+	 * Extract request parameters of first value
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static Map<String, String> extractParamesOfFirst(ServletRequest request) {
+		return safeMap(request.getParameterMap()).entrySet().stream()
+				.collect(toMap(e -> e.getKey(), e -> isEmptyArray(e.getValue()) ? null : e.getValue()[0]));
 	}
 
 	/**
