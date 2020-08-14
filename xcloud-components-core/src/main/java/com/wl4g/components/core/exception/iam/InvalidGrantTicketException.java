@@ -15,6 +15,13 @@
  */
 package com.wl4g.components.core.exception.iam;
 
+/**
+ * {@link InvalidGrantTicketException}
+ *
+ * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+ * @version v1.0 2019-08-14
+ * @since
+ */
 public class InvalidGrantTicketException extends UnauthenticatedException {
 	static final long serialVersionUID = -7034833390745766939L;
 

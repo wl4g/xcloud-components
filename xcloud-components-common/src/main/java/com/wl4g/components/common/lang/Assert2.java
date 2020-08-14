@@ -23,6 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
+
+import com.wl4g.components.common.annotation.Nullable;
 
 import static com.wl4g.components.common.lang.StringUtils2.*;
 import static java.lang.Math.max;
@@ -53,8 +56,8 @@ import static java.lang.Thread.currentThread;
  * For example:
  *
  * <pre class="code">
- * Assert.notNull(clazz, "The class must not be null");
- * Assert.isTrue(i > 0, "The value must be greater than zero");
+ * Assert2.notNull(clazz, "The class must not be null");
+ * Assert2.isTrue(i > 0, "The value must be greater than zero");
  * </pre>
  *
  * <p>
@@ -79,7 +82,7 @@ public abstract class Assert2 {
 	 * {@code IllegalArgumentException} on an assertion failure.
 	 * 
 	 * <pre class="code">
-	 * Assert.state(id == null, "The id property must not already be initialized");
+	 * Assert2.state(id == null, "The id property must not already be initialized");
 	 * </pre>
 	 * 
 	 * @param expression
@@ -91,7 +94,7 @@ public abstract class Assert2 {
 	 */
 	public static void state(boolean expression, String fmtMessage, Object... args) {
 		if (!expression) {
-			throw new IllegalStateException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalStateException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -112,7 +115,7 @@ public abstract class Assert2 {
 	 * if the expression evaluates to {@code false}.
 	 * 
 	 * <pre class="code">
-	 * Assert.isTrue(i &gt; 0, "The value must be greater than zero");
+	 * Assert2.isTrue(i &gt; 0, "The value must be greater than zero");
 	 * </pre>
 	 * 
 	 * @param expression
@@ -124,7 +127,7 @@ public abstract class Assert2 {
 	 */
 	public static void isTrue(boolean expression, String fmtMessage, Object... args) {
 		if (!expression) {
-			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -133,7 +136,29 @@ public abstract class Assert2 {
 	 * if the expression evaluates to {@code false}.
 	 * 
 	 * <pre class="code">
-	 * Assert.isTrue(i &gt; 0, "The value must be greater than zero");
+	 * Assert2.isTrue(i &gt; 0, "The value must be greater than zero");
+	 * </pre>
+	 * 
+	 * @param expression
+	 *            a boolean expression
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if {@code expression} is {@code false}
+	 */
+	public static void isTrue(boolean expression, Supplier<String> messageSupplier) {
+		if (!expression) {
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
+		}
+	}
+
+	/**
+	 * Assert a boolean expression, throwing an {@code IllegalArgumentException}
+	 * if the expression evaluates to {@code false}.
+	 * 
+	 * <pre class="code">
+	 * Assert2.isTrue(i &gt; 0, "The value must be greater than zero");
 	 * </pre>
 	 * 
 	 * @param expression
@@ -149,6 +174,31 @@ public abstract class Assert2 {
 			Object... args) {
 		if (!expression) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
+		}
+	}
+
+	/**
+	 * Assert a boolean expression, throwing an {@code IllegalArgumentException}
+	 * if the expression evaluates to {@code false}.
+	 * 
+	 * <pre class="code">
+	 * Assert2.isTrue(i &gt; 0, "The value must be greater than zero");
+	 * </pre>
+	 * 
+	 * @param expression
+	 *            a boolean expression
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if {@code expression} is {@code false}
+	 */
+	public static void isTrue(boolean expression, Class<? extends RuntimeException> exceptionClass,
+			Supplier<String> messageSupplier) {
+		if (!expression) {
+			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
 	}
 
@@ -181,7 +231,7 @@ public abstract class Assert2 {
 	 * Assert that an object is {@code null}.
 	 * 
 	 * <pre class="code">
-	 * Assert.isNull(value, "The value must be null");
+	 * Assert2.isNull(value, "The value must be null");
 	 * </pre>
 	 * 
 	 * @param object
@@ -193,7 +243,7 @@ public abstract class Assert2 {
 	 */
 	public static void isNull(Object object, String fmtMessage, Object... args) {
 		if (object != null) {
-			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -212,7 +262,7 @@ public abstract class Assert2 {
 	 * Assert that an object is not {@code null}.
 	 * 
 	 * <pre class="code">
-	 * Assert.notNull(clazz, "The class must not be null");
+	 * Assert2.notNull(clazz, "The class must not be null");
 	 * </pre>
 	 * 
 	 * @param object
@@ -232,7 +282,28 @@ public abstract class Assert2 {
 	 * Assert that an object is not {@code null}.
 	 * 
 	 * <pre class="code">
-	 * Assert.notNull(clazz, "The class must not be null");
+	 * Assert2.notNull(clazz, "The class must not be null");
+	 * </pre>
+	 * 
+	 * @param object
+	 *            the object to check
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if the object is {@code null}
+	 */
+	public static void notNull(Object object, Supplier<String> messageSupplier) {
+		if (object == null) {
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
+		}
+	}
+
+	/**
+	 * Assert that an object is not {@code null}.
+	 * 
+	 * <pre class="code">
+	 * Assert2.notNull(clazz, "The class must not be null");
 	 * </pre>
 	 * 
 	 * @param object
@@ -248,6 +319,30 @@ public abstract class Assert2 {
 			Object... args) {
 		if (object == null) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
+		}
+	}
+
+	/**
+	 * Assert that an object is not {@code null}.
+	 * 
+	 * <pre class="code">
+	 * Assert2.notNull(clazz, "The class must not be null");
+	 * </pre>
+	 * 
+	 * @param object
+	 *            the object to check
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if the object is {@code null}
+	 */
+	public static void notNull(Object object, Class<? extends RuntimeException> exceptionClass,
+			Supplier<String> messageSupplier) {
+		if (object == null) {
+			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
 	}
 
@@ -279,7 +374,7 @@ public abstract class Assert2 {
 	 * {@code null} and not the empty String.
 	 * 
 	 * <pre class="code">
-	 * Assert.hasLength(name, "Name must not be empty");
+	 * Assert2.hasLength(name, "Name must not be empty");
 	 * </pre>
 	 * 
 	 * @param text
@@ -292,7 +387,7 @@ public abstract class Assert2 {
 	 */
 	public static void hasLength(String text, String fmtMessage, Object... args) {
 		if (!isNotBlank(text)) {
-			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -314,7 +409,7 @@ public abstract class Assert2 {
 	 * character.
 	 * 
 	 * <pre class="code">
-	 * Assert.hasText(name, "'name' must not be empty");
+	 * Assert2.hasText(name, "'name' must not be empty");
 	 * </pre>
 	 * 
 	 * @param text
@@ -327,7 +422,7 @@ public abstract class Assert2 {
 	 */
 	public static void hasText(String text, String fmtMessage, Object... args) {
 		if (!isNotBlank(text)) {
-			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -337,7 +432,31 @@ public abstract class Assert2 {
 	 * character.
 	 * 
 	 * <pre class="code">
-	 * Assert.hasText(name, "'name' must not be empty");
+	 * Assert2.hasText(name, "'name' must not be empty");
+	 * </pre>
+	 * 
+	 * @param text
+	 *            the String to check
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @see StringUtils#hasText
+	 * @throws IllegalArgumentException
+	 *             if the text does not contain valid text content
+	 */
+	public static void hasText(String text, Supplier<String> messageSupplier) {
+		if (!isNotBlank(text)) {
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
+		}
+	}
+
+	/**
+	 * Assert that the given String contains valid text content; that is, it
+	 * must not be {@code null} and must contain at least one non-whitespace
+	 * character.
+	 * 
+	 * <pre class="code">
+	 * Assert2.hasText(name, "'name' must not be empty");
 	 * </pre>
 	 * 
 	 * @param text
@@ -353,6 +472,32 @@ public abstract class Assert2 {
 	public static void hasText(String text, Class<? extends RuntimeException> exceptionClass, String fmtMessage, Object... args) {
 		if (!isNotBlank(text)) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
+		}
+	}
+
+	/**
+	 * Assert that the given String contains valid text content; that is, it
+	 * must not be {@code null} and must contain at least one non-whitespace
+	 * character.
+	 * 
+	 * <pre class="code">
+	 * Assert2.hasText(name, "'name' must not be empty");
+	 * </pre>
+	 * 
+	 * @param text
+	 *            the String to check
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @see StringUtils#hasText
+	 * @throws IllegalArgumentException
+	 *             if the text does not contain valid text content
+	 */
+	public static void hasText(String text, Class<? extends RuntimeException> exceptionClass, Supplier<String> messageSupplier) {
+		if (!isNotBlank(text)) {
+			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
 	}
 
@@ -387,7 +532,7 @@ public abstract class Assert2 {
 	 * Assert that the given text does not contain the given substring.
 	 * 
 	 * <pre class="code">
-	 * Assert.doesNotContain(name, "rod", "Name must not contain 'rod'");
+	 * Assert2.doesNotContain(name, "rod", "Name must not contain 'rod'");
 	 * </pre>
 	 * 
 	 * @param textToSearch
@@ -423,7 +568,7 @@ public abstract class Assert2 {
 	 * {@code null} and must contain at least one element.
 	 * 
 	 * <pre class="code">
-	 * Assert.notEmpty(array, "The array must contain elements");
+	 * Assert2.notEmpty(array, "The array must contain elements");
 	 * </pre>
 	 * 
 	 * @param array
@@ -444,7 +589,29 @@ public abstract class Assert2 {
 	 * {@code null} and must contain at least one element.
 	 * 
 	 * <pre class="code">
-	 * Assert.notEmpty(array, "The array must contain elements");
+	 * Assert2.notEmpty(array, "The array must contain elements");
+	 * </pre>
+	 * 
+	 * @param array
+	 *            the array to check
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if the object array is {@code null} or contains no elements
+	 */
+	public static void notEmpty(Object[] array, Supplier<String> messageSupplier) {
+		if (array == null || array.length == 0) {
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
+		}
+	}
+
+	/**
+	 * Assert that an array contains elements; that is, it must not be
+	 * {@code null} and must contain at least one element.
+	 * 
+	 * <pre class="code">
+	 * Assert2.notEmpty(array, "The array must contain elements");
 	 * </pre>
 	 * 
 	 * @param array
@@ -460,6 +627,31 @@ public abstract class Assert2 {
 			Object... args) {
 		if (array == null || array.length == 0) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
+		}
+	}
+
+	/**
+	 * Assert that an array contains elements; that is, it must not be
+	 * {@code null} and must contain at least one element.
+	 * 
+	 * <pre class="code">
+	 * Assert2.notEmpty(array, "The array must contain elements");
+	 * </pre>
+	 * 
+	 * @param array
+	 *            the array to check
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if the object array is {@code null} or contains no elements
+	 */
+	public static void notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass,
+			Supplier<String> messageSupplier) {
+		if (array == null || array.length == 0) {
+			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
 	}
 
@@ -494,7 +686,7 @@ public abstract class Assert2 {
 	 * Note: Does not complain if the array is empty!
 	 * 
 	 * <pre class="code">
-	 * Assert.noNullElements(array, "The array must contain non-null elements");
+	 * Assert2.noNullElements(array, "The array must contain non-null elements");
 	 * </pre>
 	 * 
 	 * @param array
@@ -508,7 +700,7 @@ public abstract class Assert2 {
 		if (array != null) {
 			for (Object element : array) {
 				if (element == null) {
-					throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+					throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 				}
 			}
 		}
@@ -520,7 +712,7 @@ public abstract class Assert2 {
 	 * Note: Does not complain if the array is empty!
 	 * 
 	 * <pre class="code">
-	 * Assert.noNullElements(array, "The array must contain non-null elements");
+	 * Assert2.noNullElements(array, "The array must contain non-null elements");
 	 * </pre>
 	 * 
 	 * @param array
@@ -559,7 +751,7 @@ public abstract class Assert2 {
 	 * {@code null} and must contain at least one element.
 	 * 
 	 * <pre class="code">
-	 * Assert.notEmpty(collection, "Collection must contain elements");
+	 * Assert2.notEmpty(collection, "Collection must contain elements");
 	 * </pre>
 	 * 
 	 * @param collection
@@ -571,7 +763,7 @@ public abstract class Assert2 {
 	 */
 	public static void notEmpty(Collection<?> collection, String fmtMessage, Object... args) {
 		if (collection == null || collection.isEmpty()) {
-			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -592,7 +784,7 @@ public abstract class Assert2 {
 	 * and must contain at least one entry.
 	 * 
 	 * <pre class="code">
-	 * Assert.notEmpty(map, "Map must contain entries");
+	 * Assert2.notEmpty(map, "Map must contain entries");
 	 * </pre>
 	 * 
 	 * @param map
@@ -616,7 +808,7 @@ public abstract class Assert2 {
 	 * and must contain at least one entry.
 	 * 
 	 * <pre class="code">
-	 * Assert.notEmpty(map, "Map must contain entries");
+	 * Assert2.notEmpty(map, "Map must contain entries");
 	 * </pre>
 	 * 
 	 * @param map
@@ -628,7 +820,7 @@ public abstract class Assert2 {
 	 */
 	public static void notEmpty(Map<?, ?> map, String fmtMessage, Object... args) {
 		if (map == null || map.isEmpty()) {
-			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
 	}
 
@@ -661,7 +853,7 @@ public abstract class Assert2 {
 	 * Assert that the provided object is an instance of the provided class.
 	 * 
 	 * <pre class="code">
-	 * Assert.instanceOf(Foo.class, foo, "Foo expected");
+	 * Assert2.instanceOf(Foo.class, foo, "Foo expected");
 	 * </pre>
 	 * 
 	 * @param type
@@ -689,7 +881,32 @@ public abstract class Assert2 {
 	 * Assert that the provided object is an instance of the provided class.
 	 * 
 	 * <pre class="code">
-	 * Assert.instanceOf(Foo.class, foo, "Foo expected");
+	 * Assert2.instanceOf(Foo.class, foo, "Foo expected");
+	 * </pre>
+	 * 
+	 * @param type
+	 *            the type to check against
+	 * @param obj
+	 *            the object to check
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if the object is not an instance of type
+	 */
+	public static void isInstanceOf(Class<?> type, Object obj, Supplier<String> messageSupplier) {
+		notNull(type, "Type to check against must not be null");
+		if (!type.isInstance(obj)) {
+			instanceCheckFailed(type, obj, IllegalArgumentException.class,
+					ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
+		}
+	}
+
+	/**
+	 * Assert that the provided object is an instance of the provided class.
+	 * 
+	 * <pre class="code">
+	 * Assert2.instanceOf(Foo.class, foo, "Foo expected");
 	 * </pre>
 	 * 
 	 * @param type
@@ -720,7 +937,34 @@ public abstract class Assert2 {
 	 * Assert that the provided object is an instance of the provided class.
 	 * 
 	 * <pre class="code">
-	 * Assert.instanceOf(Foo.class, foo);
+	 * Assert2.instanceOf(Foo.class, foo, "Foo expected");
+	 * </pre>
+	 * 
+	 * @param type
+	 *            the type to check against
+	 * @param obj
+	 *            the object to check
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param messageSupplier
+	 *            a supplier for the exception message to use if the assertion
+	 *            fails
+	 * @throws IllegalArgumentException
+	 *             if the object is not an instance of type
+	 */
+	public static void isInstanceOf(Class<?> type, Object obj, Class<? extends RuntimeException> exceptionClass,
+			Supplier<String> messageSupplier) {
+		notNull(type, "Type to check against must not be null");
+		if (!type.isInstance(obj)) {
+			instanceCheckFailed(type, obj, exceptionClass, nullSafeGet(messageSupplier));
+		}
+	}
+
+	/**
+	 * Assert that the provided object is an instance of the provided class.
+	 * 
+	 * <pre class="code">
+	 * Assert2.instanceOf(Foo.class, foo);
 	 * </pre>
 	 * 
 	 * @param type
@@ -738,7 +982,7 @@ public abstract class Assert2 {
 	 * Assert that {@code superType.isAssignableFrom(subType)} is {@code true}.
 	 * 
 	 * <pre class="code">
-	 * Assert.isAssignable(Number.class, myClass, "Number expected");
+	 * Assert2.isAssignable(Number.class, myClass, "Number expected");
 	 * </pre>
 	 * 
 	 * @param superType
@@ -766,7 +1010,7 @@ public abstract class Assert2 {
 	 * Assert that {@code superType.isAssignableFrom(subType)} is {@code true}.
 	 * 
 	 * <pre class="code">
-	 * Assert.isAssignable(Number.class, myClass, "Number expected");
+	 * Assert2.isAssignable(Number.class, myClass, "Number expected");
 	 * </pre>
 	 * 
 	 * @param superType
@@ -797,7 +1041,7 @@ public abstract class Assert2 {
 	 * Assert that {@code superType.isAssignableFrom(subType)} is {@code true}.
 	 * 
 	 * <pre class="code">
-	 * Assert.isAssignable(Number.class, myClass);
+	 * Assert2.isAssignable(Number.class, myClass);
 	 * </pre>
 	 * 
 	 * @param superType
@@ -939,6 +1183,11 @@ public abstract class Assert2 {
 		return format;
 	}
 
+	@Nullable
+	private static String nullSafeGet(@Nullable Supplier<String> messageSupplier) {
+		return (messageSupplier != null ? messageSupplier.get() : null);
+	}
+
 	/**
 	 * Do assertion handling
 	 * 
@@ -950,9 +1199,10 @@ public abstract class Assert2 {
 		RuntimeException th = newRuntimeExceptionInstance(exceptionClass);
 		// Init cause message
 		try {
-			detailMessageField.set(th, ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
+			detailMessageField.set(th, ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		} catch (Exception ex) {
-			throw new Error("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+			throw new Error(
+					"Unexpected reflection exception - ".concat(ex.getClass().getName()).concat(": ").concat(ex.getMessage()));
 		}
 
 		// Remove useless stack elements
@@ -961,7 +1211,7 @@ public abstract class Assert2 {
 		for (int i = 0, j = 0; i < stackEles.length; i++) {
 			StackTraceElement st = stackEles[i];
 			if (j == 0) {
-				if (NEW_RUNTIMEEXCEPTION_INSTANCE_METHOD.equals(st.getClassName() + "#" + st.getMethodName()))
+				if (NEW_RUNTIMEEXCEPTION_INSTANCE_METHOD.equals(st.getClassName().concat("#").concat(st.getMethodName())))
 					j = i;
 			} else
 				availableStackEles.add(st);
