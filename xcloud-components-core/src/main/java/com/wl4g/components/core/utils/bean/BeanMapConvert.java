@@ -27,13 +27,17 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
- * Bean and Map Convert.
+ * Bean and Map Convert. </br>
+ *
+ * NOTE: It can't satisfy the requirements of infinite level recursion and
+ * infinite level generics!!!
  *
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
  * @date 2018年11月28日
  * @since
  */
+@Deprecated
 public final class BeanMapConvert {
 
 	private Object bean;
