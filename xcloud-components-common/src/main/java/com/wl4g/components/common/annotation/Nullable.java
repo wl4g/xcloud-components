@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Recommended use {@link javax.annotation.Nullable} </br>
  * A common annotation to declare that annotated elements can be {@code null}
  * under some circumstance.
  *
@@ -39,15 +40,14 @@ import java.lang.annotation.Target;
  * Can be used in association with {@code @NonNullApi} or {@code @NonNullFields}
  * to override the default non-nullable semantic to nullable.
  *
- * @author Sebastien Deleuze
- * @author Juergen Hoeller
- * @since 5.0
  * @see NonNullApi
  * @see NonNullFields
  * @see NonNull
+ * @see {@link javax.annotation.Nullable}
  */
 @Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Reserved
 public @interface Nullable {
 }

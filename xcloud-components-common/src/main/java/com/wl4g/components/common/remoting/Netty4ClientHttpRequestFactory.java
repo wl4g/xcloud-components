@@ -17,13 +17,14 @@ package com.wl4g.components.common.remoting;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static com.wl4g.components.common.lang.Assert2.*;
+import static com.wl4g.components.common.lang.TypeConverts.safeLongToInt;
 import static java.lang.Runtime.getRuntime;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLException;
 
@@ -73,8 +74,8 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	@Nullable
 	private SslContext sslContext;
 	private boolean debug = false;
-	private int connectTimeout;
-	private int readTimeout;
+	private long connectTimeout;
+	private long readTimeout;
 	private int maxResponseSize;
 
 	@Nullable
@@ -154,7 +155,7 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	 * 
 	 * @see ChannelConfig#setConnectTimeoutMillis(int)
 	 */
-	public void setConnectTimeout(int connectTimeout) {
+	public void setConnectTimeout(long connectTimeout) {
 		this.connectTimeout = connectTimeout;
 	}
 
@@ -164,7 +165,7 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	 * 
 	 * @see ReadTimeoutHandler
 	 */
-	public void setReadTimeout(int readTimeout) {
+	public void setReadTimeout(long readTimeout) {
 		this.readTimeout = readTimeout;
 	}
 
@@ -192,8 +193,8 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 	 *            the channel configuration
 	 */
 	protected void configureChannel(SocketChannelConfig config) {
-		if (this.connectTimeout >= 0) {
-			config.setConnectTimeoutMillis(this.connectTimeout);
+		if (connectTimeout >= 0) {
+			config.setConnectTimeoutMillis(safeLongToInt(connectTimeout));
 		}
 	}
 
@@ -281,9 +282,8 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 			}
 
 			if (readTimeout > 0) {
-				pipe.addLast(new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
+				pipe.addLast(new ReadTimeoutHandler(safeLongToInt(readTimeout), MILLISECONDS));
 			}
-
 		}
 
 	}
