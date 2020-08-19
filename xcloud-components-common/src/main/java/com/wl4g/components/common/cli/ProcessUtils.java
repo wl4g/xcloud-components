@@ -343,22 +343,20 @@ public abstract class ProcessUtils {
 			// Stdout/Stderr
 			if (nonNull(stdout)) {
 				ensureFile(stdout);
-				stdout.getParentFile().mkdirs();
-
 				// e.g: echo "hello" 1>out.log
-				cmdStr.append(String.format(" 1%s%s", mode, stdout.getAbsolutePath()));
+				cmdStr.append(format(" 1%s%s", mode, stdout.getAbsolutePath()));
 				redirectToNullIfNecessary = false;
 			}
 			if (nonNull(stderr)) {
 				ensureFile(stderr);
 				// e.g: echo "hello" 2>err.log
-				cmdStr.append(String.format(" 2%s%s", mode, stderr.getAbsolutePath()));
+				cmdStr.append(format(" 2%s%s", mode, stderr.getAbsolutePath()));
 				redirectToNullIfNecessary = false;
 			}
 			if (redirectToNullIfNecessary) {
-				// e.g: echo "hello" >>/dev/null
+				// e.g: echo "hello" >>C:\\nul
 				// To use in poweshell: $null
-				cmdStr.append(String.format(" %s C:\\nul", mode));
+				cmdStr.append(format(" %s C:\\nul", mode));
 			}
 		} else {
 			cmdarray.add("/bin/bash");
