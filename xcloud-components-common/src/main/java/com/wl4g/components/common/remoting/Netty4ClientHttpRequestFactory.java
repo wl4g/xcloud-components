@@ -30,7 +30,7 @@ import javax.net.ssl.SSLException;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
-import com.wl4g.components.common.remoting.standard.HttpMediaType;
+import static com.wl4g.components.common.remoting.standard.HttpMediaType.MULTIPART_FORM_DATA;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelConfig;
@@ -271,7 +271,7 @@ public class Netty4ClientHttpRequestFactory implements ClientHttpRequestFactory,
 			}
 			pipe.addLast(new HttpClientCodec());
 
-			if (nonNull(requestHeaders) && requestHeaders.getContentType().isCompatibleWith(HttpMediaType.MULTIPART_FORM_DATA)) {
+			if (nonNull(requestHeaders) && MULTIPART_FORM_DATA.isCompatibleWith(requestHeaders.getContentType())) {
 				// Remove the following line if you don't want automatic
 				// content decompression.
 				pipe.addLast("inflater", new HttpContentDecompressor());
