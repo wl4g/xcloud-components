@@ -262,6 +262,9 @@
     <if test="pipeName != null and pipeName != ''" >
       AND p.pipe_name LIKE CONCAT('%','${pipeName}','%')
     </if>
+    <if test="clusterName != null and clusterName != ''" >
+      AND c.name = #{clusterName,jdbcType=VARCHAR}
+    </if>
     <if test="providerKind != null and providerKind != ''" >
       AND p.provider_kind = #{providerKind,jdbcType=VARCHAR}
     </if>
