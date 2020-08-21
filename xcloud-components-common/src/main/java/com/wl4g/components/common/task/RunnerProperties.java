@@ -32,7 +32,7 @@ public class RunnerProperties implements Serializable {
 	final private static long serialVersionUID = -1996272636830701232L;
 	final private static int DEFAULT_CONCURRENCY = -1;
 	final private static long DEFAULT_KEEP_ALIVE_TIME = 0L;
-	final private static int DEFAULT_ACCEPT_QUEUE = 2;
+	final private static int DEFAULT_ACCEPT_QUEUE = 1;
 
 	/** Whether to start the boss thread asynchronously. */
 	private boolean asyncStartup = false;
@@ -101,7 +101,7 @@ public class RunnerProperties implements Serializable {
 	}
 
 	public void setConcurrency(int concurrency) {
-		// Assert.isTrue(concurrency > 0, "Concurrency must be greater than 0");
+		// isTrue(concurrency > 0, "Concurrency must be greater than 0");
 		this.concurrency = concurrency;
 	}
 
@@ -132,7 +132,7 @@ public class RunnerProperties implements Serializable {
 
 	public void setAcceptQueue(int acceptQueue) {
 		if (getConcurrency() > 0) {
-			isTrue(acceptQueue > 0, "acceptQueue must be greater than 0");
+			isTrue(acceptQueue >= 0, "acceptQueue must be greater than or equal to 0");
 		}
 		this.acceptQueue = acceptQueue;
 	}

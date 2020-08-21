@@ -100,6 +100,7 @@
 			<artifactId>protostuff-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Protostuff -->
 		<dependency>
 			<groupId>io.protostuff</groupId>
 			<artifactId>protostuff-runtime</artifactId>
@@ -111,7 +112,12 @@
 			<artifactId>UserAgentUtils</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<!-- Java fundation -->
+		<!-- Javax fundation -->
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>javax.mail-api</artifactId>
@@ -143,8 +149,8 @@
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
-					<groupId>c3p0</groupId>
-					<artifactId>c3p0</artifactId>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
