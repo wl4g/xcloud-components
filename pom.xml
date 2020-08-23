@@ -13,6 +13,7 @@
 	</parent>
 	<modules>
 		<module>xcloud-components-common</module>
+        <module>xcloud-components-common-shade</module>
 		<module>xcloud-components-opencv</module>
 		<module>xcloud-components-core</module>
 		<module>xcloud-components-support</module>
