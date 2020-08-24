@@ -15,9 +15,7 @@
  */
 package com.wl4g.components.common.lang;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field; 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,11 +24,11 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.wl4g.components.common.annotation.Nullable;
+import com.wl4g.components.common.reflect.ObjectInstantiators;
 
 import static com.wl4g.components.common.lang.StringUtils2.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
 
 /**
  * Assertion utility class that assists in validating arguments.
@@ -1228,14 +1226,7 @@ public abstract class Assert2 {
 	 * @return
 	 */
 	private static RuntimeException newRuntimeExceptionInstance(Class<? extends RuntimeException> exceptionClass) {
-		try {
-			if (!Objects.isNull(objenesis)) {
-				return (RuntimeException) objenesisStdNewInstanceMethod.invoke(objenesis, new Object[] { exceptionClass });
-			}
-			return (RuntimeException) exceptionClass.newInstance();
-		} catch (Exception ex) {
-			throw new Error("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
-		}
+		return ObjectInstantiators.newInstance(exceptionClass);
 	}
 
 	/**
@@ -1243,9 +1234,6 @@ public abstract class Assert2 {
 	 */
 	final private static String ASSERT_FAILED_PREFIX = "[AF] - ";
 	final private static String NEW_RUNTIMEEXCEPTION_INSTANCE_METHOD = Assert2.class.getName() + "#newRuntimeExceptionInstance";
-	final private static String OBJENSIS_CLASS = "org.springframework.objenesis.ObjenesisStd";
-	final private static Object objenesis;
-	final private static Method objenesisStdNewInstanceMethod;
 	final private static Field detailMessageField;
 	final private static Field causeField;
 
@@ -1255,26 +1243,6 @@ public abstract class Assert2 {
 			causeField = Throwable.class.getDeclaredField("cause");
 			detailMessageField.setAccessible(true);
 			causeField.setAccessible(true);
-
-			Object _objenesis = null;
-			Method _objenesisStdNewInstanceMethod = null;
-			try {
-				Class<?> objenesisClass = Class.forName(OBJENSIS_CLASS, false, currentThread().getContextClassLoader());
-				if (!Objects.isNull(objenesisClass)) {
-					_objenesisStdNewInstanceMethod = objenesisClass.getMethod("newInstance", Class.class);
-					// Objenesis object.
-					for (Constructor<?> c : objenesisClass.getConstructors()) {
-						Class<?>[] paramClasses = c.getParameterTypes();
-						if (paramClasses != null && paramClasses.length == 1 && boolean.class.isAssignableFrom(paramClasses[0])) {
-							_objenesis = c.newInstance(new Object[] { true });
-							break;
-						}
-					}
-				}
-			} catch (ClassNotFoundException e) { // Ignore
-			}
-			objenesis = _objenesis;
-			objenesisStdNewInstanceMethod = _objenesisStdNewInstanceMethod;
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}

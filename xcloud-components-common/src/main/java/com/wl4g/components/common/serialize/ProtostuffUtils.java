@@ -17,6 +17,7 @@ package com.wl4g.components.common.serialize;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
+import com.wl4g.components.common.reflect.ObjectInstantiators;
 
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
@@ -24,19 +25,14 @@ import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
-import static java.lang.Thread.currentThread;
 import static java.util.Objects.isNull;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
@@ -228,16 +224,8 @@ public abstract class ProtostuffUtils {
 	 * @param beanClass
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	private static <T> T newBeanInstance(Class<?> beanClass) {
-		try {
-			if (!Objects.isNull(objenesis)) {
-				return (T) objenesisStdNewInstanceMethod.invoke(objenesis, new Object[] { beanClass });
-			}
-			return (T) beanClass.newInstance();
-		} catch (Exception ex) {
-			throw new Error("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
-		}
+	private static <T> T newBeanInstance(Class<T> beanClass) {
+		return ObjectInstantiators.newInstance(beanClass);
 	}
 
 	/**
@@ -270,36 +258,6 @@ public abstract class ProtostuffUtils {
 			return wrapper;
 		}
 
-	}
-
-	// Spring packaging compatible object creator.
-	final private static String OBJENSIS_CLASS = "org.springframework.objenesis.ObjenesisStd";
-	final private static Object objenesis;
-	final private static Method objenesisStdNewInstanceMethod;
-
-	static {
-		Object _objenesis = null;
-		Method _objenesisStdNewInstanceMethod = null;
-		try {
-			Class<?> objenesisClass = Class.forName(OBJENSIS_CLASS, false, currentThread().getContextClassLoader());
-			if (!Objects.isNull(objenesisClass)) {
-				_objenesisStdNewInstanceMethod = objenesisClass.getMethod("newInstance", Class.class);
-				// Objenesis object.
-				for (Constructor<?> c : objenesisClass.getConstructors()) {
-					Class<?>[] paramClasses = c.getParameterTypes();
-					if (paramClasses != null && paramClasses.length == 1 && boolean.class.isAssignableFrom(paramClasses[0])) {
-						_objenesis = c.newInstance(new Object[] { true });
-						break;
-					}
-				}
-			}
-		} catch (ClassNotFoundException e) { // Ignore
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			throw new IllegalStateException(e);
-		}
-		objenesis = _objenesis;
-		objenesisStdNewInstanceMethod = _objenesisStdNewInstanceMethod;
 	}
 
 }
