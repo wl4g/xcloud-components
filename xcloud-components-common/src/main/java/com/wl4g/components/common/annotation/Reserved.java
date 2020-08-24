@@ -31,7 +31,8 @@ import java.lang.annotation.Target;
  * @since
  */
 @Retention(RetentionPolicy.CLASS)
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE,
+		ElementType.PARAMETER })
 @Documented
 public @interface Reserved {
 
