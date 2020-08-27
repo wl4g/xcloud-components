@@ -15,8 +15,11 @@
  */
 package com.wl4g.components.data.config;
 
+import static com.wl4g.components.common.collection.Collections2.safeList;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Arrays.asList;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -84,7 +87,7 @@ public abstract class AbstractDataSourceAutoConfiguration {
 		pageHelper.setProperties(props); // 添加插件
 		factory.setPlugins(new Interceptor[] { pageHelper });
 
-		factory.setMapperLocations(resolver.getResources(config.getMapperLocations()));
+		factory.setMapperLocations(getDaoMappers(resolver, config));
 		return factory;
 	}
 
@@ -93,13 +96,13 @@ public abstract class AbstractDataSourceAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	protected Class<?>[] getTypeAliases(PathMatchingResourcePatternResolver resolver, MybatisProperties config) throws Exception {
+	private Class<?>[] getTypeAliases(PathMatchingResourcePatternResolver resolver, MybatisProperties config) throws Exception {
 		List<Class<?>> typeAliases = new ArrayList<>();
 
 		// Define metadataReader
 		MetadataReaderFactory metadataReaderFty = new CachingMetadataReaderFactory(resolver);
 
-		for (String pkg : config.getTypeAliasesPackage().split(",")) {
+		for (String pkg : config.getTypeAliasPackage()) {
 			// Get location
 			String location = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ClassUtils.convertClassNameToResourcePath(pkg)
 					+ "**/*.class";
@@ -116,6 +119,27 @@ public abstract class AbstractDataSourceAutoConfiguration {
 		}
 
 		return typeAliases.toArray(new Class<?>[] {});
+	}
+
+	/**
+	 * Gets scanning load DAO mappers configuration.
+	 * 
+	 * @param resolver
+	 * @param config
+	 * @return
+	 * @throws Exception
+	 */
+	private Resource[] getDaoMappers(PathMatchingResourcePatternResolver resolver, MybatisProperties config) throws Exception {
+		// Scanning load mappers all
+		List<Resource> ress = new ArrayList<>(16);
+		for (String location : safeList(config.getMapperLocations())) {
+			try {
+				ress.add((Resource) asList(resolver.getResources(location)));
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+		return ress.toArray(new Resource[] {});
 	}
 
 }

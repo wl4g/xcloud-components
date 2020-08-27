@@ -15,6 +15,11 @@
  */
 package com.wl4g.components.data.config;
 
+import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
+import static java.util.Arrays.asList;
+
+import java.util.List;
+
 /**
  * {@link MybatisProperties}
  *
@@ -24,16 +29,16 @@ package com.wl4g.components.data.config;
  */
 public class MybatisProperties {
 
-	private String typeAliasesPackage = "com.wl4g.components.data.bean.*";
+	private List<String> typeAliasPackage = asList("com.wl4g.components.data.bean.*");
 	private String configLocation = "mybatis/mybatis-config.xml";
-	private String mapperLocations = "classpath:mybatis/**/*Mapper.xml";
+	private List<String> mapperLocations = asList("classpath:mybatis/**/*Mapper.xml");
 
-	public String getTypeAliasesPackage() {
-		return typeAliasesPackage;
+	public List<String> getTypeAliasPackage() {
+		return typeAliasPackage;
 	}
 
-	public void setTypeAliasesPackage(String typeAliasesPackage) {
-		this.typeAliasesPackage = typeAliasesPackage;
+	public void setTypeAliasPackage(List<String> typeAliasesPackage) {
+		this.typeAliasPackage = typeAliasesPackage;
 	}
 
 	public String getConfigLocation() {
@@ -44,12 +49,17 @@ public class MybatisProperties {
 		this.configLocation = configLocation;
 	}
 
-	public String getMapperLocations() {
+	public List<String> getMapperLocations() {
 		return mapperLocations;
 	}
 
-	public void setMapperLocations(String mapperLocations) {
+	public void setMapperLocations(List<String> mapperLocations) {
 		this.mapperLocations = mapperLocations;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName().concat(" - ").concat(toJSONString(this));
 	}
 
 }
