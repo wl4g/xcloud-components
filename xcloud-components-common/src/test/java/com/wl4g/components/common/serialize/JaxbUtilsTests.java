@@ -70,9 +70,14 @@ public class JaxbUtilsTests {
 		xml += "  </Session>";
 		xml += "</mqttData>";
 
+		System.out.println("------serialization-------");
 		MqttData msg = JaxbUtils.fromXml(xml, MqttData.class);
 		System.out.println(msg.getSession().getDataCollector().getTime());
 
+		System.out.println("\n\n");
+
+		System.out.println("------serialization-------");
+		System.out.println(JaxbUtils.toXml(msg, "UTF-8", MqttData.class));
 	}
 
 }

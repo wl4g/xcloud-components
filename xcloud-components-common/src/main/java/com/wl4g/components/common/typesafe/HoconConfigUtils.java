@@ -15,8 +15,11 @@
  */
 package com.wl4g.components.common.typesafe;
 
+import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notEmpty;
+import static com.wl4g.components.common.resource.resolver.ResourceLoader.CLASSPATH_URL_PREFIX;
 import static com.wl4g.components.common.resource.resolver.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
 import java.io.IOException;
 import java.util.Set;
@@ -69,9 +72,16 @@ public abstract class HoconConfigUtils {
 	 * @return
 	 */
 	public static Config loadConfig(String location) {
+		hasTextOf(location, "location");
+
+		// Correct scan path
+		if (!startsWithAny(CLASSPATH_URL_PREFIX, CLASSPATH_ALL_URL_PREFIX)) {
+			location = CLASSPATH_ALL_URL_PREFIX.concat(location);
+		}
+
 		ClassPathResourcePatternResolver resovler = new ClassPathResourcePatternResolver();
 		try {
-			Set<StreamResource> ress = resovler.getResources(new String[] { CLASSPATH_ALL_URL_PREFIX.concat(location) });
+			Set<StreamResource> ress = resovler.getResources(location);
 			notEmpty(ress, "Not found hocon configuration for %s", location);
 
 			ConfigParseOptions options = defaults().setSyntax(CONF).setAllowMissing(true);
