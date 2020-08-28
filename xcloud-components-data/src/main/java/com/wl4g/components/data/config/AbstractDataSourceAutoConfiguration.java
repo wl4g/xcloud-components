@@ -134,7 +134,7 @@ public abstract class AbstractDataSourceAutoConfiguration {
 		List<Resource> ress = new ArrayList<>(16);
 		for (String location : safeList(config.getMapperLocations())) {
 			try {
-				ress.add((Resource) asList(resolver.getResources(location)));
+				ress.addAll(asList(resolver.getResources(location)));
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			}
