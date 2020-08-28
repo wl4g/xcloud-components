@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * Configure aliases for prototype beans to obtain prototype beans at
- * {@link AliasPrototypeBeanFactory}
+ * {@link NamingPrototypeBeanFactory}
  * 
  * @author Wangl.sir &lt;Wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0.0 2019-10-09
@@ -32,8 +32,13 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface PrototypeAlias {
+public @interface NamingPrototype {
 
+	/**
+	 * Naming prototype bean aliases.
+	 * 
+	 * @return
+	 */
 	String[] value();
 
 }

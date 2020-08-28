@@ -32,15 +32,17 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.AnnotationMetadata;
@@ -57,12 +59,12 @@ import com.wl4g.components.common.log.SmartLogger;
  * @version v1.0.0 2019-10-09
  * @since
  */
-public class AliasPrototypeBeanFactory {
+public class NamingPrototypeBeanFactory {
 
 	/**
 	 * Global delegate alias prototype bean class registry.
 	 */
-	final private static Map<String, Class<PrototypeBean>> aliasRegistry = synchronizedMap(new HashMap<>());
+	final private static Map<String, Class<PrototypeBean>> NAMING_REGISTRY = synchronizedMap(new HashMap<>());
 
 	@Autowired
 	private BeanFactory beanFactory;
@@ -76,7 +78,7 @@ public class AliasPrototypeBeanFactory {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends PrototypeBean> T getPrototypeBean(@NotNull String alias, @NotNull Object... args) {
-		Class<?> beanClass = aliasRegistry.get(alias);
+		Class<?> beanClass = NAMING_REGISTRY.get(alias);
 		notNull(beanClass, "No such prototype bean class for '%s'", alias);
 		return (T) beanFactory.getBean(beanClass, args);
 	}
@@ -89,12 +91,16 @@ public class AliasPrototypeBeanFactory {
 	 * @since
 	 * @see {@link MapperScannerRegistrar} struct implements.
 	 */
-	public static class AliasPrototypeBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+	public static class NamingPrototypeBeanDefinitionRegistrar implements BeanDefinitionRegistryPostProcessor {
 		final protected SmartLogger log = getLogger(getClass());
+
+		@Override
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
 			for (String beanName : registry.getBeanDefinitionNames()) {
 				BeanDefinition bd = registry.getBeanDefinition(beanName);
 				if (nonNull(beanName) && bd.isPrototype()) {
@@ -148,7 +154,7 @@ public class AliasPrototypeBeanFactory {
 		@SuppressWarnings("rawtypes")
 		private String[] getAnnotationDelegateAliasValue(AnnotatedTypeMetadata metadata) {
 			MultiValueMap<String, Object> annotationPropertyValues = metadata
-					.getAllAnnotationAttributes(PrototypeAlias.class.getName());
+					.getAllAnnotationAttributes(NamingPrototype.class.getName());
 			if (!CollectionUtils.isEmpty(annotationPropertyValues)) {
 				/**
 				 * See:{@link DelegateAlias}
@@ -174,7 +180,7 @@ public class AliasPrototypeBeanFactory {
 		private void registerPrototypeBean(Class<? extends PrototypeBean> beanClass, String... beanAliass) {
 			if (nonNull(beanAliass)) {
 				for (String alias : beanAliass) {
-					if (isNull(aliasRegistry.putIfAbsent(alias, (Class<PrototypeBean>) beanClass))) {
+					if (isNull(NAMING_REGISTRY.putIfAbsent(alias, (Class<PrototypeBean>) beanClass))) {
 						log.debug("Registered prototype bean for alias: {}, class: {}", alias, beanClass);
 					}
 				}
@@ -191,12 +197,12 @@ public class AliasPrototypeBeanFactory {
 	 * @since
 	 */
 	@Configuration
-	@Import(AliasPrototypeBeanDefinitionRegistrar.class)
-	public static class AliasPrototypeBeanFactoryAutoConfiguration {
+	@Import(NamingPrototypeBeanDefinitionRegistrar.class)
+	public static class NamingPrototypeBeanFactoryAutoConfiguration {
 
 		@Bean
-		public AliasPrototypeBeanFactory delegateAliasPrototypeBeanFactory() {
-			return new AliasPrototypeBeanFactory();
+		public NamingPrototypeBeanFactory namingPrototypeBeanFactory() {
+			return new NamingPrototypeBeanFactory();
 		}
 
 	}
