@@ -19,6 +19,8 @@
     <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
     <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
     <result column="del_flag" jdbcType="INTEGER" property="delFlag" />
+    <result column="orchestration_type" jdbcType="INTEGER" property="orchestrationType" />
+    <result column="orchestration_id" jdbcType="INTEGER" property="orchestrationId" />
 
     <!--other-->
     <result column="pipe_name" property="pipeName" jdbcType="VARCHAR" />
@@ -27,11 +29,11 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, pipe_id, provider_kind, organization_code, status, sha_local, ref_id, cost_time, track_type, track_id,
-    annex, remark, create_date, create_by, update_date, update_by, del_flag
+    annex, remark, create_date, create_by, update_date, update_by, del_flag, orchestration_type, orchestration_id
   </sql>
   <sql id="Base_Column_List_h">
     h.id, h.pipe_id, h.provider_kind, h.organization_code, h.status, h.sha_local, h.ref_id, h.cost_time, h.track_type, h.track_id,
-    h.annex, h.remark, h.create_date, h.create_by, h.update_date, h.update_by, h.del_flag
+    h.annex, h.remark, h.create_date, h.create_by, h.update_date, h.update_by, h.del_flag, h.orchestration_type, h.orchestration_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
@@ -51,13 +53,13 @@
       cost_time, track_type, track_id, 
       annex, remark, create_date, 
       create_by, update_date, update_by, 
-      del_flag)
+      del_flag,orchestration_type, orchestration_id)
     values (#{id,jdbcType=INTEGER}, #{pipeId,jdbcType=INTEGER}, #{providerKind,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
       #{status,jdbcType=INTEGER}, #{shaLocal,jdbcType=VARCHAR}, #{refId,jdbcType=INTEGER}, 
       #{costTime,jdbcType=TIMESTAMP}, #{trackType,jdbcType=VARCHAR}, #{trackId,jdbcType=VARCHAR},
       #{annex,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
-      #{delFlag,jdbcType=INTEGER})
+      #{delFlag,jdbcType=INTEGER}, #{orchestrationType,jdbcType=INTEGER}, #{orchestrationId,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipelineHistory">
     insert into ci_pipe_history
@@ -113,6 +115,12 @@
       <if test="delFlag != null">
         del_flag,
       </if>
+      <if test="orchestrationType != null">
+        orchestration_type,
+      </if>
+      <if test="orchestrationId != null">
+        orchestration_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -165,6 +173,12 @@
       </if>
       <if test="delFlag != null">
         #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="orchestrationType != null">
+        #{orchestrationType,jdbcType=INTEGER},
+      </if>
+      <if test="orchestrationId != null">
+        #{orchestrationId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -219,6 +233,12 @@
       <if test="delFlag != null">
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
+      <if test="orchestrationType != null">
+        orchestration_type = #{orchestrationType,jdbcType=INTEGER},
+      </if>
+      <if test="orchestrationId != null">
+        orchestration_id = #{orchestrationId,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -239,7 +259,9 @@
       create_by = #{createBy,jdbcType=VARCHAR},
       update_date = #{updateDate,jdbcType=TIMESTAMP},
       update_by = #{updateBy,jdbcType=VARCHAR},
-      del_flag = #{delFlag,jdbcType=INTEGER}
+      del_flag = #{delFlag,jdbcType=INTEGER},
+      orchestration_type = #{orchestrationType,jdbcType=INTEGER},
+      orchestration_id = #{orchestrationId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 
@@ -263,6 +285,20 @@
     <if test="clusterName != null and clusterName != ''" >
       AND c.name LIKE CONCAT('%','${clusterName}','%')
     </if>
+
+    <choose>
+      <when test="orchestrationType != null">
+        AND h.orchestration_type = #{orchestrationType,jdbcType=INTEGER}
+      </when>
+      <otherwise>
+        AND h.orchestration_type is null
+      </otherwise>
+    </choose>
+
+    <if test="orchestrationId != null" >
+      AND h.orchestration_id = #{orchestrationId,jdbcType=INTEGER}
+    </if>
+
     <if test="startDate!=null and startDate!='' and endDate!='' and endDate !=null">
       AND DATE_FORMAT(h.create_date,'%Y-%m-%d %H:%i') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d %H:%i')
       AND DATE_FORMAT(h.create_date,'%Y-%m-%d %H:%i') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d %H:%i')

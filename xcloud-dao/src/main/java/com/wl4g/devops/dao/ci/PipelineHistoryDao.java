@@ -37,7 +37,9 @@ public interface PipelineHistoryDao {
 
     List<TaskHistory> list(@Param("organizationCodes")List<String> organizationCodes, @Param("pipeName") String pipeName, @Param("clusterName") String clusterName,
                            @Param("environment") String environment, @Param("startDate") String startDate,
-                           @Param("endDate") String endDate, @Param("providerKind") String providerKind);
+                           @Param("endDate") String endDate, @Param("providerKind") String providerKind,
+                           @Param("orchestrationType") Integer orchestrationType,
+                           @Param("orchestrationId") Integer orchestrationId);
 
     int updateStatus(Long time);
 }

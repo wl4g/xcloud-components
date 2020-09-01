@@ -15,9 +15,9 @@
  */
 package com.wl4g.components.core.bean.ci;
 
-import java.util.List;
-
 import com.wl4g.components.core.bean.BaseBean;
+
+import java.util.List;
 
 public class PipelineHistory extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
@@ -39,6 +39,10 @@ public class PipelineHistory extends BaseBean {
 	private String trackId;
 
 	private String annex;
+
+	private Integer orchestrationType;
+
+	private Integer orchestrationId;
 
 	// other
 	private String pipeName;
@@ -151,5 +155,21 @@ public class PipelineHistory extends BaseBean {
 
 	public void setPipelineHistoryInstances(List<PipelineHistoryInstance> pipelineHistoryInstances) {
 		this.pipelineHistoryInstances = pipelineHistoryInstances;
+	}
+
+	public Integer getOrchestrationType() {
+		return orchestrationType;
+	}
+
+	public void setOrchestrationType(Integer orchestrationType) {
+		this.orchestrationType = orchestrationType;
+	}
+
+	public Integer getOrchestrationId() {
+		return orchestrationId;
+	}
+
+	public void setOrchestrationId(Integer orchestrationId) {
+		this.orchestrationId = orchestrationId;
 	}
 }
