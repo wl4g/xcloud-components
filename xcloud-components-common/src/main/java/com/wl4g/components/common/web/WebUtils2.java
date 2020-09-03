@@ -335,15 +335,26 @@ public abstract class WebUtils2 {
 	}
 
 	/**
-	 * Convenience method that returns a request parameter value, first running
-	 * it through {@link StringUtils#clean(String)}.
-	 *
+	 * Gets multi map first value.
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static String getMultiMapFirstValue(Map<String, List<String>> params, String name) {
+		if (isNull(params)) {
+			return null;
+		}
+		return params.entrySet().stream().filter(e -> equalsIgnoreCase(e.getKey(), name))
+				.map(e -> CollectionUtils2.isEmpty(e.getValue()) ? e.getValue().get(0) : null).findFirst().orElse(null);
+	}
+
+	/**
+	 * Gets request parameter value by name
+	 * 
 	 * @param request
-	 *            the servlet request.
 	 * @param paramName
-	 *            the parameter name.
-	 * @return the clean param value, or null if the param does not exist or is
-	 *         empty.
+	 * @param required
+	 * @return
 	 */
 	public static String getRequestParam(ServletRequest request, String paramName, boolean required) {
 		String paramValue = request.getParameter(paramName);
