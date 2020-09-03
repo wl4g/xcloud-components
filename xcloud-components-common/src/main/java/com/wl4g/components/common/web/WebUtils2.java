@@ -30,6 +30,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
+
 import static java.util.Locale.*;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toMap;
@@ -45,6 +47,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
 import com.wl4g.components.common.collection.CollectionUtils2;
+import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
+import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.StringUtils2;
 
@@ -69,7 +73,7 @@ import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
- * WEB generic tools .
+ * WEB generic utilitys.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
@@ -80,7 +84,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 public abstract class WebUtils2 {
 
 	/**
-	 * Get HTTP remote IP address </br>
+	 * Gets HTTP remote IP address </br>
 	 * Warning: Be careful if you are implementing security, as all of these
 	 * headers are easy to fake.
 	 * 
@@ -296,6 +300,38 @@ public abstract class WebUtils2 {
 				throw new UnsupportedOperationException(format("No support '%s' request method", req.getMethod()));
 			}
 		}
+	}
+
+	/**
+	 * Parse the given string with matrix variables. An example string would
+	 * look like this {@code "q1=a;q1=b;q2=a,b,c"}. The resulting map would
+	 * contain keys {@code "q1"} and {@code "q2"} with values {@code ["a","b"]}
+	 * and {@code ["a","b","c"]} respectively.
+	 * 
+	 * @param matrixVariables
+	 *            the unparsed matrix variables string
+	 * @return a map with matrix variable names and values (never {@code null})
+	 */
+	public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
+		MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
+		if (!isBlank(matrixVariables)) {
+			return result;
+		}
+		StringTokenizer pairs = new StringTokenizer(matrixVariables, ";");
+		while (pairs.hasMoreTokens()) {
+			String pair = pairs.nextToken();
+			int index = pair.indexOf('=');
+			if (index != -1) {
+				String name = pair.substring(0, index);
+				String rawValue = pair.substring(index + 1);
+				for (String value : StringUtils2.commaDelimitedListToStringArray(rawValue)) {
+					result.add(name, value);
+				}
+			} else {
+				result.add(pair, "");
+			}
+		}
+		return result;
 	}
 
 	/**
