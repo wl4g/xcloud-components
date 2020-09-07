@@ -20,9 +20,9 @@ import com.github.pagehelper.Page;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -114,8 +114,12 @@ public class PageModel implements Serializable {
 	 * @return
 	 */
 	private Page<Object> forPage() {
-		if (Objects.isNull(page)) {
-			page = new Page<>();
+		if (isNull(page)) {
+			synchronized (this) {
+				if (isNull(page)) {
+					return (this.page = new Page<>());
+				}
+			}
 		}
 		return page;
 	}

@@ -33,11 +33,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.util.ClassUtils;
+import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
+import static org.springframework.util.ClassUtils.convertClassNameToResourcePath;
 
 import com.github.pagehelper.PageHelper;
 import com.wl4g.components.common.log.SmartLogger;
@@ -97,21 +97,19 @@ public abstract class AbstractDataSourceAutoConfiguration {
 	 * @return
 	 */
 	private Class<?>[] getTypeAliases(PathMatchingResourcePatternResolver resolver, MybatisProperties config) throws Exception {
-		List<Class<?>> typeAliases = new ArrayList<>();
+		List<Class<?>> typeAliases = new ArrayList<>(16);
 
 		// Define metadataReader
-		MetadataReaderFactory metadataReaderFty = new CachingMetadataReaderFactory(resolver);
+		MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resolver);
 
-		for (String pkg : config.getTypeAliasPackage()) {
-			// Get location
-			String location = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ClassUtils.convertClassNameToResourcePath(pkg)
+		for (String pkg : safeList(config.getTypeAliasPackage())) {
+			String location = CLASSPATH_ALL_URL_PREFIX + convertClassNameToResourcePath(pkg)
 					+ "**/*.class";
-			// Get resources.
 			Resource[] resources = resolver.getResources(location);
 			if (resources != null) {
 				for (Resource resource : resources) {
 					if (resource.isReadable()) {
-						MetadataReader metadataReader = metadataReaderFty.getMetadataReader(resource);
+						MetadataReader metadataReader = readerFactory.getMetadataReader(resource);
 						typeAliases.add(Class.forName(metadataReader.getClassMetadata().getClassName()));
 					}
 				}

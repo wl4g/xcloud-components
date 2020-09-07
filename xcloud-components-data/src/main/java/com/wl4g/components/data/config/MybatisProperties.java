@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class MybatisProperties {
 
-	private List<String> typeAliasPackage = asList("com.wl4g.components.data.bean.*");
+	private List<String> typeAliasPackage;
 	private String configLocation = "mybatis/mybatis-config.xml";
 	private List<String> mapperLocations = asList("classpath:mybatis/**/*Mapper.xml");
 

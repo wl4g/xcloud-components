@@ -15,14 +15,13 @@
  */
 package com.wl4g.components.data.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidDataSource; 
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.wl4g.components.common.codec.CodecSource;
 import com.wl4g.components.common.crypto.symmetric.AES128ECBPKCS5;
 
 import org.mybatis.spring.SqlSessionFactoryBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -47,7 +46,7 @@ public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration 
 
 	@Bean
 	@RefreshScope
-	@ConditionalOnMissingBean
+	// @ConditionalOnMissingBean
 	public DruidDataSource druidDataSource(DruidProperties config) {
 		DruidDataSource druid = new DruidDataSource();
 		druid.setUrl(config.getUrl());
@@ -84,9 +83,8 @@ public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration 
 	}
 
 	@Bean
-	public SqlSessionFactoryBean multiSqlSessionFactoryBean(DataSource dataSource, MybatisProperties mybatisConfig)
-			throws Exception {
-		return createMultiSqlSessionFactoryBean(dataSource, mybatisConfig);
+	public SqlSessionFactoryBean multiSqlSessionFactoryBean(DataSource dataSource, MybatisProperties config) throws Exception {
+		return createMultiSqlSessionFactoryBean(dataSource, config);
 	}
 
 	@Bean
