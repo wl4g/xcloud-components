@@ -106,13 +106,32 @@ public class RespBase<D> implements Serializable {
 	 * Sets response code of {@link RetCode}.
 	 * 
 	 * @param retCode
-	 * @return
 	 */
-	public RespBase<D> setCode(RetCode retCode) {
+	public void setCode(RetCode retCode) {
 		if (nonNull(retCode)) {
 			this.code = (RetCode) retCode;
 		}
+	}
+
+	/**
+	 * Sets response code of {@link RetCode}.
+	 * 
+	 * @param retCode
+	 * @return
+	 */
+	@JsonIgnore
+	public RespBase<D> withCode(RetCode retCode) {
+		setCode(retCode);
 		return this;
+	}
+
+	/**
+	 * Sets response code of int.
+	 * 
+	 * @param retCode
+	 */
+	public void setCode(int retCode) {
+		this.code = newCode(retCode);
 	}
 
 	/**
@@ -121,8 +140,9 @@ public class RespBase<D> implements Serializable {
 	 * @param retCode
 	 * @return
 	 */
-	public RespBase<D> setCode(int retCode) {
-		this.code = newCode(retCode);
+	@JsonIgnore
+	public RespBase<D> withCode(int retCode) {
+		setCode(retCode);
 		return this;
 	}
 
@@ -139,12 +159,22 @@ public class RespBase<D> implements Serializable {
 	 * Sets status.
 	 * 
 	 * @param status
-	 * @return
 	 */
-	public RespBase<D> setStatus(String status) {
+	public void setStatus(String status) {
 		if (!isBlank(status)) {
 			this.status = status;
 		}
+	}
+
+	/**
+	 * Sets status.
+	 * 
+	 * @param status
+	 * @return
+	 */
+	@JsonIgnore
+	public RespBase<D> withStatus(String status) {
+		setStatus(status);
 		return this;
 	}
 
@@ -161,11 +191,20 @@ public class RespBase<D> implements Serializable {
 	 * Sets current requestId.
 	 * 
 	 * @param requestId
+	 */
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
+
+	/**
+	 * Sets current requestId.
+	 * 
+	 * @param requestId
 	 * @return
 	 */
-
-	public RespBase<D> setRequestId(String requestId) {
-		this.requestId = requestId;
+	@JsonIgnore
+	public RespBase<D> withRequestId(String requestId) {
+		setRequestId(requestId);
 		return this;
 	}
 
@@ -180,11 +219,19 @@ public class RespBase<D> implements Serializable {
 
 	/**
 	 * Sets error message text.
+	 */
+	public void setMessage(String message) {
+		this.message = ErrorPromptMessageBuilder.build(code, !isBlank(message) ? message : this.message);
+	}
+
+	/**
+	 * Sets error message text.
 	 * 
 	 * @return
 	 */
-	public RespBase<D> setMessage(String message) {
-		this.message = ErrorPromptMessageBuilder.build(code, !isBlank(message) ? message : this.message);
+	@JsonIgnore
+	public RespBase<D> withMessage(String message) {
+		setMessage(message);
 		return this;
 	}
 
@@ -203,18 +250,38 @@ public class RespBase<D> implements Serializable {
 	 * Sets response bean to data.
 	 * 
 	 * @param data
-	 * @return
 	 */
-	public RespBase<D> setData(D data) {
+	public void setData(D data) {
 		if (isNull(data))
-			return this;
+			return;
 		if (checkDataAvailable()) // Data already payLoad ?
 			throw new IllegalStateException(
 					format("RespBase.data already payLoad, In order to set it successful the data node must be the initial value or empty. - %s",
 							getData()));
 
 		this.data = data;
+	}
+
+	/**
+	 * Sets response bean to data.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	@JsonIgnore
+	public RespBase<D> withData(D data) {
+		setData(data);
 		return this;
+	}
+
+	/**
+	 * Sets error throwable, does not set response status code.
+	 * 
+	 * @param th
+	 */
+	@JsonIgnore
+	public void setThrowable(Throwable th) {
+		setMessage(getRootCausesString(th));
 	}
 
 	/**
@@ -224,8 +291,9 @@ public class RespBase<D> implements Serializable {
 	 * @return
 	 */
 	@JsonIgnore
-	public RespBase<D> setThrowable(Throwable th) {
-		return setMessage(getRootCausesString(th));
+	public RespBase<D> withThrowable(Throwable th) {
+		setThrowable(th);
+		return this;
 	}
 
 	/**
@@ -234,11 +302,10 @@ public class RespBase<D> implements Serializable {
 	 * of {@link RetCode.SYS_ERR} is used
 	 * 
 	 * @param th
-	 * @return
 	 */
 	@JsonIgnore
-	public RespBase<D> handleError(Throwable th) {
-		return setCode(getRestfulCode(th, RetCode.SYS_ERR)).setMessage(getRootCausesString(th));
+	public void handleError(Throwable th) {
+		withCode(getRestfulCode(th, RetCode.SYS_ERR)).withMessage(getRootCausesString(th));
 	}
 
 	/**
@@ -382,7 +449,7 @@ public class RespBase<D> implements Serializable {
 	 * @return
 	 */
 	public final static <T> RespBase<T> create(String status) {
-		return new RespBase<T>().setStatus(status);
+		return new RespBase<T>().withStatus(status);
 	}
 
 	/**
