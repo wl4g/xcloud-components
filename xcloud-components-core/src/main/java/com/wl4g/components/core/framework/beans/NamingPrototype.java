@@ -27,7 +27,36 @@ import org.springframework.context.annotation.Scope;
 
 /**
  * Configure aliases for prototype beans to obtain prototype beans at
- * {@link NamingPrototypeBeanFactory}
+ * {@link NamingPrototypeBeanFactory} </br>
+ * 
+ * <p>
+ * <b>for example1: </b>
+ * 
+ * <pre>
+ * &#64;Configuration
+ * public class MyAutoConfiguration {
+ * 
+ * 	&#64;Bean
+ * 	&#64;NamingPrototype({ "my1", "myProvider1" })
+ * 	public MyProvider1 myProvider1() {
+ * 		return new MyProvider1();
+ * 	}
+ * 
+ * }
+ * </pre>
+ * </p>
+ * 
+ * <p>
+ * <b>for example2: </b>
+ * 
+ * <pre>
+ * &#64;Component
+ * &#64;NamingPrototype({ "my2", "myProvider2" })
+ * public class MyProvider2 {
+ * 
+ * }
+ * </pre>
+ * </p>
  * 
  * @author Wangl.sir &lt;Wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0.0 2019-10-09
