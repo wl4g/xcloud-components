@@ -64,7 +64,7 @@ public class NamingPrototypeBeanFactory {
 	/**
 	 * Global delegate alias prototype bean class registry.
 	 */
-	final private static Map<String, Class<PrototypeBean>> NAMING_REGISTRY = synchronizedMap(new HashMap<>());
+	final private static Map<String, Class<?>> NAMING_REGISTRY = synchronizedMap(new HashMap<>());
 
 	@Autowired
 	private BeanFactory beanFactory;
@@ -77,7 +77,7 @@ public class NamingPrototypeBeanFactory {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends PrototypeBean> T getPrototypeBean(@NotNull String alias, @NotNull Object... args) {
+	public <T> T getPrototypeBean(@NotNull String alias, @NotNull Object... args) {
 		Class<?> beanClass = NAMING_REGISTRY.get(alias);
 		notNull(beanClass, "No such prototype bean class for '%s'", alias);
 		return (T) beanFactory.getBean(beanClass, args);
@@ -98,7 +98,6 @@ public class NamingPrototypeBeanFactory {
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
 			for (String beanName : registry.getBeanDefinitionNames()) {
@@ -111,7 +110,7 @@ public class NamingPrototypeBeanFactory {
 						String prototypeBeanClassName = null;
 						// Bean alias, Used to get prototype bean instance.
 						String[] beanAliass = null;
-						if (bd instanceof ScannedGenericBeanDefinition) {
+						if (abd instanceof ScannedGenericBeanDefinition) {
 							// Using with @Service/@Component...
 							AnnotationMetadata metadata = abd.getMetadata();
 							if (nonNull(metadata)) {
@@ -120,8 +119,8 @@ public class NamingPrototypeBeanFactory {
 							}
 						} else {
 							/**
-							 * Using with {@link Configuration}
-							 * See:ConfigurationClassBeanDefinition
+							 * Using with {@link Configuration} </br>
+							 * See: {@link ConfigurationClassBeanDefinition}
 							 */
 							MethodMetadata metadata = abd.getFactoryMethodMetadata();
 							if (nonNull(metadata)) {
@@ -130,11 +129,14 @@ public class NamingPrototypeBeanFactory {
 							}
 						}
 						if (!isBlank(prototypeBeanClassName) && nonNull(beanAliass)) {
+							System.out.println(bd.getSource());
 							try {
 								Class<?> beanClass = forName(prototypeBeanClassName, getDefaultClassLoader());
-								if (PrototypeBean.class.isAssignableFrom(beanClass)) {
-									registerPrototypeBean((Class<PrototypeBean>) beanClass, ArrayUtils.add(beanAliass, beanName));
-								}
+								// if
+								// (PrototypeBean.class.isAssignableFrom(beanClass))
+								// {
+								registerPrototypeBean((Class<?>) beanClass, ArrayUtils.add(beanAliass, beanName));
+								// }
 							} catch (LinkageError | ClassNotFoundException e) {
 								throw new IllegalStateException(e);
 							}
@@ -176,11 +178,10 @@ public class NamingPrototypeBeanFactory {
 		 * @param beanClass
 		 * @param beanAliass
 		 */
-		@SuppressWarnings("unchecked")
-		private void registerPrototypeBean(Class<? extends PrototypeBean> beanClass, String... beanAliass) {
+		private void registerPrototypeBean(Class<?> beanClass, String... beanAliass) {
 			if (nonNull(beanAliass)) {
 				for (String alias : beanAliass) {
-					if (isNull(NAMING_REGISTRY.putIfAbsent(alias, (Class<PrototypeBean>) beanClass))) {
+					if (isNull(NAMING_REGISTRY.putIfAbsent(alias, (Class<?>) beanClass))) {
 						log.debug("Registered prototype bean for alias: {}, class: {}", alias, beanClass);
 					}
 				}
