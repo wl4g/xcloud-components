@@ -37,6 +37,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
+import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.ConcurrentReferenceHashMap;
 
 import static com.wl4g.components.common.lang.Assert2.*;
@@ -123,6 +126,23 @@ public abstract class ReflectionUtils2 {
 		} while (nonNull(cls = cls.getSuperclass()) && cls != Object.class);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> getFieldValues(@NotNull Class<?> clazz, @Nullable String... excludePrefixFields) {
+		List<T> fieldVals = new ArrayList<>(4);
+		flag: for (Field f : getDeclaredFields(clazz)) {
+			if (nonNull(excludePrefixFields)) {
+				String fname = f.getName();
+				for (String prefix : excludePrefixFields) {
+					if (fname.startsWith(prefix)) {
+						continue flag;
+					}
+				}
+			}
+			fieldVals.add((T) getField(f, null));
+		}
+		return fieldVals;
+	}
+
 	//
 	// --- org.springframework.util.ReflectionUtils. ---
 	//
@@ -138,7 +158,7 @@ public abstract class ReflectionUtils2 {
 	 *            the name of the field
 	 * @return the corresponding Field object, or {@code null} if not found
 	 */
-	public static Field findField(Class<?> clazz, String name) {
+	public static Field findField(@NotNull Class<?> clazz, String name) {
 		return findField(clazz, name, null);
 	}
 
@@ -157,7 +177,7 @@ public abstract class ReflectionUtils2 {
 	 *            specified)
 	 * @return the corresponding Field object, or {@code null} if not found
 	 */
-	public static Field findField(Class<?> clazz, String name, Class<?> type) {
+	public static Field findField(@NotNull Class<?> clazz, String name, Class<?> type) {
 		notNull(clazz, "Class must not be null");
 		isTrue(name != null || type != null, "Either name or type of the field must be specified");
 		Class<?> searchType = clazz;
