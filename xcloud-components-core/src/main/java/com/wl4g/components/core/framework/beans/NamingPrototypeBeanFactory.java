@@ -50,6 +50,7 @@ import org.springframework.core.type.MethodMetadata;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
+import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.log.SmartLogger;
 
 /**
@@ -76,8 +77,20 @@ public class NamingPrototypeBeanFactory {
 	 * @param args
 	 * @return
 	 */
+	public <T> T getPrototypeBean(@NotNull String alias) {
+		return getPrototypeBean(alias, new Object[] {});
+	}
+
+	/**
+	 * Gets and create prototype bean instance by alias.
+	 * 
+	 * @param alias
+	 * @param args
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getPrototypeBean(@NotNull String alias, @NotNull Object... args) {
+	public <T> T getPrototypeBean(@NotNull String alias, @Nullable Object... args) {
+		hasTextOf(alias, "alias");
 		Class<?> beanClass = NAMING_REGISTRY.get(alias);
 		notNull(beanClass, "No such prototype bean class for '%s'", alias);
 		return (T) beanFactory.getBean(beanClass, args);
