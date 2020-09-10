@@ -15,7 +15,9 @@
  */
 package com.wl4g.components.common.lang;
 
-import com.wl4g.components.common.lang.period.PeriodFormatterHolder;
+import java.util.Locale;
+
+import com.wl4g.components.common.lang.period.PeriodFormatter;
 
 /**
  * {@link SamplePeriodUtilsTests}
@@ -31,7 +33,7 @@ public class SamplePeriodUtilsTests {
 	}
 
 	public static void calcMyBirthDateTest1() {
-		PeriodFormatterHolder formatter = PeriodFormatterHolder.getDefault();
+		PeriodFormatter formatter = PeriodFormatter.getDefault().locale(Locale.CHINESE);
 
 		// Pretend the current time is: 1978-06-16 16:51:22
 		long nowTime0 = 266835082000L;

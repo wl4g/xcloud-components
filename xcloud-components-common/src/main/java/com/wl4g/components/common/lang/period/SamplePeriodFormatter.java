@@ -25,7 +25,7 @@ import static java.lang.System.currentTimeMillis;
  * @version v1.0 2020年6月16日
  * @since
  */
-public class SamplePeriodFormatter extends PeriodFormatterHolder {
+public class SamplePeriodFormatter extends PeriodFormatter {
 
 	/**
 	 * Always print timespan in decimal format.

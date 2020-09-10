@@ -16,7 +16,7 @@
 package com.wl4g.components.common.lang;
 
 import com.wl4g.components.common.lang.period.JodaPeriodFormatter;
-import com.wl4g.components.common.lang.period.PeriodFormatterHolder;
+import com.wl4g.components.common.lang.period.PeriodFormatter;
 
 /**
  * {@link JodaPeriodUtilsTests}
@@ -32,7 +32,7 @@ public class JodaPeriodUtilsTests {
 	}
 
 	public static void calcMyBirthDateTest1() {
-		PeriodFormatterHolder formatter = PeriodFormatterHolder.getInstance(JodaPeriodFormatter.class);
+		PeriodFormatter formatter = PeriodFormatter.getInstance(JodaPeriodFormatter.class);
 
 		// Pretend the current time is: 1978-06-16 16:51:22
 		long nowTime0 = 266835082000L;

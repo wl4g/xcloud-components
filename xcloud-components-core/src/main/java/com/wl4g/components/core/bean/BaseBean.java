@@ -17,7 +17,7 @@ package com.wl4g.components.core.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
-import com.wl4g.components.common.lang.period.PeriodFormatterHolder;
+import com.wl4g.components.common.lang.period.PeriodFormatter;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -247,6 +247,6 @@ public abstract class BaseBean implements Serializable {
 	/*
 	 * Human date formatter instance.
 	 */
-	final public static PeriodFormatterHolder defaultPeriodFormatter = PeriodFormatterHolder.getDefault();
+	final public static PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault();
 
 }
