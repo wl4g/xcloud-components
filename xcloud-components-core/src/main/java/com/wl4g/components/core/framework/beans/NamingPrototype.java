@@ -30,18 +30,34 @@ import org.springframework.context.annotation.Scope;
  * {@link NamingPrototypeBeanFactory} </br>
  * 
  * <p>
+ * <b>for example bean alias definition: </b>
+ * 
+ * <pre>
+ * import static com.wl4g.components.common.reflect.ReflectionUtils2.getFieldValues;
+ * 
+ * public interface MyProviderType {
+ * 	public static final String BEAN_ALIAS1 = "myBeanAlias1";
+ * 	public static final String BEAN_ALIAS2 = "myBeanAlias2";
+ *
+ * 	// List of field values of class {&#64;link MyProviderType}.
+ * 	public static final String[] VALUES = getFieldValues(MyProviderType.class, "VALUES").toArray(new String[] {});
+ * }
+ * </pre>
+ * </p>
+ * 
+ * <p>
  * <b>for example1: </b>
  * 
  * <pre>
  * &#64;Configuration
  * public class MyAutoConfiguration {
- * 
+ *
  * 	&#64;Bean
- * 	&#64;NamingPrototype({ "my1", "myProvider1" })
- * 	public MyProvider1 myProvider1() {
- * 		return new MyProvider1();
+ * 	&#64;NamingPrototype({ MyProviderType.BEAN_ALIAS1, MyProviderType.BEAN_ALIAS2 })
+ * 	public MyProvider myProvider() {
+ * 		return new MyProvider();
  * 	}
- * 
+ *
  * }
  * </pre>
  * </p>
@@ -51,8 +67,8 @@ import org.springframework.context.annotation.Scope;
  * 
  * <pre>
  * &#64;Component
- * &#64;NamingPrototype({ "my2", "myProvider2" })
- * public class MyProvider2 {
+ * &#64;NamingPrototype({ MyProviderType.BEAN_ALIAS1, MyProviderType.BEAN_ALIAS2 })
+ * public class MyProvider {
  * 
  * }
  * </pre>
