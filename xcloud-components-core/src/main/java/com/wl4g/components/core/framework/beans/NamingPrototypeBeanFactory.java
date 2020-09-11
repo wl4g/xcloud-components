@@ -142,7 +142,6 @@ public class NamingPrototypeBeanFactory {
 							}
 						}
 						if (!isBlank(prototypeBeanClassName) && nonNull(beanAliass)) {
-							System.out.println(bd.getSource());
 							try {
 								Class<?> beanClass = forName(prototypeBeanClassName, getDefaultClassLoader());
 								// if
