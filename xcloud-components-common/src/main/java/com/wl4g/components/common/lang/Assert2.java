@@ -15,7 +15,7 @@
  */
 package com.wl4g.components.common.lang;
 
-import java.lang.reflect.Field; 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -270,10 +270,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is {@code null}
 	 */
-	public static void notNull(Object object, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notNull(Object object, String fmtMessage, Object... args) {
 		if (object == null) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX + doFormat(fmtMessage, args));
 		}
+		return (T) object;
 	}
 
 	/**
@@ -291,10 +293,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is {@code null}
 	 */
-	public static void notNull(Object object, Supplier<String> messageSupplier) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notNull(Object object, Supplier<String> messageSupplier) {
 		if (object == null) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
 		}
+		return (T) object;
 	}
 
 	/**
@@ -313,11 +317,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is {@code null}
 	 */
-	public static void notNull(Object object, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
+	@SuppressWarnings("unchecked")
+	public static <T> T notNull(Object object, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (object == null) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
 		}
+		return (T) object;
 	}
 
 	/**
@@ -337,11 +343,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is {@code null}
 	 */
-	public static void notNull(Object object, Class<? extends RuntimeException> exceptionClass,
+	@SuppressWarnings("unchecked")
+	public static <T> T notNull(Object object, Class<? extends RuntimeException> exceptionClass,
 			Supplier<String> messageSupplier) {
 		if (object == null) {
 			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
+		return (T) object;
 	}
 
 	/**
@@ -351,8 +359,10 @@ public abstract class Assert2 {
 	 *            the object to check
 	 * @param argName
 	 */
-	public static void notNullOf(Object object, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notNullOf(Object object, String argName) {
 		notNull(object, argName + " is required");
+		return (T) object;
 	}
 
 	/**
@@ -363,8 +373,10 @@ public abstract class Assert2 {
 	 * @param exceptionClass
 	 * @param argName
 	 */
-	public static void notNullOf(Object object, Class<? extends RuntimeException> exceptionClass, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notNullOf(Object object, Class<? extends RuntimeException> exceptionClass, String argName) {
 		notNull(object, exceptionClass, argName + " is required");
+		return (T) object;
 	}
 
 	/**
@@ -418,10 +430,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the text does not contain valid text content
 	 */
-	public static void hasText(String text, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T hasText(String text, String fmtMessage, Object... args) {
 		if (!isNotBlank(text)) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
+		return (T) text;
 	}
 
 	/**
@@ -442,10 +456,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the text does not contain valid text content
 	 */
-	public static void hasText(String text, Supplier<String> messageSupplier) {
+	@SuppressWarnings("unchecked")
+	public static <T> T hasText(String text, Supplier<String> messageSupplier) {
 		if (!isNotBlank(text)) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
 		}
+		return (T) text;
 	}
 
 	/**
@@ -467,10 +483,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the text does not contain valid text content
 	 */
-	public static void hasText(String text, Class<? extends RuntimeException> exceptionClass, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T hasText(String text, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
+			Object... args) {
 		if (!isNotBlank(text)) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
 		}
+		return (T) text;
 	}
 
 	/**
@@ -493,10 +512,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the text does not contain valid text content
 	 */
-	public static void hasText(String text, Class<? extends RuntimeException> exceptionClass, Supplier<String> messageSupplier) {
+	@SuppressWarnings("unchecked")
+	public static <T> T hasText(String text, Class<? extends RuntimeException> exceptionClass, Supplier<String> messageSupplier) {
 		if (!isNotBlank(text)) {
 			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
+		return (T) text;
 	}
 
 	/**
@@ -508,8 +529,10 @@ public abstract class Assert2 {
 	 *            the String to check
 	 * @param argName
 	 */
-	public static void hasTextOf(String text, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T hasTextOf(String text, String argName) {
 		hasText(text, argName + " is required");
+		return (T) text;
 	}
 
 	/**
@@ -522,8 +545,10 @@ public abstract class Assert2 {
 	 * @param exceptionClass
 	 * @param argName
 	 */
-	public static void hasTextOf(String text, Class<? extends RuntimeException> exceptionClass, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T hasTextOf(String text, Class<? extends RuntimeException> exceptionClass, String argName) {
 		hasText(text, exceptionClass, argName + " is required");
+		return (T) text;
 	}
 
 	/**
@@ -576,10 +601,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object array is {@code null} or contains no elements
 	 */
-	public static void notEmpty(Object[] array, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Object[] array, String fmtMessage, Object... args) {
 		if (array == null || array.length == 0) {
 			throw new IllegalArgumentException(doFormat(fmtMessage, args));
 		}
+		return (T) array;
 	}
 
 	/**
@@ -598,10 +625,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object array is {@code null} or contains no elements
 	 */
-	public static void notEmpty(Object[] array, Supplier<String> messageSupplier) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Object[] array, Supplier<String> messageSupplier) {
 		if (array == null || array.length == 0) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
 		}
+		return (T) array;
 	}
 
 	/**
@@ -621,11 +650,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object array is {@code null} or contains no elements
 	 */
-	public static void notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (array == null || array.length == 0) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
 		}
+		return (T) array;
 	}
 
 	/**
@@ -646,11 +677,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object array is {@code null} or contains no elements
 	 */
-	public static void notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass,
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass,
 			Supplier<String> messageSupplier) {
 		if (array == null || array.length == 0) {
 			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
 		}
+		return (T) array;
 	}
 
 	/**
@@ -661,8 +694,10 @@ public abstract class Assert2 {
 	 *            the array to check
 	 * @param argName
 	 */
-	public static void notEmptyOf(Object[] array, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmptyOf(Object[] array, String argName) {
 		notEmpty(array, argName + " must not be empty: it must contain at least 1 element");
+		return (T) array;
 	}
 
 	/**
@@ -674,8 +709,10 @@ public abstract class Assert2 {
 	 * @param exceptionClass
 	 * @param argName
 	 */
-	public static void notEmptyOf(Object[] array, Class<? extends RuntimeException> exceptionClass, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmptyOf(Object[] array, Class<? extends RuntimeException> exceptionClass, String argName) {
 		notEmpty(array, exceptionClass, argName + " must not be empty: it must contain at least 1 element");
+		return (T) array;
 	}
 
 	/**
@@ -759,10 +796,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the collection is {@code null} or contains no elements
 	 */
-	public static void notEmpty(Collection<?> collection, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Collection<?> collection, String fmtMessage, Object... args) {
 		if (collection == null || collection.isEmpty()) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
+		return (T) collection;
 	}
 
 	/**
@@ -773,8 +812,10 @@ public abstract class Assert2 {
 	 *            the collection to check
 	 * @param argName
 	 */
-	public static void notEmptyOf(Collection<?> collection, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmptyOf(Collection<?> collection, String argName) {
 		notEmpty(collection, argName + " must not be empty: it must contain at least 1 element");
+		return (T) collection;
 	}
 
 	/**
@@ -794,11 +835,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the map is {@code null} or contains no entries
 	 */
-	public static void notEmpty(Map<?, ?> map, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Map<?, ?> map, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (map == null || map.isEmpty()) {
 			doAssertHandle(exceptionClass, fmtMessage, args);
 		}
+		return (T) map;
 	}
 
 	/**
@@ -816,10 +859,12 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the map is {@code null} or contains no entries
 	 */
-	public static void notEmpty(Map<?, ?> map, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Map<?, ?> map, String fmtMessage, Object... args) {
 		if (map == null || map.isEmpty()) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
+		return (T) map;
 	}
 
 	/**
@@ -830,8 +875,10 @@ public abstract class Assert2 {
 	 *            the map to check
 	 * @param argName
 	 */
-	public static void notEmptyOf(Map<?, ?> map, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmptyOf(Map<?, ?> map, String argName) {
 		notEmpty(map, argName + " must not be empty; it must contain at least one entry");
+		return (T) map;
 	}
 
 	/**
@@ -843,8 +890,10 @@ public abstract class Assert2 {
 	 * @param exceptionClass
 	 * @param argName
 	 */
-	public static void notEmptyOf(Map<?, ?> map, Class<? extends RuntimeException> exceptionClass, String argName) {
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmptyOf(Map<?, ?> map, Class<? extends RuntimeException> exceptionClass, String argName) {
 		notEmpty(map, exceptionClass, argName + " must not be empty; it must contain at least one entry");
+		return (T) map;
 	}
 
 	/**
@@ -868,11 +917,13 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is not an instance of type
 	 */
-	public static void isInstanceOf(Class<?> type, Object obj, String fmtMessage, Object... args) {
+	@SuppressWarnings("unchecked")
+	public static <T> T isInstanceOf(Class<?> type, Object obj, String fmtMessage, Object... args) {
 		notNull(type, "Type to check against must not be null");
 		if (!type.isInstance(obj)) {
 			instanceCheckFailed(type, obj, IllegalArgumentException.class, doFormat(fmtMessage, args));
 		}
+		return (T) obj;
 	}
 
 	/**
@@ -892,12 +943,14 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is not an instance of type
 	 */
-	public static void isInstanceOf(Class<?> type, Object obj, Supplier<String> messageSupplier) {
+	@SuppressWarnings("unchecked")
+	public static <T> T isInstanceOf(Class<?> type, Object obj, Supplier<String> messageSupplier) {
 		notNull(type, "Type to check against must not be null");
 		if (!type.isInstance(obj)) {
 			instanceCheckFailed(type, obj, IllegalArgumentException.class,
 					ASSERT_FAILED_PREFIX.concat(nullSafeGet(messageSupplier)));
 		}
+		return (T) obj;
 	}
 
 	/**
@@ -923,12 +976,14 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is not an instance of type
 	 */
-	public static void isInstanceOf(Class<?> type, Object obj, Class<? extends RuntimeException> exceptionClass,
+	@SuppressWarnings("unchecked")
+	public static <T> T isInstanceOf(Class<?> type, Object obj, Class<? extends RuntimeException> exceptionClass,
 			String fmtMessage, Object... args) {
 		notNull(type, "Type to check against must not be null");
 		if (!type.isInstance(obj)) {
 			instanceCheckFailed(type, obj, exceptionClass, doFormat(fmtMessage, args));
 		}
+		return (T) obj;
 	}
 
 	/**
@@ -950,12 +1005,14 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is not an instance of type
 	 */
-	public static void isInstanceOf(Class<?> type, Object obj, Class<? extends RuntimeException> exceptionClass,
+	@SuppressWarnings("unchecked")
+	public static <T> T isInstanceOf(Class<?> type, Object obj, Class<? extends RuntimeException> exceptionClass,
 			Supplier<String> messageSupplier) {
 		notNull(type, "Type to check against must not be null");
 		if (!type.isInstance(obj)) {
 			instanceCheckFailed(type, obj, exceptionClass, nullSafeGet(messageSupplier));
 		}
+		return (T) obj;
 	}
 
 	/**
@@ -972,8 +1029,10 @@ public abstract class Assert2 {
 	 * @throws IllegalArgumentException
 	 *             if the object is not an instance of type
 	 */
-	public static void isInstanceOf(Class<?> type, Object obj) {
+	@SuppressWarnings("unchecked")
+	public static <T> T isInstanceOf(Class<?> type, Object obj) {
 		isInstanceOf(type, obj, "");
+		return (T) obj;
 	}
 
 	/**
