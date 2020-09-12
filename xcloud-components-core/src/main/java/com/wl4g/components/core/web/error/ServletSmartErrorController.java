@@ -32,7 +32,6 @@ import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorCon
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
@@ -65,7 +64,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
- * Smart global error controller.
+ * Servlet smart global error controller.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0 2019年1月10日
@@ -73,8 +72,8 @@ import freemarker.template.TemplateException;
  */
 @DevopsErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@ControllerAdvice
-public class SmartGlobalErrorController extends AbstractErrorController implements InitializingBean {
+// @ControllerAdvice
+public class ServletSmartErrorController extends AbstractErrorController implements InitializingBean {
 
 	final private SmartLogger log = getLogger(getClass());
 
@@ -87,7 +86,7 @@ public class SmartGlobalErrorController extends AbstractErrorController implemen
 	private Template tpl403;
 	private Template tpl50x;
 
-	public SmartGlobalErrorController(ErrorAttributes errorAttributes, ErrorControllerProperties config,
+	public ServletSmartErrorController(ErrorControllerProperties config, ErrorAttributes errorAttributes,
 			CompositeErrorConfiguringAdapter adapter) {
 		super(errorAttributes);
 		notNull(config, "ErrorControllerProperties must not be null.");

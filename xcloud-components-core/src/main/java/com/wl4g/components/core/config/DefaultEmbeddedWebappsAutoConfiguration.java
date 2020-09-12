@@ -22,8 +22,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.wl4g.components.core.config.webmapped.AbstractMappedControllerAutoConfiguration;
-import com.wl4g.components.core.web.embedded.GenericEmbeddedWebappsEndpoint;
+import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
+import com.wl4g.components.core.web.embed.GenericEmbeddedWebappsEndpoint;
 
 import static com.wl4g.components.core.config.DefaultEmbeddedWebappsAutoConfiguration.GenericEmbeddedWebappsProperties.*;
 
@@ -37,12 +38,9 @@ import java.util.Properties;
  * @since
  */
 @Configuration
-public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractMappedControllerAutoConfiguration {
+public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractHandlerMappingSupport {
 
-	final private static String BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES = "defaultGenericEmbeddedWebappsProperties";
-	final private static String BEAN_DEFAULT_EMBEDDED_WEBAPPS_ENDPOINT = "defaultGenericEmbeddedWebappsEndpoint";
-
-	@Bean(BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES)
+	@Bean(BEAN_DEFAULT_PROPERTIES)
 	@ConfigurationProperties(prefix = KEY_EMBEDDED_WEBAPP_BASE)
 	@ConditionalOnProperty(value = KEY_EMBEDDED_WEBAPP_BASE + ".enabled", matchIfMissing = false)
 	public GenericEmbeddedWebappsProperties defaultEmbeddedWebappsEndpointProperties() {
@@ -50,19 +48,19 @@ public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractMappedContr
 		};
 	}
 
-	@Bean(BEAN_DEFAULT_EMBEDDED_WEBAPPS_ENDPOINT)
-	@ConditionalOnBean(name = BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES)
+	@Bean(BEAN_DEFAULT_ENDPOINT)
+	@ConditionalOnBean(name = BEAN_DEFAULT_PROPERTIES)
 	public GenericEmbeddedWebappsEndpoint defaultEmbeddedWebappsEndpoint(
-			@Qualifier(BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES) GenericEmbeddedWebappsProperties config) {
+			@Qualifier(BEAN_DEFAULT_PROPERTIES) GenericEmbeddedWebappsProperties config) {
 		return new GenericEmbeddedWebappsEndpoint(config) {
 		};
 	}
 
 	@Bean
-	@ConditionalOnBean(name = BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES)
+	@ConditionalOnBean(name = BEAN_DEFAULT_PROPERTIES)
 	public PrefixHandlerMapping defaultEmbeddedWebappsEndpointPrefixHandlerMapping(
-			@Qualifier(BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES) GenericEmbeddedWebappsProperties config,
-			@Qualifier(BEAN_DEFAULT_EMBEDDED_WEBAPPS_ENDPOINT) GenericEmbeddedWebappsEndpoint endpoint) {
+			@Qualifier(BEAN_DEFAULT_PROPERTIES) GenericEmbeddedWebappsProperties config,
+			@Qualifier(BEAN_DEFAULT_ENDPOINT) GenericEmbeddedWebappsEndpoint endpoint) {
 		return super.newPrefixHandlerMapping(config.getBaseUri(), endpoint);
 	}
 
@@ -175,5 +173,8 @@ public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractMappedContr
 		}
 
 	}
+
+	final private static String BEAN_DEFAULT_PROPERTIES = "defaultGenericEmbeddedWebappsProperties";
+	final private static String BEAN_DEFAULT_ENDPOINT = "defaultGenericEmbeddedWebappsEndpoint";
 
 }

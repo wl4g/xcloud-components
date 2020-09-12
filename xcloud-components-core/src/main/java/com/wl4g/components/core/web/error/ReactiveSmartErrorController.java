@@ -13,16 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config.webmapped;
+package com.wl4g.components.core.web.error;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
+import com.wl4g.components.core.annotation.DevopsErrorController;
 
 /**
- * {@link PrefixHandlerMapping}
+ * Reactive smart global error controller.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020-09-12
  * @sine v1.0.0
- * @see
  */
-public interface PrefixHandlerMapping {
+@DevopsErrorController
+@Order(Ordered.HIGHEST_PRECEDENCE)
+// @ControllerAdvice
+public class ReactiveSmartErrorController implements InitializingBean {
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
 
 }

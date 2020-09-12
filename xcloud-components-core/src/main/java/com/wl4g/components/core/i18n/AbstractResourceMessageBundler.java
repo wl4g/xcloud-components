@@ -28,22 +28,22 @@ import java.util.Locale;
  * @version v1.0 2019年3月24日
  * @since
  */
-public abstract class AbstractDelegateMessageBundle extends ResourceBundleMessageSource {
+public abstract class AbstractResourceMessageBundler extends ResourceBundleMessageSource {
 
 	/**
 	 * Message source accessor delegate.
 	 */
 	private MessageSourceAccessor accessor;
 
-	public AbstractDelegateMessageBundle() {
-		this(AbstractDelegateMessageBundle.class);
+	public AbstractResourceMessageBundler() {
+		this(AbstractResourceMessageBundler.class);
 	}
 
-	public AbstractDelegateMessageBundle(Class<?> withClassPath) {
+	public AbstractResourceMessageBundler(Class<?> withClassPath) {
 		this(getBasename(withClassPath));
 	}
 
-	public AbstractDelegateMessageBundle(String... basenames) {
+	public AbstractResourceMessageBundler(String... basenames) {
 		Assert.isTrue((basenames != null && basenames.length > 0), "'basenames' cannot not be empty");
 		super.setBasenames(basenames);
 	}

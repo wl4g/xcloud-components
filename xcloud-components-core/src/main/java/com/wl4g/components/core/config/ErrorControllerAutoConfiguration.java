@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -31,11 +34,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
 import com.wl4g.components.core.annotation.DevopsErrorController;
-import com.wl4g.components.core.config.webmapped.AbstractMappedControllerAutoConfiguration;
+import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
 import com.wl4g.components.core.web.error.CompositeErrorConfiguringAdapter;
 import com.wl4g.components.core.web.error.DefaultBasicErrorConfiguring;
 import com.wl4g.components.core.web.error.ErrorConfiguring;
-import com.wl4g.components.core.web.error.SmartGlobalErrorController;
+import com.wl4g.components.core.web.error.ReactiveSmartErrorController;
+import com.wl4g.components.core.web.error.ServletSmartErrorController;
 
 /**
  * Smart DevOps error controller auto configuration
@@ -46,7 +51,7 @@ import com.wl4g.components.core.web.error.SmartGlobalErrorController;
  */
 @Configuration
 @ConditionalOnProperty(value = "spring.cloud.devops.error.enabled", matchIfMissing = true)
-public class ErrorControllerAutoConfiguration extends AbstractMappedControllerAutoConfiguration {
+public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupport {
 
 	@Bean
 	public ErrorConfiguring defaultBasicErrorConfiguring() {
@@ -65,15 +70,39 @@ public class ErrorControllerAutoConfiguration extends AbstractMappedControllerAu
 	}
 
 	@Bean
-	public SmartGlobalErrorController smartGlobalErrorController(ErrorAttributes errorAttrs,
-			CompositeErrorConfiguringAdapter adapter, ErrorControllerProperties config) {
-		return new SmartGlobalErrorController(errorAttrs, config, adapter);
+	public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
+		return super.newPrefixHandlerMapping("/", DevopsErrorController.class);
 	}
 
-	@Bean
-	public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
-		// Fixed to Spring-MVC default: /
-		return super.newPrefixHandlerMapping("/", DevopsErrorController.class);
+	/**
+	 * {@link ReactiveErrorControllerConfiguration}
+	 * 
+	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
+	 */
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+	public static class ReactiveErrorControllerConfiguration {
+		@Bean
+		public ReactiveSmartErrorController reactiveSmartErrorController(ErrorControllerProperties config,
+				CompositeErrorConfiguringAdapter adapter) {
+			return new ReactiveSmartErrorController();
+		}
+	}
+
+	/**
+	 * {@link ServletErrorControllerConfirguation}
+	 * 
+	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
+	 */
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+	@AutoConfigureAfter(WebMvcAutoConfiguration.class)
+	public static class ServletErrorControllerConfirguation {
+		@Bean
+		public ServletSmartErrorController servletSmartErrorController(ErrorControllerProperties config,
+				ErrorAttributes errorAttrs, CompositeErrorConfiguringAdapter adapter) {
+			return new ServletSmartErrorController(config, errorAttrs, adapter);
+		}
 	}
 
 	/**

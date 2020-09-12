@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.embedded;
+package com.wl4g.components.core.web.embed;
 
 import static org.springframework.util.StringUtils.*;
 
@@ -24,7 +24,7 @@ import com.wl4g.components.common.resource.resolver.ClassPathResourcePatternReso
 import com.wl4g.components.common.resource.resolver.ResourcePatternResolver;
 import com.wl4g.components.core.config.DefaultEmbeddedWebappsAutoConfiguration.GenericEmbeddedWebappsProperties;
 import com.wl4g.components.core.web.BaseController;
-import com.wl4g.components.core.web.embedded.WebResourceCache.*;
+import com.wl4g.components.core.web.embed.WebResourceCache.*;
 
 import static com.google.common.io.ByteStreams.*;
 import static com.google.common.base.Charsets.UTF_8;
@@ -50,13 +50,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Embedded webapps view controller
+ * Generic embedded webapps resource controller
  *
  * @author wangl.sir
  * @version v1.0 2019年1月9日
  * @since
  */
 public abstract class GenericEmbeddedWebappsEndpoint extends BaseController {
+
+	/**
+	 * {@link DefaultWebAppControllerProperties}
+	 */
+	final protected GenericEmbeddedWebappsProperties config;
 
 	/**
 	 * Web file buffer cache
@@ -67,11 +72,6 @@ public abstract class GenericEmbeddedWebappsEndpoint extends BaseController {
 	 * {@link ResourcePatternResolver}
 	 */
 	final protected ResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
-
-	/**
-	 * {@link DefaultWebAppControllerProperties}
-	 */
-	final protected GenericEmbeddedWebappsProperties config;
 
 	public GenericEmbeddedWebappsEndpoint(GenericEmbeddedWebappsProperties config) {
 		this(config, new DefaultWebappsGuavaCache());

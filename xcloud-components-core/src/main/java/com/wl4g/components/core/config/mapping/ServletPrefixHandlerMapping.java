@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config.webmapped;
+package com.wl4g.components.core.config.mapping;
+
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
 
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import com.wl4g.components.common.annotation.Nullable;
 
 /**
  * {@link ServletPrefixHandlerMapping}
@@ -29,14 +35,17 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020-09-12
  * @sine v1.0.0
- * @see
+ * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
+ * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
  */
 public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping implements PrefixHandlerMapping {
 
-	private String prefix = "";
+	private final String mappingPrefix;
 	private final Object handlers[];
 
-	public ServletPrefixHandlerMapping(Object... handlers) {
+	public ServletPrefixHandlerMapping(@Nullable String mappingPrefix, @NotNull Object... handlers) {
+		// Default by empty
+		this.mappingPrefix = isBlank(mappingPrefix) ? "" : mappingPrefix;
 		this.handlers = handlers.clone();
 		setOrder(-50);
 	}
@@ -63,7 +72,7 @@ public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping im
 	}
 
 	private RequestMappingInfo withPrefix(RequestMappingInfo mapping) {
-		List<String> newPatterns = getPatterns(mapping);
+		List<String> newPatterns = withNewPatterns(mapping);
 
 		PatternsRequestCondition patterns = new PatternsRequestCondition(newPatterns.toArray(new String[newPatterns.size()]));
 		return new RequestMappingInfo(patterns, mapping.getMethodsCondition(), mapping.getParamsCondition(),
@@ -71,20 +80,9 @@ public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping im
 				mapping.getCustomCondition());
 	}
 
-	private List<String> getPatterns(RequestMappingInfo mapping) {
-		List<String> newPatterns = new ArrayList<String>(mapping.getPatternsCondition().getPatterns().size());
-		for (String pattern : mapping.getPatternsCondition().getPatterns()) {
-			newPatterns.add(prefix + pattern);
-		}
-		return newPatterns;
-	}
-
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
-
-	public String getPrefix() {
-		return prefix;
+	private List<String> withNewPatterns(RequestMappingInfo mapping) {
+		return mapping.getPatternsCondition().getPatterns().stream().map(pattern -> mappingPrefix.concat(pattern))
+				.collect(toList());
 	}
 
 }

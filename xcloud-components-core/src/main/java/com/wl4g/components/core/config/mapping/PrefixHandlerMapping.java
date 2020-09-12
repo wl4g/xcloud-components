@@ -13,26 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.i18n;
-
-import java.util.Locale;
+package com.wl4g.components.core.config.mapping;
 
 /**
- * Default resource delegate message source bundle.
+ * {@link PrefixHandlerMapping}
  * 
- * @author Wangl.sir <983708408@qq.com>
- * @version v1.0 2019年3月24日
- * @since
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version 2020-09-12
+ * @sine v1.0.0
+ * @see
  */
-public class DefaultDelegateMessageBundle extends AbstractDelegateMessageBundle {
-
-	/**
-	 * Default usage local locale.
-	 * 
-	 * @return
-	 */
-	protected Locale getSessionLocale() {
-		return Locale.CHINESE;
-	}
+public interface PrefixHandlerMapping {
 
 }
