@@ -20,17 +20,17 @@ import java.util.List;
 import com.wl4g.components.core.bean.iam.Area;
 
 public interface AreaDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Integer id);
 
-    int insert(Area record);
+	int insert(Area record);
 
-    int insertSelective(Area record);
+	int insertSelective(Area record);
 
-    Area selectByPrimaryKey(Integer id);
+	Area selectByPrimaryKey(Integer id);
 
-    List<Area> getTotal();
+	List<Area> getTotal();
 
-    int updateByPrimaryKeySelective(Area record);
+	int updateByPrimaryKeySelective(Area record);
 
-    int updateByPrimaryKey(Area record);
+	int updateByPrimaryKey(Area record);
 }

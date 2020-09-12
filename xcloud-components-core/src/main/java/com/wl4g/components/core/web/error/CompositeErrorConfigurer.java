@@ -42,14 +42,14 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @version v1.0 2019年11月1日
  * @since
  */
-public class CompositeErrorConfiguringAdapter implements ErrorConfiguring {
+public class CompositeErrorConfigurer implements ErrorConfigurer {
 
 	/**
 	 * Error configures.
 	 */
-	final protected List<ErrorConfiguring> errorConfigures = new RegisteredUnmodifiableList<>(new ArrayList<>());
+	protected final List<ErrorConfigurer> errorConfigures = new RegisteredUnmodifiableList<>(new ArrayList<>());
 
-	public CompositeErrorConfiguringAdapter(List<ErrorConfiguring> configures) {
+	public CompositeErrorConfigurer(List<ErrorConfigurer> configures) {
 		Assert.state(!isEmpty(configures), "Error configures has at least one.");
 		// Sort by order.
 		sort(configures, (o1, o2) -> {
@@ -67,7 +67,7 @@ public class CompositeErrorConfiguringAdapter implements ErrorConfiguring {
 
 	@Override
 	public Integer getStatus(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model, Exception ex) {
-		for (ErrorConfiguring c : errorConfigures) {
+		for (ErrorConfigurer c : errorConfigures) {
 			Integer status = c.getStatus(request, response, model, ex);
 			if (nonNull(status)) {
 				return status;
@@ -80,7 +80,7 @@ public class CompositeErrorConfiguringAdapter implements ErrorConfiguring {
 	@Override
 	public String getRootCause(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model,
 			Exception ex) {
-		for (ErrorConfiguring c : errorConfigures) {
+		for (ErrorConfigurer c : errorConfigures) {
 			String errmsg = c.getRootCause(request, response, model, ex);
 			if (!isBlank(errmsg)) {
 				return errmsg;

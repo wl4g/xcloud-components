@@ -83,18 +83,13 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-		</dependency>
-		<!-- SSH2 -->
-		<dependency>
-			<groupId>ch.ethz.ganymed</groupId>
-			<artifactId>ganymed-ssh2</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		<!-- UnCompression -->
 		<dependency>
 			<groupId>org.xerial.snappy</groupId>
 			<artifactId>snappy-java</artifactId>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.protostuff</groupId>
@@ -112,6 +107,12 @@
 			<groupId>nl.bitwalker</groupId>
 			<artifactId>UserAgentUtils</artifactId>
 			<scope>compile</scope>
+		</dependency>
+		<!-- Template -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<!-- Javax fundation -->
 		<dependency>
@@ -160,23 +161,33 @@
 			<artifactId>netty-all</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<!-- SSHD for netty -->
+		<!-- Ethz SSH2 -->
+		<dependency>
+			<groupId>ch.ethz.ganymed</groupId>
+			<artifactId>ganymed-ssh2</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- SSHD -->
 		<dependency>
 			<groupId>org.apache.sshd</groupId>
 			<artifactId>sshd-netty</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.sshd</groupId>
 			<artifactId>sshd-scp</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<!-- SSHJ -->
 		<dependency>
 			<groupId>com.hierynomus</groupId>
 			<artifactId>sshj</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<!-- Runtime -->
 		<dependency>

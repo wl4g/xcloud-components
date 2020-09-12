@@ -15,10 +15,6 @@
  */
 package com.wl4g.components.core.web.error;
 
-import static com.wl4g.components.common.web.rest.RespBase.*;
-import static com.wl4g.components.common.web.rest.RespBase.RetCode.*;
-import static java.util.Objects.isNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,64 +24,49 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 
 /**
- * Default basic error configure.
+ * Error configuration adapter.
  * 
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2019年11月1日
  * @since
  */
-@Order(Ordered.LOWEST_PRECEDENCE)
-public class DefaultBasicErrorConfiguring implements ErrorConfiguring {
-	final protected Logger log = LoggerFactory.getLogger(getClass());
-
-	@Override
-	public Integer getStatus(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model, Exception ex) {
-		Integer statusCode = (Integer) model.get("status");
-		/**
-		 * Eliminate meaningless status code: 999
-		 * 
-		 * @see {@link org.springframework.boot.autoconfigure.web.DefaultErrorAttributes#addStatus()}
-		 */
-		if (isNull(statusCode) || statusCode == 999) {
-			RetCode retCode = getRestfulCode(ex);
-			if (!isNull(retCode)) {
-				statusCode = retCode.getErrcode();
-			} else if (ex instanceof IllegalArgumentException) {
-				return PARAM_ERR.getErrcode();
-			} else if (ex instanceof UnsupportedOperationException) {
-				return UNSUPPORTED.getErrcode();
-			} else { // status=999?
-				// statusCode = (Integer)
-				// equest.getAttribute("javax.servlet.error.status_code");
-			}
-		}
-		if (!isNull(statusCode)) {
-			return statusCode;
-		}
-		return null;
-	}
-
-	@Override
-	public String getRootCause(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model,
-			Exception ex) {
-		return extractMeaningfulErrorsMessage(model);
-	}
+public interface ErrorConfigurer extends InitializingBean {
 
 	/**
-	 * Extract meaningful errors messages.
+	 * Obtain exception {@link HttpStatus}
+	 * 
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @param ex
+	 * @return
+	 */
+	Integer getStatus(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model, Exception ex);
+
+	/**
+	 * Obtain exception as string.
+	 * 
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @param ex
+	 * @return
+	 */
+	String getRootCause(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model, Exception ex);
+
+	/**
+	 * Extract meaningful valid errors messages.
 	 * 
 	 * @param model
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private String extractMeaningfulErrorsMessage(Map<String, Object> model) {
+	default public String extractValidErrorsMessage(Map<String, Object> model) {
 		StringBuffer errmsg = new StringBuffer();
 		Object message = model.get("message");
 		if (message != null) {
@@ -129,6 +110,11 @@ public class DefaultBasicErrorConfiguring implements ErrorConfiguring {
 		}
 
 		return errmsg.toString();
+	}
+
+	@Override
+	default public void afterPropertiesSet() throws Exception {
+
 	}
 
 }

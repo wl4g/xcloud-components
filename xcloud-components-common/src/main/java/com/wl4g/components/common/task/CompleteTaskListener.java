@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Wait completion task listener.
+ * Completion task listener.
  * 
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2019年10月17日

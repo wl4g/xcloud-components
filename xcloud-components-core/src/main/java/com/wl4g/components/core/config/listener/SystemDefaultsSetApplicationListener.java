@@ -39,7 +39,7 @@ import com.wl4g.components.common.log.SmartLogger;
  * @since
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 9)
-public class SystemBootSetDefaultsApplicationListener implements GenericApplicationListener {
+public class SystemDefaultsSetApplicationListener implements GenericApplicationListener {
 
 	final protected SmartLogger log = getLogger(getClass());
 

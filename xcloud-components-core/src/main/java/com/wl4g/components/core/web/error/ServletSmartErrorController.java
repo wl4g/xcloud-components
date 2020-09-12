@@ -56,8 +56,7 @@ import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.common.web.rest.RespBase.RetCode;
-import com.wl4g.components.core.annotation.DevopsErrorController;
-import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorControllerProperties;
+import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -70,7 +69,7 @@ import freemarker.template.TemplateException;
  * @version v1.0 2019年1月10日
  * @since
  */
-@DevopsErrorController
+@GlobalErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
 // @ControllerAdvice
 public class ServletSmartErrorController extends AbstractErrorController implements InitializingBean {
@@ -78,28 +77,27 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 	final private SmartLogger log = getLogger(getClass());
 
 	/** Errors configuration properties. */
-	final private ErrorControllerProperties config;
-	/** Errors configuration adapter. */
-	final private CompositeErrorConfiguringAdapter adapter;
+	final private ErrorHandlerProperties config;
+
+	/** Errors configurer. */
+	final private CompositeErrorConfigurer configurer;
 
 	private Template tpl404;
 	private Template tpl403;
 	private Template tpl50x;
 
-	public ServletSmartErrorController(ErrorControllerProperties config, ErrorAttributes errorAttributes,
-			CompositeErrorConfiguringAdapter adapter) {
+	public ServletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttributes,
+			CompositeErrorConfigurer adapter) {
 		super(errorAttributes);
 		notNull(config, "ErrorControllerProperties must not be null.");
 		notNull(adapter, "CompositeErrorConfiguringAdapter must not be null.");
 		this.config = config;
-		this.adapter = adapter;
+		this.configurer = adapter;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (log.isInfoEnabled()) {
-			log.info("Initializing smart global error controller ...");
-		}
+		log.info("Initializing smart global error controller ...");
 
 		try {
 			FreeMarkerConfigurer fmcr = new FreeMarkerConfigurer();
@@ -159,8 +157,8 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 			Map<String, Object> model = getErrorAttributes(request, response, ex);
 
 			// Obtain custom extension response status.
-			int status = adapter.getStatus(request, response, model, ex);
-			String errmsg = adapter.getRootCause(request, response, model, ex);
+			int status = configurer.getStatus(request, response, model, ex);
+			String errmsg = configurer.getRootCause(request, response, model, ex);
 
 			// Get redirectUri or rendering template.
 			Object uriOrTpl = getRedirectUriOrRenderErrorView(model, status);
@@ -223,7 +221,7 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 		}
 
 		// Replace the exception message that appears to be meaningful.
-		model.put("message", adapter.getRootCause(request, response, model, ex));
+		model.put("message", configurer.getRootCause(request, response, model, ex));
 		return model;
 	}
 

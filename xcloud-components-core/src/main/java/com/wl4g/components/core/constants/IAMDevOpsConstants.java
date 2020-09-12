@@ -15,8 +15,6 @@
  */
 package com.wl4g.components.core.constants;
 
-import com.wl4g.components.core.bean.iam.SocialAuthorizeInfo;
-
 /**
  * DevOps IAM Constants.
  * 

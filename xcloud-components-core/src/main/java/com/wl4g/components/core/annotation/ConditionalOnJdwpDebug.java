@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.annotation.conditional;
+package com.wl4g.components.core.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -39,7 +39,7 @@ public @interface ConditionalOnJdwpDebug {
 
 	/**
 	 * Must be consistent with:
-	 * {@link com.wl4g.components.core.annotation.conditional.ConditionalOnJdwpDebug#enableProperty}
+	 * {@link com.wl4g.components.core.annotation.ConditionalOnJdwpDebug#enableProperty}
 	 */
 	final public static String NAME_ENABLE_PROPERTY = "enableProperty";
 

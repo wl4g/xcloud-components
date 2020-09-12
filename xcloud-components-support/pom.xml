@@ -57,6 +57,12 @@
 			<artifactId>aliyun-java-sdk-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<!-- SSH -->
+		<dependency>
+			<groupId>ch.ethz.ganymed</groupId>
+			<artifactId>ganymed-ssh2</artifactId>
+			<scope>compile</scope>
+		</dependency>
 		<!-- Tests -->
 		<dependency>
 			<groupId>junit</groupId>

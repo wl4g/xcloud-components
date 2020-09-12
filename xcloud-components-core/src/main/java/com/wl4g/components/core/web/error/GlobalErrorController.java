@@ -15,28 +15,22 @@
  */
 package com.wl4g.components.core.web.error;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-
-import com.wl4g.components.core.annotation.DevopsErrorController;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Reactive smart global error controller.
- * 
- * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2020-09-12
- * @sine v1.0.0
+ * {@link GlobalErrorController}
+ *
+ * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+ * @version v1.0 2020-09-09
+ * @since
  */
-@DevopsErrorController
-@Order(Ordered.HIGHEST_PRECEDENCE)
-// @ControllerAdvice
-public class ReactiveSmartErrorController implements InitializingBean {
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
+@Documented
+public @interface GlobalErrorController {
 
 }

@@ -16,6 +16,7 @@
 package com.wl4g.components.core.config;
 
 import static com.wl4g.components.common.serialize.JacksonUtils.convertBean;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.HashMap;
@@ -23,23 +24,30 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.web.reactive.result.view.ViewResolver;
 
-import com.wl4g.components.core.annotation.DevopsErrorController;
 import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
 import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
-import com.wl4g.components.core.web.error.CompositeErrorConfiguringAdapter;
-import com.wl4g.components.core.web.error.DefaultBasicErrorConfiguring;
-import com.wl4g.components.core.web.error.ErrorConfiguring;
-import com.wl4g.components.core.web.error.ReactiveSmartErrorController;
+import com.wl4g.components.core.web.error.CompositeErrorConfigurer;
+import com.wl4g.components.core.web.error.DefaultErrorConfigurer;
+import com.wl4g.components.core.web.error.ErrorConfigurer;
+import com.wl4g.components.core.web.error.GlobalErrorController;
+import com.wl4g.components.core.web.error.ReactiveSmartErrorHandler;
+import com.wl4g.components.core.web.error.ReactiveSmartErrorHandler.ReactiveErrorAttributes;
 import com.wl4g.components.core.web.error.ServletSmartErrorController;
 
 /**
@@ -54,39 +62,58 @@ import com.wl4g.components.core.web.error.ServletSmartErrorController;
 public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupport {
 
 	@Bean
-	public ErrorConfiguring defaultBasicErrorConfiguring() {
-		return new DefaultBasicErrorConfiguring();
+	public ErrorConfigurer defaultErrorConfigurer() {
+		return new DefaultErrorConfigurer();
 	}
 
 	@Bean
-	public CompositeErrorConfiguringAdapter compositeErrorConfiguringAdapter(List<ErrorConfiguring> configures) {
-		return new CompositeErrorConfiguringAdapter(configures);
+	public CompositeErrorConfigurer compositeErrorConfigurer(List<ErrorConfigurer> configures) {
+		return new CompositeErrorConfigurer(configures);
 	}
 
 	@Bean
 	@ConfigurationProperties(prefix = "spring.cloud.devops.error")
-	public ErrorControllerProperties errorControllerProperties() {
-		return new ErrorControllerProperties();
+	public ErrorHandlerProperties errorControllerProperties() {
+		return new ErrorHandlerProperties();
 	}
 
 	@Bean
 	public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
-		return super.newPrefixHandlerMapping("/", DevopsErrorController.class);
+		return super.newPrefixHandlerMapping("/", GlobalErrorController.class);
 	}
 
 	/**
-	 * {@link ReactiveErrorControllerConfiguration}
+	 * {@link ReactiveErrorHandlerConfiguration}
 	 * 
 	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
 	 */
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-	public static class ReactiveErrorControllerConfiguration {
+	// @ConditionalOnClass(WebFluxConfigurer.class)
+	public static class ReactiveErrorHandlerConfiguration {
+
 		@Bean
-		public ReactiveSmartErrorController reactiveSmartErrorController(ErrorControllerProperties config,
-				CompositeErrorConfiguringAdapter adapter) {
-			return new ReactiveSmartErrorController();
+		public ReactiveErrorAttributes reactiveErrorAttributes(ErrorHandlerProperties config, CompositeErrorConfigurer adapter) {
+			return new ReactiveErrorAttributes();
 		}
+
+		/**
+		 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}
+		 */
+		@Bean
+		@Order(-2) // Takes precedence over the default handler
+		public ReactiveSmartErrorHandler reactiveSmartErrorHandler(
+				org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes,
+				ResourceProperties resourceProperties, ObjectProvider<ViewResolver> viewResolvers,
+				ServerCodecConfigurer codecConfigurer, ApplicationContext applicationContext) {
+			ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties,
+					applicationContext);
+			errorHandler.setViewResolvers(viewResolvers.orderedStream().collect(toList()));
+			errorHandler.setMessageWriters(codecConfigurer.getWriters());
+			errorHandler.setMessageReaders(codecConfigurer.getReaders());
+			return errorHandler;
+		}
+
 	}
 
 	/**
@@ -98,23 +125,25 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 	@AutoConfigureAfter(WebMvcAutoConfiguration.class)
 	public static class ServletErrorControllerConfirguation {
+
 		@Bean
-		public ServletSmartErrorController servletSmartErrorController(ErrorControllerProperties config,
-				ErrorAttributes errorAttrs, CompositeErrorConfiguringAdapter adapter) {
+		public ServletSmartErrorController servletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
+				CompositeErrorConfigurer adapter) {
 			return new ServletSmartErrorController(config, errorAttrs, adapter);
 		}
+
 	}
 
 	/**
-	 * Error controller properties.</br>
-	 * <font color=red>Note: When {@link @ConfigurationProperties} is used, the
+	 * Error handler controller properties.</br>
+	 * <font color=red>Note: When {@link ConfigurationProperties} is used, the
 	 * field name cannot contain numbers, otherwise</font>
 	 * 
 	 * @author Wangl.sir &lt;Wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0.0 2019-11-02
 	 * @since
 	 */
-	public static class ErrorControllerProperties implements InitializingBean {
+	public static class ErrorHandlerProperties implements InitializingBean {
 		final public static String DEFAULT_DIR_VIEW = "/default-error-view/";
 
 		/**
