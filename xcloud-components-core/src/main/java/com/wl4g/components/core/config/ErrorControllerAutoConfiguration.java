@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
 import com.wl4g.components.core.annotation.DevopsErrorController;
+import com.wl4g.components.core.config.webmapped.AbstractMappedControllerAutoConfiguration;
 import com.wl4g.components.core.web.error.CompositeErrorConfiguringAdapter;
 import com.wl4g.components.core.web.error.DefaultBasicErrorConfiguring;
 import com.wl4g.components.core.web.error.ErrorConfiguring;
@@ -45,7 +46,7 @@ import com.wl4g.components.core.web.error.SmartGlobalErrorController;
  */
 @Configuration
 @ConditionalOnProperty(value = "spring.cloud.devops.error.enabled", matchIfMissing = true)
-public class ErrorControllerAutoConfiguration extends OptionalPrefixControllerAutoConfiguration {
+public class ErrorControllerAutoConfiguration extends AbstractMappedControllerAutoConfiguration {
 
 	@Bean
 	public ErrorConfiguring defaultBasicErrorConfiguring() {

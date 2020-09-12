@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config;
+package com.wl4g.components.core.config.webmapped;
 
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
-import static org.springframework.util.Assert.notNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -31,7 +30,6 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -42,8 +40,10 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author wangl.sir
  * @version v1.0 2019年1月10日
  * @since
+ * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
+ * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
  */
-public abstract class OptionalPrefixControllerAutoConfiguration implements ApplicationContextAware {
+public abstract class AbstractMappedControllerAutoConfiguration implements ApplicationContextAware {
 
 	/**
 	 * {@link ApplicationContext}
@@ -51,9 +51,8 @@ public abstract class OptionalPrefixControllerAutoConfiguration implements Appli
 	protected ApplicationContext actx;
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		notNull(applicationContext, "'applicationContext' must not be null");
-		this.actx = applicationContext;
+	public void setApplicationContext(ApplicationContext actx) throws BeansException {
+		this.actx = notNullOf(actx, "applicationContext");
 	}
 
 	/**
@@ -91,13 +90,14 @@ public abstract class OptionalPrefixControllerAutoConfiguration implements Appli
 	}
 
 	/**
-	 * {@link HandlerMapping} to map {@code @RequestMapping} on objects and
-	 * prefixes them. The semantics of {@code @RequestMapping} should be
-	 * identical to a normal {@code @Controller}, but the Objects should not be
-	 * annotated as {@code @Controller} (otherwise they will be mapped by the
-	 * normal MVC mechanisms).
+	 * Servlet or Reactive HandlerMapping to map {@link RequestMapping} on
+	 * objects and prefixes them. The semantics of {@link RequestMapping} should
+	 * be identical to a normal {@link Controller}, but the Objects should not
+	 * be annotated as {@link Controller} (otherwise they will be mapped by the
+	 * normal servlet spring MVC or Reactive mechanisms).
 	 *
-	 * @author Johannes Edmeier
+	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
+	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
 	 */
 	public static class PrefixHandlerMapping extends RequestMappingHandlerMapping {
 		private String prefix = "";

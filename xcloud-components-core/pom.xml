@@ -39,6 +39,12 @@
 			<artifactId>spring-context-support</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Spring Webflux(Non default requires) -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<!-- Spring Boot -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

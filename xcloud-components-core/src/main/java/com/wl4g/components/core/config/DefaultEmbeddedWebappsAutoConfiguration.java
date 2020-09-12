@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.wl4g.components.core.config.webmapped.AbstractMappedControllerAutoConfiguration;
 import com.wl4g.components.core.web.embedded.GenericEmbeddedWebappsEndpoint;
 
 import static com.wl4g.components.core.config.DefaultEmbeddedWebappsAutoConfiguration.GenericEmbeddedWebappsProperties.*;
@@ -36,7 +37,7 @@ import java.util.Properties;
  * @since
  */
 @Configuration
-public class DefaultEmbeddedWebappsAutoConfiguration extends OptionalPrefixControllerAutoConfiguration {
+public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractMappedControllerAutoConfiguration {
 
 	final private static String BEAN_DEFAULT_EMBEDDED_WEBAPPS_PROPERTIES = "defaultGenericEmbeddedWebappsProperties";
 	final private static String BEAN_DEFAULT_EMBEDDED_WEBAPPS_ENDPOINT = "defaultGenericEmbeddedWebappsEndpoint";
