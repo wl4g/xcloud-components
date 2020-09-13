@@ -94,8 +94,8 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	public static class ReactiveErrorHandlerConfiguration {
 
 		@Bean
-		public ReactiveErrorAttributes reactiveErrorAttributes(ErrorHandlerProperties config, CompositeErrorConfigurer adapter) {
-			return new ReactiveErrorAttributes();
+		public ReactiveErrorAttributes reactiveErrorAttributes(CompositeErrorConfigurer configurer) {
+			return new ReactiveErrorAttributes(configurer);
 		}
 
 		/**

@@ -22,6 +22,7 @@ import static com.wl4g.components.common.web.WebUtils2.PARAM_STACKTRACE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static java.util.Locale.US;
 
+import java.net.URI;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWe
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -40,11 +42,13 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_HTML;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.CookieUtils;
+import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 import reactor.core.publisher.Mono;
@@ -78,9 +82,16 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 
 	private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
 		Map<String, Object> model = getErrorAttributes(request, true);
-		
-		//TODO
-		return ServerResponse.status(OK).contentType(APPLICATION_JSON).body(BodyInserters.fromValue(model));
+
+		// TODO
+		// redirect
+		ServerResponse.status(-111).contentType(TEXT_HTML).location(URI.create("")).build();
+
+		// rendering
+		ServerResponse.status(-111).contentType(TEXT_HTML).body(BodyInserters.fromValue(model));
+
+		// json
+		return ServerResponse.ok().contentType(APPLICATION_JSON).body(BodyInserters.fromValue(RespBase.create()));
 	}
 
 	/**

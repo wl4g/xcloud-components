@@ -125,6 +125,9 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 */
 	public void doGlobalHandleErrors(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
 			@NotNull Map<String, Object> model, @NotNull Throwable th) {
+	
+		// TODO
+		
 		try {
 			// Obtain custom extension response status.
 			int status = getStatus(model, th);
@@ -252,6 +255,8 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 * {@link RenderingCallback}
 	 */
 	static interface RenderingCallback {
+		
+		// TODO
 
 		default void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) {
 			throw new UnsupportedOperationException();
