@@ -57,7 +57,7 @@ import static org.apache.commons.lang3.StringUtils.*;
  */
 @Beta
 public class RespBase<D> implements Serializable {
-	final private static long serialVersionUID = 2647155468624590650L;
+	private static final long serialVersionUID = 2647155468624590650L;
 
 	private RetCode code = RetCode.OK;
 	private String status = DEFAULT_STATUS; // [Extensible]
@@ -255,9 +255,9 @@ public class RespBase<D> implements Serializable {
 		if (isNull(data))
 			return;
 		if (checkDataAvailable()) // Data already payLoad ?
-			throw new IllegalStateException(
-					format("RespBase.data already payLoad, In order to set it successful the data node must be the initial value or empty. - %s",
-							getData()));
+			throw new IllegalStateException(format(
+					"RespBase.data already payLoad, In order to set it successful the data node must be the initial value or empty. - %s",
+					getData()));
 
 		this.data = data;
 	}
@@ -405,17 +405,17 @@ public class RespBase<D> implements Serializable {
 	// --- Function tool's. ---
 
 	/**
-	 * Get restful exceptions and corresponding response status code.
+	 * Gets restful exceptions and corresponding response status code.
 	 * 
 	 * @param th
 	 * @return
 	 */
-	public final static RetCode getRestfulCode(Throwable th) {
+	public static final RetCode getRestfulCode(Throwable th) {
 		return getRestfulCode(th, null);
 	}
 
 	/**
-	 * Get restful exceptions and corresponding response status code.
+	 * Gets restful exceptions and corresponding response status code.
 	 * 
 	 * @param th
 	 * @param defaultCode
@@ -426,7 +426,7 @@ public class RespBase<D> implements Serializable {
 	 * @see {@link InvalidParametersException}
 	 * @see {@link ServiceUnavailableException}
 	 */
-	public final static RetCode getRestfulCode(Throwable th, RetCode defaultCode) {
+	public static final RetCode getRestfulCode(Throwable th, RetCode defaultCode) {
 		if (nonNull(th) && (th instanceof RESTfulException)) {
 			return ((RESTfulException) th).getCode();
 		}
@@ -438,7 +438,7 @@ public class RespBase<D> implements Serializable {
 	 * 
 	 * @return
 	 */
-	public final static <T> RespBase<T> create() {
+	public static final <T> RespBase<T> create() {
 		return create(null);
 	}
 
@@ -448,7 +448,7 @@ public class RespBase<D> implements Serializable {
 	 * @param status
 	 * @return
 	 */
-	public final static <T> RespBase<T> create(String status) {
+	public static final <T> RespBase<T> create(String status) {
 		return new RespBase<T>().withStatus(status);
 	}
 
@@ -458,7 +458,7 @@ public class RespBase<D> implements Serializable {
 	 * @param resp
 	 * @return
 	 */
-	public final static boolean isSuccess(RespBase<?> resp) {
+	public static final boolean isSuccess(RespBase<?> resp) {
 		return resp != null && RetCode.OK.getErrcode() == resp.getCode();
 	}
 
@@ -469,7 +469,7 @@ public class RespBase<D> implements Serializable {
 	 * @param retCode
 	 * @return
 	 */
-	public final static boolean eq(RespBase<?> resp, RetCode retCode) {
+	public static final boolean eq(RespBase<?> resp, RetCode retCode) {
 		return !isNull(resp) && retCode.getErrcode() == resp.getCode();
 	}
 
@@ -614,42 +614,42 @@ public class RespBase<D> implements Serializable {
 		 * Successful code </br>
 		 * {@link HttpStatus.OK}
 		 */
-		final public static RetCode OK = new RetCode(HttpStatus.OK.value(), "Ok") {
+		public static final RetCode OK = new RetCode(HttpStatus.OK.value(), "Ok") {
 		};
 
 		/**
 		 * Parameter error </br>
 		 * {@link HttpStatus.BAD_REQUEST}
 		 */
-		final public static RetCode PARAM_ERR = new RetCode(BAD_REQUEST.value(), "Bad parameters") {
+		public static final RetCode PARAM_ERR = new RetCode(BAD_REQUEST.value(), "Bad parameters") {
 		};
 
 		/**
 		 * Unauthenticated </br>
 		 * {@link HttpStatus.UNAUTHORIZED}
 		 */
-		final public static RetCode UNAUTHC = new RetCode(UNAUTHORIZED.value(), "Unauthenticated") {
+		public static final RetCode UNAUTHC = new RetCode(UNAUTHORIZED.value(), "Unauthenticated") {
 		};
 
 		/**
 		 * Unauthorized </br>
 		 * {@link HttpStatus.FORBIDDEN}
 		 */
-		final public static RetCode UNAUTHZ = new RetCode(FORBIDDEN.value(), "Unauthorized") {
+		public static final RetCode UNAUTHZ = new RetCode(FORBIDDEN.value(), "Unauthorized") {
 		};
 
 		/**
 		 * Not found </br>
 		 * {@link HttpStatus.NOT_FOUND}
 		 */
-		final public static RetCode NOT_FOUND_ERR = new RetCode(NOT_FOUND.value(), "Not found") {
+		public static final RetCode NOT_FOUND_ERR = new RetCode(NOT_FOUND.value(), "Not found") {
 		};
 
 		/**
 		 * Business constraints </br>
 		 * {@link HttpStatus.NOT_IMPLEMENTED}
 		 */
-		final public static RetCode BIZ_ERR = new RetCode(EXPECTATION_FAILED.value(), "Business restricted") {
+		public static final RetCode BIZ_ERR = new RetCode(EXPECTATION_FAILED.value(), "Business restricted") {
 		};
 
 		/**
@@ -658,28 +658,28 @@ public class RespBase<D> implements Serializable {
 		 * 
 		 * @see <a href="https://httpstatusdogs.com/423-locked">423-Locked</a>
 		 */
-		final public static RetCode LOCKD_ERR = new RetCode(LOCKED.value(), "Resources locked") {
+		public static final RetCode LOCKD_ERR = new RetCode(LOCKED.value(), "Resources locked") {
 		};
 
 		/**
 		 * Precondition limited </br>
 		 * {@link HttpStatus.PRECONDITION_FAILED}
 		 */
-		final public static RetCode PRECONDITITE_LIMITED = new RetCode(PRECONDITION_FAILED.value(), "Precondition limited") {
+		public static final RetCode PRECONDITITE_LIMITED = new RetCode(PRECONDITION_FAILED.value(), "Precondition limited") {
 		};
 
 		/**
 		 * Unsuppported </br>
 		 * {@link HttpStatus.NOT_IMPLEMENTED}
 		 */
-		final public static RetCode UNSUPPORTED = new RetCode(NOT_IMPLEMENTED.value(), "Unsuppported") {
+		public static final RetCode UNSUPPORTED = new RetCode(NOT_IMPLEMENTED.value(), "Unsuppported") {
 		};
 
 		/**
 		 * System abnormality </br>
 		 * {@link HttpStatus.SERVICE_UNAVAILABLE}
 		 */
-		final public static RetCode SYS_ERR = new RetCode(SERVICE_UNAVAILABLE.value(),
+		public static final RetCode SYS_ERR = new RetCode(SERVICE_UNAVAILABLE.value(),
 				"Service unavailable, please try again later") {
 		};
 
@@ -687,32 +687,32 @@ public class RespBase<D> implements Serializable {
 		 * Unavailable For Legal Reasons </br>
 		 * {@link HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS}
 		 */
-		final public static RetCode LEGAL_ERR = new RetCode(UNAVAILABLE_FOR_LEGAL_REASONS.value(),
+		public static final RetCode LEGAL_ERR = new RetCode(UNAVAILABLE_FOR_LEGAL_REASONS.value(),
 				"Not available for legal reasons") {
 		};
 
 		/**
 		 * Name to {@link RetCode} value definitions.
 		 */
-		final private static Map<String, RetCode> nameValueDefinition;
+		private static final Map<String, RetCode> nameValueDefinition;
 
 		/**
 		 * Code to {@link RetCode} value definitions.
 		 */
-		final private static Map<Integer, RetCode> codeValueDefinition;
+		private static final Map<Integer, RetCode> codeValueDefinition;
 
 		/**
 		 * Errors code.
 		 */
-		final private int errcode;
+		private final int errcode;
 
 		/**
 		 * Errors message.
 		 */
-		final private String errmsg;
+		private final String errmsg;
 
 		private RetCode(int code, String msg) {
-			// hasText(msg, "Result message can't empty.");
+			// hasTextOf(msg, "msg");
 			this.errcode = code;
 			this.errmsg = msg;
 		}
@@ -723,7 +723,7 @@ public class RespBase<D> implements Serializable {
 		 * 
 		 * @return
 		 */
-		final public int getErrcode() {
+		public final int getErrcode() {
 			return errcode;
 		}
 
@@ -734,7 +734,7 @@ public class RespBase<D> implements Serializable {
 		 * 
 		 * @return
 		 */
-		final public String getErrmsg() {
+		public final String getErrmsg() {
 			return errmsg;
 		}
 
@@ -747,7 +747,7 @@ public class RespBase<D> implements Serializable {
 		 * @param value
 		 * @return
 		 */
-		final public static RetCode of(String nameOrCode) {
+		public static final RetCode of(String nameOrCode) {
 			RetCode retCode = safeOf(nameOrCode);
 			if (nonNull(retCode)) {
 				return retCode;
@@ -761,7 +761,7 @@ public class RespBase<D> implements Serializable {
 		 * @param nameOrCode
 		 * @return
 		 */
-		final public static RetCode safeOf(Object nameOrCode) {
+		public static final RetCode safeOf(Object nameOrCode) {
 			if (isNull(nameOrCode)) {
 				return null;
 			}
@@ -778,7 +778,7 @@ public class RespBase<D> implements Serializable {
 		 * @param errcode
 		 * @return
 		 */
-		final public static RetCode newCode(int errcode) {
+		public static final RetCode newCode(int errcode) {
 			return new RetCode(errcode, null) {
 			};
 		}
@@ -790,13 +790,13 @@ public class RespBase<D> implements Serializable {
 		 * @param errmsg
 		 * @return
 		 */
-		final public static RetCode newCode(int errcode, String errmsg) {
+		public static final RetCode newCode(int errcode, String errmsg) {
 			return new RetCode(errcode, errmsg) {
 			};
 		}
 
 		/**
-		 * Get internal default instance definitions.
+		 * Register defaults instance definitions.
 		 * 
 		 * @return
 		 */
@@ -839,7 +839,7 @@ public class RespBase<D> implements Serializable {
 	 * @version v1.0 2019年11月7日
 	 * @since
 	 */
-	final public static class ErrorPromptMessageBuilder {
+	public static final class ErrorPromptMessageBuilder {
 
 		/**
 		 * Errors prefix definition.
@@ -855,7 +855,7 @@ public class RespBase<D> implements Serializable {
 		 * @param errmsg
 		 * @return
 		 */
-		final static String build(RetCode retCode, String errmsg) {
+		static final String build(RetCode retCode, String errmsg) {
 			if (isBlank(errmsg)) {
 				return errmsg;
 			}
@@ -867,7 +867,7 @@ public class RespBase<D> implements Serializable {
 		 * 
 		 * @param errorPrompt
 		 */
-		final public static void setPrompt(String errorPrompt) {
+		public static final void setPrompt(String errorPrompt) {
 			// hasText(errorPrompt, "Global error prompt can't be empty.");
 			if (!isBlank(errorPrompt)) {
 				ErrorPromptMessageBuilder.errorPrompt = errorPrompt.replaceAll("-", "").toUpperCase(US);
@@ -879,12 +879,12 @@ public class RespBase<D> implements Serializable {
 	/**
 	 * Default status value.
 	 */
-	final public static String DEFAULT_STATUS = "Normal";
+	public static final String DEFAULT_STATUS = "Normal";
 
 	/**
 	 * Default requestId value.
 	 */
-	final public static String DEFAULT_REQUESTID = null;
+	public static final String DEFAULT_REQUESTID = null;
 
 	/**
 	 * Default data value.</br>
@@ -896,6 +896,6 @@ public class RespBase<D> implements Serializable {
 	 *JsonMappingException: No serializer found for class java.lang.Object and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) (through reference chain: com.wl4g.devops.common.web.RespBase["data"])
 	 * </pre>
 	 */
-	final public static Object DEFAULT_DATA = emptyMap();
+	public static final Object DEFAULT_DATA = emptyMap();
 
 }

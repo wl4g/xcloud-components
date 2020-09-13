@@ -15,9 +15,10 @@
  */
 package com.wl4g.components.core.config;
 
+import static com.wl4g.components.common.lang.Assert2.hasTextOf;
+import static com.wl4g.components.core.config.ErrorControllerAutoConfiguration.KEY_PROPERTY_PREFIX;
 import static com.wl4g.components.common.serialize.JacksonUtils.convertBean;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.HashMap;
 import java.util.List;
@@ -58,23 +59,23 @@ import com.wl4g.components.core.web.error.ServletSmartErrorController;
  * @since
  */
 @Configuration
-@ConditionalOnProperty(value = "spring.cloud.devops.error.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = KEY_PROPERTY_PREFIX + ".enable", matchIfMissing = true)
 public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupport {
 
 	@Bean
-	public ErrorConfigurer defaultErrorConfigurer() {
-		return new DefaultErrorConfigurer();
-	}
-
-	@Bean
-	public CompositeErrorConfigurer compositeErrorConfigurer(List<ErrorConfigurer> configures) {
-		return new CompositeErrorConfigurer(configures);
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "spring.cloud.devops.error")
-	public ErrorHandlerProperties errorControllerProperties() {
+	@ConfigurationProperties(prefix = KEY_PROPERTY_PREFIX)
+	public ErrorHandlerProperties errorHandlerProperties() {
 		return new ErrorHandlerProperties();
+	}
+
+	@Bean
+	public ErrorConfigurer defaultErrorConfigurer(ErrorHandlerProperties config) {
+		return new DefaultErrorConfigurer(config);
+	}
+
+	@Bean
+	public CompositeErrorConfigurer compositeErrorConfigurer(ErrorHandlerProperties config, List<ErrorConfigurer> configures) {
+		return new CompositeErrorConfigurer(config, configures);
 	}
 
 	@Bean
@@ -144,80 +145,54 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	 * @since
 	 */
 	public static class ErrorHandlerProperties implements InitializingBean {
-		final public static String DEFAULT_DIR_VIEW = "/default-error-view/";
 
 		/**
-		 * Default error view configuration directory.
+		 * Default error view configuration base path.
 		 */
-		private String basePath = DEFAULT_DIR_VIEW;
+		private String basePath = DEFAULT_ERROR_VIEW_PATH;
 
 		/**
-		 * {@link HttpStatus#NOT_FOUND} error corresponding view template name.
+		 * Error rendering mapping.
 		 */
-		private String notFountUriOrTpl = "404.tpl.html";
-
-		/**
-		 * {@link HttpStatus#FORBIDDEN} error corresponding view template name.
-		 */
-		private String unauthorizedUriOrTpl = "403.tpl.html";
-
-		/**
-		 * {@link HttpStatus#SERVICE_UNAVAILABLE} error corresponding view
-		 * template name.
-		 */
-		private String errorUriOrTpl = "50x.tpl.html";
+		private Map<Integer, String> renderingMapping = new HashMap<Integer, String>() {
+			private static final long serialVersionUID = 551980985208402881L;
+			{
+				put(404, DEFAULT_TPL_404_NAME);
+				put(403, DEFAULT_TPL_403_NAME);
+				put(500, DEFAULT_TPL_50X_NAME);
+				put(501, DEFAULT_TPL_50X_NAME);
+				put(502, DEFAULT_TPL_50X_NAME);
+				put(503, DEFAULT_TPL_50X_NAME);
+			}
+		};
 
 		/**
 		 * Error return previous page URI.</br>
 		 * Default for browser location origin.
 		 */
-		private String homeUri = "javascript:location.href = location.origin";
+		private String homeUri = "javascript:location.href=location.origin";
 
-		// --- Temporary attribute's. ---
+		// --- Temporary. ---
 
 		/**
-		 * That convert as map.
+		 * This serialized to map.
 		 */
-		private Map<String, Object> asMap;
+		private transient Map<String, Object> asMap;
 
 		public String getBasePath() {
 			return basePath;
 		}
 
 		public void setBasePath(String basePath) {
-			if (!isBlank(basePath)) {
-				this.basePath = basePath;
-			}
+			this.basePath = hasTextOf(basePath, "basePath");
 		}
 
-		public String getNotFountUriOrTpl() {
-			return notFountUriOrTpl;
+		public Map<Integer, String> getRenderingMapping() {
+			return renderingMapping;
 		}
 
-		public void setNotFountUriOrTpl(String notFountUriOrTpl) {
-			if (!isBlank(notFountUriOrTpl)) {
-				this.notFountUriOrTpl = notFountUriOrTpl;
-			}
-		}
-
-		public String getUnauthorizedUriOrTpl() {
-			return unauthorizedUriOrTpl;
-		}
-
-		public void setUnauthorizedUriOrTpl(String unauthorizedUriOrTpl) {
-			if (!isBlank(unauthorizedUriOrTpl)) {
-				this.unauthorizedUriOrTpl = unauthorizedUriOrTpl;
-			}
-		}
-
-		public String getErrorUriOrTpl() {
-			return errorUriOrTpl;
-		}
-
-		public void setErrorUriOrTpl(String errorUriOrTpl) {
-			if (!isBlank(errorUriOrTpl)) {
-				this.errorUriOrTpl = errorUriOrTpl;
-			}
+		public void setRenderingMapping(Map<Integer, String> renderingMapping) {
+			this.renderingMapping = renderingMapping;
 		}
 
 		public String getHomeUri() {
@@ -225,9 +200,7 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 		}
 
 		public void setHomeUri(String homeUri) {
-			if (!isBlank(homeUri)) {
-				this.homeUri = homeUri;
-			}
+			this.homeUri = hasTextOf(homeUri, "homeUri");
 		}
 
 		// --- Function's. ---
@@ -243,11 +216,29 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 		 * 
 		 * @return
 		 */
-
 		public Map<String, Object> asMap() {
 			return this.asMap;
 		}
 
+		final public static String DEFAULT_ERROR_VIEW_PATH = "/default-error-view/";
+
+		/**
+		 * {@link HttpStatus#NOT_FOUND}
+		 */
+		final public static String DEFAULT_TPL_404_NAME = "404.tpl.html";
+
+		/**
+		 * {@link HttpStatus#FORBIDDEN}
+		 */
+		final public static String DEFAULT_TPL_403_NAME = "403.tpl.html";
+
+		/**
+		 * {@link HttpStatus#SERVICE_UNAVAILABLE}
+		 */
+		final public static String DEFAULT_TPL_50X_NAME = "50x.tpl.html";
+
 	}
+
+	final public static String KEY_PROPERTY_PREFIX = "spring.cloud.xcloud.error";
 
 }

@@ -32,7 +32,7 @@ import com.wl4g.components.core.logging.logback.LogbackLoggingSystem;
  * @since
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
-public class CustomLoggingApplicationListener extends LoggingApplicationListener {
+public class EnhancedLoggingApplicationListener extends LoggingApplicationListener {
 
 	/**
 	 * Automatic setting uses the enhanced spring log system. Refer to the

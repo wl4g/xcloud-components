@@ -1,4 +1,4 @@
 # Application Listeners
 org.springframework.context.ApplicationListener=\
-com.wl4g.components.core.logging.CustomLoggingApplicationListener,\
-com.wl4g.components.core.config.listener.SystemBootSetDefaultsApplicationListener
+com.wl4g.components.core.logging.EnhancedLoggingApplicationListener,\
+com.wl4g.components.core.config.listener.BootDefaultSetApplicationListener

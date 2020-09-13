@@ -15,52 +15,25 @@
  */
 package com.wl4g.components.core.web.error;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.Properties;
-import static java.util.Locale.*;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
-import static org.springframework.ui.freemarker.FreeMarkerTemplateUtils.*;
-import static org.springframework.util.Assert.notNull;
-import static org.springframework.web.util.WebUtils.getCookie;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
-import static org.springframework.http.MediaType.*;
-
-import static com.google.common.base.Charsets.UTF_8;
-import static com.wl4g.components.common.lang.Exceptions.getStackTraceAsString;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.components.common.serialize.JacksonUtils.*;
-import static com.wl4g.components.common.web.WebUtils2.isTrue;
-import static com.wl4g.components.common.web.WebUtils2.write;
-import static com.wl4g.components.common.web.WebUtils2.writeJson;
-import static com.wl4g.components.common.web.WebUtils2.ResponseType.*;
-import static com.wl4g.components.core.constants.DevOpsConstants.PARAM_STACK_TRACE;
+import static com.wl4g.components.common.web.WebUtils2.checkRequestErrorStacktrace;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.common.web.rest.RespBase;
-import com.wl4g.components.common.web.rest.RespBase.RetCode;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 
 /**
  * Servlet smart global error controller.
@@ -72,63 +45,21 @@ import freemarker.template.TemplateException;
 @GlobalErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
 // @ControllerAdvice
-public class ServletSmartErrorController extends AbstractErrorController implements InitializingBean {
+public class ServletSmartErrorController extends AbstractErrorController {
 
-	final private SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
-	/** Errors configuration properties. */
-	final private ErrorHandlerProperties config;
+	/** {@link ErrorHandlerProperties} */
+	protected final ErrorHandlerProperties config;
 
-	/** Errors configurer. */
-	final private CompositeErrorConfigurer configurer;
-
-	private Template tpl404;
-	private Template tpl403;
-	private Template tpl50x;
+	/** {@link ErrorConfigurer} */
+	protected final CompositeErrorConfigurer configurer;
 
 	public ServletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttributes,
-			CompositeErrorConfigurer adapter) {
+			CompositeErrorConfigurer configurer) {
 		super(errorAttributes);
-		notNull(config, "ErrorControllerProperties must not be null.");
-		notNull(adapter, "CompositeErrorConfiguringAdapter must not be null.");
-		this.config = config;
-		this.configurer = adapter;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		log.info("Initializing smart global error controller ...");
-
-		try {
-			FreeMarkerConfigurer fmcr = new FreeMarkerConfigurer();
-			fmcr.setTemplateLoaderPath(config.getBasePath());
-			Properties settings = new Properties();
-			settings.setProperty("template_update_delay", "0");
-			settings.setProperty("default_encoding", "UTF-8");
-			settings.setProperty("number_format", "0.####");
-			settings.setProperty("datetime_format", "yyyy-MM-dd HH:mm:ss");
-			settings.setProperty("classic_compatible", "true");
-			settings.setProperty("template_exception_handler", "ignore");
-			fmcr.setFreemarkerSettings(settings);
-			fmcr.afterPropertiesSet();
-
-			// Initial errors template.
-			Configuration fmc = fmcr.getConfiguration();
-			if (!isErrorRedirectURI(config.getNotFountUriOrTpl())) {
-				this.tpl404 = fmc.getTemplate(config.getNotFountUriOrTpl(), UTF_8.name());
-				notNull(tpl404, "Default 404 view template must not be null");
-			}
-			if (!isErrorRedirectURI(config.getUnauthorizedUriOrTpl())) {
-				this.tpl403 = fmc.getTemplate(config.getUnauthorizedUriOrTpl(), UTF_8.name());
-				notNull(tpl403, "Default 403 view template must not be null");
-			}
-			if (!isErrorRedirectURI(config.getErrorUriOrTpl())) {
-				this.tpl50x = fmc.getTemplate(config.getErrorUriOrTpl(), UTF_8.name());
-				notNull(tpl50x, "Default 500 view template must not be null");
-			}
-		} catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
+		this.config = notNullOf(config, "config");
+		this.configurer = notNullOf(configurer, "configurer");
 	}
 
 	/**
@@ -142,56 +73,21 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 	}
 
 	/**
-	 * Any exception error handle.
+	 * DO any servlet request handler errors.
 	 * 
 	 * @param request
 	 * @param response
-	 * @param ex
+	 * @param th
 	 * @return
 	 */
 	@RequestMapping(DEFAULT_PATH_ERROR)
-	@ExceptionHandler({ Exception.class/* ,Throwable.class */ })
-	public void doAnyHandleError(HttpServletRequest request, HttpServletResponse response, Exception ex) {
-		try {
-			// Obtain errors attributes.
-			Map<String, Object> model = getErrorAttributes(request, response, ex);
+	@ExceptionHandler({ Throwable.class })
+	public void doAnyHandleError(HttpServletRequest request, HttpServletResponse response, Throwable th) {
+		// Obtain errors attributes.
+		Map<String, Object> model = getErrorAttributes(request, response, th);
 
-			// Obtain custom extension response status.
-			int status = configurer.getStatus(request, response, model, ex);
-			String errmsg = configurer.getRootCause(request, response, model, ex);
-
-			// Get redirectUri or rendering template.
-			Object uriOrTpl = getRedirectUriOrRenderErrorView(model, status);
-
-			// If and only if the client is a browser and not an XHR request
-			// returns to the page, otherwise it returns to JSON.
-			if (isJSONResp(request)) {
-				RespBase<Object> resp = new RespBase<>(RetCode.newCode(status, errmsg));
-				if (!(uriOrTpl instanceof Template)) {
-					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);
-				}
-				String errJson = toJSONString(resp);
-				log.error("Resp err => {}", errJson);
-				writeJson(response, errJson);
-			}
-			// Rendering errors view
-			else {
-				if (uriOrTpl instanceof Template) {
-					log.error("Redirect err view => http({})", status);
-					// Merge configuration to model.
-					model.putAll(config.asMap());
-					// Rendering
-					String renderString = processTemplateIntoString((Template) uriOrTpl, model);
-					write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
-				} else {
-					log.error("Redirect err view => [{}]", uriOrTpl);
-					response.sendRedirect((String) uriOrTpl);
-				}
-			}
-		} catch (Throwable th) {
-			log.error("Failed to global errors for origin causes: \n{} at causes:\n{}", getStackTraceAsString(ex),
-					getStackTraceAsString(th));
-		}
+		// handler global errors
+		configurer.doGlobalHandleErrors(request, response, model, th);
 	}
 
 	/**
@@ -204,7 +100,7 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 		if (log.isDebugEnabled() || JvmRuntimeKit.isJVMDebugging) {
 			return true;
 		}
-		return checkStackTrace(request);
+		return checkRequestErrorStacktrace(request);
 	}
 
 	/**
@@ -213,7 +109,7 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 	 * @param request
 	 * @return
 	 */
-	private Map<String, Object> getErrorAttributes(HttpServletRequest request, HttpServletResponse response, Exception ex) {
+	private Map<String, Object> getErrorAttributes(HttpServletRequest request, HttpServletResponse response, Throwable th) {
 		boolean _stacktrace = isStackTrace(request);
 		Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
 		if (_stacktrace) {
@@ -221,69 +117,10 @@ public class ServletSmartErrorController extends AbstractErrorController impleme
 		}
 
 		// Replace the exception message that appears to be meaningful.
-		model.put("message", configurer.getRootCause(request, response, model, ex));
+		model.put("message", configurer.getRootCause(model, th));
 		return model;
 	}
 
-	/**
-	 * Get redirectUri rendering errors page view.
-	 * 
-	 * @param model
-	 * @param status
-	 * @return
-	 * @throws TemplateException
-	 * @throws IOException
-	 */
-	private Object getRedirectUriOrRenderErrorView(Map<String, Object> model, int status) throws IOException, TemplateException {
-		switch (status) {
-		case 404:
-			if (nonNull(tpl404)) {
-				return tpl404;
-			}
-			return config.getNotFountUriOrTpl().substring(DEFAULT_REDIRECT_PREFIX.length());
-		case 403:
-			if (nonNull(tpl403)) {
-				return tpl403;
-			}
-			return config.getUnauthorizedUriOrTpl().substring(DEFAULT_REDIRECT_PREFIX.length());
-		default:
-			if (nonNull(tpl50x)) {
-				return tpl50x;
-			}
-			return config.getErrorUriOrTpl().substring(DEFAULT_REDIRECT_PREFIX.length());
-		}
-	}
-
-	/**
-	 * Is redirection error URI.
-	 * 
-	 * @param uriOrTpl
-	 * @return
-	 */
-	private boolean isErrorRedirectURI(String uriOrTpl) {
-		return startsWithIgnoreCase(uriOrTpl, DEFAULT_REDIRECT_PREFIX);
-	}
-
-	/**
-	 * Whether error stack information is enabled
-	 * 
-	 * @param request
-	 * @return
-	 */
-	public static boolean checkStackTrace(ServletRequest request) {
-		String _stacktrace = request.getParameter(PARAM_STACK_TRACE);
-		if (isBlank(_stacktrace) && request instanceof HttpServletRequest) {
-			Cookie stCookie = getCookie((HttpServletRequest) request, PARAM_STACK_TRACE);
-			_stacktrace = !isNull(stCookie) ? stCookie.getValue() : _stacktrace;
-		}
-		if (isBlank(_stacktrace)) {
-			return false;
-		}
-		return isTrue(_stacktrace.toLowerCase(US), false);
-	}
-
 	final private static String DEFAULT_PATH_ERROR = "/error";
-	final private static String DEFAULT_REDIRECT_PREFIX = "redirect:";
-	final private static String DEFAULT_REDIRECT_KEY = "redirectUrl";
 
 }

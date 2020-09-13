@@ -59,7 +59,7 @@ import com.wl4g.components.core.logging.TraceLoggingMDCFilter;
  */
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class SystemBootAutoConfiguration implements ApplicationContextAware {
+public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 
 	final protected SmartLogger log = getLogger(getClass());
 

@@ -15,8 +15,16 @@
  */
 package com.wl4g.components.core.web.error;
 
-import java.util.LinkedHashMap;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
+import static com.wl4g.components.common.lang.StringUtils2.isTrue;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.components.common.web.WebUtils2.PARAM_STACKTRACE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static java.util.Locale.US;
+
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +33,18 @@ import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWe
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.HttpStatus.OK;
 
+import com.wl4g.components.common.jvm.JvmRuntimeKit;
+import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.common.web.CookieUtils;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 import reactor.core.publisher.Mono;
@@ -48,6 +59,8 @@ import reactor.core.publisher.Mono;
  */
 // @ControllerAdvice
 public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler implements InitializingBean {
+
+	protected final SmartLogger log = getLogger(getClass());
 
 	/** {@link ErrorHandlerProperties} */
 	@Autowired
@@ -64,9 +77,10 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 	}
 
 	private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
-		Map<String, Object> errorPropertiesMap = getErrorAttributes(request, true);
-		return ServerResponse.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(errorPropertiesMap));
+		Map<String, Object> model = getErrorAttributes(request, true);
+		
+		//TODO
+		return ServerResponse.status(OK).contentType(APPLICATION_JSON).body(BodyInserters.fromValue(model));
 	}
 
 	/**
@@ -74,22 +88,48 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 	 */
 	public static class ReactiveErrorAttributes extends DefaultErrorAttributes {
 
-		public ReactiveErrorAttributes() {
-			super(false);
+		protected final SmartLogger log = getLogger(getClass());
+
+		/** {@link ErrorConfigurer} */
+		protected final CompositeErrorConfigurer configurer;
+
+		public ReactiveErrorAttributes(CompositeErrorConfigurer configurer) {
+			super(true);
+			this.configurer = notNullOf(configurer, "configurer");
 		}
 
 		@Override
 		public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
-			return assembleError(request);
+			boolean _stacktrace = isStackTrace(request);
+			Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
+			if (_stacktrace) {
+				log.error("Origin Errors - {}", model);
+			}
+
+			// Replace the exception message that appears to be meaningful.
+			model.put("message", configurer.getRootCause(model, getError(request)));
+			return model;
 		}
 
-		private Map<String, Object> assembleError(ServerRequest request) {
-			Map<String, Object> errorAttributes = new LinkedHashMap<>();
-			Throwable error = getError(request);
-			errorAttributes.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
-			errorAttributes.put("data", error.getMessage());
+		/**
+		 * Whether error stack information is enabled
+		 * 
+		 * @param request
+		 * @return
+		 */
+		private boolean isStackTrace(ServerRequest request) {
+			if (log.isDebugEnabled() || JvmRuntimeKit.isJVMDebugging) {
+				return true;
+			}
 
-			return errorAttributes;
+			String _stacktraceVal = request.queryParam(PARAM_STACKTRACE).orElse(null);
+			if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
+				_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
+			}
+			if (isBlank(_stacktraceVal)) {
+				return false;
+			}
+			return isTrue(_stacktraceVal.toLowerCase(US), false);
 		}
 
 	}

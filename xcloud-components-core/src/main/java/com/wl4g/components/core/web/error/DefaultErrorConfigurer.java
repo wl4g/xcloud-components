@@ -22,13 +22,11 @@ import static java.util.Objects.isNull;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 /**
  * Default basic error configure.
@@ -38,12 +36,16 @@ import com.wl4g.components.common.log.SmartLogger;
  * @since
  */
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class DefaultErrorConfigurer implements ErrorConfigurer {
+public class DefaultErrorConfigurer extends ErrorConfigurer {
+
+	public DefaultErrorConfigurer(ErrorHandlerProperties config) {
+		super(config);
+	}
 
 	final protected SmartLogger log = getLogger(getClass());
 
 	@Override
-	public Integer getStatus(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model, Exception ex) {
+	public Integer getStatus(Map<String, Object> model, Throwable th) {
 		Integer statusCode = (Integer) model.get("status");
 		/**
 		 * Eliminate meaningless status code: 999
@@ -51,12 +53,12 @@ public class DefaultErrorConfigurer implements ErrorConfigurer {
 		 * @see {@link org.springframework.boot.autoconfigure.web.DefaultErrorAttributes#addStatus()}
 		 */
 		if (isNull(statusCode) || statusCode == 999) {
-			RetCode retCode = getRestfulCode(ex);
+			RetCode retCode = getRestfulCode(th);
 			if (!isNull(retCode)) {
 				statusCode = retCode.getErrcode();
-			} else if (ex instanceof IllegalArgumentException) {
+			} else if (th instanceof IllegalArgumentException) {
 				return PARAM_ERR.getErrcode();
-			} else if (ex instanceof UnsupportedOperationException) {
+			} else if (th instanceof UnsupportedOperationException) {
 				return UNSUPPORTED.getErrcode();
 			} else { // status=999?
 				// statusCode = (Integer)
@@ -70,8 +72,7 @@ public class DefaultErrorConfigurer implements ErrorConfigurer {
 	}
 
 	@Override
-	public String getRootCause(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model,
-			Exception ex) {
+	public String getRootCause(Map<String, Object> model, Throwable th) {
 		return extractValidErrorsMessage(model);
 	}
 

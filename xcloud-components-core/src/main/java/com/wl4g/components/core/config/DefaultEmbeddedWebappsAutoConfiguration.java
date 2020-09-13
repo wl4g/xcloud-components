@@ -26,8 +26,6 @@ import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
 import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
 import com.wl4g.components.core.web.embed.GenericEmbeddedWebappsEndpoint;
 
-import static com.wl4g.components.core.config.DefaultEmbeddedWebappsAutoConfiguration.GenericEmbeddedWebappsProperties.*;
-
 import java.util.Properties;
 
 /**
@@ -42,7 +40,7 @@ public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractHandlerMapp
 
 	@Bean(BEAN_DEFAULT_PROPERTIES)
 	@ConfigurationProperties(prefix = KEY_EMBEDDED_WEBAPP_BASE)
-	@ConditionalOnProperty(value = KEY_EMBEDDED_WEBAPP_BASE + ".enabled", matchIfMissing = false)
+	@ConditionalOnProperty(value = KEY_EMBEDDED_WEBAPP_BASE + ".enable", matchIfMissing = false)
 	public GenericEmbeddedWebappsProperties defaultEmbeddedWebappsEndpointProperties() {
 		return new GenericEmbeddedWebappsProperties() {
 		};
@@ -72,7 +70,6 @@ public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractHandlerMapp
 	 * @since
 	 */
 	public static abstract class GenericEmbeddedWebappsProperties {
-		final public static String KEY_EMBEDDED_WEBAPP_BASE = "spring.cloud.devops.embedded-webapps";
 
 		/**
 		 * Basic controller mapping access URI of default web application
@@ -176,5 +173,6 @@ public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractHandlerMapp
 
 	final private static String BEAN_DEFAULT_PROPERTIES = "defaultGenericEmbeddedWebappsProperties";
 	final private static String BEAN_DEFAULT_ENDPOINT = "defaultGenericEmbeddedWebappsEndpoint";
+	final public static String KEY_EMBEDDED_WEBAPP_BASE = "spring.cloud.xcloud.embedded-webapps";
 
 }

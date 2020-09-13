@@ -16,24 +16,22 @@
 package com.wl4g.components.core.web.error;
 
 import org.springframework.core.annotation.Order;
-import org.springframework.util.Assert;
 
 import com.wl4g.components.common.collection.RegisteredUnmodifiableList;
+import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.wl4g.components.common.collection.CollectionUtils2.isEmpty;
+import static com.wl4g.components.common.lang.Assert2.notNull;
+import static com.wl4g.components.common.lang.Assert2.state;
 import static com.wl4g.components.common.web.rest.RespBase.RetCode.*;
 import static java.util.Collections.sort;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
-import static org.springframework.util.Assert.notNull;
-import static org.springframework.util.Assert.state;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Composite error configure adapter.
@@ -42,15 +40,16 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @version v1.0 2019年11月1日
  * @since
  */
-public class CompositeErrorConfigurer implements ErrorConfigurer {
+public class CompositeErrorConfigurer extends ErrorConfigurer {
 
 	/**
 	 * Error configures.
 	 */
-	protected final List<ErrorConfigurer> errorConfigures = new RegisteredUnmodifiableList<>(new ArrayList<>());
+	protected final List<ErrorConfigurer> configures = new RegisteredUnmodifiableList<>(new ArrayList<>());
 
-	public CompositeErrorConfigurer(List<ErrorConfigurer> configures) {
-		Assert.state(!isEmpty(configures), "Error configures has at least one.");
+	public CompositeErrorConfigurer(ErrorHandlerProperties config, List<ErrorConfigurer> configures) {
+		super(config);
+		state(!isEmpty(configures), "Error configures has at least one.");
 		// Sort by order.
 		sort(configures, (o1, o2) -> {
 			Order order1 = findAnnotation(o1.getClass(), Order.class);
@@ -62,13 +61,13 @@ public class CompositeErrorConfigurer implements ErrorConfigurer {
 					order1.value(), o2.getClass(), order2.value()));
 			return compare;
 		});
-		this.errorConfigures.addAll(configures);
+		this.configures.addAll(configures);
 	}
 
 	@Override
-	public Integer getStatus(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model, Exception ex) {
-		for (ErrorConfigurer c : errorConfigures) {
-			Integer status = c.getStatus(request, response, model, ex);
+	public Integer getStatus(Map<String, Object> model, Throwable th) {
+		for (ErrorConfigurer c : configures) {
+			Integer status = c.getStatus(model, th);
 			if (nonNull(status)) {
 				return status;
 			}
@@ -78,10 +77,9 @@ public class CompositeErrorConfigurer implements ErrorConfigurer {
 	}
 
 	@Override
-	public String getRootCause(HttpServletRequest request, HttpServletResponse response, Map<String, Object> model,
-			Exception ex) {
-		for (ErrorConfigurer c : errorConfigures) {
-			String errmsg = c.getRootCause(request, response, model, ex);
+	public String getRootCause(Map<String, Object> model, Throwable th) {
+		for (ErrorConfigurer c : configures) {
+			String errmsg = c.getRootCause(model, th);
 			if (!isBlank(errmsg)) {
 				return errmsg;
 			}

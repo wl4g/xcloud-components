@@ -58,6 +58,7 @@ import static com.wl4g.components.common.lang.Assert2.*;
 import static com.wl4g.components.common.lang.StringUtils2.isDomain;
 import static com.wl4g.components.common.web.UserAgentUtils.*;
 import static java.lang.String.format;
+import static java.lang.System.getenv;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.containsAny;
@@ -73,7 +74,7 @@ import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
- * WEB generic utilitys.
+ * Generic Web utilitys.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
@@ -95,7 +96,7 @@ public abstract class WebUtils2 {
 	public static String getHttpRemoteAddr(HttpServletRequest request) {
 		for (String header : HEADER_REAL_IP) {
 			String ip = request.getHeader(header);
-			if (isNotBlank(ip) && !"unknown".equalsIgnoreCase(ip)) {
+			if (isNotBlank(ip) && !"Unknown".equalsIgnoreCase(ip)) {
 				return ip;
 			}
 		}
@@ -907,6 +908,25 @@ public abstract class WebUtils2 {
 	}
 
 	/**
+	 * Check to see if the printing servlet is enabled to request the wrong
+	 * stack information.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Beta
+	public static boolean checkRequestErrorStacktrace(ServletRequest request) {
+		String _stacktraceVal = request.getParameter(PARAM_STACKTRACE);
+		if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
+			_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
+		}
+		if (isBlank(_stacktraceVal)) {
+			return false;
+		}
+		return isTrue(_stacktraceVal.toLowerCase(US), false);
+	}
+
+	/**
 	 * Generic dynamic web message response type processing enumeration.
 	 * 
 	 * @author Wangl.sir <983708408@qq.com>
@@ -915,12 +935,12 @@ public abstract class WebUtils2 {
 	 * @since
 	 */
 	public static enum ResponseType {
-		auto, link, json;
+		AUTO, URI, JSON;
 
 		/**
 		 * Default get response type parameter name.
 		 */
-		final public static String DEFAULT_RESPTYPE_NAME = "response_type";
+		public static final String DEFAULT_RESPTYPE_NAME = "response_type";
 
 		/**
 		 * Get the name of the corresponding data type parameter. Note that
@@ -938,7 +958,7 @@ public abstract class WebUtils2 {
 		 * }
 		 * </pre>
 		 */
-		final public static String[] RESPTYPE_NAMES = { DEFAULT_RESPTYPE_NAME, "responsetype", "Response-Type" };
+		public static final String[] RESPTYPE_NAMES = { DEFAULT_RESPTYPE_NAME, "responsetype", "Response-Type" };
 
 		/**
 		 * Safe converter string to {@link ResponseType}
@@ -946,7 +966,7 @@ public abstract class WebUtils2 {
 		 * @param respType
 		 * @return
 		 */
-		final public static ResponseType safeOf(String respType) {
+		public static final ResponseType safeOf(String respType) {
 			for (ResponseType t : values()) {
 				if (String.valueOf(respType).equalsIgnoreCase(t.name())) {
 					return t;
@@ -999,7 +1019,7 @@ public abstract class WebUtils2 {
 			}
 
 			// Using auto mode.
-			return determineJSONResponse(ResponseType.auto, request);
+			return determineJSONResponse(ResponseType.AUTO, request);
 		}
 
 		/**
@@ -1012,7 +1032,7 @@ public abstract class WebUtils2 {
 			notNull(request, "Request must not be null");
 			// Using default strategy
 			if (Objects.isNull(respType)) {
-				respType = ResponseType.auto;
+				respType = ResponseType.AUTO;
 			}
 
 			// Has header(accept:application/json)
@@ -1031,11 +1051,11 @@ public abstract class WebUtils2 {
 			boolean isXhr = isXHRRequest(request);
 
 			switch (respType) { // Matching
-			case json:
+			case JSON:
 				return true;
-			case link:
+			case URI:
 				return false;
-			case auto:
+			case AUTO:
 				/*
 				 * When it's a browser request and not an XHR and token request
 				 * (no X-Requested-With: XMLHttpRequest and token at the head of
@@ -1053,38 +1073,38 @@ public abstract class WebUtils2 {
 	/**
 	 * URL scheme(HTTPS)
 	 */
-	final public static String URL_SCHEME_HTTPS = "https";
+	public static final String URL_SCHEME_HTTPS = "https";
 
 	/**
 	 * URL scheme(HTTP)
 	 */
-	final public static String URL_SCHEME_HTTP = "http";
+	public static final String URL_SCHEME_HTTP = "http";
 
 	/**
 	 * URL separator(/)
 	 */
-	final public static String URL_SEPAR_SLASH = "%2f";
+	public static final String URL_SEPAR_SLASH = "%2f";
 
 	/**
 	 * URL double separator(//)
 	 */
-	final public static String URL_SEPAR_SLASH2 = URL_SEPAR_SLASH + URL_SEPAR_SLASH;
+	public static final String URL_SEPAR_SLASH2 = URL_SEPAR_SLASH + URL_SEPAR_SLASH;
 
 	/**
 	 * URL separator(?)
 	 */
-	final public static String URL_SEPAR_QUEST = "%3f";
+	public static final String URL_SEPAR_QUEST = "%3f";
 
 	/**
 	 * URL colon separator(:)
 	 */
-	final public static String URL_SEPAR_COLON = "%3a";
+	public static final String URL_SEPAR_COLON = "%3a";
 
 	/**
 	 * Protocol separators, such as
 	 * https://my.domain.com=>https%3A%2F%2Fmy.domain.com
 	 */
-	final public static String URL_SEPAR_PROTO = URL_SEPAR_COLON + URL_SEPAR_SLASH + URL_SEPAR_SLASH;
+	public static final String URL_SEPAR_PROTO = URL_SEPAR_COLON + URL_SEPAR_SLASH + URL_SEPAR_SLASH;
 
 	/**
 	 * Request the header key name of real client IP. </br>
@@ -1115,7 +1135,7 @@ public abstract class WebUtils2 {
 	 *	      HTTP_X_FORWARDED_FOR = 没数值或不显示 ，经过多个代理服务器时，这个值类似如下：203.98.182.163, 203.98.182.163, 203.129.72.215。
 	 * </pre>
 	 */
-	final public static String[] HEADER_REAL_IP = { "X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "X-Real-IP",
+	public static final String[] HEADER_REAL_IP = { "X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "X-Real-IP",
 			"REMOTE_ADDR", "Remote-Addr", "RemoteAddr", // RemoteAddr
 			"REMOTE_IP", "Remote-Ip", "RemoteIp", // RemoteIp: Aliyun-SLB
 			"HTTP_X_FORWARDED_FOR", "Http-X-Forwarded-For", "HttpXForwardedFor", // HttpXForwardedFor
@@ -1128,19 +1148,24 @@ public abstract class WebUtils2 {
 	/**
 	 * Request the header key name of real protocol scheme.
 	 */
-	final public static String[] HEADER_REAL_PROTOCOL = { "X-Forwarded-Proto" };
+	public static final String[] HEADER_REAL_PROTOCOL = { "X-Forwarded-Proto" };
 
 	/**
 	 * Request the header key name of real host
 	 */
-	final public static String[] HEADER_REAL_HOST = { "Host" };
+	public static final String[] HEADER_REAL_HOST = { "Host" };
 
 	/**
 	 * Common media file suffix definitions
 	 */
-	final public static String[] MEDIA_BASE = new String[] { "ico", "icon", "css", "js", "html", "shtml", "htm", "jsp", "jspx",
+	public static final String[] MEDIA_BASE = new String[] { "ico", "icon", "css", "js", "html", "shtml", "htm", "jsp", "jspx",
 			"jsf", "aspx", "asp", "php", "jpeg", "jpg", "png", "bmp", "gif", "tif", "pic", "swf", "svg", "ttf", "eot", "eot@",
 			"woff", "woff2", "wd3", "txt", "doc", "docx", "wps", "ppt", "pptx", "pdf", "excel", "xls", "xlsx", "avi", "wav",
 			"mp3", "amr", "mp4", "aiff", "rar", "tar.gz", "tar", "zip", "gzip", "ipa", "plist", "apk", "7-zip" };
+
+	/**
+	 * Controlling enabled unified exception handling stacktrace information.
+	 */
+	public static final String PARAM_STACKTRACE = getenv().getOrDefault("xcloud.error.stacktrace.param", "_stacktrace");
 
 }
