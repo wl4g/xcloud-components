@@ -48,7 +48,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.common.view.FreemarkerUtils;
+import com.wl4g.components.common.view.Freemarkers;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.common.web.rest.RespBase.RetCode;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
@@ -83,12 +83,12 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initializing global smart error configurer ...");
 
-		Configuration fmc = FreemarkerUtils.createDefaultConfiguration(null);
+		Configuration fmc = Freemarkers.create(config.getBasePath()).build();
 		safeMap(config.getRenderingMapping()).entrySet().stream().forEach(p -> {
 			try {
 				if (!isErrorRedirectURI(p.getValue())) { // e.g 404.tpl.html
-					Template tpl = fmc.getTemplate(p.getValue(), UTF_8.name());
-					notNull(tpl, "Default 404 error template must not be null");
+					Template tpl = fmc.getTemplate( p.getValue(), UTF_8.name());
+					notNull(tpl, "Default (%s) error template must not be null", p.getKey());
 					errorTplMappingCache.put(p.getKey(), tpl);
 				}
 			} catch (Exception e) {
@@ -125,9 +125,9 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 */
 	public void doGlobalHandleErrors(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
 			@NotNull Map<String, Object> model, @NotNull Throwable th) {
-	
+
 		// TODO
-		
+
 		try {
 			// Obtain custom extension response status.
 			int status = getStatus(model, th);
@@ -255,7 +255,7 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 * {@link RenderingCallback}
 	 */
 	static interface RenderingCallback {
-		
+
 		// TODO
 
 		default void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) {
