@@ -33,6 +33,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.checkRequestErrorStacktrace;
+import static com.wl4g.components.common.web.WebUtils2.getRequestHeaders;
 import static com.wl4g.components.common.web.WebUtils2.write;
 import static com.wl4g.components.common.web.WebUtils2.writeJson;
 
@@ -88,28 +89,53 @@ public class ServletSmartErrorController extends AbstractErrorController {
 	 * @return
 	 */
 	@RequestMapping(DEFAULT_PATH_ERROR)
-	@ExceptionHandler({ Throwable.class })
-	public void doAnyHandleError(final HttpServletRequest request, final HttpServletResponse response, final Throwable th) {
+	@ExceptionHandler({ Exception.class })
+	public void doAnyHandleError(final HttpServletRequest request, final HttpServletResponse response, final Exception th) {
 		// Obtain errors attributes.
-		Map<String, Object> model = getErrorAttributes(request, response, th);
+		Map<String, Object> model = getErrorAttributes(request, th);
 
 		// handle errors
-		configurer.handleGlobalErrors(request, model, th, new RenderingErrorHandler() {
-			@Override
-			public void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
-				writeJson(response, resp.asJson());
-			}
+		configurer.autoHandleGlobalErrors(name -> request.getParameter(name), getRequestHeaders(request), model, th,
+				new RenderingErrorHandler() {
+					@Override
+					public Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
+						writeJson(response, resp.asJson());
+						return null;
+					}
 
-			@Override
-			public void renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
-				write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
-			}
+					@Override
+					public Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
+						write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
+						return null;
+					}
 
-			@Override
-			public void redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
-				response.sendRedirect(errorRedirectURI);
-			}
-		});
+					@Override
+					public Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
+						response.sendRedirect(errorRedirectURI);
+						return null;
+					}
+				});
+	}
+
+	/**
+	 * Extract error details model
+	 * 
+	 * @param request
+	 * @param th
+	 * @return
+	 */
+	private Map<String, Object> getErrorAttributes(HttpServletRequest request, Throwable th) {
+		boolean _stacktrace = isStackTrace(request);
+		Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
+		if (_stacktrace) {
+			log.error("Origin Errors - {}", model);
+		}
+
+		// Correct replacement using meaningful status codes.
+		model.put("status", configurer.getStatus(model, th));
+		// Correct replacement with meaningful status messages.
+		model.put("message", configurer.getRootCause(model, th));
+		return model;
 	}
 
 	/**
@@ -123,24 +149,6 @@ public class ServletSmartErrorController extends AbstractErrorController {
 			return true;
 		}
 		return checkRequestErrorStacktrace(request);
-	}
-
-	/**
-	 * Extract error details model
-	 * 
-	 * @param request
-	 * @return
-	 */
-	private Map<String, Object> getErrorAttributes(HttpServletRequest request, HttpServletResponse response, Throwable th) {
-		boolean _stacktrace = isStackTrace(request);
-		Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
-		if (_stacktrace) {
-			log.error("Origin Errors - {}", model);
-		}
-
-		// Replace the exception message that appears to be meaningful.
-		model.put("message", configurer.getRootCause(model, th));
-		return model;
 	}
 
 	final private static String DEFAULT_PATH_ERROR = "/error";

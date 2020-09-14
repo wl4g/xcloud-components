@@ -48,7 +48,6 @@ import com.wl4g.components.core.web.error.DefaultErrorConfigurer;
 import com.wl4g.components.core.web.error.ErrorConfigurer;
 import com.wl4g.components.core.web.error.GlobalErrorController;
 import com.wl4g.components.core.web.error.ReactiveSmartErrorHandler;
-import com.wl4g.components.core.web.error.ReactiveSmartErrorHandler.ReactiveErrorAttributes;
 import com.wl4g.components.core.web.error.ServletSmartErrorController;
 
 /**
@@ -92,11 +91,6 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 	// @ConditionalOnClass(WebFluxConfigurer.class)
 	public static class ReactiveErrorHandlerConfiguration {
-
-		@Bean
-		public ReactiveErrorAttributes reactiveErrorAttributes() {
-			return new ReactiveErrorAttributes();
-		}
 
 		/**
 		 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}

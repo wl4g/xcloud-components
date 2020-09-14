@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static java.util.Locale.*;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toMap;
@@ -40,12 +42,17 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
+import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
@@ -437,13 +444,39 @@ public abstract class WebUtils2 {
 	}
 
 	/**
+	 * Gets HTTP request headers.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<String, String> getRequestHeaders(@NotNull HttpServletRequest request) {
+		notNullOf(request, "request");
+		List<String> headerNames = EnumerationUtils.toList(request.getHeaderNames());
+		return headerNames.stream().map(name -> singletonMap(name, request.getHeader((String) name)))
+				.flatMap(e -> e.entrySet().stream()).collect(toMap(e -> e.getKey(), e -> e.getValue()));
+	}
+
+	/**
 	 * Is XHR Request
 	 * 
 	 * @param request
 	 * @return
 	 */
-	public static boolean isXHRRequest(HttpServletRequest request) {
-		return StringUtils.equalsIgnoreCase(request.getHeader("X-Requested-With"), "XMLHttpRequest");
+	public static boolean isXHRRequest(@NotNull HttpServletRequest request) {
+		notNullOf(request, "request");
+		return isXHRRequest(singletonMap("X-Requested-With", request.getHeader("X-Requested-With")));
+	}
+
+	/**
+	 * Is XHR Request
+	 * 
+	 * @param headers
+	 * @return
+	 */
+	public static boolean isXHRRequest(@NotNull Map<String, String> headers) {
+		notNullOf(headers, "headers");
+		return equalsIgnoreCase(headers.get("X-Requested-With"), "XMLHttpRequest");
 	}
 
 	/**
@@ -976,60 +1009,68 @@ public abstract class WebUtils2 {
 		}
 
 		/**
-		 * Is response JSON message
+		 * Check whether the response is in JSON format
 		 * 
 		 * @param respTypeValue
 		 * @param request
 		 * @return
 		 */
-		public static boolean isJSONResp(String respTypeValue, HttpServletRequest request) {
-			return determineJSONResponse(safeOf(respTypeValue), request);
+		public static boolean isRespJSON(@NotBlank String respTypeValue, @NotNull HttpServletRequest request) {
+			return determineJSONResponse(safeOf(respTypeValue), getRequestHeaders(request));
 		}
 
 		/**
-		 * Is response JSON message
+		 * Check whether the response is in JSON format
 		 * 
 		 * @param request
 		 * @return
 		 */
-		public static boolean isJSONResp(HttpServletRequest request) {
-			return isJSONResp(request, null);
+		public static boolean isRespJSON(@NotNull HttpServletRequest request) {
+			return isRespJSON(name -> request.getParameter(name), getRequestHeaders(request), null);
 		}
 
 		/**
-		 * Is response JSON message
+		 * Check whether the response is in JSON format.
 		 * 
-		 * @param request
+		 * @param queryFetch
+		 *            request query parameter fetcher.
+		 * @param headers
+		 *            request headers
 		 * @param respTypeName
+		 *            response type paremter name.
 		 * @return
 		 */
-		public static boolean isJSONResp(HttpServletRequest request, String respTypeName) {
-			notNull(request, "Request must not be null");
+		public static boolean isRespJSON(@NotNull Function<String, String> queryFetch, @NotEmpty Map<String, String> headers,
+				@Nullable String respTypeName) {
+			notNullOf(queryFetch, "queryFetch");
+			notEmptyOf(headers, "headers");
 
-			List<String> paramNames = Arrays.asList(RESPTYPE_NAMES);
+			List<String> respTypeNames = asList(RESPTYPE_NAMES);
 			if (!isBlank(respTypeName)) {
-				paramNames.add(respTypeName);
+				respTypeNames.add(respTypeName);
 			}
-			for (String name : paramNames) {
-				String respTypeValue = request.getParameter(name);
-				respTypeValue = isBlank(respTypeValue) ? request.getHeader(name) : respTypeValue;
+
+			for (String name : respTypeNames) {
+				String respTypeValue = queryFetch.apply(name);
+				respTypeValue = isBlank(respTypeValue) ? headers.get(name) : respTypeValue;
 				if (!isBlank(respTypeValue)) {
-					return determineJSONResponse(safeOf(respTypeValue), request);
+					return determineJSONResponse(safeOf(respTypeValue), headers);
 				}
 			}
 
-			// Using auto mode.
-			return determineJSONResponse(ResponseType.AUTO, request);
+			// Using default auto mode
+			return determineJSONResponse(ResponseType.AUTO, headers);
 		}
 
 		/**
 		 * Determine response JSON message
 		 * 
-		 * @param request
+		 * @param headers
 		 * @return
 		 */
-		private static boolean determineJSONResponse(ResponseType respType, HttpServletRequest request) {
-			notNull(request, "Request must not be null");
+		private static boolean determineJSONResponse(ResponseType respType, Map<String, String> headers) {
+			notNullOf(headers, "headers");
+
 			// Using default strategy
 			if (Objects.isNull(respType)) {
 				respType = ResponseType.AUTO;
@@ -1037,7 +1078,7 @@ public abstract class WebUtils2 {
 
 			// Has header(accept:application/json)
 			boolean hasAccpetJson = false;
-			for (String typePart : String.valueOf(request.getHeader("Accept")).split(",")) {
+			for (String typePart : String.valueOf(headers.get("Accept")).split(",")) {
 				if (startsWithIgnoreCase(typePart, "application/json")) {
 					hasAccpetJson = true;
 					break;
@@ -1045,10 +1086,10 @@ public abstract class WebUtils2 {
 			}
 
 			// Has header(origin:xx.domain.com)
-			boolean hasOrigin = isNotBlank(request.getHeader("Origin"));
+			boolean hasOrigin = !isBlank(headers.get("Origin"));
 
 			// Is header[XHR] ?
-			boolean isXhr = isXHRRequest(request);
+			boolean isXhr = isXHRRequest(headers);
 
 			switch (respType) { // Matching
 			case JSON:
@@ -1062,7 +1103,7 @@ public abstract class WebUtils2 {
 				 * the line), it responds to the rendering page, otherwise it
 				 * responds to JSON.
 				 */
-				return isBrowser(request) ? (isXhr || hasAccpetJson || hasOrigin) : true;
+				return isBrowser(headers.get("User-Agent")) ? (isXhr || hasAccpetJson || hasOrigin) : true;
 			default:
 				throw new IllegalStateException(String.format("Illegal response type %s", respType));
 			}

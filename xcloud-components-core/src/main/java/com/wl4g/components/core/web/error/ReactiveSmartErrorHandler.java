@@ -15,7 +15,6 @@
  */
 package com.wl4g.components.core.web.error;
 
-import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.lang.StringUtils2.isTrue;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.PARAM_STACKTRACE;
@@ -31,25 +30,24 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.RequestPredicates;
+import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.TEXT_HTML;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.TEMPORARY_REDIRECT;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.CookieUtils;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
 
 import reactor.core.publisher.Mono;
 
@@ -84,69 +82,72 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 		return RouterFunctions.route(RequestPredicates.all(), this::renderErrorResponse);
 	}
 
-	private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
-		Map<String, Object> model = getErrorAttributes(request, true);
+	@Override
+	protected Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
+		boolean _stacktrace = isStackTrace(request);
+		Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
+		if (_stacktrace) {
+			log.error("Origin Errors - {}", model);
+		}
 
-		// TODO
-		// redirect
-		ServerResponse.status(-111).contentType(TEXT_HTML).location(URI.create("")).build();
-
-		// rendering
-		ServerResponse.status(-111).contentType(TEXT_HTML).body(BodyInserters.fromValue(model));
-
-		// json
-		return ServerResponse.ok().contentType(APPLICATION_JSON).body(BodyInserters.fromValue(RespBase.create()));
+		// Correct replacement using meaningful status codes.
+		model.put("status", configurer.getStatus(model, getError(request)));
+		// Correct replacement with meaningful status messages.
+		model.put("message", configurer.getRootCause(model, getError(request)));
+		return model;
 	}
 
 	/**
-	 * {@link ReactiveErrorAttributes}
+	 * Rendering error response.
+	 * 
+	 * @param request
+	 * @return
 	 */
-	public static class ReactiveErrorAttributes extends DefaultErrorAttributes {
+	@SuppressWarnings("unchecked")
+	private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
+		Map<String, Object> model = getErrorAttributes(request, false);
 
-		protected final SmartLogger log = getLogger(getClass());
+		return (Mono<ServerResponse>) configurer.autoHandleGlobalErrors(name -> request.queryParam(name).orElse(null),
+				request.headers().asHttpHeaders().toSingleValueMap(), model, getError(request), new RenderingErrorHandler() {
 
-		/** {@link ErrorConfigurer} */
-		@Autowired
-		protected CompositeErrorConfigurer configurer;
+					@Override
+					public Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
+						return ServerResponse.ok().contentType(APPLICATION_JSON).body(fromValue(resp));
+					}
 
-		public ReactiveErrorAttributes() {
-			super(true);
+					@Override
+					public Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
+						return ServerResponse.status(status).contentType(TEXT_HTML).body(fromValue(renderString));
+					}
+
+					@Override
+					public Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
+						return ServerResponse.status(TEMPORARY_REDIRECT.value()).contentType(TEXT_HTML)
+								.location(URI.create(errorRedirectURI)).build();
+					}
+				});
+
+	}
+
+	/**
+	 * Whether error stack information is enabled
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private boolean isStackTrace(ServerRequest request) {
+		if (log.isDebugEnabled() || JvmRuntimeKit.isJVMDebugging) {
+			return true;
 		}
 
-		@Override
-		public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
-			boolean _stacktrace = isStackTrace(request);
-			Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
-			if (_stacktrace) {
-				log.error("Origin Errors - {}", model);
-			}
-
-			// Replace the exception message that appears to be meaningful.
-			model.put("message", configurer.getRootCause(model, getError(request)));
-			return model;
+		String _stacktraceVal = request.queryParam(PARAM_STACKTRACE).orElse(null);
+		if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
+			_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
 		}
-
-		/**
-		 * Whether error stack information is enabled
-		 * 
-		 * @param request
-		 * @return
-		 */
-		private boolean isStackTrace(ServerRequest request) {
-			if (log.isDebugEnabled() || JvmRuntimeKit.isJVMDebugging) {
-				return true;
-			}
-
-			String _stacktraceVal = request.queryParam(PARAM_STACKTRACE).orElse(null);
-			if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
-				_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
-			}
-			if (isBlank(_stacktraceVal)) {
-				return false;
-			}
-			return isTrue(_stacktraceVal.toLowerCase(US), false);
+		if (isBlank(_stacktraceVal)) {
+			return false;
 		}
-
+		return isTrue(_stacktraceVal.toLowerCase(US), false);
 	}
 
 }

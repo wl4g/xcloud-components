@@ -22,7 +22,7 @@ import static com.wl4g.components.common.lang.Assert2.notNull;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.lang.Exceptions.getStackTraceAsString;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.components.common.web.WebUtils2.ResponseType.isJSONResp;
+import static com.wl4g.components.common.web.WebUtils2.ResponseType.isRespJSON;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.springframework.ui.freemarker.FreeMarkerTemplateUtils.processTemplateIntoString;
 import static java.util.Objects.nonNull;
@@ -34,8 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -51,6 +52,7 @@ import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHan
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import reactor.core.publisher.Mono;
 
 /**
  * Error configuration adapter.
@@ -111,14 +113,18 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	public abstract String getRootCause(Map<String, Object> model, Throwable th);
 
 	/**
-	 * Do any handler errors.
+	 * Do automatic handling errors.
 	 * 
-	 * @param request
+	 * @param queryFetch
+	 *            request query parameter fetcher.
+	 * @param headers
+	 *            request headers.
 	 * @param model
 	 * @param th
+	 * @return handle errors result(if necessary). for example: {@link Mono}
 	 */
-	public void handleGlobalErrors(@NotNull HttpServletRequest request, @NotNull Map<String, Object> model, @NotNull Throwable th,
-			@NotNull RenderingErrorHandler errorHandler) {
+	public Object autoHandleGlobalErrors(@NotNull Function<String, String> queryFetch, @NotEmpty Map<String, String> headers,
+			@NotNull Map<String, Object> model, @NotNull Throwable th, @NotNull RenderingErrorHandler errorHandler) {
 
 		try {
 			// Obtain custom extension response status.
@@ -130,13 +136,13 @@ public abstract class ErrorConfigurer implements InitializingBean {
 
 			// If and only if the client is a browser and not an XHR request
 			// returns to the page, otherwise it returns to JSON.
-			if (isJSONResp(request)) {
+			if (isRespJSON(queryFetch, headers, null)) {
 				RespBase<Object> resp = new RespBase<>(RetCode.newCode(status, errmsg));
 				if (!(uriOrTpl instanceof Template)) {
 					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);
 				}
 				log.error("Resp errjson => {}", resp.asJson());
-				errorHandler.renderingWithJson(model, resp);
+				return errorHandler.renderingWithJson(model, resp);
 			}
 			// Rendering errors view
 			else {
@@ -146,10 +152,10 @@ public abstract class ErrorConfigurer implements InitializingBean {
 					model.putAll(config.asMap());
 					// Rendering
 					String renderString = processTemplateIntoString((Template) uriOrTpl, model);
-					errorHandler.renderingWithView(model, status, renderString);
+					return errorHandler.renderingWithView(model, status, renderString);
 				} else {
 					log.error("Redirect errview => {}", uriOrTpl);
-					errorHandler.redirectError(model, (String) uriOrTpl);
+					return errorHandler.redirectError(model, (String) uriOrTpl);
 				}
 			}
 		} catch (Throwable th0) {
@@ -157,6 +163,7 @@ public abstract class ErrorConfigurer implements InitializingBean {
 					getStackTraceAsString(th0));
 		}
 
+		return null;
 	}
 
 	/**
@@ -248,15 +255,15 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 */
 	static interface RenderingErrorHandler {
 
-		default void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
+		default Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
 			throw new UnsupportedOperationException();
 		}
 
-		default void renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
+		default Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
 			throw new UnsupportedOperationException();
 		}
 
-		default void redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
+		default Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
 			throw new UnsupportedOperationException();
 		}
 

@@ -15,9 +15,14 @@
  */
 package com.wl4g.components.common.web;
 
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+
+import com.wl4g.components.common.annotation.Nullable;
 
 import nl.bitwalker.useragentutils.Browser;
 import nl.bitwalker.useragentutils.BrowserType;
@@ -25,24 +30,34 @@ import nl.bitwalker.useragentutils.DeviceType;
 import nl.bitwalker.useragentutils.UserAgent;
 
 /**
- * User Agent String Recognition Tool
+ * User Agent recognition tools.
  * 
- * @author Wangl.sir <983708408@qq.com>
- * @version v1.0
- * @date 2018年12月26日
- * @since
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version 2018-12-26
+ * @sine v1.0.0
+ * @see
  */
-public class UserAgentUtils {
+public abstract class UserAgentUtils {
 
 	/**
-	 * Get the user agent object
+	 * Gets the user agent object
 	 * 
 	 * @param request
 	 * @return
 	 */
-	public static UserAgent getUserAgent(HttpServletRequest request) {
-		String uaString = request.getHeader("User-Agent");
-		return uaString == null ? null : UserAgent.parseUserAgentString(uaString);
+	public static UserAgent getUserAgent(@NotNull HttpServletRequest request) {
+		notNullOf(request, "request");
+		return parseUserAgent(request.getHeader("User-Agent"));
+	}
+
+	/**
+	 * Gets the user agent object
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static UserAgent parseUserAgent(@Nullable String uaString) {
+		return isNull(uaString) ? null : UserAgent.parseUserAgentString(uaString);
 	}
 
 	/**
@@ -51,7 +66,8 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static DeviceType getDeviceType(HttpServletRequest request) {
+	public static DeviceType getDeviceType(@NotNull HttpServletRequest request) {
+		notNullOf(request, "request");
 		UserAgent ua = getUserAgent(request);
 		return (isNull(ua) ? null : ((isNull(ua.getOperatingSystem()) ? null : ua.getOperatingSystem()).getDeviceType()));
 	}
@@ -62,7 +78,7 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isComputer(HttpServletRequest request) {
+	public static boolean isComputer(@NotNull HttpServletRequest request) {
 		DeviceType dt = getDeviceType(request);
 		return dt != null && DeviceType.COMPUTER.equals(dt);
 	}
@@ -73,7 +89,7 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isMobile(HttpServletRequest request) {
+	public static boolean isMobile(@NotNull HttpServletRequest request) {
 		DeviceType dt = getDeviceType(request);
 		return dt != null && DeviceType.MOBILE.equals(dt);
 	}
@@ -84,7 +100,7 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isTablet(HttpServletRequest request) {
+	public static boolean isTablet(@NotNull HttpServletRequest request) {
 		DeviceType dt = getDeviceType(request);
 		return dt != null && DeviceType.TABLET.equals(dt);
 	}
@@ -95,7 +111,7 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isMobileOrTablet(HttpServletRequest request) {
+	public static boolean isMobileOrTablet(@NotNull HttpServletRequest request) {
 		DeviceType dt = getDeviceType(request);
 		return (dt != null && (DeviceType.MOBILE.equals(dt) || DeviceType.TABLET.equals(dt)));
 	}
@@ -106,31 +122,53 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isBrowser(HttpServletRequest request) {
+	public static boolean isBrowser(@NotNull HttpServletRequest request) {
 		Browser br = getBrowser(request);
-		return (br != null && br.getBrowserType() != null && br.getBrowserType() != BrowserType.UNKNOWN);
+		return (nonNull(br) && nonNull(br.getBrowserType()) && br.getBrowserType() != BrowserType.UNKNOWN);
 	}
 
 	/**
-	 * Get the browsing type
+	 * Is it a browser?
+	 * 
+	 * @param uaString
+	 * @return
+	 */
+	public static boolean isBrowser(@Nullable String uaString) {
+		Browser br = getBrowser(uaString);
+		return (nonNull(br) && nonNull(br.getBrowserType()) && br.getBrowserType() != BrowserType.UNKNOWN);
+	}
+
+	/**
+	 * Gets the browsing type
+	 * 
+	 * @param uaString
+	 * @return
+	 */
+	public static Browser getBrowser(@Nullable String uaString) {
+		UserAgent ua = parseUserAgent(uaString);
+		return (nonNull(ua) && nonNull(ua.getBrowser()) && ua.getBrowser() != Browser.UNKNOWN) ? ua.getBrowser() : null;
+	}
+
+	/**
+	 * Gets the browsing type
 	 * 
 	 * @param request
 	 * @return
 	 */
-	public static Browser getBrowser(HttpServletRequest request) {
+	public static Browser getBrowser(@NotNull HttpServletRequest request) {
 		UserAgent ua = getUserAgent(request);
-		return (ua != null && ua.getBrowser() != null && ua.getBrowser() != Browser.UNKNOWN) ? ua.getBrowser() : null;
+		return (nonNull(ua) && nonNull(ua.getBrowser()) && ua.getBrowser() != Browser.UNKNOWN) ? ua.getBrowser() : null;
 	}
 
 	/**
-	 * Get the browsing type name
+	 * Gets the browsing type name
 	 * 
 	 * @param request
 	 * @return
 	 */
-	public static String getBrowserName(HttpServletRequest request) {
+	public static String getBrowserName(@NotNull HttpServletRequest request) {
 		Browser browser = getBrowser(request);
-		return browser == null ? null : browser.getName();
+		return isNull(browser) ? null : browser.getName();
 	}
 
 	/**
@@ -139,9 +177,9 @@ public class UserAgentUtils {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isLteIE8(HttpServletRequest request) {
+	public static boolean isLteIE8(@NotNull HttpServletRequest request) {
 		Browser br = getBrowser(request);
-		return (br != null
+		return (nonNull(br)
 				&& (Browser.IE5.equals(br) || Browser.IE6.equals(br) || Browser.IE7.equals(br) || Browser.IE8.equals(br)));
 	}
 
