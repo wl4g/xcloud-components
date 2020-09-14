@@ -27,13 +27,20 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+
+import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.checkRequestErrorStacktrace;
+import static com.wl4g.components.common.web.WebUtils2.write;
+import static com.wl4g.components.common.web.WebUtils2.writeJson;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
 
 /**
  * Servlet smart global error controller.
@@ -82,12 +89,27 @@ public class ServletSmartErrorController extends AbstractErrorController {
 	 */
 	@RequestMapping(DEFAULT_PATH_ERROR)
 	@ExceptionHandler({ Throwable.class })
-	public void doAnyHandleError(HttpServletRequest request, HttpServletResponse response, Throwable th) {
+	public void doAnyHandleError(final HttpServletRequest request, final HttpServletResponse response, final Throwable th) {
 		// Obtain errors attributes.
 		Map<String, Object> model = getErrorAttributes(request, response, th);
 
-		// handler global errors
-		configurer.doGlobalHandleErrors(request, response, model, th);
+		// handle errors
+		configurer.handleGlobalErrors(request, model, th, new RenderingErrorHandler() {
+			@Override
+			public void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
+				writeJson(response, resp.asJson());
+			}
+
+			@Override
+			public void renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
+				write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
+			}
+
+			@Override
+			public void redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
+				response.sendRedirect(errorRedirectURI);
+			}
+		});
 	}
 
 	/**

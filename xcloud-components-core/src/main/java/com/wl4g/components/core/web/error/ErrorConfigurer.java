@@ -22,12 +22,8 @@ import static com.wl4g.components.common.lang.Assert2.notNull;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.lang.Exceptions.getStackTraceAsString;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
-import static com.wl4g.components.common.web.WebUtils2.write;
-import static com.wl4g.components.common.web.WebUtils2.writeJson;
 import static com.wl4g.components.common.web.WebUtils2.ResponseType.isJSONResp;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
-import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import static org.springframework.ui.freemarker.FreeMarkerTemplateUtils.processTemplateIntoString;
 import static java.util.Objects.nonNull;
 
@@ -40,7 +36,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -87,7 +82,7 @@ public abstract class ErrorConfigurer implements InitializingBean {
 		safeMap(config.getRenderingMapping()).entrySet().stream().forEach(p -> {
 			try {
 				if (!isErrorRedirectURI(p.getValue())) { // e.g 404.tpl.html
-					Template tpl = fmc.getTemplate( p.getValue(), UTF_8.name());
+					Template tpl = fmc.getTemplate(p.getValue(), UTF_8.name());
 					notNull(tpl, "Default (%s) error template must not be null", p.getKey());
 					errorTplMappingCache.put(p.getKey(), tpl);
 				}
@@ -119,21 +114,18 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 * Do any handler errors.
 	 * 
 	 * @param request
-	 * @param response
 	 * @param model
 	 * @param th
 	 */
-	public void doGlobalHandleErrors(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
-			@NotNull Map<String, Object> model, @NotNull Throwable th) {
-
-		// TODO
+	public void handleGlobalErrors(@NotNull HttpServletRequest request, @NotNull Map<String, Object> model, @NotNull Throwable th,
+			@NotNull RenderingErrorHandler errorHandler) {
 
 		try {
 			// Obtain custom extension response status.
 			int status = getStatus(model, th);
 			String errmsg = getRootCause(model, th);
 
-			// Get redirectUrl or rendering template.
+			// Gets redirectUrl or rendering template.
 			Object uriOrTpl = getRedirectUriOrRenderErrorView(status);
 
 			// If and only if the client is a browser and not an XHR request
@@ -143,28 +135,28 @@ public abstract class ErrorConfigurer implements InitializingBean {
 				if (!(uriOrTpl instanceof Template)) {
 					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);
 				}
-				String errJson = toJSONString(resp);
-				log.error("Resp err => {}", errJson);
-				writeJson(response, errJson);
+				log.error("Resp errjson => {}", resp.asJson());
+				errorHandler.renderingWithJson(model, resp);
 			}
 			// Rendering errors view
 			else {
 				if (uriOrTpl instanceof Template) {
-					log.error("Redirect err view => http({})", status);
+					log.error("Redirect errview => http({})", status);
 					// Merge configuration to model.
 					model.putAll(config.asMap());
 					// Rendering
 					String renderString = processTemplateIntoString((Template) uriOrTpl, model);
-					write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
+					errorHandler.renderingWithView(model, status, renderString);
 				} else {
-					log.error("Redirect errview => [{}]", uriOrTpl);
-					response.sendRedirect((String) uriOrTpl);
+					log.error("Redirect errview => {}", uriOrTpl);
+					errorHandler.redirectError(model, (String) uriOrTpl);
 				}
 			}
 		} catch (Throwable th0) {
 			log.error("Unable to handle global errors, origin cause: \n{} at causes:\n{}", getStackTraceAsString(th),
 					getStackTraceAsString(th0));
 		}
+
 	}
 
 	/**
@@ -252,21 +244,19 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	}
 
 	/**
-	 * {@link RenderingCallback}
+	 * {@link RenderingErrorHandler}
 	 */
-	static interface RenderingCallback {
+	static interface RenderingErrorHandler {
 
-		// TODO
-
-		default void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) {
+		default void renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
 			throw new UnsupportedOperationException();
 		}
 
-		default void renderingWithView(Map<String, Object> model, int status, Template errorTemplate) {
+		default void renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
 			throw new UnsupportedOperationException();
 		}
 
-		default void redirectError(Map<String, Object> model, String errorRedirectURI) {
+		default void redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
 			throw new UnsupportedOperationException();
 		}
 

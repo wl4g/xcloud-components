@@ -70,6 +70,10 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 	@Autowired
 	protected ErrorHandlerProperties config;
 
+	/** {@link ErrorConfigurer} */
+	@Autowired
+	protected CompositeErrorConfigurer configurer;
+
 	public ReactiveSmartErrorHandler(ErrorAttributes errorAttributes, ResourceProperties resourceProperties,
 			ApplicationContext actx) {
 		super(errorAttributes, resourceProperties, actx);
@@ -102,11 +106,11 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 		protected final SmartLogger log = getLogger(getClass());
 
 		/** {@link ErrorConfigurer} */
-		protected final CompositeErrorConfigurer configurer;
+		@Autowired
+		protected CompositeErrorConfigurer configurer;
 
-		public ReactiveErrorAttributes(CompositeErrorConfigurer configurer) {
+		public ReactiveErrorAttributes() {
 			super(true);
-			this.configurer = notNullOf(configurer, "configurer");
 		}
 
 		@Override
