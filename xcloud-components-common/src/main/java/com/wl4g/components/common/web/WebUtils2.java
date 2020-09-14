@@ -935,7 +935,7 @@ public abstract class WebUtils2 {
 	 * @since
 	 */
 	public static enum ResponseType {
-		AUTO, URI, JSON;
+		AUTO, WEBURI, JSON;
 
 		/**
 		 * Default get response type parameter name.
@@ -1053,7 +1053,7 @@ public abstract class WebUtils2 {
 			switch (respType) { // Matching
 			case JSON:
 				return true;
-			case URI:
+			case WEBURI:
 				return false;
 			case AUTO:
 				/*
