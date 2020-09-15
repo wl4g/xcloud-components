@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.utils.lang;
+package com.wl4g.components.common.lang;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
 
@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
-public class RandomDistributionTests {
+public class CommonsDistributionTests {
 
 	public static void main(String[] args) throws Exception {
 		// gaussianRandomStreamTest1(args);
