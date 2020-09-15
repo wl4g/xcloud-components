@@ -34,9 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -45,6 +42,7 @@ import org.springframework.validation.FieldError;
 
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.view.Freemarkers;
+import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.common.web.rest.RespBase.RetCode;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
@@ -123,8 +121,8 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 * @param th
 	 * @return handle errors result(if necessary). for example: {@link Mono}
 	 */
-	public Object autoHandleGlobalErrors(@NotNull Function<String, String> queryFetch, @NotEmpty Map<String, String> headers,
-			@NotNull Map<String, Object> model, @NotNull Throwable th, @NotNull RenderingErrorHandler errorHandler) {
+	public Object autoHandleGlobalErrors(@NotNull RequestExtractor extractor, @NotNull Map<String, Object> model,
+			@NotNull Throwable th, @NotNull RenderingErrorHandler errorHandler) {
 
 		try {
 			// Obtain custom extension response status.
@@ -136,7 +134,7 @@ public abstract class ErrorConfigurer implements InitializingBean {
 
 			// If and only if the client is a browser and not an XHR request
 			// returns to the page, otherwise it returns to JSON.
-			if (isRespJSON(queryFetch, headers, null)) {
+			if (isRespJSON(extractor, null)) {
 				RespBase<Object> resp = new RespBase<>(RetCode.newCode(status, errmsg));
 				if (!(uriOrTpl instanceof Template)) {
 					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);

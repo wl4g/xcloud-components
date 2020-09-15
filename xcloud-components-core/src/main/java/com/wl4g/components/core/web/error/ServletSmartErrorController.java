@@ -33,12 +33,12 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.checkRequestErrorStacktrace;
-import static com.wl4g.components.common.web.WebUtils2.getRequestHeaders;
 import static com.wl4g.components.common.web.WebUtils2.write;
 import static com.wl4g.components.common.web.WebUtils2.writeJson;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
@@ -95,26 +95,35 @@ public class ServletSmartErrorController extends AbstractErrorController {
 		Map<String, Object> model = getErrorAttributes(request, th);
 
 		// handle errors
-		configurer.autoHandleGlobalErrors(name -> request.getParameter(name), getRequestHeaders(request), model, th,
-				new RenderingErrorHandler() {
-					@Override
-					public Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
-						writeJson(response, resp.asJson());
-						return null;
-					}
+		configurer.autoHandleGlobalErrors(new RequestExtractor() {
+			@Override
+			public String getQueryParam(String name) {
+				return request.getParameter(name);
+			}
 
-					@Override
-					public Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
-						write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
-						return null;
-					}
+			@Override
+			public String getHeader(String name) {
+				return request.getHeader(name);
+			}
+		}, model, th, new RenderingErrorHandler() {
+			@Override
+			public Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
+				writeJson(response, resp.asJson());
+				return null;
+			}
 
-					@Override
-					public Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
-						response.sendRedirect(errorRedirectURI);
-						return null;
-					}
-				});
+			@Override
+			public Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
+				write(response, status, TEXT_HTML_VALUE, renderString.getBytes(UTF_8));
+				return null;
+			}
+
+			@Override
+			public Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
+				response.sendRedirect(errorRedirectURI);
+				return null;
+			}
+		});
 	}
 
 	/**

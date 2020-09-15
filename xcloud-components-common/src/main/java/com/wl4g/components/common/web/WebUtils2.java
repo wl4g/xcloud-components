@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
-import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
@@ -43,7 +42,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections.EnumerationUtils;
@@ -465,18 +463,23 @@ public abstract class WebUtils2 {
 	 */
 	public static boolean isXHRRequest(@NotNull HttpServletRequest request) {
 		notNullOf(request, "request");
-		return isXHRRequest(singletonMap("X-Requested-With", request.getHeader("X-Requested-With")));
+		return isXHRRequest(new RequestExtractor() {
+			@Override
+			public String getHeader(String name) {
+				return request.getHeader("X-Requested-With");
+			}
+		});
 	}
 
 	/**
 	 * Is XHR Request
 	 * 
-	 * @param headers
+	 * @param extractor
 	 * @return
 	 */
-	public static boolean isXHRRequest(@NotNull Map<String, String> headers) {
-		notNullOf(headers, "headers");
-		return equalsIgnoreCase(headers.get("X-Requested-With"), "XMLHttpRequest");
+	public static boolean isXHRRequest(@NotNull RequestExtractor extractor) {
+		notNullOf(extractor, "extractor");
+		return equalsIgnoreCase(extractor.getHeader("X-Requested-With"), "XMLHttpRequest");
 	}
 
 	/**
@@ -1015,8 +1018,18 @@ public abstract class WebUtils2 {
 		 * @param request
 		 * @return
 		 */
-		public static boolean isRespJSON(@NotBlank String respTypeValue, @NotNull HttpServletRequest request) {
-			return determineJSONResponse(safeOf(respTypeValue), getRequestHeaders(request));
+		public static boolean isRespJSON(@NotBlank final String respTypeValue, @NotNull final HttpServletRequest request) {
+			return determineResponseWithJson(safeOf(respTypeValue), new RequestExtractor() {
+				@Override
+				public String getQueryParam(String name) {
+					return request.getParameter(name);
+				}
+
+				@Override
+				public String getHeader(String name) {
+					return request.getHeader(name);
+				}
+			});
 		}
 
 		/**
@@ -1025,25 +1038,31 @@ public abstract class WebUtils2 {
 		 * @param request
 		 * @return
 		 */
-		public static boolean isRespJSON(@NotNull HttpServletRequest request) {
-			return isRespJSON(name -> request.getParameter(name), getRequestHeaders(request), null);
+		public static boolean isRespJSON(@NotNull final HttpServletRequest request) {
+			return isRespJSON(new RequestExtractor() {
+				@Override
+				public String getQueryParam(String name) {
+					return request.getParameter(name);
+				}
+
+				@Override
+				public String getHeader(String name) {
+					return request.getHeader(name);
+				}
+			}, null);
 		}
 
 		/**
 		 * Check whether the response is in JSON format.
 		 * 
-		 * @param queryFetch
-		 *            request query parameter fetcher.
-		 * @param headers
-		 *            request headers
+		 * @param extractor
+		 *            request wrapper
 		 * @param respTypeName
 		 *            response type paremter name.
 		 * @return
 		 */
-		public static boolean isRespJSON(@NotNull Function<String, String> queryFetch, @NotEmpty Map<String, String> headers,
-				@Nullable String respTypeName) {
-			notNullOf(queryFetch, "queryFetch");
-			notEmptyOf(headers, "headers");
+		public static boolean isRespJSON(@NotNull RequestExtractor extractor, @Nullable String respTypeName) {
+			notNullOf(extractor, "request");
 
 			List<String> respTypeNames = asList(RESPTYPE_NAMES);
 			if (!isBlank(respTypeName)) {
@@ -1051,25 +1070,26 @@ public abstract class WebUtils2 {
 			}
 
 			for (String name : respTypeNames) {
-				String respTypeValue = queryFetch.apply(name);
-				respTypeValue = isBlank(respTypeValue) ? headers.get(name) : respTypeValue;
+				String respTypeValue = extractor.getQueryParam(name);
+				respTypeValue = isBlank(respTypeValue) ? extractor.getHeader(name) : respTypeValue;
 				if (!isBlank(respTypeValue)) {
-					return determineJSONResponse(safeOf(respTypeValue), headers);
+					return determineResponseWithJson(safeOf(respTypeValue), extractor);
 				}
 			}
 
 			// Using default auto mode
-			return determineJSONResponse(ResponseType.AUTO, headers);
+			return determineResponseWithJson(ResponseType.AUTO, extractor);
 		}
 
 		/**
 		 * Determine response JSON message
 		 * 
-		 * @param headers
+		 * @param respType
+		 * @param extractor
 		 * @return
 		 */
-		private static boolean determineJSONResponse(ResponseType respType, Map<String, String> headers) {
-			notNullOf(headers, "headers");
+		private static boolean determineResponseWithJson(ResponseType respType, @NotNull RequestExtractor extractor) {
+			notNullOf(extractor, "request");
 
 			// Using default strategy
 			if (Objects.isNull(respType)) {
@@ -1078,7 +1098,7 @@ public abstract class WebUtils2 {
 
 			// Has header(accept:application/json)
 			boolean hasAccpetJson = false;
-			for (String typePart : String.valueOf(headers.get("Accept")).split(",")) {
+			for (String typePart : String.valueOf(extractor.getHeader("Accept")).split(",")) {
 				if (startsWithIgnoreCase(typePart, "application/json")) {
 					hasAccpetJson = true;
 					break;
@@ -1086,10 +1106,10 @@ public abstract class WebUtils2 {
 			}
 
 			// Has header(origin:xx.domain.com)
-			boolean hasOrigin = !isBlank(headers.get("Origin"));
+			boolean hasOrigin = !isBlank(extractor.getHeader("Origin"));
 
 			// Is header[XHR] ?
-			boolean isXhr = isXHRRequest(headers);
+			boolean isXhr = isXHRRequest(extractor);
 
 			switch (respType) { // Matching
 			case JSON:
@@ -1103,10 +1123,43 @@ public abstract class WebUtils2 {
 				 * the line), it responds to the rendering page, otherwise it
 				 * responds to JSON.
 				 */
-				return isBrowser(headers.get("User-Agent")) ? (isXhr || hasAccpetJson || hasOrigin) : true;
+				return isBrowser(extractor.getHeader("User-Agent")) ? (isXhr || hasAccpetJson || hasOrigin) : true;
 			default:
-				throw new IllegalStateException(String.format("Illegal response type %s", respType));
+				throw new IllegalStateException(format("Illegal response type %s", respType));
 			}
+		}
+
+	}
+
+	/**
+	 * Request extractor wrapper, It is mainly to solve the request types of
+	 * different models or protocols, such as: Xxx{@link ServletRequest} or
+	 * {@link HttpServletRequest} or {@link ServerRequest}(reactive) etc
+	 * 
+	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+	 * @version v1.0 2020-09-15
+	 * @since
+	 */
+	public static interface RequestExtractor {
+
+		/**
+		 * Gets query parameter by name.
+		 * 
+		 * @param name
+		 * @return
+		 */
+		default String getQueryParam(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		/**
+		 * Gets headers parameter by name.
+		 * 
+		 * @param name
+		 * @return
+		 */
+		default String getHeader(String name) {
+			throw new UnsupportedOperationException();
 		}
 
 	}

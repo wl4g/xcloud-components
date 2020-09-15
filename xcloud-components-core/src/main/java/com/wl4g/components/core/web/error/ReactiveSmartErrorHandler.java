@@ -45,6 +45,7 @@ import static org.springframework.http.HttpStatus.TEMPORARY_REDIRECT;
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.CookieUtils;
+import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
@@ -107,25 +108,34 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 	private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
 		Map<String, Object> model = getErrorAttributes(request, false);
 
-		return (Mono<ServerResponse>) configurer.autoHandleGlobalErrors(name -> request.queryParam(name).orElse(null),
-				request.headers().asHttpHeaders().toSingleValueMap(), model, getError(request), new RenderingErrorHandler() {
+		return (Mono<ServerResponse>) configurer.autoHandleGlobalErrors(new RequestExtractor() {
+			@Override
+			public String getQueryParam(String name) {
+				return request.queryParam(name).orElse(null);
+			}
 
-					@Override
-					public Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
-						return ServerResponse.ok().contentType(APPLICATION_JSON).body(fromValue(resp));
-					}
+			@Override
+			public String getHeader(String name) {
+				return request.headers().asHttpHeaders().getFirst(name);
+			}
+		}, model, getError(request), new RenderingErrorHandler() {
 
-					@Override
-					public Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
-						return ServerResponse.status(status).contentType(TEXT_HTML).body(fromValue(renderString));
-					}
+			@Override
+			public Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
+				return ServerResponse.ok().contentType(APPLICATION_JSON).body(fromValue(resp));
+			}
 
-					@Override
-					public Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
-						return ServerResponse.status(TEMPORARY_REDIRECT.value()).contentType(TEXT_HTML)
-								.location(URI.create(errorRedirectURI)).build();
-					}
-				});
+			@Override
+			public Object renderingWithView(Map<String, Object> model, int status, String renderString) throws Exception {
+				return ServerResponse.status(status).contentType(TEXT_HTML).body(fromValue(renderString));
+			}
+
+			@Override
+			public Object redirectError(Map<String, Object> model, String errorRedirectURI) throws Exception {
+				return ServerResponse.status(TEMPORARY_REDIRECT.value()).contentType(TEXT_HTML)
+						.location(URI.create(errorRedirectURI)).build();
+			}
+		});
 
 	}
 
