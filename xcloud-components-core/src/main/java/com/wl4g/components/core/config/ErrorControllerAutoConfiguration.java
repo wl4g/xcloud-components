@@ -151,8 +151,8 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 		private Map<Integer, String> renderingMapping = new HashMap<Integer, String>() {
 			private static final long serialVersionUID = 551980985208402881L;
 			{
-				put(404, DEFAULT_TPL_404_NAME);
 				put(403, DEFAULT_TPL_403_NAME);
+				put(404, DEFAULT_TPL_404_NAME);
 				put(500, DEFAULT_TPL_50X_NAME);
 				put(501, DEFAULT_TPL_50X_NAME);
 				put(502, DEFAULT_TPL_50X_NAME);

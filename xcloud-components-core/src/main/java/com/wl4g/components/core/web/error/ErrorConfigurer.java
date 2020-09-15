@@ -17,14 +17,15 @@ package com.wl4g.components.core.web.error;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.components.common.collection.Collections2.safeMap;
-import static com.wl4g.components.common.lang.Assert2.hasText;
 import static com.wl4g.components.common.lang.Assert2.notNull;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.lang.Exceptions.getStackTraceAsString;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.ResponseType.isRespJSON;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.springframework.ui.freemarker.FreeMarkerTemplateUtils.processTemplateIntoString;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
@@ -44,8 +45,8 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.view.Freemarkers;
 import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
-import com.wl4g.components.common.web.rest.RespBase.RetCode;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import static com.wl4g.components.common.web.rest.RespBase.RetCode.newCode;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -58,6 +59,7 @@ import reactor.core.publisher.Mono;
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2019年11月1日
  * @since
+ * @see https://http.cat
  */
 public abstract class ErrorConfigurer implements InitializingBean {
 
@@ -132,17 +134,17 @@ public abstract class ErrorConfigurer implements InitializingBean {
 			// Gets redirectUrl or rendering template.
 			Object uriOrTpl = getRedirectUriOrRenderErrorView(status);
 
-			// If and only if the client is a browser and not an XHR request
-			// returns to the page, otherwise it returns to JSON.
-			if (isRespJSON(extractor, null)) {
-				RespBase<Object> resp = new RespBase<>(RetCode.newCode(status, errmsg));
+			// When the client is not a browser or the exception rendering
+			// configuration is empty, the JSON message is returned by default.
+			if (isNull(uriOrTpl) || isRespJSON(extractor, null)) { // Response errjson
+				RespBase<Object> resp = new RespBase<>(newCode(status, errmsg));
 				if (!(uriOrTpl instanceof Template)) {
 					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);
 				}
 				log.error("Resp errjson => {}", resp.asJson());
 				return errorHandler.renderingWithJson(model, resp);
 			}
-			// Rendering errors view
+			// Rendering errview
 			else {
 				if (uriOrTpl instanceof Template) {
 					log.error("Redirect errview => http({})", status);
@@ -232,9 +234,13 @@ public abstract class ErrorConfigurer implements InitializingBean {
 		if (nonNull(tpl)) { // error template?
 			return tpl;
 		}
+
 		// error redirect URI
 		String errorRedirectUri = config.getRenderingMapping().get(status);
-		hasText(errorRedirectUri, "No render template or redirection URI found for error status: %s", status);
+		if (isBlank(errorRedirectUri)) {
+			log.debug("No render template or redirection URI found for error status: %s", status);
+			return null;
+		}
 		return errorRedirectUri.substring(DEFAULT_REDIRECT_PREFIX.length());
 	}
 

@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorCon
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
@@ -52,7 +53,7 @@ import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
  */
 @GlobalErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
-// @ControllerAdvice
+@ControllerAdvice
 public class ServletSmartErrorController extends AbstractErrorController {
 
 	protected final SmartLogger log = getLogger(getClass());

@@ -28,8 +28,8 @@ spring:
       #  # Rendering template path or redirect URI on exception,
       #  # for example: redirect:http://domain.com/404.html or /404.tpl.html
       #  rendering-mapping:
-      #     404: 404.tpl.html
       #     403: 403.tpl.html
+      #     404: 404.tpl.html
       #     500: 50x.tpl.html
       #     501: 50x.tpl.html
       #     502: 50x.tpl.html
