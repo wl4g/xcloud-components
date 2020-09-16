@@ -15,22 +15,24 @@
  */
 package com.wl4g.components.core.utils.expression;
 
+import static com.wl4g.components.common.collection.Collections2.isEmptyArray;
+import static com.wl4g.components.common.collection.Collections2.safeList;
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.ParseException;
 import org.springframework.expression.ParserContext;
 import org.springframework.expression.PropertyAccessor;
-import org.springframework.expression.spel.SpelParserConfiguration;
-import org.springframework.expression.spel.standard.SpelExpression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.expression.spel.support.StandardTypeLocator;
+import org.springframework.util.ClassUtils;
 
 import com.wl4g.components.common.annotation.Nullable;
 
@@ -44,6 +46,56 @@ import com.wl4g.components.common.annotation.Nullable;
  */
 public abstract class SpelExpressions {
 
+	/** Class load of package prefixs. */
+	private List<String> knownPackagePrefixes = new ArrayList<>(4);
+
+	private SpelExpressions() {
+	}
+
+	/**
+	 * New create {@link SpelExpressions}
+	 * 
+	 * @param classes
+	 * @return
+	 */
+	public static final SpelExpressions create(Class<?>... classes) {
+		SpelExpressions instance = new SpelExpressions() {
+		};
+		if (!isEmptyArray(classes)) {
+			for (Class<?> cls : classes) {
+				/**
+				 * @see {@link org.springframework.expression.spel.support.StandardTypeLocator#knownPackagePrefixes}
+				 */
+				String packagePrefix = cls.getName();
+				// inner class for example:
+				// com.mycompany.myproject.bean.User$WorkInfo
+				packagePrefix = packagePrefix.substring(0, packagePrefix.lastIndexOf("."));
+				instance.knownPackagePrefixes.add(packagePrefix);
+			}
+		}
+		return instance;
+	}
+
+	/**
+	 * New create {@link SpelExpressions}
+	 * 
+	 * @param packagePrefixs
+	 * @return
+	 */
+	public static final SpelExpressions createWithPackages(String... packagePrefixs) {
+		SpelExpressions instance = new SpelExpressions() {
+		};
+		if (!isEmptyArray(packagePrefixs)) {
+			for (String prefix : packagePrefixs) {
+				/**
+				 * @see {@link org.springframework.expression.spel.support.StandardTypeLocator#knownPackagePrefixes}
+				 */
+				instance.knownPackagePrefixes.add(prefix);
+			}
+		}
+		return instance;
+	}
+
 	/**
 	 * Resolving spring expression to real value.
 	 * 
@@ -52,14 +104,19 @@ public abstract class SpelExpressions {
 	 * @return
 	 */
 	@SuppressWarnings("serial")
-	public static Object resolve(@NotBlank String expression, @Nullable Object model) {
+	public Object resolve(@NotBlank String expression, @Nullable Object model) {
 		hasTextOf(expression, "expression");
 
 		// Create expression parser.
 		StandardEvaluationContext context = new StandardEvaluationContext(model);
+		StandardTypeLocator locator = new StandardTypeLocator(ClassUtils.getDefaultClassLoader());
+		safeList(knownPackagePrefixes).forEach(p -> locator.registerImport(p));
+		context.setTypeLocator(locator);
 		context.setPropertyAccessors(new ArrayList<PropertyAccessor>() {
 			{
+				// supported for map
 				add(new MapAccessor());
+				// supported for bean(default)
 				add(new ReflectivePropertyAccessor());
 			}
 		});
@@ -67,12 +124,6 @@ public abstract class SpelExpressions {
 	}
 
 	/** {@link ExpressionParser} */
-	private static final ExpressionParser defaultParser = new SpelExpressionParser() {
-		@Override
-		protected SpelExpression doParseExpression(String expressionString, ParserContext context) throws ParseException {
-			return new AliasInternalSpelExpressionParser(new SpelParserConfiguration()).doParseExpression(expressionString,
-					context);
-		}
-	};
+	private static final ExpressionParser defaultParser = new SpelExpressionParser();
 
 }

@@ -46,13 +46,13 @@ public class SpelExpressionsTests {
 		attributes.put("income", 20000);
 		model.put("attributes", attributes);
 
-		System.out.println(SpelExpressions.resolve(expression, model));
+		System.out.println(SpelExpressions.create().resolve(expression, model));
 	}
 
 	@Test
 	public void stringMethodSpelCase() {
 		String expression = "#{'Hi, everybody'.contains('Hi')}";
-		System.out.println("contains: " + SpelExpressions.resolve(expression, null));
+		System.out.println("contains: " + SpelExpressions.create().resolve(expression, null));
 	}
 
 	@Test
@@ -60,15 +60,15 @@ public class SpelExpressionsTests {
 		String expression = "#{T(com.wl4g.components.core.utils.expression.SpelExpressionsTests.JoinUtil).join(name)}";
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", "Mia");
-		System.out.println("result: " + SpelExpressions.resolve(expression, model));
+		System.out.println("result: " + SpelExpressions.create().resolve(expression, model));
 	}
 
 	@Test
 	public void aliasMethodSpelCase() {
-		String expression = "#{T(JoinUtil).join(name)}";
+		String expression = "#{T(SpelExpressionsTests$JoinUtil).join(name)}";
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", "Mia");
-		System.out.println("result: " + SpelExpressions.resolve(expression, model));
+		System.out.println("result: " + SpelExpressions.create(JoinUtil.class).resolve(expression, model));
 	}
 
 	public static class JoinUtil {
