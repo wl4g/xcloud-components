@@ -808,6 +808,32 @@ public abstract class Assert2 {
 	 * Assert that a collection contains elements; that is, it must not be
 	 * {@code null} and must contain at least one element.
 	 * 
+	 * <pre class="code">
+	 * Assert2.notEmpty(collection, "Collection must contain elements");
+	 * </pre>
+	 * 
+	 * @param collection
+	 *            the collection to check
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param fmtMessage
+	 *            the exception message to use if the assertion fails
+	 * @throws IllegalArgumentException
+	 *             if the collection is {@code null} or contains no elements
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T notEmpty(Collection<?> collection, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
+			Object... args) {
+		if (collection == null || collection.isEmpty()) {
+			doAssertHandle(exceptionClass, fmtMessage, args);
+		}
+		return (T) collection;
+	}
+
+	/**
+	 * Assert that a collection contains elements; that is, it must not be
+	 * {@code null} and must contain at least one element.
+	 * 
 	 * @param collection
 	 *            the collection to check
 	 * @param argName
