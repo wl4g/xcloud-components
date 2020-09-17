@@ -17,6 +17,7 @@ package com.wl4g.components.common.view;
 
 import static com.wl4g.components.common.collection.Collections2.safeList;
 import static com.wl4g.components.common.lang.Assert2.notEmptyOf;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Arrays.asList;
 
@@ -31,6 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
@@ -47,6 +51,7 @@ import freemarker.template.Configuration;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.Version;
 
 /**
  * {@link Freemarkers}
@@ -60,8 +65,6 @@ public abstract class Freemarkers {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private StreamResource configLocation;
-	@Nullable
 	private final Properties freemarkerSettings;
 	@Nullable
 	private final Map<String, Object> freemarkerVariables;
@@ -73,6 +76,11 @@ public abstract class Freemarkers {
 	private final List<TemplateLoader> postTemplateLoaders;
 	@Nullable
 	private final List<String> templateLoaderPaths;
+
+	@Nullable
+	private StreamResource configLocation;
+	@Nullable
+	private Version version = Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS;
 
 	private Freemarkers() {
 		this.freemarkerSettings = new Properties() {
@@ -108,33 +116,38 @@ public abstract class Freemarkers {
 		return instance;
 	}
 
-	public Freemarkers withConfigLocation(StreamResource configLocation) {
-		this.configLocation = configLocation;
+	public Freemarkers withFreemarkerSettings(@NotEmpty Properties freemarkerSettings) {
+		this.freemarkerSettings.putAll(notEmptyOf(freemarkerSettings, "freemarkerSettings"));
 		return this;
 	}
 
-	public Freemarkers withFreemarkerSettings(Properties freemarkerSettings) {
-		this.freemarkerSettings.putAll(freemarkerSettings);
+	public Freemarkers withFreemarkerVariables(@NotEmpty Map<String, Object> freemarkerVariables) {
+		this.freemarkerVariables.putAll(notEmptyOf(freemarkerVariables, "freemarkerVariables"));
 		return this;
 	}
 
-	public Freemarkers withFreemarkerVariables(Map<String, Object> freemarkerVariables) {
-		this.freemarkerVariables.putAll(freemarkerVariables);
+	public Freemarkers withPreTemplateLoaders(@NotEmpty List<TemplateLoader> preTemplateLoaders) {
+		this.preTemplateLoaders.addAll(notEmptyOf(preTemplateLoaders, "preTemplateLoaders"));
 		return this;
 	}
 
-	public Freemarkers withPreTemplateLoaders(List<TemplateLoader> preTemplateLoaders) {
-		this.preTemplateLoaders.addAll(preTemplateLoaders);
+	public Freemarkers withTemplateLoaders(@NotEmpty List<TemplateLoader> templateLoaders) {
+		this.templateLoaders.addAll(notEmptyOf(templateLoaders, "templateLoaders"));
 		return this;
 	}
 
-	public Freemarkers withTemplateLoaders(List<TemplateLoader> templateLoaders) {
-		this.templateLoaders.addAll(templateLoaders);
+	public Freemarkers withPostTemplateLoaders(@NotEmpty List<TemplateLoader> postTemplateLoaders) {
+		this.postTemplateLoaders.addAll(notEmptyOf(postTemplateLoaders, "postTemplateLoaders"));
 		return this;
 	}
 
-	public Freemarkers withPostTemplateLoaders(List<TemplateLoader> postTemplateLoaders) {
-		this.postTemplateLoaders.addAll(postTemplateLoaders);
+	public Freemarkers withConfigLocation(@NotNull StreamResource configLocation) {
+		this.configLocation = notNullOf(configLocation, "configLocation");
+		return this;
+	}
+
+	public Freemarkers withVersion(@NotNull Version version) {
+		this.version = notNullOf(version, "version");
 		return this;
 	}
 
@@ -148,7 +161,7 @@ public abstract class Freemarkers {
 	 *             on FreeMarker initialization failure
 	 */
 	public Configuration build() {
-		Configuration config = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+		Configuration config = new Configuration(version);
 		Properties props = new Properties();
 
 		try {
@@ -206,9 +219,11 @@ public abstract class Freemarkers {
 	 * @throws freemarker.template.TemplateException
 	 *             if rendering failed
 	 */
-	public static String processTemplateIntoString(Template template, Object model) throws IOException, TemplateException {
+	public static String renderingTemplateToString(@NotNull Template template, @NotNull Object model)
+			throws IOException, TemplateException {
+		notNullOf(model, "model");
 		StringWriter result = new StringWriter();
-		template.process(model, result);
+		template.process(notNullOf(model, "model"), result);
 		return result.toString();
 	}
 
@@ -242,6 +257,12 @@ public abstract class Freemarkers {
 
 	}
 
+	/**
+	 * Agergate multi template loaders.
+	 * 
+	 * @param templateLoaders
+	 * @return
+	 */
 	private TemplateLoader getAggregateTemplateLoader(List<TemplateLoader> templateLoaders) {
 		switch (templateLoaders.size()) {
 		case 0:
