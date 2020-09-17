@@ -103,8 +103,8 @@ public abstract class SpelExpressions {
 	 * @param model
 	 * @return
 	 */
-	@SuppressWarnings("serial")
-	public Object resolve(@NotBlank String expression, @Nullable Object model) {
+	@SuppressWarnings({ "unchecked" })
+	public <T> T resolve(@NotBlank String expression, @Nullable Object model) {
 		hasTextOf(expression, "expression");
 
 		// Create expression parser.
@@ -112,18 +112,23 @@ public abstract class SpelExpressions {
 		StandardTypeLocator locator = new StandardTypeLocator(ClassUtils.getDefaultClassLoader());
 		safeList(knownPackagePrefixes).forEach(p -> locator.registerImport(p));
 		context.setTypeLocator(locator);
-		context.setPropertyAccessors(new ArrayList<PropertyAccessor>() {
-			{
-				// supported for map
-				add(new MapAccessor());
-				// supported for bean(default)
-				add(new ReflectivePropertyAccessor());
-			}
-		});
-		return defaultParser.parseExpression(expression, ParserContext.TEMPLATE_EXPRESSION).getValue(context);
+		context.setPropertyAccessors(defaultPropertyAccessors);
+
+		return (T) defaultParser.parseExpression(expression, ParserContext.TEMPLATE_EXPRESSION).getValue(context);
 	}
 
 	/** {@link ExpressionParser} */
 	private static final ExpressionParser defaultParser = new SpelExpressionParser();
+
+	/** {@link PropertyAccessor} */
+	@SuppressWarnings("serial")
+	private static final List<PropertyAccessor> defaultPropertyAccessors = new ArrayList<PropertyAccessor>() {
+		{
+			// supported for map
+			add(new MapAccessor());
+			// supported for bean(default)
+			add(new ReflectivePropertyAccessor());
+		}
+	};
 
 }
