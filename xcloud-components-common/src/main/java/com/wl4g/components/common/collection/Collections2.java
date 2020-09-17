@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public abstract class Collections2 {
 	}
 
 	/**
-	 * Ensure that the default is at least an ArrayList instance (when the
+	 * Ensure that the default is at least an fallback list instance (when the
 	 * parameter is empty)
 	 * 
 	 * @param list
@@ -81,6 +82,52 @@ public abstract class Collections2 {
 	 */
 	public static <T> List<T> ensureList(List<T> list, List<T> fallback) {
 		return isEmpty(list) ? fallback : list;
+	}
+
+	/**
+	 * Ensure that the default is at least an HashSet instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param set
+	 * @return
+	 */
+	public static <T> Set<T> ensureSet(Set<T> set) {
+		return isEmpty(set) ? new HashSet<T>() : set;
+	}
+
+	/**
+	 * Ensure that the default is at least an fallback set instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param set
+	 * @param fallback
+	 * @return
+	 */
+	public static <T> Set<T> ensureSet(Set<T> set, Set<T> fallback) {
+		return isEmpty(set) ? fallback : set;
+	}
+
+	/**
+	 * Ensure that the default is at least an HashMap instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param map
+	 * @return
+	 */
+	public static <K, V> Map<K, V> ensureMap(Map<K, V> map) {
+		return isEmpty(map) ? new HashMap<>() : map;
+	}
+
+	/**
+	 * Ensure that the default is at least an fallback map instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param map
+	 * @param fallback
+	 * @return
+	 */
+	public static <K, V> Map<K, V> ensureMap(Map<K, V> map, Map<K, V> fallback) {
+		return isEmpty(map) ? fallback : map;
 	}
 
 	/**
