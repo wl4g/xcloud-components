@@ -104,7 +104,7 @@ public abstract class Freemarkers {
 	public static Freemarkers createDefault() {
 		Freemarkers instance = new Freemarkers() {
 		};
-		instance.templateLoaderPaths.addAll(asList("/template/"));
+		instance.templateLoaderPaths.addAll(asList("/"));
 		return instance;
 	}
 
