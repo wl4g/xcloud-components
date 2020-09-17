@@ -16,6 +16,8 @@
 package com.wl4g.components.common.io;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.io.Resources;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.SystemUtils;
@@ -27,6 +29,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Function;
+
+import javax.validation.constraints.NotBlank;
 
 import static com.google.common.base.Charsets.ISO_8859_1;
 import static com.google.common.base.Charsets.UTF_8;
@@ -332,6 +336,22 @@ public abstract class FileIOUtils extends FileUtils {
 			}
 		} catch (Throwable ex) {
 			throw new IllegalStateException(ex);
+		}
+	}
+
+	/**
+	 * Read fully resource to string. </br>
+	 * 
+	 * Note: Not suitable for reading large files.
+	 * 
+	 * @param resourceName
+	 * @return
+	 */
+	public static String readFullyResourceString(@NotBlank String resourceName) {
+		try (InputStream in = Resources.getResource(hasTextOf(resourceName, "resourceName")).openStream()) {
+			return ByteStreamUtils.readFullyToString(in, "UTF-8");
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
