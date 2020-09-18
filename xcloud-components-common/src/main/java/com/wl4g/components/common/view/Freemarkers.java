@@ -16,6 +16,7 @@
 package com.wl4g.components.common.view;
 
 import static com.wl4g.components.common.collection.Collections2.safeList;
+import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notEmptyOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -219,12 +222,39 @@ public abstract class Freemarkers {
 	 * @throws freemarker.template.TemplateException
 	 *             if rendering failed
 	 */
-	public static String renderingTemplateToString(@NotNull Template template, @NotNull Object model)
+	public static String renderingTemplateToString(@NotNull Template template, @Nullable Object model)
 			throws IOException, TemplateException {
-		notNullOf(model, "model");
+		notNullOf(template, "template");
+
 		StringWriter result = new StringWriter();
-		template.process(notNullOf(model, "model"), result);
+		template.process(model, result);
 		return result.toString();
+	}
+
+	/**
+	 * Process the specified FreeMarker template with the given model and write
+	 * the result to the given Writer.
+	 * 
+	 * @param templateName
+	 *            template name.
+	 * @param templateString
+	 *            template string content.
+	 * @param model
+	 *            the model object, typically a Map that contains model names as
+	 *            keys and model objects as values
+	 * @return the result as String
+	 * @throws IOException
+	 *             if the template wasn't found or couldn't be read
+	 * @throws freemarker.template.TemplateException
+	 *             if rendering failed
+	 */
+	public static String renderingTemplateToString(@NotBlank String templateName, @NotBlank String templateString,
+			@Nullable Object model) throws IOException, TemplateException {
+		hasTextOf(templateName, "templateName");
+		hasTextOf(templateString, "templateString");
+
+		Template template = new Template(templateName, new StringReader(templateString), defaultConfigurer);
+		return renderingTemplateToString(template, model);
 	}
 
 	/**
@@ -368,6 +398,10 @@ public abstract class Freemarkers {
 
 	}
 
+	/** {@link ResourceLoader} */
 	private static final ResourceLoader defaultResourceLoader = new DefaultResourceLoader();
+
+	/** {@link Configuration} */
+	private static final Configuration defaultConfigurer = Freemarkers.createDefault().build();
 
 }

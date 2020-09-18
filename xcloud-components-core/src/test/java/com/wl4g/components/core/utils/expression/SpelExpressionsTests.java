@@ -46,7 +46,8 @@ public class SpelExpressionsTests {
 		attributes.put("income", 20000);
 		model.put("attributes", attributes);
 
-		System.out.println(SpelExpressions.create().resolve(expression, model));
+		String result = SpelExpressions.create().resolve(expression, model);
+		System.out.println(result);
 	}
 
 	@Test
@@ -56,7 +57,7 @@ public class SpelExpressionsTests {
 	}
 
 	@Test
-	public void utilMethodSpelCase() {
+	public void directCallMethodSpelCase() {
 		String expression = "#{T(com.wl4g.components.core.utils.expression.SpelExpressionsTests.JoinUtil).join(name)}";
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", "Mia");
@@ -64,11 +65,29 @@ public class SpelExpressionsTests {
 	}
 
 	@Test
-	public void aliasMethodSpelCase() {
+	public void aliasCallMethodSpelCase() {
 		String expression = "#{T(SpelExpressionsTests$JoinUtil).join(name)}";
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", "Mia");
 		System.out.println("result: " + SpelExpressions.create(JoinUtil.class).resolve(expression, model));
+	}
+
+	@Test
+	public void modelCallMethodSpelCase() {
+		String expression = "#{JoinUtil.join(name)}";
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", "Mia");
+		model.put("JoinUtil", JoinUtil.class);
+		System.out.println("result: " + SpelExpressions.create().resolve(expression, model));
+	}
+
+	@Test
+	public void modelCallObjectMethodSpelCase() {
+		String expression = "#{joinUtil.join(name)}";
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", "Mia");
+		model.put("joinUtil", new JoinUtil());
+		System.out.println("result: " + SpelExpressions.create().resolve(expression, model));
 	}
 
 	public static class JoinUtil {
