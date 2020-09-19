@@ -41,7 +41,7 @@ import static org.springframework.util.ClassUtils.convertClassNameToResourcePath
 
 import com.github.pagehelper.PageHelper;
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.data.mybatis.session.MultipleSqlSessionFactoryBean;
+import com.wl4g.components.data.mybatis.session.SmartSqlSessionFactoryBean;
 
 /**
  * {@link AbstractDataSourceAutoConfiguration}
@@ -65,13 +65,13 @@ public abstract class AbstractDataSourceAutoConfiguration {
 	 * @return
 	 * @throws Exception
 	 */
-	protected SqlSessionFactoryBean createMultiSqlSessionFactoryBean(DataSource dataSource, MybatisProperties config)
+	protected SqlSessionFactoryBean createSmartSqlSessionFactoryBean(DataSource dataSource, MybatisProperties config)
 			throws Exception {
 		// Define path matcher resolver.
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
-		// SqlSessionFactory
-		SqlSessionFactoryBean factory = new MultipleSqlSessionFactoryBean();
+		// Create SqlSessionFactory
+		SqlSessionFactoryBean factory = new SmartSqlSessionFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setTypeAliases(getTypeAliases(resolver, config));
 		factory.setConfigLocation(new ClassPathResource(config.getConfigLocation()));
@@ -103,8 +103,7 @@ public abstract class AbstractDataSourceAutoConfiguration {
 		MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resolver);
 
 		for (String pkg : safeList(config.getTypeAliasPackage())) {
-			String location = CLASSPATH_ALL_URL_PREFIX + convertClassNameToResourcePath(pkg)
-					+ "**/*.class";
+			String location = CLASSPATH_ALL_URL_PREFIX + convertClassNameToResourcePath(pkg) + "**/*.class";
 			Resource[] resources = resolver.getResources(location);
 			if (resources != null) {
 				for (Resource resource : resources) {

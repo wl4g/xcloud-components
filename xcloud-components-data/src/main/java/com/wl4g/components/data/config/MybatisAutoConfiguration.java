@@ -15,8 +15,10 @@
  */
 package com.wl4g.components.data.config;
 
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -31,6 +33,7 @@ import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader.Hot
  * @version v1.0 2019年11月14日
  * @since
  */
+@ConditionalOnClass(SqlSessionFactory.class)
 public class MybatisAutoConfiguration {
 
 	@Bean
@@ -44,7 +47,7 @@ public class MybatisAutoConfiguration {
 	@Bean
 	@ConditionalOnJdwpDebug(enableProperty = KEY_HOTSPOT_LOADER_PREFIX + ".enable")
 	@ConfigurationProperties(prefix = KEY_HOTSPOT_LOADER_PREFIX)
-	@ConditionalOnBean(SqlSessionFactoryBean.class)
+	// @ConditionalOnBean(SmartSqlSessionFactoryBean.class)
 	public HotspotLoaderProperties hotspotLoaderProperties() {
 		return new HotspotLoaderProperties();
 	}
@@ -57,6 +60,6 @@ public class MybatisAutoConfiguration {
 	}
 
 	final public static String KEY_MYBATIS_PREFIX = "mybatis";
-	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.cloud.devops.support.devel.mybatis-loader";
+	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.cloud.xcloud.components.data.mybatis-loader";
 
 }

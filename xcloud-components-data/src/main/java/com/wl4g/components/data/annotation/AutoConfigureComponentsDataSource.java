@@ -36,7 +36,7 @@ import com.wl4g.components.data.config.MybatisAutoConfiguration;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
-@Import({ MybatisAutoConfiguration.class, DruidAutoConfiguration.class })
+@Import({ DruidAutoConfiguration.class, MybatisAutoConfiguration.class, })
 public @interface AutoConfigureComponentsDataSource {
 
 }

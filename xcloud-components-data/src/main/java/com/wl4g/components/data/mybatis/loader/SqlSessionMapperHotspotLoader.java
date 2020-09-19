@@ -57,21 +57,17 @@ import com.wl4g.components.common.log.SmartLogger;
  * @since
  */
 public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
-	final public static String TARGET_PART_PATH = "target" + File.separator + "classes";
-	final public static String SRC_PART_PATH = "src" + File.separator + "main" + File.separator + "resources";
-
-	final protected SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
 	/** Refresh configuration properties. */
-	final protected HotspotLoaderProperties config;
+	protected final HotspotLoaderProperties config;
 	/** Monitor objectives for {@link SqlSessionFactory} */
-	final protected SqlSessionFactoryBean sessionFactory;
-
+	protected final SqlSessionFactoryBean sessionFactory;
 	/** Refresher of last timestamp. */
 	final private AtomicLong lastRefreshTime = new AtomicLong(0L);
 	/** Runner thread boss. */
 	private Thread boss;
-
+	/** Mybatis sql sessions configurations. */
 	private Configuration configuration;
 	private Resource[] mapperLocations;
 
@@ -322,5 +318,8 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 		}
 
 	}
+
+	private static final String TARGET_PART_PATH = "target" + File.separator + "classes";
+	private static final String SRC_PART_PATH = "src" + File.separator + "main" + File.separator + "resources";
 
 }
