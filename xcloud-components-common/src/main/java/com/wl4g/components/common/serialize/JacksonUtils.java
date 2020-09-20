@@ -210,7 +210,7 @@ public abstract class JacksonUtils {
 	/**
 	 * Default {@link ObjectMapper} instance.
 	 */
-	private static ObjectMapper defaultObjectMapper = new ObjectMapper();
+	private static final ObjectMapper defaultObjectMapper = new ObjectMapper();
 
 	static {
 		getDefaultObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
