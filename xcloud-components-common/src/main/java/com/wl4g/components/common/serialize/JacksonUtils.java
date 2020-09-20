@@ -203,17 +203,17 @@ public abstract class JacksonUtils {
 	 * 
 	 * @return
 	 */
-	public static ObjectMapper getDefaultObjectMapper() {
+	public static final ObjectMapper getDefaultObjectMapper() {
 		return defaultObjectMapper;
 	}
 
 	/**
 	 * Default {@link ObjectMapper} instance.
 	 */
-	final private static ObjectMapper defaultObjectMapper = new ObjectMapper();
+	private static ObjectMapper defaultObjectMapper = new ObjectMapper();
 
 	static {
-		defaultObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		getDefaultObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 }
