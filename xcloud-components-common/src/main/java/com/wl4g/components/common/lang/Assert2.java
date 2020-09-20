@@ -171,7 +171,7 @@ public abstract class Assert2 {
 	public static void isTrue(boolean expression, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (!expression) {
-			doAssertHandle(exceptionClass, fmtMessage, args);
+			doWrapException(exceptionClass, fmtMessage, args);
 		}
 	}
 
@@ -196,7 +196,7 @@ public abstract class Assert2 {
 	public static void isTrue(boolean expression, Class<? extends RuntimeException> exceptionClass,
 			Supplier<String> messageSupplier) {
 		if (!expression) {
-			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
+			doWrapException(exceptionClass, nullSafeGet(messageSupplier));
 		}
 	}
 
@@ -243,6 +243,31 @@ public abstract class Assert2 {
 		if (object != null) {
 			throw new IllegalArgumentException(ASSERT_FAILED_PREFIX.concat(doFormat(fmtMessage, args)));
 		}
+	}
+
+	/**
+	 * Assert that an object is {@code null}.
+	 * 
+	 * <pre class="code">
+	 * Assert2.isNull(value, "The value must be null");
+	 * </pre>
+	 * 
+	 * @param object
+	 *            the object to check
+	 * @param exceptionClass
+	 *            Throwable class
+	 * @param fmtMessage
+	 *            the exception message to use if the assertion fails
+	 * @throws IllegalArgumentException
+	 *             if the object is {@code null}
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T isNull(Object object, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
+			Object... args) {
+		if (object != null) {
+			doWrapException(exceptionClass, fmtMessage, args);
+		}
+		return (T) object;
 	}
 
 	/**
@@ -321,7 +346,7 @@ public abstract class Assert2 {
 	public static <T> T notNull(Object object, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (object == null) {
-			doAssertHandle(exceptionClass, fmtMessage, args);
+			doWrapException(exceptionClass, fmtMessage, args);
 		}
 		return (T) object;
 	}
@@ -347,7 +372,7 @@ public abstract class Assert2 {
 	public static <T> T notNull(Object object, Class<? extends RuntimeException> exceptionClass,
 			Supplier<String> messageSupplier) {
 		if (object == null) {
-			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
+			doWrapException(exceptionClass, nullSafeGet(messageSupplier));
 		}
 		return (T) object;
 	}
@@ -487,7 +512,7 @@ public abstract class Assert2 {
 	public static <T> T hasText(String text, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (!isNotBlank(text)) {
-			doAssertHandle(exceptionClass, fmtMessage, args);
+			doWrapException(exceptionClass, fmtMessage, args);
 		}
 		return (T) text;
 	}
@@ -515,7 +540,7 @@ public abstract class Assert2 {
 	@SuppressWarnings("unchecked")
 	public static <T> T hasText(String text, Class<? extends RuntimeException> exceptionClass, Supplier<String> messageSupplier) {
 		if (!isNotBlank(text)) {
-			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
+			doWrapException(exceptionClass, nullSafeGet(messageSupplier));
 		}
 		return (T) text;
 	}
@@ -654,7 +679,7 @@ public abstract class Assert2 {
 	public static <T> T notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (array == null || array.length == 0) {
-			doAssertHandle(exceptionClass, fmtMessage, args);
+			doWrapException(exceptionClass, fmtMessage, args);
 		}
 		return (T) array;
 	}
@@ -681,7 +706,7 @@ public abstract class Assert2 {
 	public static <T> T notEmpty(Object[] array, Class<? extends RuntimeException> exceptionClass,
 			Supplier<String> messageSupplier) {
 		if (array == null || array.length == 0) {
-			doAssertHandle(exceptionClass, nullSafeGet(messageSupplier));
+			doWrapException(exceptionClass, nullSafeGet(messageSupplier));
 		}
 		return (T) array;
 	}
@@ -764,7 +789,7 @@ public abstract class Assert2 {
 		if (array != null) {
 			for (Object element : array) {
 				if (element == null) {
-					doAssertHandle(exceptionClass, fmtMessage, args);
+					doWrapException(exceptionClass, fmtMessage, args);
 				}
 			}
 		}
@@ -825,7 +850,7 @@ public abstract class Assert2 {
 	public static <T> T notEmpty(Collection<?> collection, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (collection == null || collection.isEmpty()) {
-			doAssertHandle(exceptionClass, fmtMessage, args);
+			doWrapException(exceptionClass, fmtMessage, args);
 		}
 		return (T) collection;
 	}
@@ -865,7 +890,7 @@ public abstract class Assert2 {
 	public static <T> T notEmpty(Map<?, ?> map, Class<? extends RuntimeException> exceptionClass, String fmtMessage,
 			Object... args) {
 		if (map == null || map.isEmpty()) {
-			doAssertHandle(exceptionClass, fmtMessage, args);
+			doWrapException(exceptionClass, fmtMessage, args);
 		}
 		return (T) map;
 	}
@@ -1214,7 +1239,7 @@ public abstract class Assert2 {
 			result = result + ("Object of class [" + className + "] must be an instance of " + type);
 		}
 
-		doAssertHandle(exceptionClass, result);
+		doWrapException(exceptionClass, result);
 	}
 
 	/**
@@ -1241,7 +1266,7 @@ public abstract class Assert2 {
 			result = result + (subType + " is not assignable to " + superType);
 		}
 
-		doAssertHandle(exceptionClass, result);
+		doWrapException(exceptionClass, result);
 	}
 
 	private static boolean endsWithSeparator(String msg) {
@@ -1272,13 +1297,13 @@ public abstract class Assert2 {
 	}
 
 	/**
-	 * Do assertion handling
+	 * Do wrap assertion exception.
 	 * 
 	 * @param exceptionClass
 	 * @param fmtMessage
 	 * @param args
 	 */
-	private static void doAssertHandle(Class<? extends RuntimeException> exceptionClass, String fmtMessage, Object... args) {
+	private static void doWrapException(Class<? extends RuntimeException> exceptionClass, String fmtMessage, Object... args) {
 		RuntimeException th = newRuntimeExceptionInstance(exceptionClass);
 		// Init cause message
 		try {
