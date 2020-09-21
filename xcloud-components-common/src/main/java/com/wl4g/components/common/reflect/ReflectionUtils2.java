@@ -97,7 +97,7 @@ public abstract class ReflectionUtils2 {
 	 * @param fc
 	 *            the callback to invoke for each field
 	 */
-	public static void doFullWithFields(final Object obj, FieldFilter ff, FieldCallback2 fc) {
+	public static void doFullWithFields(final Object obj, FieldFilter ff, FieldHandler fc) {
 		if (isNull(obj) || isNull(fc) || isNull(ff)) {
 			throw new IllegalArgumentException("Hierarchy object or FieldFilter and FieldCallback can't null");
 		}
@@ -112,7 +112,7 @@ public abstract class ReflectionUtils2 {
 				try {
 					makeAccessible(field);
 					Class<?> fieldCls = field.getType();
-					if (isSimpleType(fieldCls) || isSimpleCollectionType(fieldCls)) {
+					if (!ff.describeForObjField(field) || isSimpleType(fieldCls) || isSimpleCollectionType(fieldCls)) {
 						fc.doWith(field, obj);
 					}
 					// Recursive traversal matching and processing
@@ -973,7 +973,7 @@ public abstract class ReflectionUtils2 {
 	/**
 	 * Callback interface invoked on each field in the hierarchy.
 	 */
-	public interface FieldCallback2 {
+	public static interface FieldHandler {
 
 		/**
 		 * Perform an operation using the given field.
@@ -990,7 +990,7 @@ public abstract class ReflectionUtils2 {
 	 * Callback optionally used to filter fields to be operated on by a field
 	 * callback.
 	 */
-	public interface FieldFilter {
+	public static interface FieldFilter {
 
 		/**
 		 * Determine whether the given field matches.
@@ -999,6 +999,19 @@ public abstract class ReflectionUtils2 {
 		 *            the field to check
 		 */
 		boolean matches(Field field);
+
+		/**
+		 * It is used to control whether to continue to reflect the structure of
+		 * the field recursively if the field traversed by reflection is of
+		 * object type.
+		 * 
+		 * @param field
+		 * @return
+		 */
+		default boolean describeForObjField(Field field) {
+			return true;
+		}
+
 	}
 
 	/**
