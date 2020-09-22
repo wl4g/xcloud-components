@@ -283,8 +283,8 @@ public abstract class ReflectionUtils2 {
 		while (searchType != null) {
 			Method[] methods = (searchType.isInterface() ? searchType.getMethods() : getDeclaredMethods(searchType));
 			for (Method method : methods) {
-				if (name.equals(method.getName())
-						&& (paramTypes == null || Arrays.equals(paramTypes, method.getParameterTypes()))) {
+				if (name.equals(method.getName()) && (isNull(paramTypes) || paramTypes.length == 0
+						|| Arrays.equals(paramTypes, method.getParameterTypes()))) {
 					return method;
 				}
 			}

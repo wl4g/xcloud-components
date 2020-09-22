@@ -87,8 +87,10 @@ public abstract class BaseBean implements Serializable {
 
 	/**
 	 * Execute method before inserting, need to call manually
+	 * 
+	 * @return return current preparing insert generated id.
 	 */
-	public void preInsert() {
+	public Integer preInsert() {
 		// TODO
 		// This is a temporary ID generation scheme. You can change
 		// it to a primary key generation service later.
@@ -101,18 +103,21 @@ public abstract class BaseBean implements Serializable {
 		setUpdateBy(DEFAULT_USER_ID);
 		setDelFlag(DEL_FLAG_NORMAL);
 		setEnable(ENABLED);
+
+		return getId();
 	}
 
 	/**
 	 * Execute method before inserting, need to call manually
 	 *
 	 * @param organizationCode
+	 * @return return current preparing insert generated id.
 	 */
-	public void preInsert(String organizationCode) {
+	public Integer preInsert(String organizationCode) {
 		if (isBlank(getOrganizationCode())) {
 			setOrganizationCode(organizationCode);
 		}
-		preInsert();
+		return preInsert();
 	}
 
 	/**

@@ -81,18 +81,18 @@ public abstract class FileIOUtils extends FileUtils {
 	 */
 	public static void ensureFile(File file) {
 		state(Objects.nonNull(file), "Ensure file cannot null");
-		if (file.exists()) {
-			return;
-		}
 
 		File parent = file.getParentFile();
 		if (!parent.exists() || !parent.isDirectory()) {
 			state(parent.mkdirs(), "Failed to mkdirs for %s", parent);
 		}
-		try {
-			state(file.createNewFile(), "Failed to create new file for %s", file);
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
+
+		if (!file.exists()) {
+			try {
+				state(file.createNewFile(), "Failed to create new file for %s", file);
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
 		}
 	}
 
