@@ -23,6 +23,7 @@ import static java.lang.reflect.Modifier.isTransient;
 import static java.lang.reflect.Modifier.isVolatile;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -126,20 +127,72 @@ public abstract class ReflectionUtils2 {
 		} while (nonNull(cls = cls.getSuperclass()) && cls != Object.class);
 	}
 
+	/**
+	 * Gets the value list of the class field, which can be filtered according
+	 * to {@link #excludeFieldModifiers} and {@link #excludeFieldNamePrefixs}
+	 * conditions.
+	 * 
+	 * @param <T>
+	 * @param objectOrClass
+	 * @param excludeFieldModifiers
+	 *            Access modifiers for fields to exclude, ignored when the
+	 *            condition is null.
+	 * @param excludeFieldNamePrefixs
+	 *            Access fields name for fields to exclude, ignored when the
+	 *            condition is null.
+	 * @return Returns a collection of values for fields that meet both
+	 *         condition {@link #excludeFieldModifiers} and condition
+	 *         {@link #excludeFieldNamePrefixs}
+	 */
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> getFieldValues(@NotNull Class<?> clazz, @Nullable String... excludePrefixFields) {
-		List<T> fieldVals = new ArrayList<>(4);
-		flag: for (Field f : getDeclaredFields(clazz)) {
-			if (nonNull(excludePrefixFields)) {
+	public static <T> List<T> getFieldValues(@NotNull Object objectOrClass, @Nullable int[] excludeFieldModifiers,
+			@Nullable String... excludeFieldNamePrefixs) {
+		notNullOf(objectOrClass, "objectOrClass");
+
+		Class<?> clazz = null; // [NotNull]
+		Object obj = null; // [Nullable]
+		if (objectOrClass instanceof Class) {
+			clazz = ((Class<?>) objectOrClass);
+		} else {
+			clazz = objectOrClass.getClass();
+			obj = objectOrClass;
+		}
+
+		List<T> fieldVals = new ArrayList<>(8);
+		for (Field f : getDeclaredFields(clazz)) {
+			int mod = f.getModifiers();
+			// When the exclusion object is null, only static fields must be
+			// obtained.
+			if (isNull(obj) && !isStatic(mod)) {
+				continue;
+			}
+
+			// Filtering field name prefix.
+			boolean exclude1 = false;
+			if (nonNull(excludeFieldNamePrefixs)) {
 				String fname = f.getName();
-				for (String prefix : excludePrefixFields) {
-					if (fname.startsWith(prefix)) {
-						continue flag;
+				for (String prefix : excludeFieldNamePrefixs) {
+					if (startsWith(fname, prefix)) {
+						exclude1 = true;
+						break;
 					}
 				}
 			}
-			fieldVals.add((T) getField(f, null));
+			// Filtering field modifiers.
+			boolean exclude2 = false;
+			if (nonNull(excludeFieldModifiers)) {
+				for (int m : excludeFieldModifiers) {
+					if ((m & mod) != 0) { // Matched
+						exclude2 = true;
+						break;
+					}
+				}
+			}
+			if (!exclude1 && !exclude2) {
+				fieldVals.add((T) getField(f, obj));
+			}
 		}
+
 		return fieldVals;
 	}
 

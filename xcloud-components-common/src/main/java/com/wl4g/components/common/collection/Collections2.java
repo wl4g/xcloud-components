@@ -16,9 +16,11 @@
 package com.wl4g.components.common.collection;
 
 import static com.wl4g.components.common.collection.CollectionUtils2.isEmpty;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
+import static java.util.Objects.isNull;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -59,6 +61,17 @@ public abstract class Collections2 {
 	@SuppressWarnings("unchecked")
 	public static <T> T[] safeArray(Class<T> componentType, T... array) {
 		return null == array ? (T[]) Array.newInstance(componentType, 0) : array;
+	}
+
+	/**
+	 * Ensure that the default is at least an ArrayList instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static <T> List<T> safeArrayToList(T[] array) {
+		return isNull(array) ? emptyList() : asList(array);
 	}
 
 	/**
