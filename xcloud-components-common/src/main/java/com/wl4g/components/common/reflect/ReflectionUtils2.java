@@ -71,8 +71,8 @@ public abstract class ReflectionUtils2 {
 	 * 
 	 * @return
 	 */
-	public static boolean isCompatibleType(Class<?> clazz1, Class<?> clazz2) {
-		assert (clazz1 != null && clazz2 != null);
+	public static boolean isCompatibleType(@NotNull Class<?> clazz1, @NotNull Class<?> clazz2) {
+		isTrueOf((nonNull(clazz1) && nonNull(clazz2)), "clazz1 != null and clazz2 != null");
 		return clazz1.isAssignableFrom(clazz2) || clazz2.isAssignableFrom(clazz1);
 	}
 
@@ -99,8 +99,11 @@ public abstract class ReflectionUtils2 {
 	 *            the callback to invoke for each field
 	 */
 	public static void doFullWithFields(final Object obj, FieldFilter ff, FieldHandler fc) {
-		if (isNull(obj) || isNull(fc) || isNull(ff)) {
-			throw new IllegalArgumentException("Hierarchy object or FieldFilter and FieldCallback can't null");
+		isTrue((nonNull(ff) && nonNull(fc)), "FieldFilter and FieldCallback can't null");
+
+		// No continue
+		if (isNull(obj)) {
+			return;
 		}
 
 		// Keep backing up the inheritance hierarchy.
