@@ -17,6 +17,7 @@ package com.wl4g.components.common.io;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.io.Resources;
+import com.wl4g.components.common.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
@@ -31,12 +32,14 @@ import java.util.Scanner;
 import java.util.function.Function;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import static com.google.common.base.Charsets.ISO_8859_1;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.components.common.lang.Assert2.*;
 import static java.lang.Math.min;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.SystemUtils.LINE_SEPARATOR;
 
 /**
@@ -79,7 +82,7 @@ public abstract class FileIOUtils extends FileUtils {
 	 * 
 	 * @param file
 	 */
-	public static void ensureFile(File file) {
+	public static void ensureFile(@NotNull File file) {
 		state(Objects.nonNull(file), "Ensure file cannot null");
 
 		File parent = file.getParentFile();
@@ -93,6 +96,22 @@ public abstract class FileIOUtils extends FileUtils {
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			}
+		}
+	}
+
+	/**
+	 * Ensure directory exist.
+	 * 
+	 * @param file
+	 */
+	public static void ensureDir(@NotBlank String dir, @Nullable String childDir) {
+		hasTextOf(dir, "dir");
+		File file = new File(dir);
+		if (!isBlank(childDir)) {
+			file = new File(dir, childDir);
+		}
+		if (!file.exists()) {
+			state(file.mkdirs(), "Failed to mkdirs for %s", file);
 		}
 	}
 

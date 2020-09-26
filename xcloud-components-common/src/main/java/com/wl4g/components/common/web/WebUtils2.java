@@ -128,7 +128,11 @@ public abstract class WebUtils2 {
 	 * @param body
 	 * @throws IOException
 	 */
-	public static void write(HttpServletResponse response, int status, String contentType, byte[] body) throws IOException {
+	public static void write(@NotNull HttpServletResponse response, int status, @NotBlank String contentType,
+			@Nullable byte[] body) throws IOException {
+		notNullOf(response, "response");
+		hasTextOf(contentType, "contentType");
+
 		OutputStream out = null;
 		response.setCharacterEncoding("UTF-8");
 		response.setStatus(status);

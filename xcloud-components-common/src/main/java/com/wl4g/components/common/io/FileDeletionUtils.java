@@ -26,7 +26,7 @@ import java.io.File;
  * @version v1.0 2020年4月1日
  * @since
  */
-public class FileDeletionUtils {
+public abstract class FileDeletionUtils {
 
 	/**
 	 * 判断指定的文件或文件夹删除是否成功
@@ -38,7 +38,6 @@ public class FileDeletionUtils {
 	public static boolean deleteAnyone(String FileName) {
 		File file = new File(FileName);// 根据指定的文件名创建File对象
 		if (!file.exists()) { // 要删除的文件不存在
-			// System.out.println("文件"+FileName+"不存在，删除失败！" );
 			return false;
 		} else { // 要删除的文件存在
 			if (file.isFile()) { // 如果目标文件是文件
@@ -60,14 +59,11 @@ public class FileDeletionUtils {
 		File file = new File(fileName);// 根据指定的文件名创建File对象
 		if (file.exists() && file.isFile()) { // 要删除的文件存在且是文件
 			if (file.delete()) {
-				// System.out.println("文件"+fileName+"删除成功！");
 				return true;
 			} else {
-				// System.out.println("文件"+fileName+"删除失败！");
 				return false;
 			}
 		} else {
-			// System.out.println("文件"+fileName+"不存在，删除失败！" );
 			return false;
 		}
 	}
@@ -84,7 +80,6 @@ public class FileDeletionUtils {
 			dirName = dirName + File.separator;
 		File file = new File(dirName);// 根据指定的文件名创建File对象
 		if (!file.exists() || (!file.isDirectory())) { // 目录不存在或者
-			// System.out.println("目录删除失败"+dirName+"目录不存在！" );
 			return false;
 		}
 		File[] files = file.listFiles();// 列出源文件下所有文件，包括子目录
