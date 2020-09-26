@@ -18,7 +18,9 @@ package com.wl4g.components.core.web;
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Locale.US;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.io.CompressUtils;
+import com.wl4g.components.common.io.FileIOUtils;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.WebUtils2;
 
@@ -83,15 +86,39 @@ public abstract class BaseController {
 	protected void writeZip(@NotNull HttpServletResponse response, @NotNull String srcDir, @NotBlank String filename)
 			throws IOException {
 		notNullOf(response, "response");
-		notNullOf(srcDir, "srcDir");
+		hasTextOf(srcDir, "srcDir");
 		hasTextOf(filename, "filename");
 
 		response.setHeader("Content-Type", "application/octet-stream");
 		response.setCharacterEncoding("utf-8");
+		// Cleanup filename ".zip" suffix
+		int index = filename.toLowerCase(US).lastIndexOf(".zip");
+		if (index > 0) {
+			filename = filename.substring(0, index);
+		}
 		response.setHeader("Content-Disposition", "attachment;filename=".concat(filename).concat(".zip"));
 		CompressUtils.zip(srcDir, response.getOutputStream());
 		response.flushBuffer();
+	}
 
+	/**
+	 * Output file stream with {@link HttpServletResponse}.
+	 * 
+	 * @param response
+	 * @param srcFile
+	 * @throws IOException
+	 */
+	protected void writeFile(@NotNull HttpServletResponse response, @NotNull File srcFile, @NotBlank String filename)
+			throws IOException {
+		notNullOf(response, "response");
+		notNullOf(srcFile, "srcDir");
+		hasTextOf(filename, "filename");
+
+		response.setHeader("Content-Type", "application/octet-stream");
+		response.setCharacterEncoding("utf-8");
+		response.setHeader("Content-Disposition", "attachment;filename=".concat(filename));
+		FileIOUtils.copyFile(srcFile, response.getOutputStream());
+		response.flushBuffer();
 	}
 
 	/**
