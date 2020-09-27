@@ -16,6 +16,7 @@
 package com.wl4g.components.common.lang.period;
 
 import static java.util.Locale.US;
+import static java.lang.ThreadLocal.withInitial;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -31,11 +32,6 @@ import java.util.ResourceBundle;
  * @since
  */
 public abstract class PeriodFormatter {
-
-	/**
-	 * Current locale.
-	 */
-	protected Locale locale = US;
 
 	/**
 	 * Gets instance by default impl class.
@@ -57,12 +53,40 @@ public abstract class PeriodFormatter {
 	}
 
 	/**
+	 * Gets current locale.
+	 * 
+	 * @return
+	 */
+	public final Locale getLocale() {
+		return locale.get();
+	}
+
+	/**
 	 * Sets current thread locale.
 	 * 
 	 * @param l
 	 */
-	public PeriodFormatter locale(Locale l) {
-		this.locale = l;
+	public final PeriodFormatter locale(Locale l) {
+		locale.set(l);
+		return this;
+	}
+
+	/**
+	 * Gets current is ignore lower date.
+	 * 
+	 * @return
+	 */
+	public final boolean getIngoreLowerDate() {
+		return ignoreLowerDate.get();
+	}
+
+	/**
+	 * Sets current thread locale.
+	 * 
+	 * @param l
+	 */
+	public final PeriodFormatter ignoreLowerDate(boolean ignore) {
+		ignoreLowerDate.set(ignore);
 		return this;
 	}
 
@@ -92,7 +116,7 @@ public abstract class PeriodFormatter {
 	 * @param dateString
 	 * @return
 	 */
-	protected String cleanupDateEmptyString(String dateString) {
+	protected final String cleanupDateEmptyString(String dateString) {
 		int safeThreshold = 10;
 		String cleared = dateString.toString().trim(), lastCleared = "";
 		for (int i = 0; i < safeThreshold && !lastCleared.equals(cleared); i++, lastCleared = cleared) {
@@ -107,8 +131,8 @@ public abstract class PeriodFormatter {
 	 * @param localizedKey
 	 * @return
 	 */
-	protected String getLocalizedMessage(String localizedKey) {
-		return getLocalizedMessage(locale, localizedKey);
+	protected final String getLocalizedMessage(String localizedKey) {
+		return getLocalizedMessage(locale.get(), localizedKey);
 	}
 
 	/**
@@ -118,7 +142,7 @@ public abstract class PeriodFormatter {
 	 * @param localizedKey
 	 * @return
 	 */
-	protected String getLocalizedMessage(Locale l, String localizedKey) {
+	protected final String getLocalizedMessage(Locale l, String localizedKey) {
 		try {
 			return getResourceBundle(l).getString(localizedKey);
 		} catch (MissingResourceException e) {
@@ -132,7 +156,7 @@ public abstract class PeriodFormatter {
 	 * @param l
 	 * @return
 	 */
-	protected ResourceBundle getResourceBundle(Locale l) {
+	protected final ResourceBundle getResourceBundle(Locale l) {
 		try {
 			return ResourceBundle.getBundle(defaultI18nResourcesBaseName, l);
 		} catch (MissingResourceException e) {
@@ -145,7 +169,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @return
 	 */
-	final private static String getDefaultI18nResourcesBaseName0() {
+	private static final String getDefaultI18nResourcesBaseName0() {
 		String className = PeriodFormatter.class.getName();
 		return className.substring(0, className.lastIndexOf(".")).replace(".", "/").concat("/messages");
 	}
@@ -153,17 +177,27 @@ public abstract class PeriodFormatter {
 	/**
 	 * Default i18n resources base-name.
 	 */
-	final private static String defaultI18nResourcesBaseName = getDefaultI18nResourcesBaseName0();
+	private static final String defaultI18nResourcesBaseName = getDefaultI18nResourcesBaseName0();
 
 	/**
 	 * PeriodFormatter register instances
 	 */
-	final private static Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<Class<? extends PeriodFormatter>, PeriodFormatter>() {
+	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<Class<? extends PeriodFormatter>, PeriodFormatter>() {
 		private static final long serialVersionUID = 6381326188492266214L;
 		{
 			put(JodaPeriodFormatter.class, new JodaPeriodFormatter());
 			put(SamplePeriodFormatter.class, new SamplePeriodFormatter());
 		}
 	};
+
+	/**
+	 * Current configuration for locale.
+	 */
+	private static final ThreadLocal<Locale> locale = withInitial(() -> US);
+
+	/**
+	 * The lower time unit section will be ignored.
+	 */
+	private static final ThreadLocal<Boolean> ignoreLowerDate = withInitial(() -> false);
 
 }

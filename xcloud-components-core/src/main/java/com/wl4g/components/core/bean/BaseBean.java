@@ -226,6 +226,6 @@ public abstract class BaseBean implements Serializable {
 	/*
 	 * Human date formatter instance.
 	 */
-	public static final PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault();
+	public static final PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 }

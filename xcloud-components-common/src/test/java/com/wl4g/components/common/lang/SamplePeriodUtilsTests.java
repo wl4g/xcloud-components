@@ -33,7 +33,7 @@ public class SamplePeriodUtilsTests {
 	}
 
 	public static void calcMyBirthDateTest1() {
-		PeriodFormatter formatter = PeriodFormatter.getDefault().locale(Locale.CHINESE);
+		PeriodFormatter formatter = PeriodFormatter.getDefault().locale(Locale.US);
 
 		// Pretend the current time is: 1978-06-16 16:51:22
 		long nowTime0 = 266835082000L;

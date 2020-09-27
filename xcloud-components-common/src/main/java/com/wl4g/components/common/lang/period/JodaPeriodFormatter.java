@@ -65,6 +65,7 @@ public class JodaPeriodFormatter extends PeriodFormatter {
 		org.joda.time.format.PeriodFormatter formatter = localizedPeriodFormatters.get(locale);
 		if (isNull(formatter)) {
 			synchronized (localizedPeriodFormatters) {
+				formatter = localizedPeriodFormatters.get(locale);
 				if (isNull(formatter)) {
 					PeriodFormatterBuilder builder = new PeriodFormatterBuilder();
 					builder.appendYears().appendSuffix(" ".concat(getLocalizedMessage("period.formatter.year")).concat(" "),

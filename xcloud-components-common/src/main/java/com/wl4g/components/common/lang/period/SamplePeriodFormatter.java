@@ -63,7 +63,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(years);
-					if (months > 0) {
+					if (getIngoreLowerDate() && months > 0) {
 						sb.append(".");
 						sb.append(months);
 					}
@@ -97,7 +97,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(months);
-					if (days > 0) {
+					if (getIngoreLowerDate() && days > 0) {
 						sb.append(".");
 						sb.append(days);
 					}
@@ -131,7 +131,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(days);
-					if (hours > 0) {
+					if (getIngoreLowerDate() && hours > 0) {
 						sb.append(".");
 						sb.append(hours);
 					}
@@ -165,7 +165,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(hours);
-					if (min > 0) {
+					if (getIngoreLowerDate() && min > 0) {
 						sb.append(".");
 						sb.append(min);
 					}
@@ -194,7 +194,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(min);
-					if (sec > 0) {
+					if (getIngoreLowerDate() && sec > 0) {
 						sb.append(".");
 						sb.append(sec);
 					}
