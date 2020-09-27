@@ -19,6 +19,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
 import com.wl4g.components.common.lang.period.PeriodFormatter;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -34,6 +37,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * @version v1.0.0 2018-09-05
  * @since
  */
+@Getter
+@Setter
 public abstract class BaseBean implements Serializable {
 
 	private static final long serialVersionUID = 8940373806493080114L;
@@ -128,83 +133,52 @@ public abstract class BaseBean implements Serializable {
 		setUpdateBy(DEFAULT_USER_ID);
 	}
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
+	public BaseBean withId(Integer id) {
 		this.id = id;
+		return this;
 	}
 
-	public Integer getCreateBy() {
-		return createBy;
+	public BaseBean withEnable(Integer enable) {
+		setEnable(enable);
+		return this;
 	}
 
-	public void setCreateBy(Integer createBy) {
-		this.createBy = createBy;
+	public BaseBean withRemark(String remark) {
+		setRemark(remark);
+		return this;
 	}
 
-	public Integer getUpdateBy() {
-		return updateBy;
+	public BaseBean withCreateBy(Integer createBy) {
+		setCreateBy(createBy);
+		return this;
 	}
 
-	public void setUpdateBy(Integer updateBy) {
-		this.updateBy = updateBy;
+	public BaseBean withCreateDate(Date createDate) {
+		setCreateDate(createDate);
+		return this;
 	}
 
-	public Date getCreateDate() {
-		return createDate;
+	public BaseBean withUpdateBy(Integer updateBy) {
+		setUpdateBy(updateBy);
+		return this;
 	}
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public BaseBean withUpdateDate(Date updateDate) {
+		setUpdateDate(updateDate);
+		return this;
 	}
 
-	public Date getUpdateDate() {
-		return updateDate;
+	public BaseBean withOrganizationCode(String organizationCode) {
+		setOrganizationCode(organizationCode);
+		return this;
 	}
 
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
+	public BaseBean withDelFlag(Integer delFlag) {
+		setDelFlag(delFlag);
+		return this;
 	}
 
-	public Integer getDelFlag() {
-		return delFlag;
-	}
-
-	public void setDelFlag(Integer delFlag) {
-		this.delFlag = delFlag;
-	}
-
-	public Integer getEnable() {
-		return enable;
-	}
-
-	public void setEnable(Integer enable) {
-		if (isNull(this.enable)) {
-			this.enable = enable;
-		}
-	}
-
-	public String getRemark() {
-		return remark;
-	}
-
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
-
-	public String getOrganizationCode() {
-		return organizationCode;
-	}
-
-	public void setOrganizationCode(String organizationCode) {
-		this.organizationCode = organizationCode;
-	}
-
-	//
 	// --- Function's. ---
-	//
 
 	public String getHumanCreateDate() {
 		return isNull(getCreateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getCreateDate().getTime());
@@ -220,38 +194,38 @@ public abstract class BaseBean implements Serializable {
 	}
 
 	/**
-	 * Status: enabled
+	 * Generic Status: enabled
 	 */
-	final public static int ENABLED = 1;
+	public static final int ENABLED = 1;
 
 	/**
-	 * Status: disabled
+	 * Generic Status: disabled
 	 */
-	final public static int DISABLED = 0;
+	public static final int DISABLED = 0;
 
 	/**
-	 * Status: normal (not deleted)
+	 * Generic Status: normal (not deleted)
 	 */
-	final public static int DEL_FLAG_NORMAL = 0;
+	public static final int DEL_FLAG_NORMAL = 0;
 
 	/**
-	 * Status: deleted
+	 * Generic Status: deleted
 	 */
-	final public static int DEL_FLAG_DELETE = 1;
+	public static final int DEL_FLAG_DELETE = 1;
 
 	/**
 	 * Default userId.
 	 */
-	final public static int DEFAULT_USER_ID = 1;
+	public static final int DEFAULT_USER_ID = 1;
 
 	/*
-	 * User: Super administrator account.
+	 * Default userName: Super administrator account.
 	 */
-	final public static String DEFAULT_USER_ROOT = "root";
+	public static final String DEFAULT_USER_ROOT = "root";
 
 	/*
 	 * Human date formatter instance.
 	 */
-	final public static PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault();
+	public static final PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault();
 
 }

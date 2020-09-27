@@ -27,6 +27,7 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
@@ -39,6 +40,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
 
 import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
@@ -59,7 +61,7 @@ import com.wl4g.components.core.web.error.ServletSmartErrorController;
  */
 @Configuration
 @ConditionalOnProperty(value = KEY_PROPERTY_PREFIX + ".enable", matchIfMissing = true)
-public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupport {
+public class ErrorControllerAutoConfiguration {
 
 	@Bean
 	@ConfigurationProperties(prefix = KEY_PROPERTY_PREFIX)
@@ -77,11 +79,6 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 		return new CompositeErrorConfigurer(config, configures);
 	}
 
-	@Bean
-	public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
-		return super.newPrefixHandlerMapping("/", GlobalErrorController.class);
-	}
-
 	/**
 	 * {@link ReactiveErrorHandlerConfiguration}
 	 * 
@@ -89,7 +86,7 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	 */
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-	// @ConditionalOnClass(WebFluxConfigurer.class)
+	@ConditionalOnClass(WebFluxConfigurer.class)
 	public static class ReactiveErrorHandlerConfiguration {
 
 		/**
@@ -100,9 +97,8 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 		public ReactiveSmartErrorHandler reactiveSmartErrorHandler(
 				org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes,
 				ResourceProperties resourceProperties, ObjectProvider<ViewResolver> viewResolvers,
-				ServerCodecConfigurer codecConfigurer, ApplicationContext applicationContext) {
-			ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties,
-					applicationContext);
+				ServerCodecConfigurer codecConfigurer, ApplicationContext actx) {
+			ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties, actx);
 			errorHandler.setViewResolvers(viewResolvers.orderedStream().collect(toList()));
 			errorHandler.setMessageWriters(codecConfigurer.getWriters());
 			errorHandler.setMessageReaders(codecConfigurer.getReaders());
@@ -119,12 +115,17 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 	@AutoConfigureAfter(WebMvcAutoConfiguration.class)
-	public static class ServletErrorControllerConfirguation {
+	public static class ServletErrorControllerConfirguation extends AbstractHandlerMappingSupport {
 
 		@Bean
 		public ServletSmartErrorController servletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
 				CompositeErrorConfigurer adapter) {
 			return new ServletSmartErrorController(config, errorAttrs, adapter);
+		}
+
+		@Bean
+		public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
+			return super.newPrefixHandlerMapping("/", GlobalErrorController.class);
 		}
 
 	}
