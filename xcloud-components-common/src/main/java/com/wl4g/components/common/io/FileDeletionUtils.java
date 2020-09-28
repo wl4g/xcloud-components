@@ -16,13 +16,18 @@
 package com.wl4g.components.common.io;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.lang.Assert2.state;
 import static java.io.File.separator;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.validation.constraints.NotBlank;
+
+import com.wl4g.components.common.matching.AntPathMatcher;
 
 /**
  * {@link FileDeletionUtils}
@@ -34,86 +39,124 @@ import javax.validation.constraints.NotBlank;
 public abstract class FileDeletionUtils {
 
 	/**
-	 * Delete sub files only or sub directories.
+	 * Delete files according to the file path matching ant pattern.
 	 * 
-	 * @param fileOrParentDir
+	 * @param delPathAntPattern
+	 *            Note: Is the standard ant matching pattern
 	 * @throws IllegalStateException
-	 *             When fast failure is enabled, the deletion failure will throw
-	 *             an exception and interrupt the execution immediately, which
-	 *             may result in some files not being deleted.
+	 *             When fast failure is enabled, delete failure throws an
+	 *             exception.
 	 */
-	public static void deleteAny(@NotBlank String fileOrParentDir) {
-		deleteAny(fileOrParentDir, false);
+	public static void delete(@NotBlank String delPathAntPattern) {
+		delete(delPathAntPattern, false);
 	}
 
 	/**
-	 * Delete sub files only or sub directories.
+	 * Delete files according to the file path matching ant pattern.
 	 * 
-	 * @param fileOrParentDir
-	 * @param fastfail
-	 * @throws IllegalStateException
-	 *             When fast failure is enabled, the deletion failure will throw
-	 *             an exception and interrupt the execution immediately, which
-	 *             may result in some files not being deleted.
-	 */
-	public static void deleteAny(@NotBlank String fileOrParentDir, boolean fastfail) throws IllegalStateException {
-		hasTextOf(fileOrParentDir, "fileOrParentDir");
-		File file = new File(fileOrParentDir);
-		if (file.exists()) {
-			if (file.isFile()) {
-				deleteFile(fileOrParentDir, fastfail);
-			} else {
-				deleteDir(fileOrParentDir, fastfail);
-			}
-		}
-	}
-
-	/**
-	 * Delete file only.
-	 * 
-	 * @param filename
-	 * @param fastfail
-	 * @throws IllegalStateException
-	 *             When fast failure is enabled, the deletion failure will throw
-	 *             an exception and interrupt the execution immediately, which
-	 *             may result in some files not being deleted.
-	 */
-	public static void deleteFile(@NotBlank String filename, boolean fastfail) throws IllegalStateException {
-		hasTextOf(filename, "filename");
-		File file = new File(filename);
-		if (file.exists() && file.isFile()) {
-			if (fastfail) {
-				state(file.delete(), "Cannot to delete file '%s'", file);
-			}
-		}
-	}
-
-	/**
-	 * Delete the specified directory and all its sub files.
-	 * 
-	 * @param parentDir
+	 * @param delPathAntPattern
+	 *            Note: Is the standard ant matching pattern
 	 * @param fastfail
 	 * @throws IllegalStateException
 	 *             When fast failure is enabled, delete failure throws an
-	 *             exception
+	 *             exception.
 	 */
-	public static void deleteDir(@NotBlank String parentDir, boolean fastfail) throws IllegalStateException {
-		hasTextOf(parentDir, "parentDir");
-		parentDir = parentDir.endsWith(separator) ? parentDir.concat(separator) : parentDir;
+	public static void delete(@NotBlank String delPathAntPattern, boolean fastfail) {
+		hasTextOf(delPathAntPattern, "delPathAntPattern");
 
-		File file = new File(parentDir);
-		if (file.exists() && file.isDirectory()) { // Ignore file
-			// Deletion sub directories.
-			File[] files = file.listFiles();
-			if (nonNull(files)) {
-				for (File f : files) {
-					deleteAny(f.getAbsolutePath(), fastfail);
-				}
-			}
-			if (fastfail) {
-				state(file.delete(), "Cannot to delete directories sub file '%s'", file);
+		// Find start directory path.
+		String startPath = delPathAntPattern;
+		int startIndex = delPathAntPattern.indexOf("*");
+		if (startIndex > 0) {
+			startPath = delPathAntPattern.substring(0, startIndex);
+		}
+		File file = new File(startPath);
+		if (file.exists()) {
+			try {
+				doDeleteFileOrDirectories(delPathAntPattern, file, fastfail);
+			} catch (IllegalStateException | IOException e) {
+				throw new IllegalStateException(e);
 			}
 		}
 	}
+
+	/**
+	 * Recursion delete sub files only or sub directories.
+	 * 
+	 * @param delPathAntPattern
+	 * @param path
+	 * @param fastfail
+	 * @throws IllegalStateException
+	 *             When fast failure is enabled, the deletion failure will throw
+	 *             an exception and interrupt the execution immediately, which
+	 *             may result in some files not being deleted.
+	 * @throws IOException
+	 */
+	private static final void doDeleteFileOrDirectories(String delPathAntPattern, File path, boolean fastfail)
+			throws IllegalStateException, IOException {
+		notNullOf(path, "path");
+
+		if (path.exists()) {
+			if (path.isFile()) {
+				if (matchPathChildren(delPathAntPattern, path)) {
+					boolean result = path.delete();
+					if (fastfail) {
+						state(result, "Cannot to delete sub file '%s'", path);
+					}
+				}
+			} else {
+				File[] childrens = path.listFiles();
+				if (nonNull(childrens)) {
+					// Recursion deletion children files.
+					for (File child : childrens) {
+						doDeleteFileOrDirectories(delPathAntPattern, child, fastfail);
+					}
+					// Delete this directory.
+					if (matchPathChildren(delPathAntPattern, path)) { // TODO?
+						boolean result = path.delete();
+						if (fastfail) {
+							state(result, "Cannot to delete sub file '%s'", path);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Match deleting of children path pattern.
+	 * 
+	 * @param delPathAntPattern
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	private static final boolean matchPathChildren(String delPathAntPattern, File path) throws IOException {
+		String cpath = path.getCanonicalPath();
+		return defaultPathMatcher.match(delPathAntPattern, cpath)
+				// When no pattern direct match.
+				|| (!defaultPathMatcher.isPattern(delPathAntPattern) && startsWith(cpath, delPathAntPattern));
+	}
+
+	/**
+	 * Match deleting of this path pattern.
+	 * 
+	 * @param delPathAntPattern
+	 * @param path
+	 * @return
+	 */
+	// private static final boolean matchPathOfThis(String delPathAntPattern,
+	// File path) {
+	// try {
+	// return defaultPathMatcher.isPattern(delPathAntPattern);
+	// } catch (IOException e) {
+	// throw new IllegalStateException(e);
+	// }
+	// }
+
+	/**
+	 * Default delete path matcher.
+	 */
+	private static final AntPathMatcher defaultPathMatcher = new AntPathMatcher(separator);
 
 }
