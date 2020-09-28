@@ -16,8 +16,13 @@
 package com.wl4g.components.common.io;
 
 import static java.util.Objects.nonNull;
+import static com.wl4g.components.common.lang.Assert2.hasTextOf;
+import static com.wl4g.components.common.lang.Assert2.state;
+import static java.io.File.separator;
 
 import java.io.File;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * {@link FileDeletionUtils}
@@ -29,66 +34,86 @@ import java.io.File;
 public abstract class FileDeletionUtils {
 
 	/**
-	 * 判断指定的文件或文件夹删除是否成功
+	 * Delete sub files only or sub directories.
 	 * 
-	 * @param FileName
-	 *            文件或文件夹的路径
-	 * @return true or false 成功返回true，失败返回false
+	 * @param fileOrParentDir
+	 * @throws IllegalStateException
+	 *             When fast failure is enabled, the deletion failure will throw
+	 *             an exception and interrupt the execution immediately, which
+	 *             may result in some files not being deleted.
 	 */
-	public static boolean deleteAny(String FileName) {
-		File file = new File(FileName);// 根据指定的文件名创建File对象
-		if (!file.exists()) { // 要删除的文件不存在
-			return false;
-		} else { // 要删除的文件存在
-			if (file.isFile()) { // 如果目标文件是文件
-				return deleteFile(FileName);
-			} else { // 如果目标文件是目录
-				return deleteDir(FileName);
-			}
-		}
+	public static void deleteAny(@NotBlank String fileOrParentDir) {
+		deleteAny(fileOrParentDir, false);
 	}
 
 	/**
-	 * 判断指定的文件删除是否成功
+	 * Delete sub files only or sub directories.
 	 * 
-	 * @param FileName
-	 *            文件路径
-	 * @return true or false 成功返回true，失败返回false
+	 * @param fileOrParentDir
+	 * @param fastfail
+	 * @throws IllegalStateException
+	 *             When fast failure is enabled, the deletion failure will throw
+	 *             an exception and interrupt the execution immediately, which
+	 *             may result in some files not being deleted.
 	 */
-	public static boolean deleteFile(String fileName) {
-		File file = new File(fileName);// 根据指定的文件名创建File对象
-		if (file.exists() && file.isFile()) { // 要删除的文件存在且是文件
-			if (file.delete()) {
-				return true;
+	public static void deleteAny(@NotBlank String fileOrParentDir, boolean fastfail) throws IllegalStateException {
+		hasTextOf(fileOrParentDir, "fileOrParentDir");
+		File file = new File(fileOrParentDir);
+		if (file.exists()) {
+			if (file.isFile()) {
+				deleteFile(fileOrParentDir, fastfail);
 			} else {
-				return false;
+				deleteDir(fileOrParentDir, fastfail);
 			}
-		} else {
-			return false;
 		}
 	}
 
 	/**
-	 * 删除指定的目录以及目录下的所有子文件
+	 * Delete file only.
 	 * 
-	 * @param dirName
-	 *            is 目录路径
-	 * @return true or false 成功返回true，失败返回false
+	 * @param filename
+	 * @param fastfail
+	 * @throws IllegalStateException
+	 *             When fast failure is enabled, the deletion failure will throw
+	 *             an exception and interrupt the execution immediately, which
+	 *             may result in some files not being deleted.
 	 */
-	public static boolean deleteDir(String dirName) {
-		if (dirName.endsWith(File.separator))
-			dirName = dirName + File.separator;
-		File file = new File(dirName);
-		if (!file.exists() || (!file.isDirectory())) {
-			return false;
-		}
-		File[] files = file.listFiles();
-		if (nonNull(files)) {
-			for (int i = 0; i < files.length; i++) {
-				deleteAny(files[i].getAbsolutePath());
+	public static void deleteFile(@NotBlank String filename, boolean fastfail) throws IllegalStateException {
+		hasTextOf(filename, "filename");
+		File file = new File(filename);
+		if (file.exists() && file.isFile()) {
+			if (fastfail) {
+				state(file.delete(), "Cannot to delete file '%s'", file);
 			}
 		}
-		return file.delete();
+	}
+
+	/**
+	 * Delete the specified directory and all its sub files.
+	 * 
+	 * @param parentDir
+	 * @param fastfail
+	 * @throws IllegalStateException
+	 *             When fast failure is enabled, delete failure throws an
+	 *             exception
+	 */
+	public static void deleteDir(@NotBlank String parentDir, boolean fastfail) throws IllegalStateException {
+		hasTextOf(parentDir, "parentDir");
+		parentDir = parentDir.endsWith(separator) ? parentDir.concat(separator) : parentDir;
+
+		File file = new File(parentDir);
+		if (file.exists() && file.isDirectory()) { // Ignore file
+			// Deletion sub directories.
+			File[] files = file.listFiles();
+			if (nonNull(files)) {
+				for (File f : files) {
+					deleteAny(f.getAbsolutePath(), fastfail);
+				}
+			}
+			if (fastfail) {
+				state(file.delete(), "Cannot to delete directories sub file '%s'", file);
+			}
+		}
 	}
 
 }
