@@ -18,11 +18,12 @@ package com.wl4g.components.common.io;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.io.Resources;
 import com.wl4g.components.common.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.SystemUtils;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -30,9 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Function;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import static com.google.common.base.Charsets.ISO_8859_1;
 import static com.google.common.base.Charsets.UTF_8;
@@ -371,6 +369,27 @@ public abstract class FileIOUtils extends FileUtils {
 			return ByteStreamUtils.readFullyToString(in, "UTF-8");
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
+		}
+	}
+
+	/**
+	 * deep del dir and files
+	 * @param dirPath dir path
+	 */
+	public static void deleteDir(String dirPath) {
+		File file = new File(dirPath);
+		if (file.isFile()) {
+			file.delete();
+		} else {
+			File[] files = file.listFiles();
+			if (files == null) {
+				file.delete();
+			} else {
+				for (int i = 0; i < files.length; i++) {
+					deleteDir(files[i].getAbsolutePath());
+				}
+				file.delete();
+			}
 		}
 	}
 
