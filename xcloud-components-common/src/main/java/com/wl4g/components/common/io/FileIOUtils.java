@@ -373,27 +373,6 @@ public abstract class FileIOUtils extends FileUtils {
 	}
 
 	/**
-	 * deep del dir and files
-	 * @param dirPath dir path
-	 */
-	public static void deleteDir(String dirPath) {
-		File file = new File(dirPath);
-		if (file.isFile()) {
-			file.delete();
-		} else {
-			File[] files = file.listFiles();
-			if (files == null) {
-				file.delete();
-			} else {
-				for (int i = 0; i < files.length; i++) {
-					deleteDir(files[i].getAbsolutePath());
-				}
-				file.delete();
-			}
-		}
-	}
-
-	/**
 	 * Seek reading processor.
 	 * 
 	 * @author Wangl.sir &lt;Wanglsir@gmail.com, 983708408@qq.com&gt;

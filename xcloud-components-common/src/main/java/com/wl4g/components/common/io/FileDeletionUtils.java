@@ -35,7 +35,7 @@ public abstract class FileDeletionUtils {
 	 *            文件或文件夹的路径
 	 * @return true or false 成功返回true，失败返回false
 	 */
-	public static boolean deleteAnyone(String FileName) {
+	public static boolean deleteAny(String FileName) {
 		File file = new File(FileName);// 根据指定的文件名创建File对象
 		if (!file.exists()) { // 要删除的文件不存在
 			return false;
@@ -76,16 +76,16 @@ public abstract class FileDeletionUtils {
 	 * @return true or false 成功返回true，失败返回false
 	 */
 	public static boolean deleteDir(String dirName) {
-		if (dirName.endsWith(File.separator))// dirName不以分隔符结尾则自动添加分隔符
+		if (dirName.endsWith(File.separator))
 			dirName = dirName + File.separator;
-		File file = new File(dirName);// 根据指定的文件名创建File对象
-		if (!file.exists() || (!file.isDirectory())) { // 目录不存在或者
+		File file = new File(dirName);
+		if (!file.exists() || (!file.isDirectory())) {
 			return false;
 		}
-		File[] files = file.listFiles();// 列出源文件下所有文件，包括子目录
+		File[] files = file.listFiles();
 		if (nonNull(files)) {
-			for (int i = 0; i < files.length; i++) {// 将源文件下的所有文件逐个删除
-				deleteAnyone(files[i].getAbsolutePath());
+			for (int i = 0; i < files.length; i++) {
+				deleteAny(files[i].getAbsolutePath());
 			}
 		}
 		return file.delete();

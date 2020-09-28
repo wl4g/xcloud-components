@@ -48,11 +48,10 @@ public abstract class FileLockUtils {
 	public static <R> R doTryLock(@NotNull File file, @NotNull ProcessFunction<FileLock, R> processor) {
 		notNullOf(file, "file");
 		notNullOf(processor, "processor");
-
-		try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-				FileChannel fileChannel = randomAccessFile.getChannel();
-				FileLock fileLock = fileChannel.tryLock();) {
-			return processor.process(fileLock);
+		try (RandomAccessFile raf = new RandomAccessFile(file, "rw");
+				FileChannel fileChannel = raf.getChannel();
+				FileLock lock = fileChannel.tryLock();) {
+			return processor.process(lock);
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
