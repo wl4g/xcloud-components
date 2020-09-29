@@ -25,6 +25,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.context.expression.MapAccessor;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParserContext;
 import org.springframework.expression.PropertyAccessor;
@@ -104,7 +105,7 @@ public abstract class SpelExpressions {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public <T> T resolve(@NotBlank String expression, @Nullable Object model) {
+	public <T> T resolve(@NotBlank String expression, @Nullable Object model) throws EvaluationException {
 		hasTextOf(expression, "expression");
 
 		// Create expression parser.
@@ -115,6 +116,18 @@ public abstract class SpelExpressions {
 		context.setPropertyAccessors(defaultPropertyAccessors);
 
 		return (T) defaultParser.parseExpression(expression, ParserContext.TEMPLATE_EXPRESSION).getValue(context);
+	}
+
+	/**
+	 * Check if it can be a spel expression.
+	 * 
+	 * @param expectExpr
+	 * @return
+	 */
+	public static final boolean isSpelExpr(@NotBlank String expectExpr) {
+		return expectExpr.startsWith("#{") && expectExpr.startsWith("}")
+				&& expectExpr.indexOf("#{") == expectExpr.lastIndexOf("#{")
+				&& expectExpr.indexOf("}") == expectExpr.lastIndexOf("}");
 	}
 
 	/** {@link ExpressionParser} */
