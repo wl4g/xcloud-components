@@ -15,21 +15,34 @@
  */
 package com.wl4g.components.common.io;
 
+import static java.lang.System.out;
+
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+
 import org.junit.Test;
+
+import com.wl4g.components.common.matching.AntPathMatcher;
 
 /**
  * Make test files or directories: </br>
  * </br>
  * 
  * <pre>
- * mkdir -p /tmp/fileDeletion/dir1 && \
- * mkdir -p /tmp/fileDeletion/dir2 && \
- * mkdir -p /tmp/fileDeletion/dir2/dir21 && \
- * touch /tmp/fileDeletion/file.txt && \
- * touch /tmp/fileDeletion/dir1/file11.txt && \
- * touch /tmp/fileDeletion/dir2/file21.txt && \
- * touch /tmp/fileDeletion/dir2/dir21/file2211.txt && \
- * cd /tmp/fileDeletion/ && tree
+ * export TEST_BASE=/tmp/fileDeletion && \
+ * mkdir -p ${TEST_BASE}/dir1 && \
+ * mkdir -p ${TEST_BASE}/dir2 && \
+ * mkdir -p ${TEST_BASE}/dir2/dir21 && \
+ * touch ${TEST_BASE}/file.txt && \
+ * touch ${TEST_BASE}/dir1/file11.txt && \
+ * touch ${TEST_BASE}/dir2/file21.txt && \
+ * touch ${TEST_BASE}/dir2/dir21/file2211.txt && \
+ * sudo chmod -R 755 ${TEST_BASE} && \
+ * cd ${TEST_BASE}/ && clear && tree
  * </pre>
  * 
  * Show files tree graph:</br>
@@ -53,79 +66,62 @@ import org.junit.Test;
  */
 public class FileDeletionUtilsTests {
 
-	/**
-	 * Deleted files tree graph result:
-	 * 
-	 * <pre>
-	 * .
-	 * ├── dir1
-	 * │   └── file11.txt
-	 * ├── dir2
-	 * │   ├── dir21
-	 * │   │   └── file2211.txt
-	 * └── file.txt
-	 * </pre>
-	 */
+	@Test
+	public void jdkPathMatcherCase() throws Exception {
+		PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:/tmp/fileDeletion/file*.txt");
+		Path rootDir = Paths.get("/tmp/fileDeletion/");
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(rootDir, "*/*.txt")) {
+			for (Path file : stream) {
+				if (matcher.matches(file)) {
+					out.println(file.getFileName());
+				}
+			}
+		}
+	}
+
+	@Test
+	public void antPathPatternCase() {
+		AntPathMatcher matcher = new AntPathMatcher("/");
+		out.println(matcher.match("/tmp/fileDeletion/dir2", "/tmp/fileDeletion/dir2/file21.txt")); // false
+		out.println(matcher.match("/tmp/fileDeletion/dir2/", "/tmp/fileDeletion/dir2/")); // true
+		out.println(matcher.match("/tmp/fileDeletion/dir2/", "/tmp/fileDeletion/dir2")); // false
+		out.println(matcher.match("/tmp/fileDeletion/dir2/", "/tmp/fileDeletion/dir2/file21.txt")); // false
+		out.println(matcher.match("/tmp/fileDeletion/dir2/*", "/tmp/fileDeletion/dir2/file21.txt")); // true
+		out.println(matcher.match("/tmp/fileDeletion/dir2/**", "/tmp/fileDeletion/dir2/file21.txt")); // true
+		out.println(matcher.match("/tmp/fileDeletion/dir2/**", "/tmp/fileDeletion/dir2/dir21/file2211.txt")); // true
+		out.println(matcher.match("/tmp/fileDeletion/dir2*", "/tmp/fileDeletion/dir2/dir21/file2211.txt")); // false
+		out.println(matcher.match("/tmp/fileDeletion/dir2**", "/tmp/fileDeletion/dir2/dir21/file2211.txt")); // false
+	}
+
 	@Test
 	public void deleteWithPatternCase1() {
-		System.out.println("deleteWithPatternCase1...");
-		FileDeletionUtils.delete("/tmp/fileDeletion/dir2", false);
+		out.println("deleteWithPatternCase1...");
+		FileDeletionUtils.delete("/tmp/fileDeletion/dir2", true, false);
 	}
 
-	/**
-	 * Deleted files tree graph result:
-	 * 
-	 * <pre>
-	 * .
-	 * ├── dir1
-	 * │   └── file11.txt
-	 * ├── dir2
-	 * │   ├── dir21
-	 * │   │   └── file2211.txt
-	 * └── file.txt
-	 * </pre>
-	 */
 	@Test
 	public void deleteWithPatternCase2() {
-		System.out.println("deleteWithPatternCase2...");
-		FileDeletionUtils.delete("/tmp/fileDeletion/dir2/", false);
+		out.println("deleteWithPatternCase2...");
+		FileDeletionUtils.delete("/tmp/fileDeletion/dir2/", true, false);
 	}
 
-	/**
-	 * Deleted files tree graph result:
-	 * 
-	 * <pre>
-	 * .
-	 * ├── dir1
-	 * │   └── file11.txt
-	 * ├── dir2
-	 * │   ├── dir21
-	 * │   │   └── file2211.txt
-	 * └── file.txt
-	 * </pre>
-	 */
 	@Test
 	public void deleteWithPatternCase3() {
-		System.out.println("deleteWithPatternCase3...");
-		FileDeletionUtils.delete("/tmp/fileDeletion/dir2/*", false);
+		out.println("deleteWithPatternCase3...");
+		FileDeletionUtils.delete("/tmp/fileDeletion/dir2/*", false, false);
 	}
 
-	/**
-	 * Deleted files tree graph result:
-	 * 
-	 * <pre>
-	 * .
-	 * ├── dir1
-	 * │   └── file11.txt
-	 * ├── dir2
-	 * │   ├── dir21
-	 * └── file.txt
-	 * </pre>
-	 */
 	@Test
 	public void deleteWithPatternCase4() {
-		System.out.println("deleteWithPatternCase4...");
-		FileDeletionUtils.delete("/tmp/fileDeletion/dir2/**", false);
+		out.println("deleteWithPatternCase4...");
+		// FileDeletionUtils.delete("/tmp/fileDeletion/dir2/**", false, false);
+		FileDeletionUtils.delete("/tmp/fileDeletion/dir2/**", true, false);
+	}
+
+	@Test
+	public void deleteWithPatternCase5() {
+		out.println("deleteWithPatternCase5...");
+		FileDeletionUtils.delete("/tmp/fileDeletion/**/file*.txt", true, false);
 	}
 
 }

@@ -15,19 +15,21 @@
  */
 package com.wl4g.components.common.io;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.endsWith;
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.lang.Assert2.state;
 import static java.io.File.separator;
+import static java.nio.file.Files.isSymbolicLink;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
 
 import javax.validation.constraints.NotBlank;
-
-import com.wl4g.components.common.matching.AntPathMatcher;
 
 /**
  * {@link FileDeletionUtils}
@@ -41,39 +43,63 @@ public abstract class FileDeletionUtils {
 	/**
 	 * Delete files according to the file path matching ant pattern.
 	 * 
-	 * @param delPathAntPattern
-	 *            Note: Is the standard ant matching pattern
-	 * @throws IllegalStateException
-	 *             When fast failure is enabled, delete failure throws an
-	 *             exception.
+	 * @param globPathPattern
+	 *            Note: Is the standard unix glob matching pattern.
+	 * @see {@link org.apache.commons.io.FileUtils#deleteDirectory(File)}
+	 * @see {@link org.apache.commons.io.FileUtils#forceDelete(File)}
 	 */
-	public static void delete(@NotBlank String delPathAntPattern) {
-		delete(delPathAntPattern, false);
+	public static void delete(@NotBlank String globPathPattern) {
+		delete(globPathPattern, false, false);
 	}
 
 	/**
 	 * Delete files according to the file path matching ant pattern.
 	 * 
-	 * @param delPathAntPattern
-	 *            Note: Is the standard ant matching pattern
+	 * @param globPathPattern
+	 *            Note: Is the standard unix glob matching pattern
 	 * @param fastfail
 	 * @throws IllegalStateException
 	 *             When fast failure is enabled, delete failure throws an
 	 *             exception.
+	 * @see {@link org.apache.commons.io.FileUtils#deleteDirectory(File)}
+	 * @see {@link org.apache.commons.io.FileUtils#forceDelete(File)}
 	 */
-	public static void delete(@NotBlank String delPathAntPattern, boolean fastfail) {
-		hasTextOf(delPathAntPattern, "delPathAntPattern");
+	public static void delete(@NotBlank String globPathPattern, boolean retainDirectory) {
+		delete(globPathPattern, retainDirectory, false);
+	}
 
-		// Find start directory path.
-		String startPath = delPathAntPattern;
-		int startIndex = delPathAntPattern.indexOf("*");
+	/**
+	 * Delete files according to the file path matching ant pattern.
+	 * 
+	 * @param globPathPattern
+	 *            Note: Is the standard unix glob matching pattern
+	 * @param retainDirectory
+	 * @throws IllegalStateException
+	 *             When fast failure is enabled, delete failure throws an
+	 *             exception.
+	 * @see {@link org.apache.commons.io.FileUtils#deleteDirectory(File)}
+	 * @see {@link org.apache.commons.io.FileUtils#forceDelete(File)}
+	 */
+	public static void delete(@NotBlank String globPathPattern, boolean retainDirectory, boolean fastfail) {
+		hasTextOf(globPathPattern, "globPathPattern");
+
+		// Start directory path.
+		String startPath = globPathPattern;
+		int startIndex = globPathPattern.indexOf("*");
 		if (startIndex > 0) {
-			startPath = delPathAntPattern.substring(0, startIndex);
+			startPath = globPathPattern.substring(0, startIndex);
 		}
+		// Clear the suffix separator. In order to match ant path, it is
+		// compatible with GNU specification.
+		if (!endsWith(startPath, separator)) {
+			// startPath = startPath.substring(0, startPath.length() - 1);
+			startPath += separator;
+		}
+
 		File file = new File(startPath);
-		if (file.exists()) {
+		if (file.exists() && !isSymbolicLink(file.toPath())) {
 			try {
-				doDeleteFileOrDirectories(delPathAntPattern, file, fastfail);
+				doDeleteFileOrDirectories(globPathPattern, file, retainDirectory, fastfail);
 			} catch (IllegalStateException | IOException e) {
 				throw new IllegalStateException(e);
 			}
@@ -83,8 +109,9 @@ public abstract class FileDeletionUtils {
 	/**
 	 * Recursion delete sub files only or sub directories.
 	 * 
-	 * @param delPathAntPattern
+	 * @param globPathPattern
 	 * @param path
+	 * @param retainDirectory
 	 * @param fastfail
 	 * @throws IllegalStateException
 	 *             When fast failure is enabled, the deletion failure will throw
@@ -92,13 +119,13 @@ public abstract class FileDeletionUtils {
 	 *             may result in some files not being deleted.
 	 * @throws IOException
 	 */
-	private static final void doDeleteFileOrDirectories(String delPathAntPattern, File path, boolean fastfail)
-			throws IllegalStateException, IOException {
+	private static final void doDeleteFileOrDirectories(String globPathPattern, File path, boolean retainDirectory,
+			boolean fastfail) throws IllegalStateException, IOException {
 		notNullOf(path, "path");
 
 		if (path.exists()) {
 			if (path.isFile()) {
-				if (matchPathChildren(delPathAntPattern, path)) {
+				if (getGlobPathMatcher(globPathPattern).matches(path.toPath())) {
 					boolean result = path.delete();
 					if (fastfail) {
 						state(result, "Cannot to delete sub file '%s'", path);
@@ -109,10 +136,10 @@ public abstract class FileDeletionUtils {
 				if (nonNull(childrens)) {
 					// Recursion deletion children files.
 					for (File child : childrens) {
-						doDeleteFileOrDirectories(delPathAntPattern, child, fastfail);
+						doDeleteFileOrDirectories(globPathPattern, child, retainDirectory, fastfail);
 					}
 					// Delete this directory.
-					if (matchPathChildren(delPathAntPattern, path)) { // TODO?
+					if (!retainDirectory && getGlobPathMatcher(globPathPattern).matches(path.toPath())) {
 						boolean result = path.delete();
 						if (fastfail) {
 							state(result, "Cannot to delete sub file '%s'", path);
@@ -124,39 +151,25 @@ public abstract class FileDeletionUtils {
 	}
 
 	/**
-	 * Match deleting of children path pattern.
+	 * {@link PathMatcher}
 	 * 
-	 * @param delPathAntPattern
-	 * @param path
+	 * @param globPathPattern
 	 * @return
 	 * @throws IOException
 	 */
-	private static final boolean matchPathChildren(String delPathAntPattern, File path) throws IOException {
-		String cpath = path.getCanonicalPath();
-		return defaultPathMatcher.match(delPathAntPattern, cpath)
-				// When no pattern direct match.
-				|| (!defaultPathMatcher.isPattern(delPathAntPattern) && startsWith(cpath, delPathAntPattern));
+	private static PathMatcher getGlobPathMatcher(String globPathPattern) throws IOException {
+		PathMatcher matcher = matcherCache.get();
+		if (isNull(matcher)) {
+			synchronized (FileDeletionUtils.class) {
+				matcherCache.set(matcher = FileSystems.getDefault().getPathMatcher("glob:".concat(globPathPattern)));
+			}
+		}
+		return matcher;
 	}
 
 	/**
-	 * Match deleting of this path pattern.
-	 * 
-	 * @param delPathAntPattern
-	 * @param path
-	 * @return
+	 * GNU glob {@link PathMatcher} cache.
 	 */
-	// private static final boolean matchPathOfThis(String delPathAntPattern,
-	// File path) {
-	// try {
-	// return defaultPathMatcher.isPattern(delPathAntPattern);
-	// } catch (IOException e) {
-	// throw new IllegalStateException(e);
-	// }
-	// }
-
-	/**
-	 * Default delete path matcher.
-	 */
-	private static final AntPathMatcher defaultPathMatcher = new AntPathMatcher(separator);
+	private static final ThreadLocal<PathMatcher> matcherCache = new ThreadLocal<>();
 
 }
