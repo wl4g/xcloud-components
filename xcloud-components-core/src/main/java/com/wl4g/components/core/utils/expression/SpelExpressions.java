@@ -59,7 +59,7 @@ public abstract class SpelExpressions {
 	 * @param classes
 	 * @return
 	 */
-	public static final SpelExpressions create(Class<?>... classes) {
+	public static SpelExpressions create(Class<?>... classes) {
 		SpelExpressions instance = new SpelExpressions() {
 		};
 		if (!isEmptyArray(classes)) {
@@ -83,7 +83,7 @@ public abstract class SpelExpressions {
 	 * @param packagePrefixs
 	 * @return
 	 */
-	public static final SpelExpressions createWithPackages(String... packagePrefixs) {
+	public static SpelExpressions createWithPackages(String... packagePrefixs) {
 		SpelExpressions instance = new SpelExpressions() {
 		};
 		if (!isEmptyArray(packagePrefixs)) {
@@ -119,15 +119,27 @@ public abstract class SpelExpressions {
 	}
 
 	/**
-	 * Check if it can be a spel expression.
+	 * Check if it can be a spel template expression. refer:
+	 * {@link ParserContext#TEMPLATE_EXPRESSION}
 	 * 
 	 * @param expectExpr
 	 * @return
 	 */
-	public static final boolean isSpelExpr(@NotBlank String expectExpr) {
-		return expectExpr.startsWith("#{") && expectExpr.startsWith("}")
-				&& expectExpr.indexOf("#{") == expectExpr.lastIndexOf("#{")
-				&& expectExpr.indexOf("}") == expectExpr.lastIndexOf("}");
+	public static boolean hasSpelTemplateExpr(@NotBlank String expectExpr) {
+		int startIndex = expectExpr.indexOf("#{");
+		int endIndex = expectExpr.lastIndexOf("}");
+		return startIndex > 0 && startIndex < endIndex;
+	}
+
+	/**
+	 * Wrapper as spel template expression. refer:
+	 * {@link ParserContext#TEMPLATE_EXPRESSION}
+	 * 
+	 * @param maybeExpr
+	 * @return
+	 */
+	public static String wrapExprSpelTemplate(@NotBlank String maybeExpr) {
+		return hasSpelTemplateExpr(maybeExpr) ? maybeExpr : "#{".concat(maybeExpr).concat("}");
 	}
 
 	/** {@link ExpressionParser} */
