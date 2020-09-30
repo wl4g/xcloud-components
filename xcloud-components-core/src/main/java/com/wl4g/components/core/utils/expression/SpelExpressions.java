@@ -15,15 +15,7 @@
  */
 package com.wl4g.components.core.utils.expression;
 
-import static com.wl4g.components.common.collection.Collections2.isEmptyArray;
-import static com.wl4g.components.common.collection.Collections2.safeList;
-import static com.wl4g.components.common.lang.Assert2.hasTextOf;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.constraints.NotBlank;
-
+import com.wl4g.components.common.annotation.Nullable;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.ExpressionParser;
@@ -35,7 +27,13 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.expression.spel.support.StandardTypeLocator;
 import org.springframework.util.ClassUtils;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.wl4g.components.common.collection.Collections2.isEmptyArray;
+import static com.wl4g.components.common.collection.Collections2.safeList;
+import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 
 /**
  * {@link SpelExpressions}
@@ -128,7 +126,7 @@ public abstract class SpelExpressions {
 	public static boolean hasSpelTemplateExpr(@NotBlank String expectExpr) {
 		int startIndex = expectExpr.indexOf("#{");
 		int endIndex = expectExpr.lastIndexOf("}");
-		return startIndex > 0 && startIndex < endIndex;
+		return startIndex >= 0 && startIndex < endIndex;
 	}
 
 	/**
