@@ -99,7 +99,12 @@ public class DefaultEmbeddedWebappsAutoConfiguration extends AbstractHandlerMapp
 				put("gif", "image/gif");
 				put("jpg", "image/jpeg");
 				put("jpeg", "image/jpeg");
+				put("png", "image/png");
 				put("bmp", "image/jpeg");
+				put("svg", "image/svg");
+
+				put("json", "application/json");
+				put("xml", "application/xml");
 
 				put("doc", "application/msword");
 				put("dot", "application/msword");
