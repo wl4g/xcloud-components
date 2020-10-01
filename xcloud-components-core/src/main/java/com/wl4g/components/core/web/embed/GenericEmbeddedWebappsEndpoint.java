@@ -202,7 +202,7 @@ public abstract class GenericEmbeddedWebappsEndpoint extends BaseController {
 	 */
 	protected String getContentType(String filepath) {
 		String ext = getFilenameExtension(filepath.toLowerCase(US));
-		return isBlank(ext) ? TEXT_HTML_VALUE : config.getMimeMapping().getProperty(ext);
+		return isBlank(ext) ? TEXT_HTML_VALUE : config.getMimeMapping().getProperty(ext, TEXT_HTML_VALUE);
 	}
 
 	/**
