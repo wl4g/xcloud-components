@@ -39,6 +39,7 @@ import com.wl4g.components.support.redis.jedis.JedisOperator;
 import com.wl4g.components.support.redis.jedis.JedisOperatorFactory;
 import com.wl4g.components.support.redis.jedis.JedisService;
 
+import static redis.clients.jedis.HostAndPort.parseString;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
@@ -197,10 +198,7 @@ public class JedisAutoConfiguration {
 					if (!matched) {
 						throw new IllegalArgumentException("illegal ip or port");
 					}
-					String[] addrString = node.split(":");
-					HostAndPort hap = new HostAndPort(addrString[0].trim(), Integer.parseInt(addrString[1]));
-					log.debug("Redis node: {}", hap);
-					haps.add(hap);
+					haps.add(parseString(node));
 				}
 				return haps;
 			} catch (Exception e) {

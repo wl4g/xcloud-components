@@ -98,8 +98,8 @@ public class JedisOperatorFactory implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		initJedisOperatorWithCompositing();
-		log.info("Initialized the {} instantiation as: {}", JedisOperator.class.getSimpleName(), jedisOperator);
+		init();
+		log.info("Initialized jedis of: {}", jedisOperator);
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * 
 	 * @throws Exception
 	 */
-	private void initJedisOperatorWithCompositing() throws Exception {
+	private void init() throws Exception {
 		if (nonNull(jedisCluster)) {
 			jedisOperator = new DelegateJedisCluster(jedisCluster);
 			log.info("Use already initialized jedis cluster: {}, finally auto adapt instantiation as: {}", jedisCluster,
@@ -120,7 +120,7 @@ public class JedisOperatorFactory implements InitializingBean {
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
 					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
 					JedisProperties.class.getSimpleName());
-			initJedisOperatorWithConfiguration(config);
+			initForConfiguration(config);
 		}
 	}
 
@@ -130,7 +130,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * @param config
 	 * @throws Exception
 	 */
-	private void initJedisOperatorWithConfiguration(JedisProperties config) throws Exception {
+	private void initForConfiguration(JedisProperties config) throws Exception {
 		// Parse cluster node's
 		Set<HostAndPort> nodes = config.parseHostAndPort();
 		notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
@@ -138,7 +138,7 @@ public class JedisOperatorFactory implements InitializingBean {
 		log.info("Connecting to redis nodes configuration: {}", config.toString());
 
 		try {
-			if (isJedisCluster()) { // cluster?
+			if (isCluster()) { // cluster?
 				jedisOperator = new EnhancedJedisCluster(nodes, config.getConnTimeout(), config.getSoTimeout(),
 						config.getMaxAttempts(), config.getPasswd(), config.getPoolConfig(), config.isSafeMode());
 			} else { // single
@@ -159,7 +159,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 * 
 	 * @return
 	 */
-	private boolean isJedisCluster() {
+	private final boolean isCluster() {
 		return safeList(config.getNodes()).size() > 1;
 	}
 
