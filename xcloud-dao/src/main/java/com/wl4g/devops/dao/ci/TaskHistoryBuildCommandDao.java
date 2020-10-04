@@ -20,15 +20,15 @@ import java.util.List;
 import com.wl4g.components.core.bean.ci.TaskBuildCommand;
 
 public interface TaskHistoryBuildCommandDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(TaskBuildCommand record);
 
 	int insertSelective(TaskBuildCommand record);
 
-	TaskBuildCommand selectByPrimaryKey(Integer id);
+	TaskBuildCommand selectByPrimaryKey(Long id);
 
-	List<TaskBuildCommand> selectByTaskHisId(Integer taskId);
+	List<TaskBuildCommand> selectByTaskHisId(Long taskId);
 
 	int updateByPrimaryKeySelective(TaskBuildCommand record);
 

@@ -6,15 +6,15 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ClusterExtensionDao {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(ClusterExtension record);
 
     int insertSelective(ClusterExtension record);
 
-    ClusterExtension selectByPrimaryKey(Integer id);
+    ClusterExtension selectByPrimaryKey(Long id);
 
-    ClusterExtension selectByClusterId(Integer clusterId);
+    ClusterExtension selectByClusterId(Long clusterId);
 
     ClusterExtension selectByClusterName(String clusterName);
 

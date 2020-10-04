@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.ci.Task;
 import java.util.List;
 
 public interface TaskDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Task record);
 
 	int insertSelective(Task record);
 
-	Task selectByPrimaryKey(Integer id);
+	Task selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Task record);
 
@@ -36,10 +36,10 @@ public interface TaskDao {
 
 	int updateByPrimaryKey(Task record);
 
-	List<Task> list(@Param("id") Integer id, @Param("taskName") String taskName, @Param("groupName") String groupName,
+	List<Task> list(@Param("id") Long id, @Param("taskName") String taskName, @Param("groupName") String groupName,
 			@Param("branchName") String branchName, @Param("providerKind") String providerKind, @Param("startDate") String startDate,
 			@Param("endDate") String endDate,@Param("envType") String envType);
 
-	List<Task> selectByAppClusterId(Integer appClusterId);
+	List<Task> selectByAppClusterId(Long appClusterId);
 
 }

@@ -6,13 +6,13 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface OrchestrationHistoryDao {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(OrchestrationHistory record);
 
     int insertSelective(OrchestrationHistory record);
 
-    OrchestrationHistory selectByPrimaryKey(Integer id);
+    OrchestrationHistory selectByPrimaryKey(Long id);
 
     OrchestrationHistory selectByRunId(String runId);
 

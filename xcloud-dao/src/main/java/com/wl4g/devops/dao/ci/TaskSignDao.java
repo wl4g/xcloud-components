@@ -20,17 +20,17 @@ import org.apache.ibatis.annotations.Param;
 import com.wl4g.components.core.bean.ci.TaskSign;
 
 public interface TaskSignDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(TaskSign record);
 
 	int insertSelective(TaskSign record);
 
-	TaskSign selectByPrimaryKey(Integer id);
+	TaskSign selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(TaskSign record);
 
 	int updateByPrimaryKey(TaskSign record);
 
-	TaskSign selectByDependencyIdAndTaskId(@Param("dependencyId") Integer dependencyId, @Param("taskId") Integer taskId);
+	TaskSign selectByDependencyIdAndTaskId(@Param("dependencyId") Long dependencyId, @Param("taskId") Long taskId);
 }

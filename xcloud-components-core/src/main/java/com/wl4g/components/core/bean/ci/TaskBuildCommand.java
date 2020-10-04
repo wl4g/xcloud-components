@@ -20,6 +20,9 @@ import java.util.List;
 
 import com.wl4g.components.core.bean.BaseBean;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Task pipeline building commands bean.
  * 
@@ -27,77 +30,17 @@ import com.wl4g.components.core.bean.BaseBean;
  * @version v1.0 2019年10月17日
  * @since
  */
+@Getter
+@Setter
 public class TaskBuildCommand extends BaseBean implements Serializable {
-
 	private static final long serialVersionUID = 6841140165240347818L;
 
-	private Integer taskId;
-
-	private Integer projectId;
-
+	private Long taskId;
+	private Long projectId;
 	private Integer sort;
-
 	private String command;
-
 	private String projectName;
-
 	private String branch;
-
 	private List<String> branchs;
 
-	public Integer getTaskId() {
-		return taskId;
-	}
-
-	public void setTaskId(Integer taskId) {
-		this.taskId = taskId;
-	}
-
-	public Integer getProjectId() {
-		return projectId;
-	}
-
-	public void setProjectId(Integer projectId) {
-		this.projectId = projectId;
-	}
-
-	public Integer getSort() {
-		return sort;
-	}
-
-	public void setSort(Integer sort) {
-		this.sort = sort;
-	}
-
-	public String getCommand() {
-		return command;
-	}
-
-	public void setCommand(String command) {
-		this.command = command == null ? null : command.trim();
-	}
-
-	public String getProjectName() {
-		return projectName;
-	}
-
-	public void setProjectName(String projectName) {
-		this.projectName = projectName;
-	}
-
-	public String getBranch() {
-		return branch;
-	}
-
-	public void setBranch(String branch) {
-		this.branch = branch;
-	}
-
-	public List<String> getBranchs() {
-		return branchs;
-	}
-
-	public void setBranchs(List<String> branchs) {
-		this.branchs = branchs;
-	}
 }

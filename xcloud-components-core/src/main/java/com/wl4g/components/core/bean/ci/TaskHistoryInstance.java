@@ -19,47 +19,17 @@ import java.io.Serializable;
 
 import com.wl4g.components.core.bean.BaseBean;
 
-public class TaskHistoryInstance extends BaseBean implements Serializable {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class TaskHistoryInstance extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer taskId;
-
-	private Integer instanceId;
-
+	private Long taskId;
+	private Long instanceId;
 	private Integer status;
-
 	private String instanceName;
 
-	public Integer getTaskId() {
-		return taskId;
-	}
-
-	public void setTaskId(Integer taskId) {
-		this.taskId = taskId;
-	}
-
-	public Integer getInstanceId() {
-		return instanceId;
-	}
-
-	public void setInstanceId(Integer instanceId) {
-		this.instanceId = instanceId;
-	}
-
-	public Integer getStatus() {
-		return status;
-	}
-
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-
-	public String getInstanceName() {
-		return instanceName;
-	}
-
-	public void setInstanceName(String instanceName) {
-		this.instanceName = instanceName;
-	}
 }

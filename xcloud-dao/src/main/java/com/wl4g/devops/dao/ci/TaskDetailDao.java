@@ -22,22 +22,22 @@ import com.wl4g.components.core.bean.ci.TaskInstance;
 import java.util.List;
 
 public interface TaskDetailDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(TaskInstance record);
 
 	int insertSelective(TaskInstance record);
 
-	TaskInstance selectByPrimaryKey(Integer id);
+	TaskInstance selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(TaskInstance record);
 
 	int updateByPrimaryKey(TaskInstance record);
 
-	int deleteByTaskId(Integer taskId);
+	int deleteByTaskId(Long taskId);
 
-	List<TaskInstance> getUsedInstance(@Param("appClusterId") Integer appClusterId, @Param("taskId") Integer taskId);
+	List<TaskInstance> getUsedInstance(@Param("appClusterId") Long appClusterId, @Param("taskId") Long taskId);
 
-	List<TaskInstance> selectByTaskId(Integer taskId);
+	List<TaskInstance> selectByTaskId(Long taskId);
 
 }

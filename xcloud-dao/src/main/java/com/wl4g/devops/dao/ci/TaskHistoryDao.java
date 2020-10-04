@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.ci.TaskHistory;
 import java.util.List;
 
 public interface TaskHistoryDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(TaskHistory record);
 
 	int insertSelective(TaskHistory record);
 
-	TaskHistory selectByPrimaryKey(Integer id);
+	TaskHistory selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(TaskHistory record);
 
@@ -37,7 +37,8 @@ public interface TaskHistoryDao {
 	int updateByPrimaryKey(TaskHistory record);
 
 	List<TaskHistory> list(@Param("groupName") String groupName, @Param("projectName") String projectName,
-			@Param("branchName") String branchName,@Param("startDate") String startDate,@Param("endDate") String endDate,@Param("envType") String envType);
+			@Param("branchName") String branchName, @Param("startDate") String startDate, @Param("endDate") String endDate,
+			@Param("envType") String envType);
 
 	int updateStatus(Long time);
 

@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.ci.AnalysisHistory;
 import java.util.List;
 
 public interface AnalysisHistoryDao {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(AnalysisHistory record);
 
     int insertSelective(AnalysisHistory record);
 
-    AnalysisHistory selectByPrimaryKey(Integer id);
+    AnalysisHistory selectByPrimaryKey(Long id);
 
     int updateByPrimaryKeySelective(AnalysisHistory record);
 
