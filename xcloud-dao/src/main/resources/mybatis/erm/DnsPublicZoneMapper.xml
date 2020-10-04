@@ -9,20 +9,20 @@
   <sql id="Base_Column_List" >
     id, `zone`, dns_kind
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from erm_dns_public_zone
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from erm_dns_public_zone
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.DnsPublicZone" >
     insert into erm_dns_public_zone (id, `zone`, dns_kind
       )
-    values (#{id,jdbcType=INTEGER}, #{zone,jdbcType=VARCHAR}, #{dnsKind,jdbcType=VARCHAR}
+    values (#{id,jdbcType=BIGINT}, #{zone,jdbcType=VARCHAR}, #{dnsKind,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.erm.DnsPublicZone" >
@@ -40,7 +40,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="zone != null" >
         #{zone,jdbcType=VARCHAR},
@@ -60,13 +60,13 @@
         dns_kind = #{dnsKind,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.DnsPublicZone" >
     update erm_dns_public_zone
     set `zone` = #{zone,jdbcType=VARCHAR},
       dns_kind = #{dnsKind,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >

@@ -13,7 +13,7 @@
 	<sql id="Base_Column_List">
 		id, kind, contact_id, primary_address, time_of_freq, num_of_freq, enable
 	</sql>
-	<select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
 		from sys_contact_channel

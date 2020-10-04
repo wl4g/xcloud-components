@@ -14,21 +14,21 @@
     id, name, template_id, gather_time, create_time, alarm_type,alarm_note
   </sql>
 
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from umc_alarm_record
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from umc_alarm_record
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" >
     insert into umc_alarm_record (id, name, template_id,
       gather_time, create_time,
       alarm_type,alarm_note)
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
       #{gatherTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP},
       #{alarmType,jdbcType=VARCHAR},#{alarmNote,jdbcType=VARCHAR})
   </insert>
@@ -59,7 +59,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
@@ -103,7 +103,7 @@
         alarm_type = #{alarmNote,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" >
     update umc_alarm_record
@@ -113,7 +113,7 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       alarm_type = #{alarmType,jdbcType=VARCHAR},
       alarm_note = #{alarmNote,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
 

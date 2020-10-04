@@ -31,11 +31,11 @@
     e.arguments, e.remark, e.create_date, e.create_by, e.update_date, e.update_by, e.del_flag
   </sql>
 
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from umc_custom_engine
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="list" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -49,9 +49,9 @@
     </if>
   </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from umc_custom_engine
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     insert into umc_custom_engine (id, name, datasource_id, 
@@ -60,7 +60,7 @@
       remark, create_date, create_by, 
       update_date, update_by, del_flag
       )
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{datasourceId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{datasourceId,jdbcType=INTEGER}, 
       #{status,jdbcType=INTEGER}, #{notifyGroupIds,jdbcType=VARCHAR}, #{notifyTemplate,jdbcType=VARCHAR}, 
       #{cron,jdbcType=VARCHAR}, #{codeContent,jdbcType=VARCHAR}, #{arguments,jdbcType=VARCHAR}, 
       #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
@@ -118,7 +118,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -210,7 +210,7 @@
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     update umc_custom_engine
@@ -228,6 +228,6 @@
       update_date = #{updateDate,jdbcType=TIMESTAMP},
       update_by = #{updateBy,jdbcType=VARCHAR},
       del_flag = #{delFlag,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

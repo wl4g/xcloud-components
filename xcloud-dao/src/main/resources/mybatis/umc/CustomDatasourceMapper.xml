@@ -33,11 +33,11 @@
     p.id pid, p.data_source_id, p.key, p.value
   </sql>
 
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List_d" />,<include refid="Properties_Column_List" />
     from umc_custom_datasource d left join umc_custom_datasource_properties p on p.data_source_id = d.id
-    where d.id = #{id,jdbcType=INTEGER}
+    where d.id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="list" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -50,16 +50,16 @@
     </if>
   </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from umc_custom_datasource
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomDataSource">
     insert into umc_custom_datasource (id, name, provider, 
       status, create_date, create_by,
       update_date, update_by, del_flag
       )
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{provider,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{provider,jdbcType=VARCHAR}, 
       #{status,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER}
       )
@@ -97,7 +97,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -153,7 +153,7 @@
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomDataSource">
     update umc_custom_datasource
@@ -165,6 +165,6 @@
       update_date = #{updateDate,jdbcType=TIMESTAMP},
       update_by = #{updateBy,jdbcType=VARCHAR},
       del_flag = #{delFlag,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

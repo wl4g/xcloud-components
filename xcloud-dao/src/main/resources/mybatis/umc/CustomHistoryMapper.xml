@@ -22,11 +22,11 @@
     h.id, h.custom_engine_id, h.start_time, h.end_time,h.cost_time, h.state, h.create_by
   </sql>
 
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from umc_custom_history
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="list" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -41,15 +41,15 @@
   </select>
 
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from umc_custom_history
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomHistory">
     insert into umc_custom_history (id, custom_engine_id, start_time, 
       end_time,cost_time, state, create_by
       )
-    values (#{id,jdbcType=INTEGER}, #{customEngineId,jdbcType=INTEGER}, #{startTime,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{customEngineId,jdbcType=INTEGER}, #{startTime,jdbcType=TIMESTAMP}, 
       #{endTime,jdbcType=TIMESTAMP},#{costTime,jdbcType=BIGINT}, #{state,jdbcType=INTEGER}, #{createBy,jdbcType=VARCHAR}
       )
   </insert>
@@ -80,7 +80,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="customEngineId != null">
         #{customEngineId,jdbcType=INTEGER},
@@ -124,7 +124,7 @@
         create_by = #{createBy,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomHistory">
     update umc_custom_history
@@ -134,6 +134,6 @@
       cost_time = #{costTime,jdbcType=BIGINT},
       state = #{state,jdbcType=INTEGER},
       create_by = #{createBy,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

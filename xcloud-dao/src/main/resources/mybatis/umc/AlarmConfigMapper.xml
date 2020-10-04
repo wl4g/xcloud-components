@@ -134,22 +134,22 @@
   </sql>
 
 
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from umc_alarm_config
-    where del_flag!=1 and id = #{id,jdbcType=INTEGER}
+    where del_flag!=1 and id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from umc_alarm_config
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" >
     insert into umc_alarm_config (id, collect_id, template_id, 
       contact_group_id, enable, create_date, 
       create_by, update_date, update_by, 
       del_flag,callback_url)
-    values (#{id,jdbcType=INTEGER}, #{collectId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{collectId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, 
       #{contactGroupId,jdbcType=INTEGER}, #{enable,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
       #{delFlag,jdbcType=INTEGER}, #{callbackUrl,jdbcType=VARCHAR})
@@ -193,7 +193,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="collectId != null" >
         #{collectId,jdbcType=INTEGER},
@@ -261,7 +261,7 @@
         callback_url = #{callbackUrl,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" >
     update umc_alarm_config
@@ -275,7 +275,7 @@
       update_by = #{updateBy,jdbcType=VARCHAR},
       del_flag = #{delFlag,jdbcType=INTEGER},
       callback_url = #{callbackUrl,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
 
@@ -287,7 +287,7 @@
   </select>
 
 
-  <select id="selectByTemplateId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  <select id="selectByTemplateId" resultMap="BaseResultMap" parameterType="java.lang.Long">
     select
     <include refid="Base_Column_List" />
     from umc_alarm_config

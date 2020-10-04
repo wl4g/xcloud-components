@@ -12,20 +12,20 @@
   <sql id="Base_Column_List" >
     id, upstream_group_id,gateway_id, name, order, remark
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from gw_route
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from gw_route
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.gw.GWRoute" >
     insert into gw_route (id, upstream_group_id, gateway_id, name,
       order, remark)
-    values (#{id,jdbcType=INTEGER}, #{upstreamGroupId,jdbcType=INTEGER}, #{gatewayId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+    values (#{id,jdbcType=BIGINT}, #{upstreamGroupId,jdbcType=INTEGER}, #{gatewayId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
       #{order,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.gw.GWRoute" >
@@ -52,7 +52,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="upstreamGroupId != null" >
         #{upstreamGroupId,jdbcType=INTEGER},
@@ -90,7 +90,7 @@
         remark = #{remark,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.gw.GWRoute" >
     update gw_route
@@ -99,6 +99,6 @@
       name = #{name,jdbcType=VARCHAR},
       order = #{order,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

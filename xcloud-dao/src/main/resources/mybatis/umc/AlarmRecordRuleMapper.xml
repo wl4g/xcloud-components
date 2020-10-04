@@ -10,20 +10,20 @@
   <sql id="Base_Column_List" >
     id, record_id, rule_id,compare_value
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from umc_alarm_record_rule
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from umc_alarm_record_rule
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmRecordRule" >
     insert into umc_alarm_record_rule (id, record_id, rule_id,compare_value
       )
-    values (#{id,jdbcType=INTEGER}, #{recordId,jdbcType=INTEGER}, #{ruleId,jdbcType=INTEGER},#{compareValue,jdbcType=DOUBLE}
+    values (#{id,jdbcType=BIGINT}, #{recordId,jdbcType=INTEGER}, #{ruleId,jdbcType=INTEGER},#{compareValue,jdbcType=DOUBLE}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.AlarmRecordRule" useGeneratedKeys="true" keyProperty="id">
@@ -44,7 +44,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="recordId != null" >
         #{recordId,jdbcType=INTEGER},
@@ -70,13 +70,13 @@
         compare_value = #{compareValue,jdbcType=DOUBLE},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRecordRule" >
     update umc_alarm_record_rule
     set record_id = #{recordId,jdbcType=INTEGER},
       rule_id = #{ruleId,jdbcType=INTEGER},
       compare_value = #{compareValue,jdbcType=DOUBLE}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

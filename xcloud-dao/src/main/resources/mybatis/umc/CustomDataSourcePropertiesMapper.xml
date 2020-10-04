@@ -10,24 +10,24 @@
   <sql id="Base_Column_List">
     id, data_source_id, key, value
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from umc_custom_datasource_properties
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from umc_custom_datasource_properties
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByDataSourceId" parameterType="java.lang.Integer">
+  <delete id="deleteByDataSourceId" parameterType="java.lang.Long">
     delete from umc_custom_datasource_properties
     where data_source_id = #{dataSourceId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     insert into umc_custom_datasource_properties (id, data_source_id, key, 
       value)
-    values (#{id,jdbcType=INTEGER}, #{dataSourceId,jdbcType=INTEGER}, #{key,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{dataSourceId,jdbcType=INTEGER}, #{key,jdbcType=VARCHAR}, 
       #{value,jdbcType=VARCHAR})
   </insert>
 
@@ -35,7 +35,7 @@
     insert into umc_custom_datasource_properties (id, data_source_id, `key`,`value`)
     VALUES
     <foreach collection="properties" item="propertie" separator=",">
-      (#{propertie.id,jdbcType=INTEGER}, #{propertie.dataSourceId,jdbcType=INTEGER},
+      (#{propertie.id,jdbcType=BIGINT}, #{propertie.dataSourceId,jdbcType=INTEGER},
       #{propertie.key,jdbcType=VARCHAR}, #{propertie.value,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -59,7 +59,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="dataSourceId != null">
         #{dataSourceId,jdbcType=INTEGER},
@@ -85,13 +85,13 @@
         value = #{value,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     update umc_custom_datasource_properties
     set data_source_id = #{dataSourceId,jdbcType=INTEGER},
       key = #{key,jdbcType=VARCHAR},
       value = #{value,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

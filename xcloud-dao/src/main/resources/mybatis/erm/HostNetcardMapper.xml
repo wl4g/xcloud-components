@@ -27,15 +27,15 @@
     ipv6, hwaddr, netmask, broadcast, getway, create_date, create_by, update_date, update_by, 
     del_flag
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from erm_host_netcard
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from erm_host_netcard
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.HostNetcard">
     insert into erm_host_netcard (id, host_id, name, organization_code,
@@ -45,12 +45,12 @@
       getway, create_date, create_by, 
       update_date, update_by, del_flag
       )
-    values (#{id,jdbcType=INTEGER}, #{hostId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
+    values (#{id,jdbcType=BIGINT}, #{hostId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR}, #{vpnTunnelType,jdbcType=INTEGER}, #{openvpnTunnelId,jdbcType=INTEGER}, 
       #{pptpTunnelId,jdbcType=INTEGER}, #{ipv4,jdbcType=VARCHAR}, #{ipv6,jdbcType=VARCHAR}, 
       #{hwaddr,jdbcType=VARCHAR}, #{netmask,jdbcType=VARCHAR}, #{broadcast,jdbcType=VARCHAR}, 
-      #{getway,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=INTEGER},
-      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER}
+      #{getway,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=BIGINT},
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{delFlag,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.erm.HostNetcard">
@@ -116,7 +116,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="hostId != null">
         #{hostId,jdbcType=INTEGER},
@@ -161,13 +161,13 @@
         #{createDate,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
-        #{createBy,jdbcType=INTEGER},
+        #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateDate != null">
         #{updateDate,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
-        #{updateBy,jdbcType=INTEGER},
+        #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="delFlag != null">
         #{delFlag,jdbcType=INTEGER},
@@ -220,19 +220,19 @@
         create_date = #{createDate,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
-        create_by = #{createBy,jdbcType=INTEGER},
+        create_by = #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateDate != null">
         update_date = #{updateDate,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
-        update_by = #{updateBy,jdbcType=INTEGER},
+        update_by = #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="delFlag != null">
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.HostNetcard">
     update erm_host_netcard
@@ -250,11 +250,11 @@
       broadcast = #{broadcast,jdbcType=VARCHAR},
       getway = #{getway,jdbcType=VARCHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},
-      create_by = #{createBy,jdbcType=INTEGER},
+      create_by = #{createBy,jdbcType=BIGINT},
       update_date = #{updateDate,jdbcType=TIMESTAMP},
-      update_by = #{updateBy,jdbcType=INTEGER},
+      update_by = #{updateBy,jdbcType=BIGINT},
       del_flag = #{delFlag,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >

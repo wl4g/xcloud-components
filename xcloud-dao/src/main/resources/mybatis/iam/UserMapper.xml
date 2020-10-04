@@ -122,9 +122,9 @@
 		#{facebookId,jdbcType=VARCHAR}, #{googleId,jdbcType=VARCHAR}, #{twitterId,jdbcType=VARCHAR},
 		#{linkedinId,jdbcType=VARCHAR}, #{alipayId,jdbcType=VARCHAR}, #{githubId,jdbcType=VARCHAR},
 		#{awsId,jdbcType=VARCHAR},
-		#{remark,jdbcType=VARCHAR}, #{createBy,jdbcType=INTEGER},
+		#{remark,jdbcType=VARCHAR}, #{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP},
-		#{updateBy,jdbcType=INTEGER},
+		#{updateBy,jdbcType=BIGINT},
 		#{updateDate,jdbcType=TIMESTAMP},
 		#{delFlag,jdbcType=INTEGER})
 	</insert>
@@ -264,13 +264,13 @@
 				#{remark,jdbcType=VARCHAR},
 			</if>
 			<if test="createBy != null">
-				#{createBy,jdbcType=INTEGER},
+				#{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				#{createDate,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateBy != null">
-				#{updateBy,jdbcType=INTEGER},
+				#{updateBy,jdbcType=BIGINT},
 			</if>
 			<if test="updateDate != null">
 				#{updateDate,jdbcType=TIMESTAMP},
@@ -338,13 +338,13 @@
 				remark = #{remark,jdbcType=VARCHAR},
 			</if>
 			<if test="createBy != null">
-				create_by = #{createBy,jdbcType=INTEGER},
+				create_by = #{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				create_date = #{createDate,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateBy != null">
-				update_by = #{updateBy,jdbcType=INTEGER},
+				update_by = #{updateBy,jdbcType=BIGINT},
 			</if>
 			<if test="updateDate != null">
 				update_date = #{updateDate,jdbcType=TIMESTAMP},
@@ -382,10 +382,10 @@
 		github_id = #{githubId,jdbcType=VARCHAR},
 		aws_id = #{awsId,jdbcType=VARCHAR},
 		remark = #{remark,jdbcType=VARCHAR},
-		create_by = #{createBy,jdbcType=INTEGER},
+		create_by = #{createBy,jdbcType=BIGINT},
 		create_date =
 		#{createDate,jdbcType=TIMESTAMP},
-		update_by = #{updateBy,jdbcType=INTEGER},
+		update_by = #{updateBy,jdbcType=BIGINT},
 		update_date =
 		#{updateDate,jdbcType=TIMESTAMP},
 		del_flag = #{delFlag,jdbcType=INTEGER}

@@ -36,7 +36,7 @@ public interface AppInstanceDao {
 
 	List<AppInstance> selectByClusterId(Long clusterId);
 
-	int countByClusterId(Long clusterId);
+	Long countByClusterId(Long clusterId);
 
 	List<AppInstance> selectByClusterIdAndEnvType(@Param("clusterId") Long clusterId, @Param("envType") String envType);
 

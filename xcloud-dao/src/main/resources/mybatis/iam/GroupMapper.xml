@@ -91,8 +91,8 @@
 		#{displayName,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER}, #{parentId,jdbcType=BIGINT},
 		#{enable,jdbcType=INTEGER},
-		#{status,jdbcType=INTEGER}, #{areaId,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER},
-		#{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP},
+		#{status,jdbcType=INTEGER}, #{areaId,jdbcType=INTEGER}, #{createBy,jdbcType=BIGINT},
+		#{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP},
 		#{delFlag,jdbcType=INTEGER})
 	</insert>
 
@@ -172,13 +172,13 @@
 				#{areaId,jdbcType=INTEGER},
 			</if>
 			<if test="createBy != null">
-				#{createBy,jdbcType=INTEGER},
+				#{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				#{createDate,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateBy != null">
-				#{updateBy,jdbcType=INTEGER},
+				#{updateBy,jdbcType=BIGINT},
 			</if>
 			<if test="updateDate != null">
 				#{updateDate,jdbcType=TIMESTAMP},
@@ -216,13 +216,13 @@
 				area_id = #{areaId,jdbcType=INTEGER},
 			</if>
 			<if test="createBy != null">
-				create_by = #{createBy,jdbcType=INTEGER},
+				create_by = #{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				create_date = #{createDate,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateBy != null">
-				update_by = #{updateBy,jdbcType=INTEGER},
+				update_by = #{updateBy,jdbcType=BIGINT},
 			</if>
 			<if test="updateDate != null">
 				update_date = #{updateDate,jdbcType=TIMESTAMP},
@@ -248,11 +248,11 @@
 		#{status,jdbcType=INTEGER},
 		area_id =
 		#{areaId,jdbcType=INTEGER},
-		create_by = #{createBy,jdbcType=INTEGER},
+		create_by = #{createBy,jdbcType=BIGINT},
 		create_date =
 		#{createDate,jdbcType=TIMESTAMP},
 		update_by =
-		#{updateBy,jdbcType=INTEGER},
+		#{updateBy,jdbcType=BIGINT},
 		update_date =
 		#{updateDate,jdbcType=TIMESTAMP},
 		del_flag = #{delFlag,jdbcType=INTEGER}

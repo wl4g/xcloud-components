@@ -13,11 +13,11 @@
   <sql id="Base_Column_List" >
     id, zone_type, domain, oper_date, oper_by, description, result
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from erm_dns_operation_log
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >
@@ -36,15 +36,15 @@
     </if>-->
   </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from erm_dns_operation_log
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.DnsOperationLog" >
     insert into erm_dns_operation_log (id, zone_type, domain, 
       oper_date, oper_by, description, 
       result)
-    values (#{id,jdbcType=INTEGER}, #{zoneType,jdbcType=INTEGER}, #{domain,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{zoneType,jdbcType=INTEGER}, #{domain,jdbcType=VARCHAR}, 
       #{operDate,jdbcType=TIMESTAMP}, #{operBy,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
       #{result,jdbcType=VARCHAR})
   </insert>
@@ -75,7 +75,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="zoneType != null" >
         #{zoneType,jdbcType=INTEGER},
@@ -119,7 +119,7 @@
         result = #{result,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.DnsOperationLog" >
     update erm_dns_operation_log
@@ -129,6 +129,6 @@
       oper_by = #{operBy,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       result = #{result,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

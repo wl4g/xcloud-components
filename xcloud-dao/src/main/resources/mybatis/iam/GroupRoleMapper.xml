@@ -54,7 +54,7 @@
 		create_by, create_date)
 		values
 		(#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT},
-		#{createBy,jdbcType=INTEGER},
+		#{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP})
 	</insert>
 
@@ -64,7 +64,7 @@
 		<foreach collection="groupRoles" item="groupRole" separator=",">
 			(#{groupRole.id,jdbcType=BIGINT},
 			#{groupRole.groupId,jdbcType=BIGINT}, #{groupRole.roleId,jdbcType=BIGINT},
-			#{groupRole.createBy,jdbcType=INTEGER},
+			#{groupRole.createBy,jdbcType=BIGINT},
 			#{groupRole.createDate,jdbcType=TIMESTAMP})
 		</foreach>
 	</insert>
@@ -101,7 +101,7 @@
 				#{roleId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
-				#{createBy,jdbcType=INTEGER},
+				#{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				#{createDate,jdbcType=TIMESTAMP},
@@ -118,7 +118,7 @@
 				role_id = #{roleId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
-				create_by = #{createBy,jdbcType=INTEGER},
+				create_by = #{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				create_date = #{createDate,jdbcType=TIMESTAMP},
@@ -131,7 +131,7 @@
 		set group_id = #{groupId,jdbcType=BIGINT},
 		role_id =
 		#{roleId,jdbcType=BIGINT},
-		create_by = #{createBy,jdbcType=INTEGER},
+		create_by = #{createBy,jdbcType=BIGINT},
 		create_date = #{createDate,jdbcType=TIMESTAMP}
 		where id =
 		#{id,jdbcType=BIGINT}

@@ -22,15 +22,15 @@
     id, name, organization_code, area_code, provider, loc_x, loc_y, enable, adress, time_zone, create_date,
     create_by, update_date, update_by, del_flag
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from erm_idc
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from erm_idc
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.Idc">
     insert into erm_idc (id, name, organization_code, area_code,
@@ -38,11 +38,11 @@
       enable, adress, time_zone, 
       create_date, create_by, update_date, 
       update_by, del_flag)
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{areaCode,jdbcType=VARCHAR},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{areaCode,jdbcType=VARCHAR},
       #{provider,jdbcType=VARCHAR}, #{locX,jdbcType=VARCHAR}, #{locY,jdbcType=VARCHAR}, 
       #{enable,jdbcType=INTEGER}, #{adress,jdbcType=VARCHAR}, #{timeZone,jdbcType=VARCHAR}, 
-      #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP},
-      #{updateBy,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
+      #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP},
+      #{updateBy,jdbcType=BIGINT}, #{delFlag,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.erm.Idc">
     insert into erm_idc
@@ -95,7 +95,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -128,13 +128,13 @@
         #{createDate,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
-        #{createBy,jdbcType=INTEGER},
+        #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateDate != null">
         #{updateDate,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
-        #{updateBy,jdbcType=INTEGER},
+        #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="delFlag != null">
         #{delFlag,jdbcType=INTEGER},
@@ -175,19 +175,19 @@
         create_date = #{createDate,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
-        create_by = #{createBy,jdbcType=INTEGER},
+        create_by = #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateDate != null">
         update_date = #{updateDate,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
-        update_by = #{updateBy,jdbcType=INTEGER},
+        update_by = #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="delFlag != null">
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.Idc">
     update erm_idc
@@ -201,11 +201,11 @@
       adress = #{adress,jdbcType=VARCHAR},
       time_zone = #{timeZone,jdbcType=VARCHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},
-      create_by = #{createBy,jdbcType=INTEGER},
+      create_by = #{createBy,jdbcType=BIGINT},
       update_date = #{updateDate,jdbcType=TIMESTAMP},
-      update_by = #{updateBy,jdbcType=INTEGER},
+      update_by = #{updateBy,jdbcType=BIGINT},
       del_flag = #{delFlag,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >

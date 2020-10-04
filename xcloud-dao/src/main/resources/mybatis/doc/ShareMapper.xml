@@ -19,11 +19,11 @@
     id, share_code, doc_code, share_type, passwd, expire_time, expire_type, create_date, 
     create_by, update_date, update_by, del_flag
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from doc_share
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="selectByShareCode" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -41,9 +41,9 @@
     order by create_date desc
   </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from doc_share
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.doc.Share">
     insert into doc_share (id, share_code, doc_code, 
@@ -51,7 +51,7 @@
       expire_type, create_date, create_by, 
       update_date, update_by, del_flag
       )
-    values (#{id,jdbcType=INTEGER}, #{shareCode,jdbcType=VARCHAR}, #{docCode,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{shareCode,jdbcType=VARCHAR}, #{docCode,jdbcType=VARCHAR}, 
       #{shareType,jdbcType=INTEGER}, #{passwd,jdbcType=VARCHAR}, #{expireTime,jdbcType=TIMESTAMP}, 
       #{expireType,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER}
@@ -99,7 +99,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="shareCode != null">
         #{shareCode,jdbcType=VARCHAR},
@@ -173,7 +173,7 @@
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.doc.Share">
     update doc_share
@@ -188,6 +188,6 @@
       update_date = #{updateDate,jdbcType=TIMESTAMP},
       update_by = #{updateBy,jdbcType=VARCHAR},
       del_flag = #{delFlag,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

@@ -22,13 +22,13 @@
     id, host, resolve_type, line_isp, value, ttl, domain_id, priority, status, remark, del_flag,
     create_date, create_by, update_date, update_by
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from erm_dns_private_resolution
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="selectByDomainId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByDomainId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
     <include refid="Base_Column_List" />
     from erm_dns_private_resolution
@@ -40,9 +40,9 @@
     from erm_dns_private_resolution
     where domain_id = #{domainId,jdbcType=INTEGER} and host = #{host,jdbcType=VARCHAR} limit 1
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from erm_dns_private_resolution
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.DnsPrivateResolution" >
     insert into erm_dns_private_resolution (id, host, resolve_type, 
@@ -50,7 +50,7 @@
       priority, status, remark, 
       del_flag, create_date, create_by, 
       update_date, update_by)
-    values (#{id,jdbcType=INTEGER}, #{host,jdbcType=VARCHAR}, #{resolveType,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{host,jdbcType=VARCHAR}, #{resolveType,jdbcType=VARCHAR}, 
       #{lineIsp,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{ttl,jdbcType=INTEGER}, #{domainId,jdbcType=INTEGER},
       #{priority,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{delFlag,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
@@ -107,7 +107,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="host != null" >
         #{host,jdbcType=VARCHAR},
@@ -199,7 +199,7 @@
         update_by = #{updateBy,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.DnsPrivateResolution" >
     update erm_dns_private_resolution
@@ -217,7 +217,7 @@
       create_by = #{createBy,jdbcType=VARCHAR},
       update_date = #{updateDate,jdbcType=TIMESTAMP},
       update_by = #{updateBy,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >

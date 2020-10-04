@@ -17,11 +17,11 @@
   <sql id="Base_Column_List_e">
     e.id, e.custom_engine_id, e.notify_group_ids, e.message, e.create_date
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from umc_custom_alarm_event
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="list" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -35,14 +35,14 @@
     </if>
   </select>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from umc_custom_alarm_event
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     insert into umc_custom_alarm_event (id, custom_engine_id, notify_group_ids, 
       message,create_date)
-    values (#{id,jdbcType=INTEGER}, #{customEngineId,jdbcType=INTEGER}, #{notifyGroupIds,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{customEngineId,jdbcType=INTEGER}, #{notifyGroupIds,jdbcType=VARCHAR}, 
       #{message,jdbcType=VARCHAR},#{createDate,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
@@ -66,7 +66,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="customEngineId != null">
         #{customEngineId,jdbcType=INTEGER},
@@ -98,13 +98,13 @@
         create_date = #{createDate,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     update umc_custom_alarm_event
     set custom_engine_id = #{customEngineId,jdbcType=INTEGER},
       notify_group_ids = #{notifyGroupIds,jdbcType=VARCHAR},
       message = #{message,jdbcType=VARCHAR},create_date = #{createDate,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

@@ -97,8 +97,8 @@
 		#{parentId,jdbcType=BIGINT}, #{parentIds,jdbcType=VARCHAR},
 		#{permission,jdbcType=VARCHAR},
 		#{pageLocation,jdbcType=VARCHAR}, #{routePath,jdbcType=VARCHAR},#{renderTarget,jdbcType=VARCHAR},
-		#{icon,jdbcType=VARCHAR}, #{classify,jdbcType=VARCHAR},#{sort,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER},
-		#{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP},
+		#{icon,jdbcType=VARCHAR}, #{classify,jdbcType=VARCHAR},#{sort,jdbcType=INTEGER}, #{createBy,jdbcType=BIGINT},
+		#{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP},
 		#{delFlag,jdbcType=INTEGER})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.iam.Menu" useGeneratedKeys="true"
@@ -213,13 +213,13 @@
 				#{sort,jdbcType=INTEGER},
 			</if>
 			<if test="createBy != null">
-				#{createBy,jdbcType=INTEGER},
+				#{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				#{createDate,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateBy != null">
-				#{updateBy,jdbcType=INTEGER},
+				#{updateBy,jdbcType=BIGINT},
 			</if>
 			<if test="updateDate != null">
 				#{updateDate,jdbcType=TIMESTAMP},
@@ -275,13 +275,13 @@
 				sort = #{sort,jdbcType=INTEGER},
 			</if>
 			<if test="createBy != null">
-				create_by = #{createBy,jdbcType=INTEGER},
+				create_by = #{createBy,jdbcType=BIGINT},
 			</if>
 			<if test="createDate != null">
 				create_date = #{createDate,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateBy != null">
-				update_by = #{updateBy,jdbcType=INTEGER},
+				update_by = #{updateBy,jdbcType=BIGINT},
 			</if>
 			<if test="updateDate != null">
 				update_date = #{updateDate,jdbcType=TIMESTAMP},
@@ -312,10 +312,10 @@
 		classify = #{classify,jdbcType=VARCHAR},
 		sort =
 		#{sort,jdbcType=INTEGER},
-		create_by = #{createBy,jdbcType=INTEGER},
+		create_by = #{createBy,jdbcType=BIGINT},
 		create_date = #{createDate,jdbcType=TIMESTAMP},
 		update_by =
-		#{updateBy,jdbcType=INTEGER},
+		#{updateBy,jdbcType=BIGINT},
 		update_date = #{updateDate,jdbcType=TIMESTAMP},
 		del_flag = #{delFlag,jdbcType=INTEGER}
 		where id =

@@ -20,11 +20,11 @@
     id, name, organization_code, username, password, ssh_key, ssh_key_pub, auth_type, create_by, create_date,
     update_by, update_date, del_flag
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from erm_ssh
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
   <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
@@ -32,9 +32,9 @@
     from erm_ssh
     where name = #{name,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from erm_ssh
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.Ssh">
     insert into erm_ssh (id, name, organization_code, username,
@@ -42,10 +42,10 @@
       auth_type, create_by, create_date, 
       update_by, update_date, del_flag
       )
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
       #{password,jdbcType=VARCHAR}, #{sshKey,jdbcType=VARCHAR}, #{sshKeyPub,jdbcType=VARCHAR}, 
-      #{authType,jdbcType=VARCHAR}, #{createBy,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
-      #{updateBy,jdbcType=INTEGER}, #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER}
+      #{authType,jdbcType=VARCHAR}, #{createBy,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.erm.Ssh">
@@ -93,7 +93,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -117,13 +117,13 @@
         #{authType,jdbcType=VARCHAR},
       </if>
       <if test="createBy != null">
-        #{createBy,jdbcType=INTEGER},
+        #{createBy,jdbcType=BIGINT},
       </if>
       <if test="createDate != null">
         #{createDate,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
-        #{updateBy,jdbcType=INTEGER},
+        #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="updateDate != null">
         #{updateDate,jdbcType=TIMESTAMP},
@@ -158,13 +158,13 @@
         auth_type = #{authType,jdbcType=VARCHAR},
       </if>
       <if test="createBy != null">
-        create_by = #{createBy,jdbcType=INTEGER},
+        create_by = #{createBy,jdbcType=BIGINT},
       </if>
       <if test="createDate != null">
         create_date = #{createDate,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
-        update_by = #{updateBy,jdbcType=INTEGER},
+        update_by = #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="updateDate != null">
         update_date = #{updateDate,jdbcType=TIMESTAMP},
@@ -173,7 +173,7 @@
         del_flag = #{delFlag,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.Ssh">
     update erm_ssh
@@ -184,12 +184,12 @@
       ssh_key = #{sshKey,jdbcType=VARCHAR},
       ssh_key_pub = #{sshKeyPub,jdbcType=VARCHAR},
       auth_type = #{authType,jdbcType=VARCHAR},
-      create_by = #{createBy,jdbcType=INTEGER},
+      create_by = #{createBy,jdbcType=BIGINT},
       create_date = #{createDate,jdbcType=TIMESTAMP},
-      update_by = #{updateBy,jdbcType=INTEGER},
+      update_by = #{updateBy,jdbcType=BIGINT},
       update_date = #{updateDate,jdbcType=TIMESTAMP},
       del_flag = #{delFlag,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >
