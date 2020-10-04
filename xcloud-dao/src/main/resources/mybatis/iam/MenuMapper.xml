@@ -54,7 +54,7 @@
 		from sys_menu m
 		where m.del_flag!=1 and exists(select 1 from sys_group_menu mg inner join sys_group_user gu on
 		mg.group_id=gu.group_id
-		where m.id=mg.menu_id and gu.user_id=#{userId,jdbcType=INTEGER} )
+		where m.id=mg.menu_id and gu.user_id=#{userId,jdbcType=BIGINT} )
 		order by m.sort
 	</select>
 
@@ -75,7 +75,7 @@
 		where
 		m.del_flag!=1
 		<if test="userId != null">
-			and ru.user_id = #{userId,jdbcType=INTEGER}
+			and ru.user_id = #{userId,jdbcType=BIGINT}
 		</if>
 	</select>
 

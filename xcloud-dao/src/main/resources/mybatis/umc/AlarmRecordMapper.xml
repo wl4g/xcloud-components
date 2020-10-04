@@ -28,7 +28,7 @@
     insert into umc_alarm_record (id, name, template_id,
       gather_time, create_time,
       alarm_type,alarm_note)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{templateId,jdbcType=BIGINT},
       #{gatherTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP},
       #{alarmType,jdbcType=VARCHAR},#{alarmNote,jdbcType=VARCHAR})
   </insert>
@@ -65,7 +65,7 @@
         #{name,jdbcType=VARCHAR},
       </if>
       <if test="templateId != null" >
-        #{templateId,jdbcType=INTEGER},
+        #{templateId,jdbcType=BIGINT},
       </if>
       <if test="gatherTime != null" >
         #{gatherTime,jdbcType=TIMESTAMP},
@@ -88,7 +88,7 @@
         name = #{name,jdbcType=VARCHAR},
       </if>
       <if test="templateId != null" >
-        template_id = #{templateId,jdbcType=INTEGER},
+        template_id = #{templateId,jdbcType=BIGINT},
       </if>
       <if test="gatherTime != null" >
         gather_time = #{gatherTime,jdbcType=TIMESTAMP},
@@ -108,7 +108,7 @@
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRecord" >
     update umc_alarm_record
     set name = #{name,jdbcType=VARCHAR},
-      template_id = #{templateId,jdbcType=INTEGER},
+      template_id = #{templateId,jdbcType=BIGINT},
       gather_time = #{gatherTime,jdbcType=TIMESTAMP},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       alarm_type = #{alarmType,jdbcType=VARCHAR},

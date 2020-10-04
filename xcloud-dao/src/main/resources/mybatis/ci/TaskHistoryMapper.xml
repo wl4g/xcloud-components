@@ -71,13 +71,13 @@
 		ref_id, provider_kind, branch_type, build_command,pre_command,post_command,remark, del_flag,
 		create_date, create_by, update_date,
 		update_by, result,contact_group_id,track_id,track_type,cost_time,env_type,annex,parent_app_home,assets_path)
-		values (#{id,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{projectId,jdbcType=BIGINT},
 		#{status,jdbcType=INTEGER}, #{branchName,jdbcType=VARCHAR}, #{shaGit,jdbcType=VARCHAR},#{shaLocal,jdbcType=VARCHAR},
-		#{refId,jdbcType=INTEGER},#{providerKind,jdbcType=VARCHAR}, #{branchType,jdbcType=VARCHAR},
+		#{refId,jdbcType=BIGINT},#{providerKind,jdbcType=VARCHAR}, #{branchType,jdbcType=VARCHAR},
 		#{buildCommand,jdbcType=VARCHAR},#{preCommand,jdbcType=VARCHAR},
 		#{postCommand,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER},
 		#{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP},
-		#{updateBy,jdbcType=VARCHAR}, #{result,jdbcType=LONGVARCHAR}, #{contactGroupId,jdbcType=INTEGER},
+		#{updateBy,jdbcType=VARCHAR}, #{result,jdbcType=LONGVARCHAR}, #{contactGroupId,jdbcType=BIGINT},
 		#{trackId,jdbcType=VARCHAR},#{trackType,jdbcType=INTEGER},#{costTime,jdbcType=BIGINT},#{envType,jdbcType=VARCHAR},
 		#{annex,jdbcType=VARCHAR},#{parentAppHome,jdbcType=VARCHAR},#{assetsPath,jdbcType=VARCHAR})
 	</insert>
@@ -178,7 +178,7 @@
 				#{type,jdbcType=INTEGER},
 			</if>
 			<if test="projectId != null">
-				#{projectId,jdbcType=INTEGER},
+				#{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="status != null">
 				#{status,jdbcType=INTEGER},
@@ -193,7 +193,7 @@
 				#{shaLocal,jdbcType=VARCHAR},
 			</if>
 			<if test="refId != null">
-				#{refId,jdbcType=INTEGER},
+				#{refId,jdbcType=BIGINT},
 			</if>
 			<if test="providerKind != null">
 				#{providerKind,jdbcType=VARCHAR},
@@ -232,7 +232,7 @@
 				#{result,jdbcType=LONGVARCHAR},
 			</if>
 			<if test="contactGroupId != null">
-				#{contactGroupId,jdbcType=INTEGER},
+				#{contactGroupId,jdbcType=BIGINT},
 			</if>
 			<if test="trackId != null">
 				#{trackId,jdbcType=VARCHAR},
@@ -264,7 +264,7 @@
 				type = #{type,jdbcType=INTEGER},
 			</if>
 			<if test="projectId != null">
-				project_id = #{projectId,jdbcType=INTEGER},
+				project_id = #{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="status != null">
 				status = #{status,jdbcType=INTEGER},
@@ -279,7 +279,7 @@
 				sha_local = #{shaLocal,jdbcType=VARCHAR},
 			</if>
 			<if test="refId != null">
-				ref_id = #{refId,jdbcType=INTEGER},
+				ref_id = #{refId,jdbcType=BIGINT},
 			</if>
 			<if test="providerKind != null">
 				provider_kind = #{providerKind,jdbcType=VARCHAR},
@@ -318,7 +318,7 @@
 				result = #{result,jdbcType=LONGVARCHAR},
 			</if>
 			<if test="contactGroupId != null">
-				contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+				contact_group_id = #{contactGroupId,jdbcType=BIGINT},
 			</if>
 			<if test="trackId != null">
 				track_id = #{trackId,jdbcType=VARCHAR},
@@ -347,12 +347,12 @@
 	<update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wl4g.components.core.bean.ci.TaskHistory">
 		update ci_task_history
 		set type = #{type,jdbcType=INTEGER},
-		project_id = #{projectId,jdbcType=INTEGER},
+		project_id = #{projectId,jdbcType=BIGINT},
 		status = #{status,jdbcType=INTEGER},
 		branch_name = #{branchName,jdbcType=VARCHAR},
 		sha_git = #{shaGit,jdbcType=VARCHAR},
 		sha_local = #{shaLocal,jdbcType=VARCHAR},
-		ref_id = #{refId,jdbcType=INTEGER},
+		ref_id = #{refId,jdbcType=BIGINT},
 		provider_kind = #{providerKind,jdbcType=VARCHAR},
 		branch_type = #{branchType,jdbcType=VARCHAR},
 		build_command = #{buildCommand,jdbcType=VARCHAR},
@@ -365,7 +365,7 @@
 		update_date = #{updateDate,jdbcType=TIMESTAMP},
 		update_by = #{updateBy,jdbcType=VARCHAR},
 		result = #{result,jdbcType=LONGVARCHAR},
-		contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+		contact_group_id = #{contactGroupId,jdbcType=BIGINT},
 		track_id = #{trackId,jdbcType=VARCHAR},
 		track_type = #{trackType,jdbcType=INTEGER},
 		cost_time = #{costTime,jdbcType=INTEGER},
@@ -378,12 +378,12 @@
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.TaskHistory">
 		update ci_task_history
 		set type = #{type,jdbcType=INTEGER},
-		project_id = #{projectId,jdbcType=INTEGER},
+		project_id = #{projectId,jdbcType=BIGINT},
 		status = #{status,jdbcType=INTEGER},
 		branch_name = #{branchName,jdbcType=VARCHAR},
 		sha_git = #{shaGit,jdbcType=VARCHAR},
 		sha_local = #{shaLocal,jdbcType=VARCHAR},
-		ref_id = #{refId,jdbcType=INTEGER},
+		ref_id = #{refId,jdbcType=BIGINT},
 		provider_kind = #{providerKind,jdbcType=VARCHAR},
 		branch_type = #{branchType,jdbcType=VARCHAR},
 		build_command = #{buildCommand,jdbcType=VARCHAR},
@@ -396,7 +396,7 @@
 		update_date = #{updateDate,jdbcType=TIMESTAMP},
 		update_by = #{updateBy,jdbcType=VARCHAR},
 		result = #{result,jdbcType=LONGVARCHAR},
-		contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+		contact_group_id = #{contactGroupId,jdbcType=BIGINT},
 		track_id = #{trackId,jdbcType=VARCHAR},
 		track_type = #{trackType,jdbcType=INTEGER},
 		cost_time = #{costTime,jdbcType=INTEGER},

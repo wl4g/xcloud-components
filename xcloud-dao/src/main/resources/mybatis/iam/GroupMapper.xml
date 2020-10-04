@@ -53,7 +53,7 @@
 		left join sys_group p
 		on
 		g.parent_id=p.id
-		where g.del_flag!=1 and gu.user_id = #{userId,jdbcType=INTEGER}
+		where g.del_flag!=1 and gu.user_id = #{userId,jdbcType=BIGINT}
 	</select>
 
 	<select id="selectByRoleId" resultMap="BaseResultMap" parameterType="java.lang.Long">
@@ -91,7 +91,7 @@
 		#{displayName,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER}, #{parentId,jdbcType=BIGINT},
 		#{enable,jdbcType=INTEGER},
-		#{status,jdbcType=INTEGER}, #{areaId,jdbcType=INTEGER}, #{createBy,jdbcType=BIGINT},
+		#{status,jdbcType=INTEGER}, #{areaId,jdbcType=BIGINT}, #{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP},
 		#{delFlag,jdbcType=INTEGER})
 	</insert>
@@ -169,7 +169,7 @@
 				#{status,jdbcType=INTEGER},
 			</if>
 			<if test="areaId != null">
-				#{areaId,jdbcType=INTEGER},
+				#{areaId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
 				#{createBy,jdbcType=BIGINT},
@@ -213,7 +213,7 @@
 				status = #{status,jdbcType=INTEGER},
 			</if>
 			<if test="areaId != null">
-				area_id = #{areaId,jdbcType=INTEGER},
+				area_id = #{areaId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
 				create_by = #{createBy,jdbcType=BIGINT},
@@ -247,7 +247,7 @@
 		status =
 		#{status,jdbcType=INTEGER},
 		area_id =
-		#{areaId,jdbcType=INTEGER},
+		#{areaId,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
 		create_date =
 		#{createDate,jdbcType=TIMESTAMP},

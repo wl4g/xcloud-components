@@ -23,13 +23,13 @@
 
   <delete id="deleteByUpstreamGroupId" parameterType="java.lang.Long" >
     delete from gw_upstream_group_ref
-    where upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER}
+    where upstream_group_id = #{upstreamGroupId,jdbcType=BIGINT}
   </delete>
 
   <insert id="insert" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     insert into gw_upstream_group_ref (id, upstream_id, upstream_group_id,
       weight)
-    values (#{id,jdbcType=BIGINT}, #{upstreamId,jdbcType=INTEGER}, #{upstreamGroupId,jdbcType=INTEGER},
+    values (#{id,jdbcType=BIGINT}, #{upstreamId,jdbcType=BIGINT}, #{upstreamGroupId,jdbcType=BIGINT},
       #{weight,jdbcType=INTEGER})
   </insert>
 
@@ -37,8 +37,8 @@
     insert into gw_upstream_group_ref (id, upstream_id, upstream_group_id, weight)
     VALUES
     <foreach collection="gwUpstreamGroupRefs" item="gwUpstreamGroupRef" separator=",">
-      (#{gwUpstreamGroupRef.id,jdbcType=BIGINT}, #{gwUpstreamGroupRef.upstreamId,jdbcType=INTEGER},
-      #{gwUpstreamGroupRef.upstreamGroupId,jdbcType=INTEGER},#{gwUpstreamGroupRef.weight,jdbcType=INTEGER})
+      (#{gwUpstreamGroupRef.id,jdbcType=BIGINT}, #{gwUpstreamGroupRef.upstreamId,jdbcType=BIGINT},
+      #{gwUpstreamGroupRef.upstreamGroupId,jdbcType=BIGINT},#{gwUpstreamGroupRef.weight,jdbcType=INTEGER})
     </foreach>
   </insert>
 
@@ -63,10 +63,10 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="upstreamId != null" >
-        #{upstreamId,jdbcType=INTEGER},
+        #{upstreamId,jdbcType=BIGINT},
       </if>
       <if test="upstreamGroupId != null" >
-        #{upstreamGroupId,jdbcType=INTEGER},
+        #{upstreamGroupId,jdbcType=BIGINT},
       </if>
       <if test="weight != null" >
         #{weight,jdbcType=INTEGER},
@@ -77,10 +77,10 @@
     update gw_upstream_group_ref
     <set >
       <if test="upstreamId != null" >
-        upstream_id = #{upstreamId,jdbcType=INTEGER},
+        upstream_id = #{upstreamId,jdbcType=BIGINT},
       </if>
       <if test="upstreamGroupId != null" >
-        upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER},
+        upstream_group_id = #{upstreamGroupId,jdbcType=BIGINT},
       </if>
       <if test="weight != null" >
         weight = #{weight,jdbcType=INTEGER},
@@ -90,8 +90,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.gw.GWUpstreamGroupRef" >
     update gw_upstream_group_ref
-    set upstream_id = #{upstreamId,jdbcType=INTEGER},
-      upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER},
+    set upstream_id = #{upstreamId,jdbcType=BIGINT},
+      upstream_group_id = #{upstreamGroupId,jdbcType=BIGINT},
       weight = #{weight,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -99,7 +99,7 @@
     select
     <include refid="Base_Column_List" />
     from gw_upstream_group_ref
-    where upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER}
+    where upstream_group_id = #{upstreamGroupId,jdbcType=BIGINT}
   </select>
 
 

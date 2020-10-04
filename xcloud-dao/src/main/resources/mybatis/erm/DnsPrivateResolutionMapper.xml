@@ -32,13 +32,13 @@
     select
     <include refid="Base_Column_List" />
     from erm_dns_private_resolution
-    where domain_id = #{domainId,jdbcType=INTEGER}
+    where domain_id = #{domainId,jdbcType=BIGINT}
   </select>
   <select id="selectByDomainIdAndHost" resultMap="BaseResultMap" parameterType="java.util.Map" >
     select
     <include refid="Base_Column_List" />
     from erm_dns_private_resolution
-    where domain_id = #{domainId,jdbcType=INTEGER} and host = #{host,jdbcType=VARCHAR} limit 1
+    where domain_id = #{domainId,jdbcType=BIGINT} and host = #{host,jdbcType=VARCHAR} limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     delete from erm_dns_private_resolution
@@ -51,7 +51,7 @@
       del_flag, create_date, create_by, 
       update_date, update_by)
     values (#{id,jdbcType=BIGINT}, #{host,jdbcType=VARCHAR}, #{resolveType,jdbcType=VARCHAR}, 
-      #{lineIsp,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{ttl,jdbcType=INTEGER}, #{domainId,jdbcType=INTEGER},
+      #{lineIsp,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{ttl,jdbcType=INTEGER}, #{domainId,jdbcType=BIGINT},
       #{priority,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{delFlag,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
@@ -125,7 +125,7 @@
         #{ttl,jdbcType=INTEGER},
       </if>
       <if test="domainId != null" >
-        #{domainId,jdbcType=INTEGER},
+        #{domainId,jdbcType=BIGINT},
       </if>
       <if test="priority != null" >
         #{priority,jdbcType=INTEGER},
@@ -172,7 +172,7 @@
         ttl = #{ttl,jdbcType=INTEGER},
       </if>
       <if test="domainId != null" >
-        domain_id = #{domainId,jdbcType=INTEGER},
+        domain_id = #{domainId,jdbcType=BIGINT},
       </if>
       <if test="priority != null" >
         priority = #{priority,jdbcType=INTEGER},
@@ -208,7 +208,7 @@
       line_isp = #{lineIsp,jdbcType=VARCHAR},
       value = #{value,jdbcType=VARCHAR},
       ttl = #{ttl,jdbcType=INTEGER},
-      domain_id = #{domainId,jdbcType=INTEGER},
+      domain_id = #{domainId,jdbcType=BIGINT},
       priority = #{priority,jdbcType=INTEGER},
       status = #{status,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
@@ -229,7 +229,7 @@
       AND `host` LIKE CONCAT('%','${host}','%')
     </if>
     <if test="domainId != null" >
-      AND domain_id = #{domainId,jdbcType=INTEGER}
+      AND domain_id = #{domainId,jdbcType=BIGINT}
     </if>
     <!--<if test="organizationCodes != null and organizationCodes.size() > 0">
       and organization_code in

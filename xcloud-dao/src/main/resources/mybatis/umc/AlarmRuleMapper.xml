@@ -40,7 +40,7 @@
     insert into umc_alarm_rule (id, template_id, aggregator, 
       relate_operator, logical_operator, queue_time_window, 
       value, alarm_level,del_flag)
-    values (#{id,jdbcType=BIGINT}, #{templateId,jdbcType=INTEGER}, #{aggregator,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{templateId,jdbcType=BIGINT}, #{aggregator,jdbcType=VARCHAR}, 
       #{relateOperator,jdbcType=INTEGER}, #{logicalOperator,jdbcType=INTEGER}, #{queueTimeWindow,jdbcType=BIGINT}, 
       #{value,jdbcType=DOUBLE}, #{alarmLevel,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
   </insert>
@@ -80,7 +80,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="templateId != null" >
-        #{templateId,jdbcType=INTEGER},
+        #{templateId,jdbcType=BIGINT},
       </if>
       <if test="aggregator != null" >
         #{aggregator,jdbcType=VARCHAR},
@@ -109,7 +109,7 @@
     update umc_alarm_rule
     <set >
       <if test="templateId != null" >
-        template_id = #{templateId,jdbcType=INTEGER},
+        template_id = #{templateId,jdbcType=BIGINT},
       </if>
       <if test="aggregator != null" >
         aggregator = #{aggregator,jdbcType=VARCHAR},
@@ -137,7 +137,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRule" >
     update umc_alarm_rule
-    set template_id = #{templateId,jdbcType=INTEGER},
+    set template_id = #{templateId,jdbcType=BIGINT},
       aggregator = #{aggregator,jdbcType=VARCHAR},
       relate_operator = #{relateOperator,jdbcType=INTEGER},
       logical_operator = #{logicalOperator,jdbcType=INTEGER},

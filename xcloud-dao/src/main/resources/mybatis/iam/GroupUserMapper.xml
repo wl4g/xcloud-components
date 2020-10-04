@@ -24,7 +24,7 @@
 		gu.group_id
 		from sys_group_user gu
 		left join sys_group g on g.id = gu.group_id
-		where gu.user_id = #{userId,jdbcType=INTEGER} and g.del_flag!=1
+		where gu.user_id = #{userId,jdbcType=BIGINT} and g.del_flag!=1
 	</select>
 
 
@@ -35,7 +35,7 @@
 
 	<delete id="deleteByUserId" parameterType="java.lang.Long">
 		delete from sys_group_user
-		where user_id = #{userId,jdbcType=INTEGER}
+		where user_id = #{userId,jdbcType=BIGINT}
 	</delete>
 
 
@@ -44,7 +44,7 @@
 		insert into sys_group_user (id, group_id, user_id,
 		create_by, create_date)
 		values
-		(#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER},
+		(#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
 		#{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP})
 	</insert>
@@ -76,7 +76,7 @@
 				#{groupId,jdbcType=BIGINT},
 			</if>
 			<if test="userId != null">
-				#{userId,jdbcType=INTEGER},
+				#{userId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
 				#{createBy,jdbcType=BIGINT},
@@ -93,7 +93,7 @@
 				group_id = #{groupId,jdbcType=BIGINT},
 			</if>
 			<if test="userId != null">
-				user_id = #{userId,jdbcType=INTEGER},
+				user_id = #{userId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
 				create_by = #{createBy,jdbcType=BIGINT},
@@ -108,7 +108,7 @@
 		update sys_group_user
 		set group_id = #{groupId,jdbcType=BIGINT},
 		user_id =
-		#{userId,jdbcType=INTEGER},
+		#{userId,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
 		create_date = #{createDate,jdbcType=TIMESTAMP}
 		where id =

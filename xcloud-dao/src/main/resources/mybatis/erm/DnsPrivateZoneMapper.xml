@@ -41,7 +41,7 @@
       remark, create_by, create_date, 
       update_by, update_date, del_flag
       )
-    values (#{id,jdbcType=BIGINT}, #{zone,jdbcType=VARCHAR}, #{dnsServerId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{zone,jdbcType=VARCHAR}, #{dnsServerId,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{registerDate,jdbcType=TIMESTAMP}, #{dueDate,jdbcType=TIMESTAMP}, 
       #{remark,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
       #{updateBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER}
@@ -95,7 +95,7 @@
         #{zone,jdbcType=VARCHAR},
       </if>
       <if test="dnsServerId != null" >
-        #{dnsServerId,jdbcType=INTEGER},
+        #{dnsServerId,jdbcType=BIGINT},
       </if>
       <if test="status != null" >
         #{status,jdbcType=VARCHAR},
@@ -133,7 +133,7 @@
         zone = #{zone,jdbcType=VARCHAR},
       </if>
       <if test="dnsServerId != null" >
-        dns_server_id = #{dnsServerId,jdbcType=INTEGER},
+        dns_server_id = #{dnsServerId,jdbcType=BIGINT},
       </if>
       <if test="status != null" >
         status = #{status,jdbcType=VARCHAR},
@@ -168,7 +168,7 @@
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.DnsPrivateZone" >
     update erm_dns_private_zone
     set zone = #{zone,jdbcType=VARCHAR},
-      dns_server_id = #{dnsServerId,jdbcType=INTEGER},
+      dns_server_id = #{dnsServerId,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR},
       register_date = #{registerDate,jdbcType=TIMESTAMP},
       due_date = #{dueDate,jdbcType=TIMESTAMP},

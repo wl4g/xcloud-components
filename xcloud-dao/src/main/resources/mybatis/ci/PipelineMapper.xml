@@ -70,7 +70,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_pipeline
-		where cluster_id = #{clusterId,jdbcType=INTEGER}
+		where cluster_id = #{clusterId,jdbcType=BIGINT}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -83,7 +83,7 @@
 		assets_dir, remark, create_date,
 		create_by, update_date, update_by,
 		del_flag)
-		values (#{id,jdbcType=BIGINT}, #{pipeName,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{pipeName,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{clusterId,jdbcType=BIGINT},
 		#{providerKind,jdbcType=VARCHAR}, #{environment,jdbcType=VARCHAR}, #{parentAppHome,jdbcType=VARCHAR},
 		#{assetsDir,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
 		#{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},
@@ -146,7 +146,7 @@
 				#{organizationCode,jdbcType=VARCHAR},
 			</if>
 			<if test="clusterId != null">
-				#{clusterId,jdbcType=INTEGER},
+				#{clusterId,jdbcType=BIGINT},
 			</if>
 			<if test="providerKind != null">
 				#{providerKind,jdbcType=VARCHAR},
@@ -190,7 +190,7 @@
 				organization_code = #{organizationCode,jdbcType=VARCHAR},
 			</if>
 			<if test="clusterId != null">
-				cluster_id = #{clusterId,jdbcType=INTEGER},
+				cluster_id = #{clusterId,jdbcType=BIGINT},
 			</if>
 			<if test="providerKind != null">
 				provider_kind = #{providerKind,jdbcType=VARCHAR},
@@ -229,7 +229,7 @@
 		update ci_pipeline
 		set pipe_name = #{pipeName,jdbcType=VARCHAR},
 		organization_code = #{organizationCode,jdbcType=VARCHAR},
-		cluster_id = #{clusterId,jdbcType=INTEGER},
+		cluster_id = #{clusterId,jdbcType=BIGINT},
 		provider_kind = #{providerKind,jdbcType=VARCHAR},
 		environment = #{environment,jdbcType=VARCHAR},
 		parent_app_home = #{parentAppHome,jdbcType=VARCHAR},

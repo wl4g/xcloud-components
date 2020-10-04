@@ -149,8 +149,8 @@
       contact_group_id, enable, create_date, 
       create_by, update_date, update_by, 
       del_flag,callback_url)
-    values (#{id,jdbcType=BIGINT}, #{collectId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, 
-      #{contactGroupId,jdbcType=INTEGER}, #{enable,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{collectId,jdbcType=BIGINT}, #{templateId,jdbcType=BIGINT}, 
+      #{contactGroupId,jdbcType=BIGINT}, #{enable,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
       #{delFlag,jdbcType=INTEGER}, #{callbackUrl,jdbcType=VARCHAR})
   </insert>
@@ -196,13 +196,13 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="collectId != null" >
-        #{collectId,jdbcType=INTEGER},
+        #{collectId,jdbcType=BIGINT},
       </if>
       <if test="templateId != null" >
-        #{templateId,jdbcType=INTEGER},
+        #{templateId,jdbcType=BIGINT},
       </if>
       <if test="contactGroupId != null" >
-        #{contactGroupId,jdbcType=INTEGER},
+        #{contactGroupId,jdbcType=BIGINT},
       </if>
       <if test="enable != null" >
         #{enable,jdbcType=INTEGER},
@@ -231,13 +231,13 @@
     update umc_alarm_config
     <set >
       <if test="collectId != null" >
-        collect_id = #{collectId,jdbcType=INTEGER},
+        collect_id = #{collectId,jdbcType=BIGINT},
       </if>
       <if test="templateId != null" >
-        template_id = #{templateId,jdbcType=INTEGER},
+        template_id = #{templateId,jdbcType=BIGINT},
       </if>
       <if test="contactGroupId != null" >
-        contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+        contact_group_id = #{contactGroupId,jdbcType=BIGINT},
       </if>
       <if test="enable != null" >
         enable = #{enable,jdbcType=INTEGER},
@@ -265,9 +265,9 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmConfig" >
     update umc_alarm_config
-    set collect_id = #{collectId,jdbcType=INTEGER},
-      template_id = #{templateId,jdbcType=INTEGER},
-      contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+    set collect_id = #{collectId,jdbcType=BIGINT},
+      template_id = #{templateId,jdbcType=BIGINT},
+      contact_group_id = #{contactGroupId,jdbcType=BIGINT},
       enable = #{enable,jdbcType=INTEGER},
       create_date = #{createDate,jdbcType=TIMESTAMP},
       create_by = #{createBy,jdbcType=VARCHAR},
@@ -291,7 +291,7 @@
     select
     <include refid="Base_Column_List" />
     from umc_alarm_config
-    where del_flag!=1 and template_id = #{templateId,jdbcType=INTEGER}
+    where del_flag!=1 and template_id = #{templateId,jdbcType=BIGINT}
   </select>
 
   <select id="getByCollectAddrAndTemplateId" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -299,13 +299,13 @@
     left join umc_alarm_template t on t.id=c.template_id
     left join umc_alarm_config_collect cc on cc.config_id=c.id
     left join erm_app_instance i on i.id=cc.collect_id
-    where c.template_id=#{templateId,jdbcType=INTEGER} and i.endpoint=#{collectAddr,jdbcType=VARCHAR} and c.del_flag!=1 and t.del_flag!=1
+    where c.template_id=#{templateId,jdbcType=BIGINT} and i.endpoint=#{collectAddr,jdbcType=VARCHAR} and c.del_flag!=1 and t.del_flag!=1
 </select>
 
   <select id="getByClusterIdAndTemplateId" resultMap="BaseResultMap" parameterType="java.util.Map">
     select * from umc_alarm_config c
     left join umc_alarm_template t on t.id=c.template_id
-    where c.del_flag!=1 and t.del_flag!=1 and c.template_id=#{templateId,jdbcType=INTEGER} and c.cluster_id=#{appClusterId,jdbcType=INTEGER}
+    where c.del_flag!=1 and t.del_flag!=1 and c.template_id=#{templateId,jdbcType=BIGINT} and c.cluster_id=#{appClusterId,jdbcType=BIGINT}
 </select>
 
 
@@ -317,10 +317,10 @@
     left join sys_contact_group cg on c.contact_group_id=cg.id
     where c.del_flag!=1
     <if test="templateId != null" >
-      and c.template_id=#{templateId,jdbcType=INTEGER}
+      and c.template_id=#{templateId,jdbcType=BIGINT}
     </if>
     <if test="contactGroupId != null" >
-      and c.contact_group_id=#{contactGroupId,jdbcType=INTEGER}
+      and c.contact_group_id=#{contactGroupId,jdbcType=BIGINT}
     </if>
   </select>
 

@@ -45,9 +45,9 @@
       getway, create_date, create_by, 
       update_date, update_by, del_flag
       )
-    values (#{id,jdbcType=BIGINT}, #{hostId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
-      #{status,jdbcType=VARCHAR}, #{vpnTunnelType,jdbcType=INTEGER}, #{openvpnTunnelId,jdbcType=INTEGER}, 
-      #{pptpTunnelId,jdbcType=INTEGER}, #{ipv4,jdbcType=VARCHAR}, #{ipv6,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{hostId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR}, #{vpnTunnelType,jdbcType=INTEGER}, #{openvpnTunnelId,jdbcType=BIGINT}, 
+      #{pptpTunnelId,jdbcType=BIGINT}, #{ipv4,jdbcType=VARCHAR}, #{ipv6,jdbcType=VARCHAR}, 
       #{hwaddr,jdbcType=VARCHAR}, #{netmask,jdbcType=VARCHAR}, #{broadcast,jdbcType=VARCHAR}, 
       #{getway,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=BIGINT},
       #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{delFlag,jdbcType=INTEGER}
@@ -119,7 +119,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="hostId != null">
-        #{hostId,jdbcType=INTEGER},
+        #{hostId,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -134,10 +134,10 @@
         #{vpnTunnelType,jdbcType=INTEGER},
       </if>
       <if test="openvpnTunnelId != null">
-        #{openvpnTunnelId,jdbcType=INTEGER},
+        #{openvpnTunnelId,jdbcType=BIGINT},
       </if>
       <if test="pptpTunnelId != null">
-        #{pptpTunnelId,jdbcType=INTEGER},
+        #{pptpTunnelId,jdbcType=BIGINT},
       </if>
       <if test="ipv4 != null">
         #{ipv4,jdbcType=VARCHAR},
@@ -178,7 +178,7 @@
     update erm_host_netcard
     <set>
       <if test="hostId != null">
-        host_id = #{hostId,jdbcType=INTEGER},
+        host_id = #{hostId,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
@@ -193,10 +193,10 @@
         vpn_tunnel_type = #{vpnTunnelType,jdbcType=INTEGER},
       </if>
       <if test="openvpnTunnelId != null">
-        openvpn_tunnel_id = #{openvpnTunnelId,jdbcType=INTEGER},
+        openvpn_tunnel_id = #{openvpnTunnelId,jdbcType=BIGINT},
       </if>
       <if test="pptpTunnelId != null">
-        pptp_tunnel_id = #{pptpTunnelId,jdbcType=INTEGER},
+        pptp_tunnel_id = #{pptpTunnelId,jdbcType=BIGINT},
       </if>
       <if test="ipv4 != null">
         ipv4 = #{ipv4,jdbcType=VARCHAR},
@@ -236,13 +236,13 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.HostNetcard">
     update erm_host_netcard
-    set host_id = #{hostId,jdbcType=INTEGER},
+    set host_id = #{hostId,jdbcType=BIGINT},
       name = #{name,jdbcType=VARCHAR},
       organization_code = #{organizationCode,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
       vpn_tunnel_type = #{vpnTunnelType,jdbcType=INTEGER},
-      openvpn_tunnel_id = #{openvpnTunnelId,jdbcType=INTEGER},
-      pptp_tunnel_id = #{pptpTunnelId,jdbcType=INTEGER},
+      openvpn_tunnel_id = #{openvpnTunnelId,jdbcType=BIGINT},
+      pptp_tunnel_id = #{pptpTunnelId,jdbcType=BIGINT},
       ipv4 = #{ipv4,jdbcType=VARCHAR},
       ipv6 = #{ipv6,jdbcType=VARCHAR},
       hwaddr = #{hwaddr,jdbcType=VARCHAR},
@@ -266,7 +266,7 @@
       AND `name` LIKE CONCAT('%','${name}','%')
     </if>
     <if test="hostId != null" >
-      AND host_id = #{hostId,jdbcType=INTEGER}
+      AND host_id = #{hostId,jdbcType=BIGINT}
     </if>
     <if test="organizationCodes != null and organizationCodes.size() > 0">
       and organization_code in

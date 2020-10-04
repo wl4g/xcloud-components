@@ -27,14 +27,14 @@
     select
     <include refid="Base_Column_List" />
     from doc_label l inner join doc_file_label fl on fl.label_id = l.id
-    where l.del_flag != 1 and fl.file_id = #{fileId,jdbcType=INTEGER}
+    where l.del_flag != 1 and fl.file_id = #{fileId,jdbcType=BIGINT}
   </select>
 
-  <select id="selectLabelIdsByFileId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+  <select id="selectLabelIdsByFileId" parameterType="java.lang.Long" resultType="java.lang.Long">
     select
     label_id
     from doc_file_label
-    where  file_id = #{fileId,jdbcType=INTEGER}
+    where  file_id = #{fileId,jdbcType=BIGINT}
   </select>
 
   <select id="list" parameterType="java.util.Map" resultMap="BaseResultMap">

@@ -38,7 +38,7 @@
       create_by, update_date, update_by,
       del_flag, organization_code)
     values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{namespace,jdbcType=VARCHAR},
-      #{address,jdbcType=VARCHAR}, #{addressType,jdbcType=VARCHAR}, #{idcId,jdbcType=INTEGER},
+      #{address,jdbcType=VARCHAR}, #{addressType,jdbcType=VARCHAR}, #{idcId,jdbcType=BIGINT},
       #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},
       #{delFlag,jdbcType=INTEGER}, #{organizationCode,jdbcType=VARCHAR})
@@ -106,7 +106,7 @@
         #{addressType,jdbcType=VARCHAR},
       </if>
       <if test="idcId != null" >
-        #{idcId,jdbcType=INTEGER},
+        #{idcId,jdbcType=BIGINT},
       </if>
       <if test="status != null" >
         #{status,jdbcType=VARCHAR},
@@ -150,7 +150,7 @@
         address_type = #{addressType,jdbcType=VARCHAR},
       </if>
       <if test="idcId != null" >
-        idc_id = #{idcId,jdbcType=INTEGER},
+        idc_id = #{idcId,jdbcType=BIGINT},
       </if>
       <if test="status != null" >
         status = #{status,jdbcType=VARCHAR},
@@ -185,7 +185,7 @@
       namespace = #{namespace,jdbcType=VARCHAR},
       address = #{address,jdbcType=VARCHAR},
       address_type = #{addressType,jdbcType=VARCHAR},
-      idc_id = #{idcId,jdbcType=INTEGER},
+      idc_id = #{idcId,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},

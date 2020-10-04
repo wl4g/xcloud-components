@@ -23,7 +23,7 @@
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.AlarmRecordRule" >
     insert into umc_alarm_record_rule (id, record_id, rule_id,compare_value
       )
-    values (#{id,jdbcType=BIGINT}, #{recordId,jdbcType=INTEGER}, #{ruleId,jdbcType=INTEGER},#{compareValue,jdbcType=DOUBLE}
+    values (#{id,jdbcType=BIGINT}, #{recordId,jdbcType=BIGINT}, #{ruleId,jdbcType=BIGINT},#{compareValue,jdbcType=DOUBLE}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.AlarmRecordRule" useGeneratedKeys="true" keyProperty="id">
@@ -47,10 +47,10 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="recordId != null" >
-        #{recordId,jdbcType=INTEGER},
+        #{recordId,jdbcType=BIGINT},
       </if>
       <if test="ruleId != null" >
-        #{ruleId,jdbcType=INTEGER},
+        #{ruleId,jdbcType=BIGINT},
       </if>
       <if test="compareValue != null" >
         #{compareValue,jdbcType=DOUBLE},
@@ -61,10 +61,10 @@
     update umc_alarm_record_rule
     <set >
       <if test="recordId != null" >
-        record_id = #{recordId,jdbcType=INTEGER},
+        record_id = #{recordId,jdbcType=BIGINT},
       </if>
       <if test="ruleId != null" >
-        rule_id = #{ruleId,jdbcType=INTEGER},
+        rule_id = #{ruleId,jdbcType=BIGINT},
       </if>
       <if test="compareValue != null" >
         compare_value = #{compareValue,jdbcType=DOUBLE},
@@ -74,8 +74,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmRecordRule" >
     update umc_alarm_record_rule
-    set record_id = #{recordId,jdbcType=INTEGER},
-      rule_id = #{ruleId,jdbcType=INTEGER},
+    set record_id = #{recordId,jdbcType=BIGINT},
+      rule_id = #{ruleId,jdbcType=BIGINT},
       compare_value = #{compareValue,jdbcType=DOUBLE}
     where id = #{id,jdbcType=BIGINT}
   </update>

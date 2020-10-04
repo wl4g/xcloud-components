@@ -53,7 +53,7 @@
 		,
 		<include refid="PipeStepBuildingProjectsColumn" />
 		from ci_pipe_step_building b left join ci_pipe_step_building_project p on b.id = p.building_id
-		where b.pipe_id = #{pipeId,jdbcType=INTEGER}
+		where b.pipe_id = #{pipeId,jdbcType=BIGINT}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -63,13 +63,13 @@
 
 	<delete id="deleteByPipeId" parameterType="java.lang.Long">
 		delete from ci_pipe_step_building
-		where pipe_id = #{pipeId,jdbcType=INTEGER}
+		where pipe_id = #{pipeId,jdbcType=BIGINT}
 	</delete>
 
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuilding">
 		insert into ci_pipe_step_building (id, pipe_id, pre_command,
 		post_command, ref_type)
-		values (#{id,jdbcType=BIGINT}, #{pipeId,jdbcType=INTEGER}, #{preCommand,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{pipeId,jdbcType=BIGINT}, #{preCommand,jdbcType=VARCHAR},
 		#{postCommand,jdbcType=VARCHAR}, #{refType,jdbcType=INTEGER})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuilding">
@@ -96,7 +96,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="pipeId != null">
-				#{pipeId,jdbcType=INTEGER},
+				#{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="preCommand != null">
 				#{preCommand,jdbcType=VARCHAR},
@@ -113,7 +113,7 @@
 		update ci_pipe_step_building
 		<set>
 			<if test="pipeId != null">
-				pipe_id = #{pipeId,jdbcType=INTEGER},
+				pipe_id = #{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="preCommand != null">
 				pre_command = #{preCommand,jdbcType=VARCHAR},
@@ -129,7 +129,7 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuilding">
 		update ci_pipe_step_building
-		set pipe_id = #{pipeId,jdbcType=INTEGER},
+		set pipe_id = #{pipeId,jdbcType=BIGINT},
 		pre_command = #{preCommand,jdbcType=VARCHAR},
 		post_command = #{postCommand,jdbcType=VARCHAR},
 		ref_type = #{refType,jdbcType=VARCHAR}

@@ -40,7 +40,7 @@
 		insert into sys_group_menu (id, group_id, menu_id,
 		create_by, create_date)
 		values
-		(#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT}, #{menuId,jdbcType=INTEGER},
+		(#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT}, #{menuId,jdbcType=BIGINT},
 		#{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP})
 	</insert>
@@ -50,7 +50,7 @@
 		VALUES
 		<foreach collection="groupMenus" item="groupMenu" separator=",">
 			(#{groupMenu.id,jdbcType=BIGINT},
-			#{groupMenu.groupId,jdbcType=BIGINT}, #{groupMenu.menuId,jdbcType=INTEGER},
+			#{groupMenu.groupId,jdbcType=BIGINT}, #{groupMenu.menuId,jdbcType=BIGINT},
 			#{groupMenu.createBy,jdbcType=BIGINT},
 			#{groupMenu.createDate,jdbcType=TIMESTAMP})
 		</foreach>
@@ -84,7 +84,7 @@
 				#{groupId,jdbcType=BIGINT},
 			</if>
 			<if test="menuId != null">
-				#{menuId,jdbcType=INTEGER},
+				#{menuId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
 				#{createBy,jdbcType=BIGINT},
@@ -101,7 +101,7 @@
 				group_id = #{groupId,jdbcType=BIGINT},
 			</if>
 			<if test="menuId != null">
-				menu_id = #{menuId,jdbcType=INTEGER},
+				menu_id = #{menuId,jdbcType=BIGINT},
 			</if>
 			<if test="createBy != null">
 				create_by = #{createBy,jdbcType=BIGINT},
@@ -116,7 +116,7 @@
 		update sys_group_menu
 		set group_id = #{groupId,jdbcType=BIGINT},
 		menu_id =
-		#{menuId,jdbcType=INTEGER},
+		#{menuId,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
 		create_date = #{createDate,jdbcType=TIMESTAMP}
 		where id =

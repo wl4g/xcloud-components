@@ -42,7 +42,7 @@
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     insert into umc_custom_alarm_event (id, custom_engine_id, notify_group_ids, 
       message,create_date)
-    values (#{id,jdbcType=BIGINT}, #{customEngineId,jdbcType=INTEGER}, #{notifyGroupIds,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{customEngineId,jdbcType=BIGINT}, #{notifyGroupIds,jdbcType=VARCHAR}, 
       #{message,jdbcType=VARCHAR},#{createDate,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
@@ -69,7 +69,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="customEngineId != null">
-        #{customEngineId,jdbcType=INTEGER},
+        #{customEngineId,jdbcType=BIGINT},
       </if>
       <if test="notifyGroupIds != null">
         #{notifyGroupIds,jdbcType=VARCHAR},
@@ -86,7 +86,7 @@
     update umc_custom_alarm_event
     <set>
       <if test="customEngineId != null">
-        custom_engine_id = #{customEngineId,jdbcType=INTEGER},
+        custom_engine_id = #{customEngineId,jdbcType=BIGINT},
       </if>
       <if test="notifyGroupIds != null">
         notify_group_ids = #{notifyGroupIds,jdbcType=VARCHAR},
@@ -102,7 +102,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomAlarmEvent">
     update umc_custom_alarm_event
-    set custom_engine_id = #{customEngineId,jdbcType=INTEGER},
+    set custom_engine_id = #{customEngineId,jdbcType=BIGINT},
       notify_group_ids = #{notifyGroupIds,jdbcType=VARCHAR},
       message = #{message,jdbcType=VARCHAR},create_date = #{createDate,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}

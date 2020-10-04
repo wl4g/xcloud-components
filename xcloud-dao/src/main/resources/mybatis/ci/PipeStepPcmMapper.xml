@@ -28,7 +28,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_pipe_step_pcm
-		where pipe_id = #{pipeId,jdbcType=INTEGER}
+		where pipe_id = #{pipeId,jdbcType=BIGINT}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -38,7 +38,7 @@
 
 	<delete id="deleteByPipeId" parameterType="java.lang.Long">
 		delete from ci_pipe_step_pcm
-		where pipe_id = #{pipeId,jdbcType=INTEGER}
+		where pipe_id = #{pipeId,jdbcType=BIGINT}
 	</delete>
 
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepPcm">
@@ -47,8 +47,8 @@
 		x_status,
 		x_priority,
 		x_custom_fields)
-		values (#{id,jdbcType=BIGINT}, #{enable,jdbcType=INTEGER}, #{pipeId,jdbcType=INTEGER},
-		#{pcmId,jdbcType=INTEGER}, #{xProjectId,jdbcType=VARCHAR}, #{xTracker,jdbcType=VARCHAR},#{xAssignTo,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{enable,jdbcType=INTEGER}, #{pipeId,jdbcType=BIGINT},
+		#{pcmId,jdbcType=BIGINT}, #{xProjectId,jdbcType=VARCHAR}, #{xTracker,jdbcType=VARCHAR},#{xAssignTo,jdbcType=VARCHAR},
 		#{xStatus,jdbcType=VARCHAR},
 		#{xPriority,jdbcType=VARCHAR},
 		#{xCustomFields,jdbcType=VARCHAR})
@@ -95,10 +95,10 @@
 				#{enable,jdbcType=INTEGER},
 			</if>
 			<if test="pipeId != null">
-				#{pipeId,jdbcType=INTEGER},
+				#{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="pcmId != null">
-				#{pcmId,jdbcType=INTEGER},
+				#{pcmId,jdbcType=BIGINT},
 			</if>
 			<if test="xProjectId != null">
 				#{xProjectId,jdbcType=VARCHAR},
@@ -127,10 +127,10 @@
 				enable = #{enable,jdbcType=INTEGER},
 			</if>
 			<if test="pipeId != null">
-				pipe_id = #{pipeId,jdbcType=INTEGER},
+				pipe_id = #{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="pcmId != null">
-				pcm_id = #{pcmId,jdbcType=INTEGER},
+				pcm_id = #{pcmId,jdbcType=BIGINT},
 			</if>
 			<if test="xProjectId != null">
 				x_project_id = #{xProjectId,jdbcType=VARCHAR},
@@ -156,8 +156,8 @@
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepPcm">
 		update ci_pipe_step_pcm
 		set enable = #{enable,jdbcType=INTEGER},
-		pipe_id = #{pipeId,jdbcType=INTEGER},
-		pcm_id = #{pcmId,jdbcType=INTEGER},
+		pipe_id = #{pipeId,jdbcType=BIGINT},
+		pcm_id = #{pcmId,jdbcType=BIGINT},
 		x_project_id = #{xProjectId,jdbcType=VARCHAR},
 		x_tracker = #{xTracker,jdbcType=VARCHAR},
 		x_assign_to = #{xAssignTo,jdbcType=VARCHAR},

@@ -60,7 +60,7 @@
       remark, create_date, create_by, 
       update_date, update_by, del_flag
       )
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{datasourceId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{datasourceId,jdbcType=BIGINT}, 
       #{status,jdbcType=INTEGER}, #{notifyGroupIds,jdbcType=VARCHAR}, #{notifyTemplate,jdbcType=VARCHAR}, 
       #{cron,jdbcType=VARCHAR}, #{codeContent,jdbcType=VARCHAR}, #{arguments,jdbcType=VARCHAR}, 
       #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
@@ -124,7 +124,7 @@
         #{name,jdbcType=VARCHAR},
       </if>
       <if test="datasourceId != null">
-        #{datasourceId,jdbcType=INTEGER},
+        #{datasourceId,jdbcType=BIGINT},
       </if>
       <if test="status != null">
         #{status,jdbcType=INTEGER},
@@ -171,7 +171,7 @@
         name = #{name,jdbcType=VARCHAR},
       </if>
       <if test="datasourceId != null">
-        datasource_id = #{datasourceId,jdbcType=INTEGER},
+        datasource_id = #{datasourceId,jdbcType=BIGINT},
       </if>
       <if test="status != null">
         status = #{status,jdbcType=INTEGER},
@@ -215,7 +215,7 @@
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomEngine">
     update umc_custom_engine
     set name = #{name,jdbcType=VARCHAR},
-      datasource_id = #{datasourceId,jdbcType=INTEGER},
+      datasource_id = #{datasourceId,jdbcType=BIGINT},
       status = #{status,jdbcType=INTEGER},
       notify_group_ids = #{notifyGroupIds,jdbcType=VARCHAR},
       notify_template = #{notifyTemplate,jdbcType=VARCHAR},

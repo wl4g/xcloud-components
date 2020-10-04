@@ -25,7 +25,7 @@
   <insert id="insert" parameterType="com.wl4g.components.core.bean.gw.GWRoute" >
     insert into gw_route (id, upstream_group_id, gateway_id, name,
       order, remark)
-    values (#{id,jdbcType=BIGINT}, #{upstreamGroupId,jdbcType=INTEGER}, #{gatewayId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+    values (#{id,jdbcType=BIGINT}, #{upstreamGroupId,jdbcType=BIGINT}, #{gatewayId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
       #{order,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.wl4g.components.core.bean.gw.GWRoute" >
@@ -55,10 +55,10 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="upstreamGroupId != null" >
-        #{upstreamGroupId,jdbcType=INTEGER},
+        #{upstreamGroupId,jdbcType=BIGINT},
       </if>
       <if test="gatewayId != null" >
-        #{gatewayId,jdbcType=INTEGER},
+        #{gatewayId,jdbcType=BIGINT},
       </if>
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
@@ -75,10 +75,10 @@
     update gw_route
     <set >
       <if test="upstreamGroupId != null" >
-        upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER},
+        upstream_group_id = #{upstreamGroupId,jdbcType=BIGINT},
       </if>
       <if test="gatewayId != null" >
-        gateway_id = #{gatewayId,jdbcType=INTEGER},
+        gateway_id = #{gatewayId,jdbcType=BIGINT},
       </if>
       <if test="name != null" >
         name = #{name,jdbcType=VARCHAR},
@@ -94,8 +94,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.gw.GWRoute" >
     update gw_route
-    set upstream_group_id = #{upstreamGroupId,jdbcType=INTEGER},
-      gateway_id = #{gatewayId,jdbcType=INTEGER},
+    set upstream_group_id = #{upstreamGroupId,jdbcType=BIGINT},
+      gateway_id = #{gatewayId,jdbcType=BIGINT},
       name = #{name,jdbcType=VARCHAR},
       order = #{order,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR}

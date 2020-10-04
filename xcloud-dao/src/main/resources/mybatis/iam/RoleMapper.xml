@@ -51,7 +51,7 @@
 		<include refid="Base_Column_List_r" />
 		from sys_role r
 		left join sys_role_user ru on r.id=ru.role_id
-		where r.del_flag!=1 and ru.user_id = #{userId,jdbcType=INTEGER}
+		where r.del_flag!=1 and ru.user_id = #{userId,jdbcType=BIGINT}
 	</select>
 
 	<select id="selectByGroupId" resultMap="BaseResultMap" parameterType="java.lang.Long">

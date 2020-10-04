@@ -34,7 +34,7 @@
       create_by, update_date, update_by, 
       del_flag)
     values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{hostname,jdbcType=VARCHAR},
-      #{idcId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{idcId,jdbcType=BIGINT}, #{status,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
       #{delFlag,jdbcType=INTEGER})
   </insert>
@@ -89,7 +89,7 @@
         #{hostname,jdbcType=VARCHAR},
       </if>
       <if test="idcId != null" >
-        #{idcId,jdbcType=INTEGER},
+        #{idcId,jdbcType=BIGINT},
       </if>
       <if test="status != null" >
         #{status,jdbcType=INTEGER},
@@ -124,7 +124,7 @@
         hostname = #{hostname,jdbcType=VARCHAR},
       </if>
       <if test="idcId != null" >
-        idc_id = #{idcId,jdbcType=INTEGER},
+        idc_id = #{idcId,jdbcType=BIGINT},
       </if>
       <if test="status != null" >
         status = #{status,jdbcType=INTEGER},
@@ -152,7 +152,7 @@
     set name = #{name,jdbcType=VARCHAR},
       organization_code = #{organizationCode,jdbcType=VARCHAR},
       hostname = #{hostname,jdbcType=VARCHAR},
-      idc_id = #{idcId,jdbcType=INTEGER},
+      idc_id = #{idcId,jdbcType=BIGINT},
       status = #{status,jdbcType=INTEGER},
       create_date = #{createDate,jdbcType=TIMESTAMP},
       create_by = #{createBy,jdbcType=VARCHAR},
@@ -174,7 +174,7 @@
       AND hostname LIKE CONCAT('%','${hostname}','%')
     </if>
     <if test="idcId != null and idcId != ''" >
-      AND idc_id = #{idcId,jdbcType=INTEGER}
+      AND idc_id = #{idcId,jdbcType=BIGINT}
     </if>
     <if test="organizationCodes != null and organizationCodes.size() > 0">
       and organization_code in

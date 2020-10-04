@@ -47,7 +47,7 @@
 		extranet_base_uri, intranet_base_uri, remark,
 		create_by, create_date, update_by,
 		update_date, del_flag)
-		values (#{id,jdbcType=BIGINT}, #{clusterId,jdbcType=INTEGER}, #{displayName,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{clusterId,jdbcType=BIGINT}, #{displayName,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER},
 		#{envType,jdbcType=VARCHAR}, #{viewExtranetBaseUri,jdbcType=VARCHAR},
 		#{extranetBaseUri,jdbcType=VARCHAR},
@@ -108,7 +108,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="clusterId != null">
-				#{clusterId,jdbcType=INTEGER},
+				#{clusterId,jdbcType=BIGINT},
 			</if>
 			<if test="displayName != null">
 				#{displayName,jdbcType=VARCHAR},
@@ -152,7 +152,7 @@
 		update sys_cluster_config
 		<set>
 			<if test="clusterId != null">
-				cluster_id = #{clusterId,jdbcType=INTEGER},
+				cluster_id = #{clusterId,jdbcType=BIGINT},
 			</if>
 			<if test="displayName != null">
 				display_name = #{displayName,jdbcType=VARCHAR},
@@ -195,7 +195,7 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.ClusterConfig">
 		update sys_cluster_config
-		set cluster_id = #{clusterId,jdbcType=INTEGER},
+		set cluster_id = #{clusterId,jdbcType=BIGINT},
 		display_name = #{displayName,jdbcType=VARCHAR},
 		type = #{type,jdbcType=INTEGER},
 		env_type = #{envType,jdbcType=VARCHAR},

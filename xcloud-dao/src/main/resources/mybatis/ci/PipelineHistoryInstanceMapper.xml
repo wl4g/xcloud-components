@@ -29,7 +29,7 @@
 		,i.name instance_name
 		from ci_pipe_history_instance hi
 		left join erm_app_instance i on i.id=hi.instance_id
-		where pipe_history_id = #{pipeHistoryId,jdbcType=INTEGER}
+		where pipe_history_id = #{pipeHistoryId,jdbcType=BIGINT}
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from ci_pipe_history_instance
@@ -39,7 +39,7 @@
 		insert into ci_pipe_history_instance (id, pipe_history_id, instance_id,
 		status, create_date, cost_time
 		)
-		values (#{id,jdbcType=BIGINT}, #{pipeHistoryId,jdbcType=INTEGER}, #{instanceId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{pipeHistoryId,jdbcType=BIGINT}, #{instanceId,jdbcType=BIGINT},
 		#{status,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{costTime,jdbcType=BIGINT}
 		)
 	</insert>
@@ -70,10 +70,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="pipeHistoryId != null">
-				#{pipeHistoryId,jdbcType=INTEGER},
+				#{pipeHistoryId,jdbcType=BIGINT},
 			</if>
 			<if test="instanceId != null">
-				#{instanceId,jdbcType=INTEGER},
+				#{instanceId,jdbcType=BIGINT},
 			</if>
 			<if test="status != null">
 				#{status,jdbcType=INTEGER},
@@ -90,10 +90,10 @@
 		update ci_pipe_history_instance
 		<set>
 			<if test="pipeHistoryId != null">
-				pipe_history_id = #{pipeHistoryId,jdbcType=INTEGER},
+				pipe_history_id = #{pipeHistoryId,jdbcType=BIGINT},
 			</if>
 			<if test="instanceId != null">
-				instance_id = #{instanceId,jdbcType=INTEGER},
+				instance_id = #{instanceId,jdbcType=BIGINT},
 			</if>
 			<if test="status != null">
 				status = #{status,jdbcType=INTEGER},
@@ -109,8 +109,8 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipelineHistoryInstance">
 		update ci_pipe_history_instance
-		set pipe_history_id = #{pipeHistoryId,jdbcType=INTEGER},
-		instance_id = #{instanceId,jdbcType=INTEGER},
+		set pipe_history_id = #{pipeHistoryId,jdbcType=BIGINT},
+		instance_id = #{instanceId,jdbcType=BIGINT},
 		status = #{status,jdbcType=INTEGER},
 		create_date = #{createDate,jdbcType=TIMESTAMP},
 		cost_time = #{costTime,jdbcType=BIGINT}

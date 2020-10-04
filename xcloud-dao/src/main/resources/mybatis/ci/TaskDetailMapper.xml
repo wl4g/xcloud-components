@@ -22,7 +22,7 @@
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.TaskInstance">
 		insert into ci_task_instance (id, task_id, instance_id
 		)
-		values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=INTEGER}, #{instanceId,jdbcType=INTEGER}
+		values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=BIGINT}, #{instanceId,jdbcType=BIGINT}
 		)
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.TaskInstance">
@@ -43,10 +43,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="taskId != null">
-				#{taskId,jdbcType=INTEGER},
+				#{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="instanceId != null">
-				#{instanceId,jdbcType=INTEGER},
+				#{instanceId,jdbcType=BIGINT},
 			</if>
 		</trim>
 	</insert>
@@ -54,38 +54,38 @@
 		update ci_task_instance
 		<set>
 			<if test="taskId != null">
-				task_id = #{taskId,jdbcType=INTEGER},
+				task_id = #{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="instanceId != null">
-				instance_id = #{instanceId,jdbcType=INTEGER},
+				instance_id = #{instanceId,jdbcType=BIGINT},
 			</if>
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.TaskInstance">
 		update ci_task_instance
-		set task_id = #{taskId,jdbcType=INTEGER},
-		instance_id = #{instanceId,jdbcType=INTEGER}
+		set task_id = #{taskId,jdbcType=BIGINT},
+		instance_id = #{instanceId,jdbcType=BIGINT}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
 	<delete id="deleteByTaskId" parameterType="java.lang.Long">
 		delete from ci_task_instance
-		where task_id = #{taskId,jdbcType=INTEGER}
+		where task_id = #{taskId,jdbcType=BIGINT}
 	</delete>
 
 	<select id="getUsedInstance" resultMap="BaseResultMap" parameterType="java.util.Map">
 		select td.* from ci_task t
 		left join ci_task_instance td on t.id=td.task_id
-		where t.app_cluster_id=#{appClusterId,jdbcType=INTEGER}
+		where t.app_cluster_id=#{appClusterId,jdbcType=BIGINT}
 		<if test="taskId != null">
-			and t.id !=#{taskId,jdbcType=INTEGER}
+			and t.id !=#{taskId,jdbcType=BIGINT}
 		</if>
 	</select>
 	<select id="selectByTaskId" resultMap="BaseResultMap" parameterType="java.lang.Long">
 		select
 		<include refid="Base_Column_List" />
 		from ci_task_instance
-		where task_id = #{taskId,jdbcType=INTEGER}
+		where task_id = #{taskId,jdbcType=BIGINT}
 	</select>
 </mapper>

@@ -27,14 +27,14 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_pipe_step_building_project
-		where building_id = #{buildingId,jdbcType=INTEGER}
+		where building_id = #{buildingId,jdbcType=BIGINT}
 	</select>
 
 	<select id="selectByPipeId" parameterType="java.lang.Long" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List_bp" />
 		from ci_pipe_step_building_project bp inner join ci_pipe_step_building b on b.id=bp.building_id
-		where b.pipe_id = #{pipeId,jdbcType=INTEGER}
+		where b.pipe_id = #{pipeId,jdbcType=BIGINT}
 		order by bp.sort asc
 	</select>
 
@@ -45,19 +45,19 @@
 
 	<delete id="deleteByBuildingId" parameterType="java.lang.Long">
 		delete from ci_pipe_step_building_project
-		where building_id = #{buildingId,jdbcType=INTEGER}
+		where building_id = #{buildingId,jdbcType=BIGINT}
 	</delete>
 
 	<delete id="deleteByPipeId" parameterType="java.lang.Long">
 		delete t1 from ci_pipe_step_building_project t1,ci_pipe_step_building t2 where t1.building_id=t2.id and
-		t2.pipe_id=#{pipeId,jdbcType=INTEGER};
+		t2.pipe_id=#{pipeId,jdbcType=BIGINT};
 	</delete>
 
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
 		insert into ci_pipe_step_building_project (id, building_id, project_id,
 		build_command, ref, enable, sort
 		)
-		values (#{id,jdbcType=BIGINT}, #{buildingId,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{buildingId,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT},
 		#{buildCommand,jdbcType=VARCHAR}, #{ref,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, #{sort,jdbcType=INTEGER}
 		)
 	</insert>
@@ -68,8 +68,8 @@
 		)
 		VALUES
 		<foreach collection="pipeStepBuildingProjects" item="pipeStepBuildingProject" separator=",">
-			(#{pipeStepBuildingProject.id,jdbcType=BIGINT}, #{pipeStepBuildingProject.buildingId,jdbcType=INTEGER},
-			#{pipeStepBuildingProject.projectId,jdbcType=INTEGER},
+			(#{pipeStepBuildingProject.id,jdbcType=BIGINT}, #{pipeStepBuildingProject.buildingId,jdbcType=BIGINT},
+			#{pipeStepBuildingProject.projectId,jdbcType=BIGINT},
 			#{pipeStepBuildingProject.buildCommand,jdbcType=VARCHAR},#{pipeStepBuildingProject.ref,jdbcType=VARCHAR},
 			#{pipeStepBuildingProject.enable,jdbcType=INTEGER},#{pipeStepBuildingProject.sort,jdbcType=INTEGER})
 		</foreach>
@@ -105,10 +105,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="buildingId != null">
-				#{buildingId,jdbcType=INTEGER},
+				#{buildingId,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				#{projectId,jdbcType=INTEGER},
+				#{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="buildCommand != null">
 				#{buildCommand,jdbcType=VARCHAR},
@@ -128,10 +128,10 @@
 		update ci_pipe_step_building_project
 		<set>
 			<if test="buildingId != null">
-				building_id = #{buildingId,jdbcType=INTEGER},
+				building_id = #{buildingId,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				project_id = #{projectId,jdbcType=INTEGER},
+				project_id = #{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="buildCommand != null">
 				build_command = #{buildCommand,jdbcType=VARCHAR},
@@ -150,8 +150,8 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepBuildingProject">
 		update ci_pipe_step_building_project
-		set building_id = #{buildingId,jdbcType=INTEGER},
-		project_id = #{projectId,jdbcType=INTEGER},
+		set building_id = #{buildingId,jdbcType=BIGINT},
+		project_id = #{projectId,jdbcType=BIGINT},
 		build_command = #{buildCommand,jdbcType=VARCHAR},
 		ref = #{ref,jdbcType=VARCHAR},
 		enable = #{enable,jdbcType=INTEGER},

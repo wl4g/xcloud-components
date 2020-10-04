@@ -23,13 +23,13 @@
 
   <delete id="deleteByFileId" parameterType="java.lang.Long">
     delete from doc_file_label
-    where file_id = #{fileId,jdbcType=INTEGER}
+    where file_id = #{fileId,jdbcType=BIGINT}
   </delete>
 
   <insert id="insert" parameterType="com.wl4g.components.core.bean.doc.FileLabel">
     insert into doc_file_label (id, label_id, file_id
       )
-    values (#{id,jdbcType=BIGINT}, #{labelId,jdbcType=INTEGER}, #{fileId,jdbcType=INTEGER}
+    values (#{id,jdbcType=BIGINT}, #{labelId,jdbcType=BIGINT}, #{fileId,jdbcType=BIGINT}
       )
   </insert>
 
@@ -37,7 +37,7 @@
     insert into doc_file_label (id, label_id, file_id)
     VALUES
     <foreach collection="fileLabels" item="fileLabel" separator=",">
-      (#{fileLabel.id,jdbcType=BIGINT}, #{fileLabel.labelId,jdbcType=INTEGER}, #{fileLabel.fileId,jdbcType=INTEGER})
+      (#{fileLabel.id,jdbcType=BIGINT}, #{fileLabel.labelId,jdbcType=BIGINT}, #{fileLabel.fileId,jdbcType=BIGINT})
     </foreach>
   </insert>
 
@@ -59,10 +59,10 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="labelId != null">
-        #{labelId,jdbcType=INTEGER},
+        #{labelId,jdbcType=BIGINT},
       </if>
       <if test="fileId != null">
-        #{fileId,jdbcType=INTEGER},
+        #{fileId,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -70,18 +70,18 @@
     update doc_file_label
     <set>
       <if test="labelId != null">
-        label_id = #{labelId,jdbcType=INTEGER},
+        label_id = #{labelId,jdbcType=BIGINT},
       </if>
       <if test="fileId != null">
-        file_id = #{fileId,jdbcType=INTEGER},
+        file_id = #{fileId,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.doc.FileLabel">
     update doc_file_label
-    set label_id = #{labelId,jdbcType=INTEGER},
-      file_id = #{fileId,jdbcType=INTEGER}
+    set label_id = #{labelId,jdbcType=BIGINT},
+      file_id = #{fileId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

@@ -22,12 +22,12 @@
   </delete>
   <delete id="deleteByDataSourceId" parameterType="java.lang.Long">
     delete from umc_custom_datasource_properties
-    where data_source_id = #{dataSourceId,jdbcType=INTEGER}
+    where data_source_id = #{dataSourceId,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     insert into umc_custom_datasource_properties (id, data_source_id, key, 
       value)
-    values (#{id,jdbcType=BIGINT}, #{dataSourceId,jdbcType=INTEGER}, #{key,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{dataSourceId,jdbcType=BIGINT}, #{key,jdbcType=VARCHAR}, 
       #{value,jdbcType=VARCHAR})
   </insert>
 
@@ -35,7 +35,7 @@
     insert into umc_custom_datasource_properties (id, data_source_id, `key`,`value`)
     VALUES
     <foreach collection="properties" item="propertie" separator=",">
-      (#{propertie.id,jdbcType=BIGINT}, #{propertie.dataSourceId,jdbcType=INTEGER},
+      (#{propertie.id,jdbcType=BIGINT}, #{propertie.dataSourceId,jdbcType=BIGINT},
       #{propertie.key,jdbcType=VARCHAR}, #{propertie.value,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -62,7 +62,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="dataSourceId != null">
-        #{dataSourceId,jdbcType=INTEGER},
+        #{dataSourceId,jdbcType=BIGINT},
       </if>
       <if test="key != null">
         #{key,jdbcType=VARCHAR},
@@ -76,7 +76,7 @@
     update umc_custom_datasource_properties
     <set>
       <if test="dataSourceId != null">
-        data_source_id = #{dataSourceId,jdbcType=INTEGER},
+        data_source_id = #{dataSourceId,jdbcType=BIGINT},
       </if>
       <if test="key != null">
         key = #{key,jdbcType=VARCHAR},
@@ -89,7 +89,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.CustomDataSourceProperties">
     update umc_custom_datasource_properties
-    set data_source_id = #{dataSourceId,jdbcType=INTEGER},
+    set data_source_id = #{dataSourceId,jdbcType=BIGINT},
       key = #{key,jdbcType=VARCHAR},
       value = #{value,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}

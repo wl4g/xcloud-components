@@ -69,7 +69,7 @@
     select
     <include refid="Base_Column_List" />
     from erm_app_instance
-    where cluster_id = #{clusterId,jdbcType=INTEGER} and del_flag!=1
+    where cluster_id = #{clusterId,jdbcType=BIGINT} and del_flag!=1
   </select>
 
   <select id="selectByClusterIdAndEnvType" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -77,7 +77,7 @@
     <include refid="Base_Column_List_i" />,h.hostname
     from erm_app_instance i
     left join erm_host h on h.id = i.host_id
-    where i.cluster_id = #{clusterId,jdbcType=INTEGER}
+    where i.cluster_id = #{clusterId,jdbcType=BIGINT}
     and i.env_type = #{envType,jdbcType=VARCHAR}
     and i.del_flag!=1
   </select>
@@ -92,7 +92,7 @@
       AND i.name LIKE CONCAT('%','${name}','%')
     </if>
     <if test="clusterId != null" >
-      and i.cluster_id = #{clusterId,jdbcType=INTEGER}
+      and i.cluster_id = #{clusterId,jdbcType=BIGINT}
     </if>
     <if test="envType != null and envType != ''" >
       and i.env_type = #{envType,jdbcType=VARCHAR}
@@ -122,8 +122,8 @@
       remark,
       create_by, create_date, update_by,
       update_date, del_flag)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},#{organizationCode,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER}, #{versionId,jdbcType=INTEGER},#{serverType,jdbcType=INTEGER},
-      #{hostId,jdbcType=INTEGER},#{k8sId,jdbcType=INTEGER},#{dockerId,jdbcType=INTEGER}, #{cossRefBucket,jdbcType=VARCHAR}, #{envType,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},#{organizationCode,jdbcType=VARCHAR}, #{clusterId,jdbcType=BIGINT}, #{versionId,jdbcType=BIGINT},#{serverType,jdbcType=INTEGER},
+      #{hostId,jdbcType=BIGINT},#{k8sId,jdbcType=BIGINT},#{dockerId,jdbcType=BIGINT}, #{cossRefBucket,jdbcType=VARCHAR}, #{envType,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER},
       #{remark,jdbcType=VARCHAR},
       #{createBy,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT},
       #{updateDate,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=INTEGER})
@@ -194,19 +194,19 @@
         #{organizationCode,jdbcType=VARCHAR},
       </if>
       <if test="clusterId != null" >
-        #{clusterId,jdbcType=INTEGER},
+        #{clusterId,jdbcType=BIGINT},
       </if>
       <if test="versionId != null" >
-        #{versionId,jdbcType=INTEGER},
+        #{versionId,jdbcType=BIGINT},
       </if>
       <if test="hostId != null" >
-        #{hostId,jdbcType=INTEGER},
+        #{hostId,jdbcType=BIGINT},
       </if>
       <if test="k8sId != null" >
-        #{k8sId,jdbcType=INTEGER},
+        #{k8sId,jdbcType=BIGINT},
       </if>
       <if test="dockerId != null" >
-        #{dockerId,jdbcType=INTEGER},
+        #{dockerId,jdbcType=BIGINT},
       </if>
       <if test="cossRefBucket != null" >
         #{cossRefBucket,jdbcType=VARCHAR},
@@ -247,19 +247,19 @@
         organization_code = #{organizationCode,jdbcType=VARCHAR},
       </if>
       <if test="clusterId != null" >
-        cluster_id = #{clusterId,jdbcType=INTEGER},
+        cluster_id = #{clusterId,jdbcType=BIGINT},
       </if>
       <if test="versionId != null" >
-        version_id = #{versionId,jdbcType=INTEGER},
+        version_id = #{versionId,jdbcType=BIGINT},
       </if>
       <if test="hostId != null" >
-        host_id = #{hostId,jdbcType=INTEGER},
+        host_id = #{hostId,jdbcType=BIGINT},
       </if>
       <if test="k8sId != null" >
-        k8s_id = #{k8sId,jdbcType=INTEGER},
+        k8s_id = #{k8sId,jdbcType=BIGINT},
       </if>
       <if test="dockerId != null" >
-        docker_id = #{dockerId,jdbcType=INTEGER},
+        docker_id = #{dockerId,jdbcType=BIGINT},
       </if>
       <if test="cossRefBucket != null" >
         coss_ref_bucket = #{cossRefBucket,jdbcType=VARCHAR},
@@ -295,11 +295,11 @@
     update erm_app_instance
     set name = #{name,jdbcType=VARCHAR},
       organization_code = #{organizationCode,jdbcType=VARCHAR},
-      cluster_id = #{clusterId,jdbcType=INTEGER},
-      version_id = #{versionId,jdbcType=INTEGER},
-      host_id = #{hostId,jdbcType=INTEGER},
-      k8s_id = #{k8sId,jdbcType=INTEGER},
-      docker_id = #{dockerId,jdbcType=INTEGER},
+      cluster_id = #{clusterId,jdbcType=BIGINT},
+      version_id = #{versionId,jdbcType=BIGINT},
+      host_id = #{hostId,jdbcType=BIGINT},
+      k8s_id = #{k8sId,jdbcType=BIGINT},
+      docker_id = #{dockerId,jdbcType=BIGINT},
       coss_ref_bucket = #{cossRefBucket,jdbcType=VARCHAR},
       env_type = #{envType,jdbcType=VARCHAR},
       enable = #{enable,jdbcType=INTEGER},

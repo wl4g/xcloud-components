@@ -72,7 +72,7 @@
 		values (#{id,jdbcType=BIGINT},
 		#{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},#{endpoint,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER},
-		#{enable,jdbcType=INTEGER}, #{sshId,jdbcType=INTEGER}, #{deployType,jdbcType=INTEGER},
+		#{enable,jdbcType=INTEGER}, #{sshId,jdbcType=BIGINT}, #{deployType,jdbcType=INTEGER},
 		#{remark,jdbcType=VARCHAR},
 		#{createBy,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT},
 		#{updateDate,jdbcType=TIMESTAMP},
@@ -146,7 +146,7 @@
 				#{enable,jdbcType=INTEGER},
 			</if>
 			<if test="sshId != null">
-				#{sshId,jdbcType=INTEGER},
+				#{sshId,jdbcType=BIGINT},
 			</if>
 			<if test="deployType != null">
 				#{deployType,jdbcType=INTEGER},
@@ -190,7 +190,7 @@
 				enable = #{enable,jdbcType=INTEGER},
 			</if>
 			<if test="sshId != null">
-				ssh_id = #{sshId,jdbcType=INTEGER},
+				ssh_id = #{sshId,jdbcType=BIGINT},
 			</if>
 			<if test="deployType != null">
 				deploy_type = #{deployType,jdbcType=INTEGER},
@@ -225,7 +225,7 @@
 		type = #{type,jdbcType=INTEGER},
 		enable =
 		#{enable,jdbcType=INTEGER},
-		ssh_id = #{sshId,jdbcType=INTEGER},
+		ssh_id = #{sshId,jdbcType=BIGINT},
 		deploy_type = #{deployType,jdbcType=INTEGER},
 		remark =
 		#{remark,jdbcType=VARCHAR},

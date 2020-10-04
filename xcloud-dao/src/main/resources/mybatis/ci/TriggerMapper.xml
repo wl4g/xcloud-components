@@ -38,8 +38,8 @@
 		sha, remark, enable,
 		del_flag, create_date, create_by,
 		update_date, update_by)
-		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{appClusterId,jdbcType=INTEGER},
-		#{taskId,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{cron,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR}, #{appClusterId,jdbcType=BIGINT},
+		#{taskId,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{cron,jdbcType=VARCHAR},
 		#{sha,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER},
 		#{delFlag,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
 		#{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
@@ -105,10 +105,10 @@
 				#{organizationCode,jdbcType=VARCHAR},
 			</if>
 			<if test="appClusterId != null">
-				#{appClusterId,jdbcType=INTEGER},
+				#{appClusterId,jdbcType=BIGINT},
 			</if>
 			<if test="taskId != null">
-				#{taskId,jdbcType=INTEGER},
+				#{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="type != null">
 				#{type,jdbcType=INTEGER},
@@ -152,10 +152,10 @@
 				organization_code = #{organizationCode,jdbcType=VARCHAR},
 			</if>
 			<if test="appClusterId != null">
-				cluster_id = #{appClusterId,jdbcType=INTEGER},
+				cluster_id = #{appClusterId,jdbcType=BIGINT},
 			</if>
 			<if test="taskId != null">
-				task_id = #{taskId,jdbcType=INTEGER},
+				task_id = #{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="type != null">
 				type = #{type,jdbcType=INTEGER},
@@ -194,8 +194,8 @@
 		update ci_trigger
 		set name = #{name,jdbcType=VARCHAR},
 		organization_code = #{organizationCode,jdbcType=VARCHAR},
-		cluster_id = #{appClusterId,jdbcType=INTEGER},
-		task_id = #{taskId,jdbcType=INTEGER},
+		cluster_id = #{appClusterId,jdbcType=BIGINT},
+		task_id = #{taskId,jdbcType=BIGINT},
 		type = #{type,jdbcType=INTEGER},
 		cron = #{cron,jdbcType=VARCHAR},
 		sha = #{sha,jdbcType=VARCHAR},
@@ -224,7 +224,7 @@
 			AND name LIKE CONCAT('%','${name}','%')
 		</if>
 		<if test="taskId != null">
-			AND task_id=#{taskId,jdbcType=INTEGER}
+			AND task_id=#{taskId,jdbcType=BIGINT}
 		</if>
 		<if test="enable != null">
 			AND enable=#{enable,jdbcType=INTEGER}
@@ -246,7 +246,7 @@
 		tr.*
 		from ci_trigger tr
 		left join ci_task ta on tr.task_id=ta.id
-		where ta.cluster_id=#{appClusterId,jdbcType=INTEGER} and ta.branch_name=#{branchName,jdbcType=VARCHAR} limit 1
+		where ta.cluster_id=#{appClusterId,jdbcType=BIGINT} and ta.branch_name=#{branchName,jdbcType=VARCHAR} limit 1
 	</select>
 
 	<select id="selectByType" resultMap="BaseResultMap" parameterType="java.util.Map">

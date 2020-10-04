@@ -34,7 +34,7 @@
 		primary_address, time_of_freq,
 		num_of_freq,
 		enable)
-		values (#{id,jdbcType=BIGINT}, #{kind,jdbcType=VARCHAR}, #{contactId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{kind,jdbcType=VARCHAR}, #{contactId,jdbcType=BIGINT},
 		#{primaryAddress,jdbcType=VARCHAR}, #{timeOfFreq,jdbcType=INTEGER}, #{numOfFreq,jdbcType=INTEGER},
 		#{enable,jdbcType=INTEGER})
 	</insert>
@@ -71,7 +71,7 @@
 				#{kind,jdbcType=VARCHAR},
 			</if>
 			<if test="contactId != null">
-				#{contactId,jdbcType=INTEGER},
+				#{contactId,jdbcType=BIGINT},
 			</if>
 			<if test="primaryAddress != null">
 				#{primaryAddress,jdbcType=VARCHAR},
@@ -94,7 +94,7 @@
 				kind = #{kind,jdbcType=VARCHAR},
 			</if>
 			<if test="contactId != null">
-				contact_id = #{contactId,jdbcType=INTEGER},
+				contact_id = #{contactId,jdbcType=BIGINT},
 			</if>
 			<if test="primaryAddress != null">
 				primary_address = #{primaryAddress,jdbcType=VARCHAR},
@@ -115,7 +115,7 @@
 		update sys_contact_channel
 		set kind = #{kind,jdbcType=VARCHAR},
 		contact_id =
-		#{contactId,jdbcType=INTEGER},
+		#{contactId,jdbcType=BIGINT},
 		primary_address = #{primaryAddress,jdbcType=VARCHAR},
 		time_of_freq =
 		#{timeOfFreq,jdbcType=INTEGER},

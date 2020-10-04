@@ -26,7 +26,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_orchestration_history
-		where run_id = #{runId,jdbcType=INTEGER}
+		where run_id = #{runId,jdbcType=BIGINT}
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from ci_orchestration_history

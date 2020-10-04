@@ -73,12 +73,12 @@
 		del_flag, create_date, create_by,
 		update_date, update_by, build_command,pre_command,
 		post_command,contact_group_id,env_type,parent_app_home,assets_path)
-		values (#{id,jdbcType=BIGINT}, #{taskName,jdbcType=VARCHAR}, #{appClusterId,jdbcType=INTEGER},
-		#{projectId,jdbcType=INTEGER}, #{branchName,jdbcType=VARCHAR}, #{providerKind,jdbcType=VARCHAR},
-		#{branchType,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, #{pcmId,jdbcType=INTEGER}
+		values (#{id,jdbcType=BIGINT}, #{taskName,jdbcType=VARCHAR}, #{appClusterId,jdbcType=BIGINT},
+		#{projectId,jdbcType=BIGINT}, #{branchName,jdbcType=VARCHAR}, #{providerKind,jdbcType=VARCHAR},
+		#{branchType,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, #{pcmId,jdbcType=BIGINT}
 		#{delFlag,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
 		#{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{buildCommand,jdbcType=LONGVARCHAR},#{preCommand,jdbcType=LONGVARCHAR},
-		#{postCommand,jdbcType=LONGVARCHAR},#{contactGroupId,jdbcType=INTEGER},#{envType,jdbcType=VARCHAR},#{parentAppHome,jdbcType=VARCHAR},#{assetsPath,jdbcType=VARCHAR})
+		#{postCommand,jdbcType=LONGVARCHAR},#{contactGroupId,jdbcType=BIGINT},#{envType,jdbcType=VARCHAR},#{parentAppHome,jdbcType=VARCHAR},#{assetsPath,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.Task" useGeneratedKeys="true"
 		keyProperty="id">
@@ -159,10 +159,10 @@
 				#{taskName,jdbcType=VARCHAR},
 			</if>
 			<if test="appClusterId != null">
-				#{appClusterId,jdbcType=INTEGER},
+				#{appClusterId,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				#{projectId,jdbcType=INTEGER},
+				#{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="branchName != null">
 				#{branchName,jdbcType=VARCHAR},
@@ -180,7 +180,7 @@
 				#{enable,jdbcType=INTEGER},
 			</if>
 			<if test="pcmId != null">
-				#{pcmId,jdbcType=INTEGER},
+				#{pcmId,jdbcType=BIGINT},
 			</if>
 			<if test="delFlag != null">
 				#{delFlag,jdbcType=INTEGER},
@@ -207,7 +207,7 @@
 				#{postCommand,jdbcType=LONGVARCHAR},
 			</if>
 			<if test="contactGroupId != null">
-				#{contactGroupId,jdbcType=INTEGER},
+				#{contactGroupId,jdbcType=BIGINT},
 			</if>
 			<if test="envType != null">
 				#{envType,jdbcType=VARCHAR},
@@ -227,10 +227,10 @@
 				task_name = #{taskName,jdbcType=VARCHAR},
 			</if>
 			<if test="appClusterId != null">
-				app_cluster_id = #{appClusterId,jdbcType=INTEGER},
+				app_cluster_id = #{appClusterId,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				project_id = #{projectId,jdbcType=INTEGER},
+				project_id = #{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="branchName != null">
 				branch_name = #{branchName,jdbcType=VARCHAR},
@@ -248,7 +248,7 @@
 				enable = #{enable,jdbcType=INTEGER},
 			</if>
 			<if test="pcmId != null">
-				pcm_id = #{pcmId,jdbcType=INTEGER},
+				pcm_id = #{pcmId,jdbcType=BIGINT},
 			</if>
 			<if test="delFlag != null">
 				del_flag = #{delFlag,jdbcType=INTEGER},
@@ -275,7 +275,7 @@
 				post_command = #{postCommand,jdbcType=LONGVARCHAR},
 			</if>
 			<if test="contactGroupId != null">
-				contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+				contact_group_id = #{contactGroupId,jdbcType=BIGINT},
 			</if>
 			<if test="envType != null">
 				env_type = #{envType,jdbcType=VARCHAR},
@@ -292,14 +292,14 @@
 	<update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wl4g.components.core.bean.ci.Task">
 		update ci_task
 		set task_name = #{taskName,jdbcType=VARCHAR},
-		app_cluster_id = #{appClusterId,jdbcType=INTEGER},
-		project_id = #{projectId,jdbcType=INTEGER},
+		app_cluster_id = #{appClusterId,jdbcType=BIGINT},
+		project_id = #{projectId,jdbcType=BIGINT},
 		branch_name = #{branchName,jdbcType=VARCHAR},
 		provider_kind = #{providerKind,jdbcType=VARCHAR},
 		branch_type = #{branchType,jdbcType=VARCHAR},
 		remark = #{remark,jdbcType=VARCHAR},
 		enable = #{enable,jdbcType=INTEGER},
-		pcm_id = #{pcmId,jdbcType=INTEGER},
+		pcm_id = #{pcmId,jdbcType=BIGINT},
 		del_flag = #{delFlag,jdbcType=INTEGER},
 		create_date = #{createDate,jdbcType=TIMESTAMP},
 		create_by = #{createBy,jdbcType=VARCHAR},
@@ -308,7 +308,7 @@
 		build_command = #{buildCommand,jdbcType=LONGVARCHAR},
 		pre_command = #{preCommand,jdbcType=LONGVARCHAR},
 		post_command = #{postCommand,jdbcType=LONGVARCHAR},
-		contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+		contact_group_id = #{contactGroupId,jdbcType=BIGINT},
 		env_type = #{envType,jdbcType=VARCHAR},
 		parent_app_home = #{parentAppHome,jdbcType=VARCHAR},
 		assets_path = #{assetsPath,jdbcType=VARCHAR},
@@ -317,20 +317,20 @@
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.Task">
 		update ci_task
 		set task_name = #{taskName,jdbcType=VARCHAR},
-		app_cluster_id = #{appClusterId,jdbcType=INTEGER},
-		project_id = #{projectId,jdbcType=INTEGER},
+		app_cluster_id = #{appClusterId,jdbcType=BIGINT},
+		project_id = #{projectId,jdbcType=BIGINT},
 		branch_name = #{branchName,jdbcType=VARCHAR},
 		provider_kind = #{providerKind,jdbcType=VARCHAR},
 		branch_type = #{branchType,jdbcType=VARCHAR},
 		remark = #{remark,jdbcType=VARCHAR},
 		enable = #{enable,jdbcType=INTEGER},
-		pcm_id = #{pcmId,jdbcType=INTEGER},
+		pcm_id = #{pcmId,jdbcType=BIGINT},
 		del_flag = #{delFlag,jdbcType=INTEGER},
 		create_date = #{createDate,jdbcType=TIMESTAMP},
 		create_by = #{createBy,jdbcType=VARCHAR},
 		update_date = #{updateDate,jdbcType=TIMESTAMP},
 		update_by = #{updateBy,jdbcType=VARCHAR},
-		contact_group_id = #{contactGroupId,jdbcType=INTEGER},
+		contact_group_id = #{contactGroupId,jdbcType=BIGINT},
 		env_type = #{envType,jdbcType=VARCHAR},
 		parent_app_home = #{parentAppHome,jdbcType=VARCHAR},
 		assets_path = #{assetsPath,jdbcType=VARCHAR},
@@ -380,7 +380,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_task
-		where app_cluster_id = #{appClusterId,jdbcType=INTEGER}
+		where app_cluster_id = #{appClusterId,jdbcType=BIGINT}
 	</select>
 
 </mapper>

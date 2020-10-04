@@ -48,7 +48,7 @@
 		language, asset_version, asset_bytes,
 		asset_analysis_size, state, bug_collection_file,
 		create_date, update_date)
-		values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=INTEGER}, #{analyzerKind,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{analyzerKind,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
 		#{language,jdbcType=VARCHAR}, #{assetVersion,jdbcType=VARCHAR}, #{assetBytes,jdbcType=INTEGER},
 		#{assetAnalysisSize,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, #{bugCollectionFile,jdbcType=VARCHAR},
 		#{createDate,jdbcType=TIMESTAMP}, #{updateDate,jdbcType=TIMESTAMP})
@@ -98,7 +98,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				#{projectId,jdbcType=INTEGER},
+				#{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="analyzerKind != null">
 				#{analyzerKind,jdbcType=VARCHAR},
@@ -136,7 +136,7 @@
 		update ci_analysis_history
 		<set>
 			<if test="projectId != null">
-				project_id = #{projectId,jdbcType=INTEGER},
+				project_id = #{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="analyzerKind != null">
 				analyzer_kind = #{analyzerKind,jdbcType=VARCHAR},
@@ -173,7 +173,7 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.AnalysisHistory">
 		update ci_analysis_history
-		set project_id = #{projectId,jdbcType=INTEGER},
+		set project_id = #{projectId,jdbcType=BIGINT},
 		analyzer_kind = #{analyzerKind,jdbcType=VARCHAR},
 		organization_code = #{organizationCode,jdbcType=VARCHAR},
 		language = #{language,jdbcType=VARCHAR},

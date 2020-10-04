@@ -62,7 +62,7 @@
       enable, remark, create_date, 
       create_by, update_date, update_by, 
       del_flag)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{metricId,jdbcType=INTEGER},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{metricId,jdbcType=BIGINT},
       #{tags,jdbcType=VARCHAR}, #{notifyLevel,jdbcType=INTEGER},
       #{enable,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
       #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
@@ -116,7 +116,7 @@
         #{name,jdbcType=VARCHAR},
       </if>
       <if test="metricId != null" >
-        #{metricId,jdbcType=INTEGER},
+        #{metricId,jdbcType=BIGINT},
       </if>
       <if test="tags != null" >
         #{tags,jdbcType=VARCHAR},
@@ -154,7 +154,7 @@
         name = #{name,jdbcType=VARCHAR},
       </if>
       <if test="metricId != null" >
-        metric_id = #{metricId,jdbcType=INTEGER},
+        metric_id = #{metricId,jdbcType=BIGINT},
       </if>
 
       tags = #{tags,jdbcType=VARCHAR},
@@ -189,7 +189,7 @@
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.umc.AlarmTemplate" >
     update umc_alarm_template
     set name = #{name,jdbcType=VARCHAR},
-      metric_id = #{metricId,jdbcType=INTEGER},
+      metric_id = #{metricId,jdbcType=BIGINT},
       tags = #{tags,jdbcType=VARCHAR},
       notify_level = #{notifyLevel,jdbcType=INTEGER},
       enable = #{enable,jdbcType=INTEGER},
@@ -229,7 +229,7 @@
     left join umc_metric_template mt on mt.id=t.metric_id
     LEFT JOIN umc_alarm_rule r on t.id=r.template_id
     where uac.enable=1 and t.enable=1 and t.del_flag!=1
-    and  uac.cluster_id=#{appClusterId,jdbcType=INTEGER}
+    and  uac.cluster_id=#{appClusterId,jdbcType=BIGINT}
   </select>
 
   <select id="list" resultMap="BaseResultMap" parameterType="java.util.Map" >
@@ -242,7 +242,7 @@
       AND t.name LIKE CONCAT('%','${name}','%')
     </if>
     <if test="metricId != null and metricId != ''" >
-      AND t.metric_id  = #{metricId,jdbcType=INTEGER}
+      AND t.metric_id  = #{metricId,jdbcType=BIGINT}
     </if>
     <if test="classify != null and classify != ''" >
       AND mt.classify=#{classify,jdbcType=VARCHAR}

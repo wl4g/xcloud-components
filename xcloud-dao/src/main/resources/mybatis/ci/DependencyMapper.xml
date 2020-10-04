@@ -33,7 +33,7 @@
 		del_flag, create_date,
 		create_by, update_date, update_by
 		)
-		values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=INTEGER}, #{dependentId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{dependentId,jdbcType=BIGINT},
 		#{delFlag,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP},
 		#{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}
 		)
@@ -71,10 +71,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				#{projectId,jdbcType=INTEGER},
+				#{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="dependentId != null">
-				#{dependentId,jdbcType=INTEGER},
+				#{dependentId,jdbcType=BIGINT},
 			</if>
 			<if test="delFlag != null">
 				#{delFlag,jdbcType=INTEGER},
@@ -97,10 +97,10 @@
 		update ci_dependency
 		<set>
 			<if test="projectId != null">
-				project_id = #{projectId,jdbcType=INTEGER},
+				project_id = #{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="dependentId != null">
-				dependent_id = #{dependentId,jdbcType=INTEGER},
+				dependent_id = #{dependentId,jdbcType=BIGINT},
 			</if>
 			<if test="delFlag != null">
 				del_flag = #{delFlag,jdbcType=INTEGER},
@@ -122,8 +122,8 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.Dependency">
 		update ci_dependency
-		set project_id = #{projectId,jdbcType=INTEGER},
-		dependent_id = #{dependentId,jdbcType=INTEGER},
+		set project_id = #{projectId,jdbcType=BIGINT},
+		dependent_id = #{dependentId,jdbcType=BIGINT},
 		del_flag = #{delFlag,jdbcType=INTEGER},
 		create_date = #{createDate,jdbcType=TIMESTAMP},
 		create_by = #{createBy,jdbcType=VARCHAR},
@@ -136,7 +136,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_dependency
-		where project_id = #{projectId,jdbcType=INTEGER}
+		where project_id = #{projectId,jdbcType=BIGINT}
 	</select>
 
 	<select id="list" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -153,6 +153,6 @@
 
 	<delete id="deleteByProjectId" parameterType="java.lang.Long">
 		delete from ci_dependency
-		where project_id = #{projectId,jdbcType=INTEGER}
+		where project_id = #{projectId,jdbcType=BIGINT}
 	</delete>
 </mapper>

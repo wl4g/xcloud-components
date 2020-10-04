@@ -21,7 +21,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_pipe_step_notification
-		where pipe_id = #{pipeId,jdbcType=INTEGER}
+		where pipe_id = #{pipeId,jdbcType=BIGINT}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -31,13 +31,13 @@
 
 	<delete id="deleteByPipeId" parameterType="java.lang.Long">
 		delete from ci_pipe_step_notification
-		where pipe_id = #{pipeId,jdbcType=INTEGER}
+		where pipe_id = #{pipeId,jdbcType=BIGINT}
 	</delete>
 
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
 		insert into ci_pipe_step_notification (id, pipe_id, enable,
 		contact_group_ids)
-		values (#{id,jdbcType=BIGINT}, #{pipeId,jdbcType=INTEGER}, #{enable,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{pipeId,jdbcType=BIGINT}, #{enable,jdbcType=INTEGER},
 		#{contactGroupIds,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
@@ -61,7 +61,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="pipeId != null">
-				#{pipeId,jdbcType=INTEGER},
+				#{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="enable != null">
 				#{enable,jdbcType=INTEGER},
@@ -75,7 +75,7 @@
 		update ci_pipe_step_notification
 		<set>
 			<if test="pipeId != null">
-				pipe_id = #{pipeId,jdbcType=INTEGER},
+				pipe_id = #{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="enable != null">
 				enable = #{enable,jdbcType=INTEGER},
@@ -88,7 +88,7 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeStepNotification">
 		update ci_pipe_step_notification
-		set pipe_id = #{pipeId,jdbcType=INTEGER},
+		set pipe_id = #{pipeId,jdbcType=BIGINT},
 		enable = #{enable,jdbcType=INTEGER},
 		contact_group_ids = #{contactGroupIds,jdbcType=VARCHAR}
 		where id = #{id,jdbcType=BIGINT}

@@ -18,7 +18,7 @@
   <select id="selectByHostId" parameterType="java.lang.Long" resultType="java.lang.Long">
     select ssh_id
     from erm_host_ssh
-    where host_id = #{hostId,jdbcType=INTEGER}
+    where host_id = #{hostId,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from erm_host_ssh
@@ -26,18 +26,18 @@
   </delete>
   <delete id="deleteByHostId" parameterType="java.lang.Long">
     delete from erm_host_ssh
-    where host_id = #{hostId,jdbcType=INTEGER}
+    where host_id = #{hostId,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.wl4g.components.core.bean.erm.HostSsh">
     insert into erm_host_ssh (id, host_id, ssh_id)
-    values (#{id,jdbcType=BIGINT}, #{hostId,jdbcType=INTEGER}, #{sshId,jdbcType=INTEGER})
+    values (#{id,jdbcType=BIGINT}, #{hostId,jdbcType=BIGINT}, #{sshId,jdbcType=BIGINT})
   </insert>
 
   <insert id="insertBatch" parameterType="java.util.Map">
     insert into erm_host_ssh (id, host_id, ssh_id)
     VALUES
     <foreach collection="hostSshes" item="hostSsh" separator=",">
-      (#{hostSsh.id,jdbcType=BIGINT}, #{hostSsh.hostId,jdbcType=INTEGER}, #{hostSsh.sshId,jdbcType=INTEGER})
+      (#{hostSsh.id,jdbcType=BIGINT}, #{hostSsh.hostId,jdbcType=BIGINT}, #{hostSsh.sshId,jdbcType=BIGINT})
     </foreach>
   </insert>
 
@@ -59,10 +59,10 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="hostId != null">
-        #{hostId,jdbcType=INTEGER},
+        #{hostId,jdbcType=BIGINT},
       </if>
       <if test="sshId != null">
-        #{sshId,jdbcType=INTEGER},
+        #{sshId,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -70,18 +70,18 @@
     update erm_host_ssh
     <set>
       <if test="hostId != null">
-        host_id = #{hostId,jdbcType=INTEGER},
+        host_id = #{hostId,jdbcType=BIGINT},
       </if>
       <if test="sshId != null">
-        ssh_id = #{sshId,jdbcType=INTEGER},
+        ssh_id = #{sshId,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.erm.HostSsh">
     update erm_host_ssh
-    set host_id = #{hostId,jdbcType=INTEGER},
-      ssh_id = #{sshId,jdbcType=INTEGER}
+    set host_id = #{hostId,jdbcType=BIGINT},
+      ssh_id = #{sshId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

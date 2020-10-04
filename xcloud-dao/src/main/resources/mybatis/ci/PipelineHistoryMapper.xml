@@ -55,12 +55,12 @@
 		annex, remark, create_date,
 		create_by, update_date, update_by,
 		del_flag,orchestration_type, orchestration_id)
-		values (#{id,jdbcType=BIGINT}, #{pipeId,jdbcType=INTEGER}, #{providerKind,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
-		#{status,jdbcType=INTEGER}, #{shaLocal,jdbcType=VARCHAR}, #{refId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{pipeId,jdbcType=BIGINT}, #{providerKind,jdbcType=VARCHAR}, #{organizationCode,jdbcType=VARCHAR},
+		#{status,jdbcType=INTEGER}, #{shaLocal,jdbcType=VARCHAR}, #{refId,jdbcType=BIGINT},
 		#{costTime,jdbcType=TIMESTAMP}, #{trackType,jdbcType=VARCHAR}, #{trackId,jdbcType=VARCHAR},
 		#{annex,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
 		#{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},
-		#{delFlag,jdbcType=INTEGER}, #{orchestrationType,jdbcType=INTEGER}, #{orchestrationId,jdbcType=INTEGER})
+		#{delFlag,jdbcType=INTEGER}, #{orchestrationType,jdbcType=INTEGER}, #{orchestrationId,jdbcType=BIGINT})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.PipelineHistory">
 		insert into ci_pipe_history
@@ -128,7 +128,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="pipeId != null">
-				#{pipeId,jdbcType=INTEGER},
+				#{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="providerKind != null">
 				#{providerKind,jdbcType=VARCHAR},
@@ -143,7 +143,7 @@
 				#{shaLocal,jdbcType=VARCHAR},
 			</if>
 			<if test="refId != null">
-				#{refId,jdbcType=INTEGER},
+				#{refId,jdbcType=BIGINT},
 			</if>
 			<if test="costTime != null">
 				#{costTime,jdbcType=TIMESTAMP},
@@ -179,7 +179,7 @@
 				#{orchestrationType,jdbcType=INTEGER},
 			</if>
 			<if test="orchestrationId != null">
-				#{orchestrationId,jdbcType=INTEGER},
+				#{orchestrationId,jdbcType=BIGINT},
 			</if>
 		</trim>
 	</insert>
@@ -187,7 +187,7 @@
 		update ci_pipe_history
 		<set>
 			<if test="pipeId != null">
-				pipe_id = #{pipeId,jdbcType=INTEGER},
+				pipe_id = #{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="providerKind != null">
 				provider_kind = #{providerKind,jdbcType=VARCHAR},
@@ -202,7 +202,7 @@
 				sha_local = #{shaLocal,jdbcType=VARCHAR},
 			</if>
 			<if test="refId != null">
-				ref_id = #{refId,jdbcType=INTEGER},
+				ref_id = #{refId,jdbcType=BIGINT},
 			</if>
 			<if test="costTime != null">
 				cost_time = #{costTime,jdbcType=TIMESTAMP},
@@ -238,19 +238,19 @@
 				orchestration_type = #{orchestrationType,jdbcType=INTEGER},
 			</if>
 			<if test="orchestrationId != null">
-				orchestration_id = #{orchestrationId,jdbcType=INTEGER},
+				orchestration_id = #{orchestrationId,jdbcType=BIGINT},
 			</if>
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipelineHistory">
 		update ci_pipe_history
-		set pipe_id = #{pipeId,jdbcType=INTEGER},
+		set pipe_id = #{pipeId,jdbcType=BIGINT},
 		provider_kind = #{providerKind,jdbcType=VARCHAR},
 		organization_code = #{organizationCode,jdbcType=VARCHAR},
 		status = #{status,jdbcType=INTEGER},
 		sha_local = #{shaLocal,jdbcType=VARCHAR},
-		ref_id = #{refId,jdbcType=INTEGER},
+		ref_id = #{refId,jdbcType=BIGINT},
 		cost_time = #{costTime,jdbcType=TIMESTAMP},
 		track_type = #{trackType,jdbcType=VARCHAR},
 		track_id = #{trackId,jdbcType=VARCHAR},
@@ -262,7 +262,7 @@
 		update_by = #{updateBy,jdbcType=VARCHAR},
 		del_flag = #{delFlag,jdbcType=INTEGER},
 		orchestration_type = #{orchestrationType,jdbcType=INTEGER},
-		orchestration_id = #{orchestrationId,jdbcType=INTEGER}
+		orchestration_id = #{orchestrationId,jdbcType=BIGINT}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
@@ -298,7 +298,7 @@
 		</choose>
 
 		<if test="orchestrationId != null">
-			AND h.orchestration_id = #{orchestrationId,jdbcType=INTEGER}
+			AND h.orchestration_id = #{orchestrationId,jdbcType=BIGINT}
 		</if>
 
 		<if test="startDate!=null and startDate!='' and endDate!='' and endDate !=null">

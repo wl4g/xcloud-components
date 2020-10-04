@@ -79,7 +79,7 @@
 		update_by)
 		values (#{id,jdbcType=BIGINT},
 		#{vcs_id,jdbcType=BIGINT},#{projectName,jdbcType=VARCHAR},#{organizationCode,jdbcType=VARCHAR},#{httpUrl,jdbcType=VARCHAR},#{sshUrl,jdbcType=VARCHAR},
-		#{appClusterId,jdbcType=INTEGER},
+		#{appClusterId,jdbcType=BIGINT},
 		#{lockStatus,jdbcType=INTEGER},#{isBoot,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER},
 		#{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP},
 		#{updateBy,jdbcType=VARCHAR})
@@ -139,7 +139,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="vcsId != null">
-				#{vcsId,jdbcType=INTEGER},
+				#{vcsId,jdbcType=BIGINT},
 			</if>
 			<if test="projectName != null">
 				#{projectName,jdbcType=VARCHAR},
@@ -154,7 +154,7 @@
 				#{sshUrl,jdbcType=VARCHAR},
 			</if>
 			<if test="appClusterId != null">
-				#{appClusterId,jdbcType=INTEGER},
+				#{appClusterId,jdbcType=BIGINT},
 			</if>
 			<if test="lockStatus != null">
 				#{lockStatus,jdbcType=INTEGER},
@@ -186,7 +186,7 @@
 		update ci_project
 		<set>
 			<if test="vcsId != null">
-				vcs_id = #{vcsId,jdbcType=INTEGER},
+				vcs_id = #{vcsId,jdbcType=BIGINT},
 			</if>
 			<if test="projectName != null">
 				project_name = #{projectName,jdbcType=VARCHAR},
@@ -201,7 +201,7 @@
 				ssh_url = #{sshUrl,jdbcType=VARCHAR},
 			</if>
 			<if test="appClusterId != null">
-				app_cluster_id = #{appClusterId,jdbcType=INTEGER},
+				app_cluster_id = #{appClusterId,jdbcType=BIGINT},
 			</if>
 			<if test="lockStatus != null">
 				lock_status = #{lockStatus,jdbcType=INTEGER},
@@ -233,12 +233,12 @@
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.Project">
 		update ci_project
 		set
-		vcs_id = #{vcsId,jdbcType=INTEGER},
+		vcs_id = #{vcsId,jdbcType=BIGINT},
 		project_name = #{projectName,jdbcType=VARCHAR},
 		organization_code = #{organizationCode,jdbcType=VARCHAR},
 		http_url = #{httpUrl,jdbcType=VARCHAR},
 		ssh_url = #{sshUrl,jdbcType=VARCHAR},
-		app_cluster_id = #{appClusterId,jdbcType=INTEGER},
+		app_cluster_id = #{appClusterId,jdbcType=BIGINT},
 		lock_status = #{lockStatus,jdbcType=INTEGER},
 		is_boot = #{isBoot,jdbcType=INTEGER},
 		remark = #{remark,jdbcType=VARCHAR},
@@ -295,6 +295,6 @@
 		<include refid="vcs_alias" />
 		from ci_project p
 		left join ci_vcs v on v.id=p.vcs_id
-		where p.app_cluster_id = #{appClusterId,jdbcType=INTEGER} and p.del_flag!=1 limit 1
+		where p.app_cluster_id = #{appClusterId,jdbcType=BIGINT} and p.del_flag!=1 limit 1
 	</select>
 </mapper>

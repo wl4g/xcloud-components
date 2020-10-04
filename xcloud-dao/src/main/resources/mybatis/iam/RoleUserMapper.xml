@@ -23,7 +23,7 @@
 		role_id
 		from sys_role_user
 		where
-		user_id = #{userId,jdbcType=INTEGER}
+		user_id = #{userId,jdbcType=BIGINT}
 	</select>
 
 
@@ -35,14 +35,14 @@
 
 	<delete id="deleteByUserId" parameterType="java.lang.Long">
 		delete from sys_role_user
-		where user_id = #{userId,jdbcType=INTEGER}
+		where user_id = #{userId,jdbcType=BIGINT}
 	</delete>
 
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.iam.RoleUser">
 		insert into sys_role_user (id, user_id, role_id,
 		create_by, create_date)
 		values
-		(#{id,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER}, #{roleId,jdbcType=BIGINT},
+		(#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT},
 		#{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP})
 	</insert>
@@ -71,7 +71,7 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="userId != null">
-				#{userId,jdbcType=INTEGER},
+				#{userId,jdbcType=BIGINT},
 			</if>
 			<if test="roleId != null">
 				#{roleId,jdbcType=BIGINT},
@@ -88,7 +88,7 @@
 		update sys_role_user
 		<set>
 			<if test="userId != null">
-				user_id = #{userId,jdbcType=INTEGER},
+				user_id = #{userId,jdbcType=BIGINT},
 			</if>
 			<if test="roleId != null">
 				role_id = #{roleId,jdbcType=BIGINT},
@@ -104,7 +104,7 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.RoleUser">
 		update sys_role_user
-		set user_id = #{userId,jdbcType=INTEGER},
+		set user_id = #{userId,jdbcType=BIGINT},
 		role_id =
 		#{roleId,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},

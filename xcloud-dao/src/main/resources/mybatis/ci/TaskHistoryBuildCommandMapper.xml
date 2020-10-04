@@ -23,7 +23,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_task_history_build_command
-		where task_id = #{taskId,jdbcType=INTEGER}
+		where task_id = #{taskId,jdbcType=BIGINT}
 		order by sort
 	</select>
 
@@ -34,7 +34,7 @@
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.TaskBuildCommand">
 		insert into ci_task_history_build_command (id, task_id, project_id,
 		sort, command, branch)
-		values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT},
 		#{sort,jdbcType=INTEGER}, #{command,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.TaskBuildCommand">
@@ -64,10 +64,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="taskId != null">
-				#{taskId,jdbcType=INTEGER},
+				#{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				#{projectId,jdbcType=INTEGER},
+				#{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="sort != null">
 				#{sort,jdbcType=INTEGER},
@@ -84,10 +84,10 @@
 		update ci_task_history_build_command
 		<set>
 			<if test="taskId != null">
-				task_id = #{taskId,jdbcType=INTEGER},
+				task_id = #{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="projectId != null">
-				project_id = #{projectId,jdbcType=INTEGER},
+				project_id = #{projectId,jdbcType=BIGINT},
 			</if>
 			<if test="sort != null">
 				sort = #{sort,jdbcType=INTEGER},
@@ -103,8 +103,8 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.TaskBuildCommand">
 		update ci_task_history_build_command
-		set task_id = #{taskId,jdbcType=INTEGER},
-		project_id = #{projectId,jdbcType=INTEGER},
+		set task_id = #{taskId,jdbcType=BIGINT},
+		project_id = #{projectId,jdbcType=BIGINT},
 		sort = #{sort,jdbcType=INTEGER},
 		command = #{command,jdbcType=VARCHAR},
 		branch = #{branch,jdbcType=VARCHAR}

@@ -23,7 +23,7 @@
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.TaskSign">
 		insert into ci_task_sign (id, task_id, dependency_id,
 		sha_git)
-		values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=INTEGER}, #{dependencyId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=BIGINT}, #{dependencyId,jdbcType=BIGINT},
 		#{shaGit,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.TaskSign">
@@ -47,10 +47,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="taskId != null">
-				#{taskId,jdbcType=INTEGER},
+				#{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="dependencyId != null">
-				#{dependencyId,jdbcType=INTEGER},
+				#{dependencyId,jdbcType=BIGINT},
 			</if>
 			<if test="shaGit != null">
 				#{shaGit,jdbcType=VARCHAR},
@@ -61,10 +61,10 @@
 		update ci_task_sign
 		<set>
 			<if test="taskId != null">
-				task_id = #{taskId,jdbcType=INTEGER},
+				task_id = #{taskId,jdbcType=BIGINT},
 			</if>
 			<if test="dependencyId != null">
-				dependency_id = #{dependencyId,jdbcType=INTEGER},
+				dependency_id = #{dependencyId,jdbcType=BIGINT},
 			</if>
 			<if test="shaGit != null">
 				sha_git = #{shaGit,jdbcType=VARCHAR},
@@ -74,8 +74,8 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.TaskSign">
 		update ci_task_sign
-		set task_id = #{taskId,jdbcType=INTEGER},
-		dependency_id = #{dependencyId,jdbcType=INTEGER},
+		set task_id = #{taskId,jdbcType=BIGINT},
+		dependency_id = #{dependencyId,jdbcType=BIGINT},
 		sha_git = #{shaGit,jdbcType=VARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -84,7 +84,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_task_sign
-		where dependency_id = #{dependencyId,jdbcType=INTEGER} and task_id=#{taskId,jdbcType=INTEGER}
+		where dependency_id = #{dependencyId,jdbcType=BIGINT} and task_id=#{taskId,jdbcType=BIGINT}
 	</select>
 
 </mapper>

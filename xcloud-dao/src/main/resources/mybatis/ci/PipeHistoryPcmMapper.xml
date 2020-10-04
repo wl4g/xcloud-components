@@ -38,8 +38,8 @@
 		x_status, x_subject, x_description,
 		x_priority, x_assign_to, x_start_date,
 		x_expected_time, x_custom_fields)
-		values (#{id,jdbcType=BIGINT}, #{enable,jdbcType=INTEGER}, #{pipeId,jdbcType=INTEGER},
-		#{pcmId,jdbcType=INTEGER}, #{xProjectId,jdbcType=INTEGER}, #{xTracker,jdbcType=VARCHAR}, #{xParentIssueId,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{enable,jdbcType=INTEGER}, #{pipeId,jdbcType=BIGINT},
+		#{pcmId,jdbcType=BIGINT}, #{xProjectId,jdbcType=BIGINT}, #{xTracker,jdbcType=VARCHAR}, #{xParentIssueId,jdbcType=VARCHAR},
 		#{xStatus,jdbcType=VARCHAR}, #{xSubject,jdbcType=VARCHAR}, #{xDescription,jdbcType=VARCHAR},
 		#{xPriority,jdbcType=VARCHAR}, #{xAssignTo,jdbcType=VARCHAR}, #{xStartDate,jdbcType=TIMESTAMP},
 		#{xExpectedTime,jdbcType=BIGINT}, #{xCustomFields,jdbcType=VARCHAR})
@@ -101,13 +101,13 @@
 				#{enable,jdbcType=INTEGER},
 			</if>
 			<if test="pipeId != null">
-				#{pipeId,jdbcType=INTEGER},
+				#{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="pcmId != null">
-				#{pcmId,jdbcType=INTEGER},
+				#{pcmId,jdbcType=BIGINT},
 			</if>
 			<if test="xProjectId != null">
-				#{xProjectId,jdbcType=INTEGER},
+				#{xProjectId,jdbcType=BIGINT},
 			</if>
 			<if test="xTracker != null">
 				#{xTracker,jdbcType=VARCHAR},
@@ -148,13 +148,13 @@
 				enable = #{enable,jdbcType=INTEGER},
 			</if>
 			<if test="pipeId != null">
-				pipe_id = #{pipeId,jdbcType=INTEGER},
+				pipe_id = #{pipeId,jdbcType=BIGINT},
 			</if>
 			<if test="pcmId != null">
-				pcm_id = #{pcmId,jdbcType=INTEGER},
+				pcm_id = #{pcmId,jdbcType=BIGINT},
 			</if>
 			<if test="xProjectId != null">
-				x_project_id = #{xProjectId,jdbcType=INTEGER},
+				x_project_id = #{xProjectId,jdbcType=BIGINT},
 			</if>
 			<if test="xTracker != null">
 				x_tracker = #{xTracker,jdbcType=VARCHAR},
@@ -192,9 +192,9 @@
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.PipeHistoryPcm">
 		update ci_pipe_history_pcm
 		set enable = #{enable,jdbcType=INTEGER},
-		pipe_id = #{pipeId,jdbcType=INTEGER},
-		pcm_id = #{pcmId,jdbcType=INTEGER},
-		x_project_id = #{xProjectId,jdbcType=INTEGER},
+		pipe_id = #{pipeId,jdbcType=BIGINT},
+		pcm_id = #{pcmId,jdbcType=BIGINT},
+		x_project_id = #{xProjectId,jdbcType=BIGINT},
 		x_tracker = #{xTracker,jdbcType=VARCHAR},
 		x_parent_issue_id = #{xParentIssueId,jdbcType=VARCHAR},
 		x_status = #{xStatus,jdbcType=VARCHAR},

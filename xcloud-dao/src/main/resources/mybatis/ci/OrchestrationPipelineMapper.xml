@@ -21,7 +21,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from ci_orchestration_pipeline
-		where orchestration_id = #{orchestrationId,jdbcType=INTEGER}
+		where orchestration_id = #{orchestrationId,jdbcType=BIGINT}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -31,7 +31,7 @@
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.OrchestrationPipeline">
 		insert into ci_orchestration_pipeline (id, orchestration_id, pipeline_id,
 		priority)
-		values (#{id,jdbcType=BIGINT}, #{orchestrationId,jdbcType=INTEGER}, #{pipelineId,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT}, #{orchestrationId,jdbcType=BIGINT}, #{pipelineId,jdbcType=BIGINT},
 		#{priority,jdbcType=INTEGER})
 	</insert>
 	<insert id="insertSelective" parameterType="com.wl4g.components.core.bean.ci.OrchestrationPipeline">
@@ -55,10 +55,10 @@
 				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="orchestrationId != null">
-				#{orchestrationId,jdbcType=INTEGER},
+				#{orchestrationId,jdbcType=BIGINT},
 			</if>
 			<if test="pipelineId != null">
-				#{pipelineId,jdbcType=INTEGER},
+				#{pipelineId,jdbcType=BIGINT},
 			</if>
 			<if test="priority != null">
 				#{priority,jdbcType=INTEGER},
@@ -69,10 +69,10 @@
 		update ci_orchestration_pipeline
 		<set>
 			<if test="orchestrationId != null">
-				orchestration_id = #{orchestrationId,jdbcType=INTEGER},
+				orchestration_id = #{orchestrationId,jdbcType=BIGINT},
 			</if>
 			<if test="pipelineId != null">
-				pipeline_id = #{pipelineId,jdbcType=INTEGER},
+				pipeline_id = #{pipelineId,jdbcType=BIGINT},
 			</if>
 			<if test="priority != null">
 				priority = #{priority,jdbcType=INTEGER},
@@ -82,8 +82,8 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.ci.OrchestrationPipeline">
 		update ci_orchestration_pipeline
-		set orchestration_id = #{orchestrationId,jdbcType=INTEGER},
-		pipeline_id = #{pipelineId,jdbcType=INTEGER},
+		set orchestration_id = #{orchestrationId,jdbcType=BIGINT},
+		pipeline_id = #{pipelineId,jdbcType=BIGINT},
 		priority = #{priority,jdbcType=INTEGER}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
