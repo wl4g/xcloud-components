@@ -21,25 +21,25 @@ public class OrchestrationPipeline extends BaseBean {
 
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer orchestrationId;
+	private Long orchestrationId;
 
-	private Integer pipelineId;
+	private Long pipelineId;
 
 	private Integer priority;
 
-	public Integer getOrchestrationId() {
+	public Long getOrchestrationId() {
 		return orchestrationId;
 	}
 
-	public void setOrchestrationId(Integer orchestrationId) {
+	public void setOrchestrationId(Long orchestrationId) {
 		this.orchestrationId = orchestrationId;
 	}
 
-	public Integer getPipelineId() {
+	public Long getPipelineId() {
 		return pipelineId;
 	}
 
-	public void setPipelineId(Integer pipelineId) {
+	public void setPipelineId(Long pipelineId) {
 		this.pipelineId = pipelineId;
 	}
 

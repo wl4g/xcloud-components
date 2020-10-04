@@ -22,7 +22,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class AlarmRule extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer templateId;
+	private Long templateId;
 
 	private String aggregator;
 
@@ -38,11 +38,11 @@ public class AlarmRule extends BaseBean implements Serializable {
 
 	private Double compareValue;
 
-	public Integer getTemplateId() {
+	public Long getTemplateId() {
 		return templateId;
 	}
 
-	public void setTemplateId(Integer templateId) {
+	public void setTemplateId(Long templateId) {
 		this.templateId = templateId;
 	}
 

@@ -22,21 +22,21 @@ import com.wl4g.components.core.bean.ci.PipelineInstance;
 import java.util.List;
 
 public interface PipelineInstanceDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByPipeId(Integer pipeId);
+	int deleteByPipeId(Long pipeId);
 
-    int insert(PipelineInstance record);
+	int insert(PipelineInstance record);
 
-    int insertSelective(PipelineInstance record);
+	int insertSelective(PipelineInstance record);
 
-    PipelineInstance selectByPrimaryKey(Integer id);
+	PipelineInstance selectByPrimaryKey(Long id);
 
-    List<PipelineInstance> selectByPipeId(Integer pipeId);
+	List<PipelineInstance> selectByPipeId(Long pipeId);
 
-    int updateByPrimaryKeySelective(PipelineInstance record);
+	int updateByPrimaryKeySelective(PipelineInstance record);
 
-    int updateByPrimaryKey(PipelineInstance record);
+	int updateByPrimaryKey(PipelineInstance record);
 
-    int insertBatch(@Param("pipelineInstances")List<PipelineInstance> pipelineInstances);
+	int insertBatch(@Param("pipelineInstances") List<PipelineInstance> pipelineInstances);
 }

@@ -22,7 +22,7 @@ public class CustomEngine extends BaseBean {
 
 	private String name;
 
-	private Integer datasourceId;
+	private Long datasourceId;
 
 	private Integer status;
 
@@ -47,11 +47,11 @@ public class CustomEngine extends BaseBean {
 		this.name = name == null ? null : name.trim();
 	}
 
-	public Integer getDatasourceId() {
+	public Long getDatasourceId() {
 		return datasourceId;
 	}
 
-	public void setDatasourceId(Integer datasourceId) {
+	public void setDatasourceId(Long datasourceId) {
 		this.datasourceId = datasourceId;
 	}
 

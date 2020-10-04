@@ -18,17 +18,17 @@ package com.wl4g.devops.dao.ci;
 import com.wl4g.components.core.bean.ci.PipeStepDeploy;
 
 public interface PipeStepDeployDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(PipeStepDeploy record);
+	int insert(PipeStepDeploy record);
 
-    int insertSelective(PipeStepDeploy record);
+	int insertSelective(PipeStepDeploy record);
 
-    PipeStepDeploy selectByPrimaryKey(Integer id);
+	PipeStepDeploy selectByPrimaryKey(Long id);
 
-    PipeStepDeploy selectByPipeId(Integer pipeId);
+	PipeStepDeploy selectByPipeId(Long pipeId);
 
-    int updateByPrimaryKeySelective(PipeStepDeploy record);
+	int updateByPrimaryKeySelective(PipeStepDeploy record);
 
-    int updateByPrimaryKey(PipeStepDeploy record);
+	int updateByPrimaryKey(PipeStepDeploy record);
 }

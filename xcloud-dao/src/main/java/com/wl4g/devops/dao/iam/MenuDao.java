@@ -22,24 +22,24 @@ import com.wl4g.components.core.bean.iam.Menu;
 import java.util.List;
 
 public interface MenuDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Menu record);
+	int insert(Menu record);
 
-    int insertSelective(Menu record);
+	int insertSelective(Menu record);
 
-    Menu selectByPrimaryKey(Integer id);
+	Menu selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(Menu record);
+	int updateByPrimaryKeySelective(Menu record);
 
-    int updateByPrimaryKey(Menu record);
+	int updateByPrimaryKey(Menu record);
 
-    List<Menu> selectByParentId(Integer parentId);
+	List<Menu> selectByParentId(Long parentId);
 
-    List<Menu> selectByUserId(@Param("userId") Integer userId);
+	List<Menu> selectByUserId(@Param("userId") Long userId);
 
-    List<Menu> selectByUserIdAccessGroup(Integer userId);
+	List<Menu> selectByUserIdAccessGroup(Long userId);
 
-    List<Menu> selectWithRoot();
+	List<Menu> selectWithRoot();
 
 }

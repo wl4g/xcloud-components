@@ -18,15 +18,15 @@ package com.wl4g.devops.dao.iam;
 import com.wl4g.components.core.bean.iam.ContactChannel;
 
 public interface ContactChannelDao {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
-    int deleteByContactId(Integer id);
+    int deleteByContactId(Long id);
 
     int insert(ContactChannel record);
 
     int insertSelective(ContactChannel record);
 
-    ContactChannel selectByPrimaryKey(Integer id);
+    ContactChannel selectByPrimaryKey(Long id);
 
     int updateByPrimaryKeySelective(ContactChannel record);
 

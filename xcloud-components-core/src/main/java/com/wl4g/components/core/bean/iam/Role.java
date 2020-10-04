@@ -33,9 +33,8 @@ public class Role extends BaseBean {
 
 	private String groupDisplayName;
 
-	private List<Integer> menuIds;
-
-	private List<Integer> groupIds;
+	private List<Long> menuIds;
+	private List<Long> groupIds;
 
 	public String getRoleCode() {
 		return roleCode;
@@ -69,11 +68,11 @@ public class Role extends BaseBean {
 		this.status = status;
 	}
 
-	public List<Integer> getMenuIds() {
+	public List<Long> getMenuIds() {
 		return menuIds;
 	}
 
-	public void setMenuIds(List<Integer> menuIds) {
+	public void setMenuIds(List<Long> menuIds) {
 		this.menuIds = menuIds;
 	}
 
@@ -85,11 +84,11 @@ public class Role extends BaseBean {
 		this.groupDisplayName = groupDisplayName;
 	}
 
-	public List<Integer> getGroupIds() {
+	public List<Long> getGroupIds() {
 		return groupIds;
 	}
 
-	public void setGroupIds(List<Integer> groupIds) {
+	public void setGroupIds(List<Long> groupIds) {
 		this.groupIds = groupIds;
 	}
 

@@ -21,7 +21,7 @@ public class ContactChannel extends BaseBean {
 
 	private static final long serialVersionUID = -7546448616357790576L;
 
-	private Integer contactId;
+	private Long contactId;
 
 	private String kind;
 
@@ -39,11 +39,11 @@ public class ContactChannel extends BaseBean {
 		this.kind = kind;
 	}
 
-	public Integer getContactId() {
+	public Long getContactId() {
 		return contactId;
 	}
 
-	public void setContactId(Integer contactId) {
+	public void setContactId(Long contactId) {
 		this.contactId = contactId;
 	}
 

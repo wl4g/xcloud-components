@@ -20,23 +20,22 @@ import com.wl4g.components.core.bean.BaseBean;
 public class FileLabel extends BaseBean {
 	private static final long serialVersionUID = -5720902148220736503L;
 
-	private Integer labelId;
+	private Long labelId;
+	private Long fileId;
 
-	private Integer fileId;
-
-	public Integer getLabelId() {
+	public Long getLabelId() {
 		return labelId;
 	}
 
-	public void setLabelId(Integer labelId) {
+	public void setLabelId(Long labelId) {
 		this.labelId = labelId;
 	}
 
-	public Integer getFileId() {
+	public Long getFileId() {
 		return fileId;
 	}
 
-	public void setFileId(Integer fileId) {
+	public void setFileId(Long fileId) {
 		this.fileId = fileId;
 	}
 }

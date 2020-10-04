@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.DockerCluster;
 import java.util.List;
 
 public interface DockerClusterDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DockerCluster record);
 
 	int insertSelective(DockerCluster record);
 
-	DockerCluster selectByPrimaryKey(Integer id);
+	DockerCluster selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(DockerCluster record);
 

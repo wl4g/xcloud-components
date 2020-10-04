@@ -22,19 +22,19 @@ import com.wl4g.components.core.bean.umc.CustomDataSourceProperties;
 import java.util.List;
 
 public interface CustomDataSourcePropertiesDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByDataSourceId(Integer dataSourceId);
+	int deleteByDataSourceId(Long dataSourceId);
 
-    int insert(CustomDataSourceProperties record);
+	int insert(CustomDataSourceProperties record);
 
-    int insertSelective(CustomDataSourceProperties record);
+	int insertSelective(CustomDataSourceProperties record);
 
-    CustomDataSourceProperties selectByPrimaryKey(Integer id);
+	CustomDataSourceProperties selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(CustomDataSourceProperties record);
+	int updateByPrimaryKeySelective(CustomDataSourceProperties record);
 
-    int updateByPrimaryKey(CustomDataSourceProperties record);
+	int updateByPrimaryKey(CustomDataSourceProperties record);
 
-    int insertBatch(@Param("properties") List<CustomDataSourceProperties> properties);
+	int insertBatch(@Param("properties") List<CustomDataSourceProperties> properties);
 }

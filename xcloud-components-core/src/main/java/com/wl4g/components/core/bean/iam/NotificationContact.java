@@ -22,9 +22,8 @@ import com.wl4g.components.core.bean.BaseBean;
 public class NotificationContact extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer recordId;
-
-	private Integer contactId;
+	private Long recordId;
+	private Long contactId;
 
 	private String status;
 
@@ -33,19 +32,19 @@ public class NotificationContact extends BaseBean implements Serializable {
 	private String email;
 	private String phone;
 
-	public Integer getRecordId() {
+	public Long getRecordId() {
 		return recordId;
 	}
 
-	public void setRecordId(Integer recordId) {
+	public void setRecordId(Long recordId) {
 		this.recordId = recordId;
 	}
 
-	public Integer getContactId() {
+	public Long getContactId() {
 		return contactId;
 	}
 
-	public void setContactId(Integer contactId) {
+	public void setContactId(Long contactId) {
 		this.contactId = contactId;
 	}
 

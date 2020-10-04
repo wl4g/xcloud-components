@@ -25,7 +25,7 @@ public class Contact extends BaseBean implements Serializable {
 
 	private String name;
 
-	private Integer[] groups;
+	private Long[] groups;
 
 	private List<ContactChannel> contactChannels;
 
@@ -37,11 +37,11 @@ public class Contact extends BaseBean implements Serializable {
 		this.name = name == null ? null : name.trim();
 	}
 
-	public Integer[] getGroups() {
+	public Long[] getGroups() {
 		return groups;
 	}
 
-	public void setGroups(Integer[] groups) {
+	public void setGroups(Long[] groups) {
 		this.groups = groups;
 	}
 

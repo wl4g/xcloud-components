@@ -22,21 +22,23 @@ import com.wl4g.components.core.bean.iam.GroupMenu;
 import java.util.List;
 
 public interface GroupMenuDao {
-    int deleteByPrimaryKey(Integer id);
 
-    int deleteByGroupId(Integer groupId);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(GroupMenu record);
+	int deleteByGroupId(Long groupId);
 
-    int insertBatch(@Param("groupMenus") List<GroupMenu> groupMenus);
+	int insert(GroupMenu record);
 
-    int insertSelective(GroupMenu record);
+	int insertBatch(@Param("groupMenus") List<GroupMenu> groupMenus);
 
-    GroupMenu selectByPrimaryKey(Integer id);
+	int insertSelective(GroupMenu record);
 
-    List<Integer> selectMenuIdsByGroupId(Integer groupId);
+	GroupMenu selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(GroupMenu record);
+	List<Long> selectMenuIdsByGroupId(Long groupId);
 
-    int updateByPrimaryKey(GroupMenu record);
+	int updateByPrimaryKeySelective(GroupMenu record);
+
+	int updateByPrimaryKey(GroupMenu record);
+
 }

@@ -23,13 +23,13 @@ import com.wl4g.components.core.bean.erm.DnsPublicZone;
 import java.util.List;
 
 public interface DnsPublicZoneDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DnsPublicZone record);
 
 	int insertSelective(DnsPublicZone record);
 
-	DnsPublicZone selectByPrimaryKey(Integer id);
+	DnsPublicZone selectByPrimaryKey(Long id);
 
 	List<DnsPrivateZone> list(@Param("organizationCodes") List<String> organizationCodes, @Param("zone") String zone);
 

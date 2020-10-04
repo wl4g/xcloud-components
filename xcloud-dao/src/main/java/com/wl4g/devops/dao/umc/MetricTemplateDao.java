@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.umc.MetricTemplate;
 import java.util.List;
 
 public interface MetricTemplateDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(MetricTemplate record);
 
 	int insertSelective(MetricTemplate record);
 
-	MetricTemplate selectByPrimaryKey(Integer id);
+	MetricTemplate selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(MetricTemplate record);
 

@@ -27,9 +27,9 @@ public class Task extends BaseBean implements Serializable {
 
 	private String taskName;
 
-	private Integer appClusterId;
+	private Long appClusterId;
 
-	private Integer projectId;
+	private Long projectId;
 
 	private String branchName;
 
@@ -43,11 +43,11 @@ public class Task extends BaseBean implements Serializable {
 
 	private String postCommand;
 
-	private Integer contactGroupId;
+	private Long contactGroupId;
 
 	private String envType;
 
-	private Integer pcmId;
+	private Long pcmId;
 
 	private String pmPlatform;
 
@@ -60,7 +60,7 @@ public class Task extends BaseBean implements Serializable {
 
 	private List<TaskInstance> taskInstances;
 
-	private Integer[] instance;
+	private Long[] instance;
 
 	private List<TaskBuildCommand> taskBuildCommands;
 
@@ -91,19 +91,19 @@ public class Task extends BaseBean implements Serializable {
 		this.taskName = taskName == null ? null : taskName.trim();
 	}
 
-	public Integer getAppClusterId() {
+	public Long getAppClusterId() {
 		return appClusterId;
 	}
 
-	public void setAppClusterId(Integer appClusterId) {
+	public void setAppClusterId(Long appClusterId) {
 		this.appClusterId = appClusterId;
 	}
 
-	public Integer getProjectId() {
+	public Long getProjectId() {
 		return projectId;
 	}
 
-	public void setProjectId(Integer projectId) {
+	public void setProjectId(Long projectId) {
 		this.projectId = projectId;
 	}
 
@@ -155,11 +155,11 @@ public class Task extends BaseBean implements Serializable {
 		this.taskInstances = taskInstances;
 	}
 
-	public Integer getContactGroupId() {
+	public Long getContactGroupId() {
 		return contactGroupId;
 	}
 
-	public void setContactGroupId(Integer contactGroupId) {
+	public void setContactGroupId(Long contactGroupId) {
 		this.contactGroupId = contactGroupId;
 	}
 
@@ -179,11 +179,11 @@ public class Task extends BaseBean implements Serializable {
 		this.taskBuildCommands = taskBuildCommands;
 	}
 
-	public Integer[] getInstance() {
+	public Long[] getInstance() {
 		return instance;
 	}
 
-	public void setInstance(Integer[] instance) {
+	public void setInstance(Long[] instance) {
 		this.instance = instance;
 	}
 
@@ -199,11 +199,11 @@ public class Task extends BaseBean implements Serializable {
 		return pmPlatform;
 	}
 
-	public Integer getPcmId() {
+	public Long getPcmId() {
 		return pcmId;
 	}
 
-	public void setPcmId(Integer pcmId) {
+	public void setPcmId(Long pcmId) {
 		this.pcmId = pcmId;
 	}
 

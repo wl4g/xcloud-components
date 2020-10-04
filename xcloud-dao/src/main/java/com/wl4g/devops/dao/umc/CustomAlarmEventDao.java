@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.umc.CustomAlarmEvent;
 import java.util.List;
 
 public interface CustomAlarmEventDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
     int insert(CustomAlarmEvent record);
 
     int insertSelective(CustomAlarmEvent record);
 
-    CustomAlarmEvent selectByPrimaryKey(Integer id);
+    CustomAlarmEvent selectByPrimaryKey(Long id);
 
     int updateByPrimaryKeySelective(CustomAlarmEvent record);
 

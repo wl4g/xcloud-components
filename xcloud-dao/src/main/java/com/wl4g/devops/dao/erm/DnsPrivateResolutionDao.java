@@ -23,19 +23,21 @@ import com.wl4g.components.core.bean.erm.DnsPrivateZone;
 import java.util.List;
 
 public interface DnsPrivateResolutionDao {
-	int deleteByPrimaryKey(Integer id);
+
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DnsPrivateResolution record);
 
 	int insertSelective(DnsPrivateResolution record);
 
-	DnsPrivateResolution selectByPrimaryKey(Integer id);
+	DnsPrivateResolution selectByPrimaryKey(Long id);
 
-    List<DnsPrivateResolution> selectByDomainId(Integer domainId);
+	List<DnsPrivateResolution> selectByDomainId(Long domainId);
 
-    DnsPrivateResolution selectByDomainIdAndHost(@Param("domainId") Integer domainId,@Param("host") String host);
+	DnsPrivateResolution selectByDomainIdAndHost(@Param("domainId") Long domainId, @Param("host") String host);
 
-    List<DnsPrivateZone> list(@Param("organizationCodes") List<String> organizationCodes, @Param("host") String host, @Param("domainId") Integer domainId);
+	List<DnsPrivateZone> list(@Param("organizationCodes") List<String> organizationCodes, @Param("host") String host,
+			@Param("domainId") Long domainId);
 
 	int updateByPrimaryKeySelective(DnsPrivateResolution record);
 

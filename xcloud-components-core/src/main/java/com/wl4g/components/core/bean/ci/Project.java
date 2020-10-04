@@ -35,13 +35,13 @@ public class Project extends BaseBean implements Serializable {
 
 	private String projectName;
 
-	private Integer vcsId;
+	private Long vcsId;
 
 	private String httpUrl;
 
 	private String sshUrl;
 
-	private Integer appClusterId;
+	private Long appClusterId;
 
 	/** 构建的文件/目录路径（maven项目的target目录，vue项目的dist目录） */
 	// private String assetsPath;
@@ -70,11 +70,11 @@ public class Project extends BaseBean implements Serializable {
 		this.projectName = projectName;
 	}
 
-	public Integer getAppClusterId() {
+	public Long getAppClusterId() {
 		return appClusterId;
 	}
 
-	public void setAppClusterId(Integer appClusterId) {
+	public void setAppClusterId(Long appClusterId) {
 		this.appClusterId = appClusterId;
 	}
 
@@ -114,11 +114,11 @@ public class Project extends BaseBean implements Serializable {
 		return vcs;
 	}
 
-	public Integer getVcsId() {
+	public Long getVcsId() {
 		return vcsId;
 	}
 
-	public void setVcsId(Integer vcsId) {
+	public void setVcsId(Long vcsId) {
 		this.vcsId = vcsId;
 	}
 

@@ -23,7 +23,7 @@ public class K8sCluster extends BaseBean {
 
 	private static final long serialVersionUID = -7546448616357790576L;
 
-	private List<Integer> hostIds;
+	private List<Long> hostIds;
 
 	private String name;
 
@@ -31,11 +31,11 @@ public class K8sCluster extends BaseBean {
 
 	private String secondaryMasterAddr;
 
-	public List<Integer> getHostIds() {
+	public List<Long> getHostIds() {
 		return hostIds;
 	}
 
-	public void setHostIds(List<Integer> hostIds) {
+	public void setHostIds(List<Long> hostIds) {
 		this.hostIds = hostIds;
 	}
 

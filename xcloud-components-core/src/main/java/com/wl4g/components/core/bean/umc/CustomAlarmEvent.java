@@ -20,7 +20,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class CustomAlarmEvent extends BaseBean {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer customEngineId;
+	private Long customEngineId;
 
 	private String notifyGroupIds;
 
@@ -28,11 +28,11 @@ public class CustomAlarmEvent extends BaseBean {
 
 	private String engineName;
 
-	public Integer getCustomEngineId() {
+	public Long getCustomEngineId() {
 		return customEngineId;
 	}
 
-	public void setCustomEngineId(Integer customEngineId) {
+	public void setCustomEngineId(Long customEngineId) {
 		this.customEngineId = customEngineId;
 	}
 

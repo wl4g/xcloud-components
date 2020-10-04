@@ -22,7 +22,7 @@ import java.util.List;
 public class PipelineHistory extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer pipeId;
+	private Long pipeId;
 
 	private String providerKind;
 
@@ -30,7 +30,7 @@ public class PipelineHistory extends BaseBean {
 
 	private String shaLocal;
 
-	private Integer refId;
+	private Long refId;
 
 	private Long costTime;
 
@@ -42,7 +42,7 @@ public class PipelineHistory extends BaseBean {
 
 	private Integer orchestrationType;
 
-	private Integer orchestrationId;
+	private Long orchestrationId;
 
 	// other
 	private String pipeName;
@@ -53,11 +53,11 @@ public class PipelineHistory extends BaseBean {
 
 	private List<PipelineHistoryInstance> pipelineHistoryInstances;
 
-	public Integer getPipeId() {
+	public Long getPipeId() {
 		return pipeId;
 	}
 
-	public void setPipeId(Integer pipeId) {
+	public void setPipeId(Long pipeId) {
 		this.pipeId = pipeId;
 	}
 
@@ -85,11 +85,11 @@ public class PipelineHistory extends BaseBean {
 		this.shaLocal = shaLocal == null ? null : shaLocal.trim();
 	}
 
-	public Integer getRefId() {
+	public Long getRefId() {
 		return refId;
 	}
 
-	public void setRefId(Integer refId) {
+	public void setRefId(Long refId) {
 		this.refId = refId;
 	}
 
@@ -165,11 +165,11 @@ public class PipelineHistory extends BaseBean {
 		this.orchestrationType = orchestrationType;
 	}
 
-	public Integer getOrchestrationId() {
+	public Long getOrchestrationId() {
 		return orchestrationId;
 	}
 
-	public void setOrchestrationId(Integer orchestrationId) {
+	public void setOrchestrationId(Long orchestrationId) {
 		this.orchestrationId = orchestrationId;
 	}
 }

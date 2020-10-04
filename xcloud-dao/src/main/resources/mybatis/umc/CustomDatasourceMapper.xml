@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wl4g.devops.dao.umc.CustomDatasourceDao">
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomDataSource">
-    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="provider" jdbcType="VARCHAR" property="provider" />
     <result column="status" jdbcType="INTEGER" property="status" />

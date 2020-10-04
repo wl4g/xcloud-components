@@ -24,8 +24,6 @@ import com.wl4g.components.core.bean.BaseBean;
 public class Menu extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer id;
-
 	private String name;
 
 	private String displayName;
@@ -36,7 +34,7 @@ public class Menu extends BaseBean implements Serializable {
 
 	private Integer level;
 
-	private Integer parentId;
+	private Long parentId;
 
 	private String parentIds;
 
@@ -55,16 +53,6 @@ public class Menu extends BaseBean implements Serializable {
 	private String classify;
 
 	private List<Menu> children;
-
-	@Override
-	public Integer getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;
@@ -98,11 +86,11 @@ public class Menu extends BaseBean implements Serializable {
 		this.status = status;
 	}
 
-	public Integer getParentId() {
+	public Long getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(Integer parentId) {
+	public void setParentId(Long parentId) {
 		this.parentId = parentId;
 	}
 
@@ -193,12 +181,12 @@ public class Menu extends BaseBean implements Serializable {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		Menu menu = (Menu) o;
-		return Objects.equals(id, menu.id);
+		return Objects.equals(getId(), menu.getId());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(getId());
 	}
 
 }

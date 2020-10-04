@@ -22,17 +22,17 @@ import com.wl4g.components.core.bean.umc.CustomHistory;
 import java.util.List;
 
 public interface CustomHistoryDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(CustomHistory record);
+	int insert(CustomHistory record);
 
-    int insertSelective(CustomHistory record);
+	int insertSelective(CustomHistory record);
 
-    CustomHistory selectByPrimaryKey(Integer id);
+	CustomHistory selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(CustomHistory record);
+	int updateByPrimaryKeySelective(CustomHistory record);
 
-    int updateByPrimaryKey(CustomHistory record);
+	int updateByPrimaryKey(CustomHistory record);
 
-    List<CustomHistory> list(@Param("name") String name);
+	List<CustomHistory> list(@Param("name") String name);
 }

@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.umc.AlarmRecord;
 import java.util.List;
 
 public interface AlarmRecordDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(AlarmRecord record);
 
 	int insertSelective(AlarmRecord record);
 
-	AlarmRecord selectByPrimaryKey(Integer id);
+	AlarmRecord selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(AlarmRecord record);
 

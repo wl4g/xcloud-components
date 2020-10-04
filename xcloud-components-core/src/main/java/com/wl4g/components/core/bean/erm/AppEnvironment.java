@@ -20,9 +20,9 @@ import com.wl4g.components.core.bean.BaseBean;
 public class AppEnvironment extends BaseBean {
 	private static final long serialVersionUID = -3298424126317938674L;
 
-	private Integer clusterId;
+	private Long clusterId;
 
-	private Integer repositoryId;
+	private Long repositoryId;
 
 	private String envType;
 
@@ -40,11 +40,11 @@ public class AppEnvironment extends BaseBean {
 
 	private DockerRepository dockerRepository;
 
-	public Integer getClusterId() {
+	public Long getClusterId() {
 		return clusterId;
 	}
 
-	public void setClusterId(Integer clusterId) {
+	public void setClusterId(Long clusterId) {
 		this.clusterId = clusterId;
 	}
 
@@ -80,11 +80,11 @@ public class AppEnvironment extends BaseBean {
 		this.configContent = configContent;
 	}
 
-	public Integer getRepositoryId() {
+	public Long getRepositoryId() {
 		return repositoryId;
 	}
 
-	public void setRepositoryId(Integer repositoryId) {
+	public void setRepositoryId(Long repositoryId) {
 		this.repositoryId = repositoryId;
 	}
 

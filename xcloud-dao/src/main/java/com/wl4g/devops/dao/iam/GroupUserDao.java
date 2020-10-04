@@ -20,19 +20,19 @@ import java.util.List;
 import com.wl4g.components.core.bean.iam.GroupUser;
 
 public interface GroupUserDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(GroupUser record);
+	int insert(GroupUser record);
 
-    int insertSelective(GroupUser record);
+	int insertSelective(GroupUser record);
 
-    GroupUser selectByPrimaryKey(Integer id);
+	GroupUser selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(GroupUser record);
+	int updateByPrimaryKeySelective(GroupUser record);
 
-    int updateByPrimaryKey(GroupUser record);
+	int updateByPrimaryKey(GroupUser record);
 
-    int deleteByUserId(Integer userId);
+	int deleteByUserId(Long userId);
 
-    List<Integer> selectGroupIdByUserId(Integer userId);
+	List<Long> selectGroupIdByUserId(Long userId);
 }

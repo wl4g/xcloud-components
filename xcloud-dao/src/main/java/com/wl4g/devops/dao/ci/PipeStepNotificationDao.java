@@ -18,19 +18,19 @@ package com.wl4g.devops.dao.ci;
 import com.wl4g.components.core.bean.ci.PipeStepNotification;
 
 public interface PipeStepNotificationDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByPipeId(Integer pipeId);
+	int deleteByPipeId(Long pipeId);
 
-    int insert(PipeStepNotification record);
+	int insert(PipeStepNotification record);
 
-    int insertSelective(PipeStepNotification record);
+	int insertSelective(PipeStepNotification record);
 
-    PipeStepNotification selectByPrimaryKey(Integer id);
+	PipeStepNotification selectByPrimaryKey(Long id);
 
-    PipeStepNotification selectByPipeId(Integer pipeId);
+	PipeStepNotification selectByPipeId(Long pipeId);
 
-    int updateByPrimaryKeySelective(PipeStepNotification record);
+	int updateByPrimaryKeySelective(PipeStepNotification record);
 
-    int updateByPrimaryKey(PipeStepNotification record);
+	int updateByPrimaryKey(PipeStepNotification record);
 }

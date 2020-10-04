@@ -22,17 +22,17 @@ import com.wl4g.components.core.bean.erm.HostSsh;
 import java.util.List;
 
 public interface HostSshDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-	int deleteByHostId(Integer hostId);
+	int deleteByHostId(Long hostId);
 
 	int insert(HostSsh record);
 
 	int insertSelective(HostSsh record);
 
-	HostSsh selectByPrimaryKey(Integer id);
+	HostSsh selectByPrimaryKey(Long id);
 
-	List<Integer> selectByHostId(Integer hostId);
+	List<Long> selectByHostId(Long hostId);
 
 	int updateByPrimaryKeySelective(HostSsh record);
 

@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.iam.Role;
 import java.util.List;
 
 public interface RoleDao {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(Role record);
 
     int insertSelective(Role record);
 
-    Role selectByPrimaryKey(Integer id);
+    Role selectByPrimaryKey(Long id);
 
     List<Role> selectWithRoot(@Param("roleCode") String roleCode, @Param("displayName") String displayName);
 
@@ -36,11 +36,11 @@ public interface RoleDao {
 
     int updateByPrimaryKey(Role record);
 
-    List<Role> selectByUserId(Integer userId);
+    List<Role> selectByUserId(Long userId);
 
-    List<Role> selectByGroupId(Integer groupId);
+    List<Role> selectByGroupId(Long groupId);
 
-    List<Role> selectByGroupIds(@Param("groupIds") List<Integer> groupIds,@Param("roleCode") String roleCode, @Param("displayName") String displayName);
+    List<Role> selectByGroupIds(@Param("groupIds") List<Long> groupIds,@Param("roleCode") String roleCode, @Param("displayName") String displayName);
 
-    List<Role> list(@Param("groupIds") List<Integer> groupIds,@Param("roleCode") String roleCode, @Param("displayName") String displayName);
+    List<Role> list(@Param("groupIds") List<Long> groupIds,@Param("roleCode") String roleCode, @Param("displayName") String displayName);
 }

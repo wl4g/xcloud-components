@@ -16,8 +16,14 @@
 package com.wl4g.components.core.bean.erm;
 
 import javax.validation.constraints.NotBlank;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Getter
+@Setter
 public class QueryLogModel {
 
 	@NotBlank
@@ -28,61 +34,5 @@ public class QueryLogModel {
 	private Integer limit;
 	private Integer level;
 	private List<Querycriteria> queryList;
-
-	public List<Querycriteria> getQueryList() {
-		return queryList;
-	}
-
-	public void setQueryList(List<Querycriteria> queryList) {
-		this.queryList = queryList;
-	}
-
-	public String getIndex() {
-		return index;
-	}
-
-	public void setIndex(String index) {
-		this.index = index;
-	}
-
-	public Long getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Long startTime) {
-		this.startTime = startTime;
-	}
-
-	public Long getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Long endTime) {
-		this.endTime = endTime;
-	}
-
-	public Integer getLevel() {
-		return level;
-	}
-
-	public void setLevel(Integer level) {
-		this.level = level;
-	}
-
-	public Integer getFrom() {
-		return from;
-	}
-
-	public void setFrom(Integer from) {
-		this.from = from;
-	}
-
-	public Integer getLimit() {
-		return limit;
-	}
-
-	public void setLimit(Integer limit) {
-		this.limit = limit;
-	}
 
 }

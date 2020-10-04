@@ -22,26 +22,26 @@ import com.wl4g.components.core.bean.ci.PipeStepBuildingProject;
 import java.util.List;
 
 public interface PipeStepBuildingProjectDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByBuildingId(Integer buildingId);
+	int deleteByBuildingId(Long buildingId);
 
-    int deleteByPipeId(Integer pipeId);
+	int deleteByPipeId(Long pipeId);
 
-    int insert(PipeStepBuildingProject record);
+	int insert(PipeStepBuildingProject record);
 
-    int insertSelective(PipeStepBuildingProject record);
+	int insertSelective(PipeStepBuildingProject record);
 
-    PipeStepBuildingProject selectByPrimaryKey(Integer id);
+	PipeStepBuildingProject selectByPrimaryKey(Long id);
 
-    List<PipeStepBuildingProject> selectByBuildingId(Integer buildingId);
+	List<PipeStepBuildingProject> selectByBuildingId(Long buildingId);
 
-    List<PipeStepBuildingProject> selectByPipeId(Integer pipeId);
+	List<PipeStepBuildingProject> selectByPipeId(Long pipeId);
 
-    int updateByPrimaryKeySelective(PipeStepBuildingProject record);
+	int updateByPrimaryKeySelective(PipeStepBuildingProject record);
 
-    int updateByPrimaryKey(PipeStepBuildingProject record);
+	int updateByPrimaryKey(PipeStepBuildingProject record);
 
-    int insertBatch(@Param("pipeStepBuildingProjects") List<PipeStepBuildingProject> pipeStepBuildingProjects);
+	int insertBatch(@Param("pipeStepBuildingProjects") List<PipeStepBuildingProject> pipeStepBuildingProjects);
 
 }

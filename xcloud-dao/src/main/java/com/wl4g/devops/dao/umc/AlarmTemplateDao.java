@@ -23,13 +23,13 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface AlarmTemplateDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(AlarmTemplate record);
 
 	int insertSelective(AlarmTemplate record);
 
-	AlarmTemplate selectByPrimaryKey(Integer id);
+	AlarmTemplate selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(AlarmTemplate record);
 
@@ -39,5 +39,5 @@ public interface AlarmTemplateDao {
 
 	List<AlarmTemplate> getByClusterId(@Param("clusterId") Serializable clusterId);
 
-	List<AlarmTemplate> list(@Param("name") String name, @Param("metricId") Integer metricId, @Param("classify") String classify);
+	List<AlarmTemplate> list(@Param("name") String name, @Param("metricId") Long metricId, @Param("classify") String classify);
 }

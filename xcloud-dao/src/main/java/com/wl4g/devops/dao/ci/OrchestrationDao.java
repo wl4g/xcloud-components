@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.ci.Orchestration;
 import java.util.List;
 
 public interface OrchestrationDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
     int insert(Orchestration record);
 
     int insertSelective(Orchestration record);
 
-    Orchestration selectByPrimaryKey(Integer id);
+    Orchestration selectByPrimaryKey(Long id);
 
     int updateByPrimaryKeySelective(Orchestration record);
 

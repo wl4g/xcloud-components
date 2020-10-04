@@ -23,17 +23,18 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface PcmDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Pcm record);
+	int insert(Pcm record);
 
-    int insertSelective(Pcm record);
+	int insertSelective(Pcm record);
 
-    Pcm selectByPrimaryKey(Integer id);
+	Pcm selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(Pcm record);
+	int updateByPrimaryKeySelective(Pcm record);
 
-    int updateByPrimaryKey(Pcm record);
+	int updateByPrimaryKey(Pcm record);
 
-    Page<Pcm> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name")String name, @Param("providerKind")String providerKind, @Param("authType")Integer authType);
+	Page<Pcm> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name") String name,
+			@Param("providerKind") String providerKind, @Param("authType") Integer authType);
 }

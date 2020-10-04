@@ -20,7 +20,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class DnsPrivateResolution extends BaseBean {
 	private static final long serialVersionUID = -3298424126317938674L;
 
-	private Integer domainId;
+	private Long domainId;
 
 	private String host;
 
@@ -36,11 +36,11 @@ public class DnsPrivateResolution extends BaseBean {
 
 	private String status;
 
-	public Integer getDomainId() {
+	public Long getDomainId() {
 		return domainId;
 	}
 
-	public void setDomainId(Integer domainId) {
+	public void setDomainId(Long domainId) {
 		this.domainId = domainId;
 	}
 

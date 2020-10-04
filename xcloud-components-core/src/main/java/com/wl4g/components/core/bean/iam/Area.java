@@ -22,7 +22,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class Area extends BaseBean {
 	private static final long serialVersionUID = 6055405466492698537L;
 
-	private Integer parentId;
+	private Long parentId;
 
 	private String name;
 
@@ -40,11 +40,11 @@ public class Area extends BaseBean {
 
 	private List<Area> children;
 
-	public Integer getParentId() {
+	public Long getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(Integer parentId) {
+	public void setParentId(Long parentId) {
 		this.parentId = parentId;
 	}
 

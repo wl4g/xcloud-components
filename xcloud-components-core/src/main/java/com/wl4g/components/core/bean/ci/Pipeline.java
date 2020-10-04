@@ -25,7 +25,7 @@ public class Pipeline extends BaseBean {
 
 	private String pipeName;
 
-	private Integer clusterId;
+	private Long clusterId;
 
 	private String providerKind;
 
@@ -41,7 +41,7 @@ public class Pipeline extends BaseBean {
 
 	private List<AppInstance> instances;
 
-	private Integer[] instanceIds;
+	private Long[] instanceIds;
 
 	private PipeStepBuilding pipeStepBuilding;
 
@@ -55,9 +55,9 @@ public class Pipeline extends BaseBean {
 
 	private Integer pcmEnable;
 
-	private Integer pcmId;
+	private Long pcmId;
 
-	private Integer deployId;
+	private Long deployId;
 
 	public String getPipeName() {
 		return pipeName;
@@ -67,11 +67,11 @@ public class Pipeline extends BaseBean {
 		this.pipeName = pipeName == null ? null : pipeName.trim();
 	}
 
-	public Integer getClusterId() {
+	public Long getClusterId() {
 		return clusterId;
 	}
 
-	public void setClusterId(Integer clusterId) {
+	public void setClusterId(Long clusterId) {
 		this.clusterId = clusterId;
 	}
 
@@ -123,11 +123,11 @@ public class Pipeline extends BaseBean {
 		this.instances = instances;
 	}
 
-	public Integer[] getInstanceIds() {
+	public Long[] getInstanceIds() {
 		return instanceIds;
 	}
 
-	public void setInstanceIds(Integer[] instanceIds) {
+	public void setInstanceIds(Long[] instanceIds) {
 		this.instanceIds = instanceIds;
 	}
 
@@ -171,11 +171,11 @@ public class Pipeline extends BaseBean {
 		this.pcmEnable = pcmEnable;
 	}
 
-	public Integer getPcmId() {
+	public Long getPcmId() {
 		return pcmId;
 	}
 
-	public void setPcmId(Integer pcmId) {
+	public void setPcmId(Long pcmId) {
 		this.pcmId = pcmId;
 	}
 
@@ -187,11 +187,11 @@ public class Pipeline extends BaseBean {
 		this.pipeStepDeploy = pipeStepDeploy;
 	}
 
-	public Integer getDeployId() {
+	public Long getDeployId() {
 		return deployId;
 	}
 
-	public void setDeployId(Integer deployId) {
+	public void setDeployId(Long deployId) {
 		this.deployId = deployId;
 	}
 }

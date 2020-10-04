@@ -23,11 +23,9 @@ import com.wl4g.components.core.bean.BaseBean;
 public class Dependency extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer id;
+	private Long projectId;
 
-	private Integer projectId;
-
-	private Integer dependentId;
+	private Long dependentId;
 
 	private String projectName;
 
@@ -37,31 +35,23 @@ public class Dependency extends BaseBean implements Serializable {
 
 	}
 
-	public Dependency(Integer projectId) {
+	public Dependency(Long projectId) {
 		this.projectId = projectId;
 	}
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public Integer getProjectId() {
+	public Long getProjectId() {
 		return projectId;
 	}
 
-	public void setProjectId(Integer projectId) {
+	public void setProjectId(Long projectId) {
 		this.projectId = projectId;
 	}
 
-	public Integer getDependentId() {
+	public Long getDependentId() {
 		return dependentId;
 	}
 
-	public void setDependentId(Integer dependentId) {
+	public void setDependentId(Long dependentId) {
 		this.dependentId = dependentId;
 	}
 
@@ -96,9 +86,4 @@ public class Dependency extends BaseBean implements Serializable {
 		return Objects.hash(dependentId);
 	}
 
-	@Override
-	public String toString() {
-		return "Dependency{" + "id=" + id + ", projectId=" + projectId + ", dependentId=" + dependentId + ", projectName='"
-				+ projectName + '\'' + ", parentName='" + parentName + '\'' + '}';
-	}
 }

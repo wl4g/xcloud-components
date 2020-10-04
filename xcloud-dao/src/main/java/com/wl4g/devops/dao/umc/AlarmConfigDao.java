@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.umc.AlarmConfig;
 import java.util.List;
 
 public interface AlarmConfigDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(AlarmConfig record);
 
 	int insertSelective(AlarmConfig record);
 
-	AlarmConfig selectByPrimaryKey(Integer id);
+	AlarmConfig selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(AlarmConfig record);
 
@@ -36,14 +36,14 @@ public interface AlarmConfigDao {
 
 	List<AlarmConfig> selectAll();
 
-	List<AlarmConfig> list(@Param("templateId") Integer templateId, @Param("contactGroupId") Integer contactGroupId);
+	List<AlarmConfig> list(@Param("templateId") Long templateId, @Param("contactGroupId") Long contactGroupId);
 
-	List<AlarmConfig> selectByTemplateId(Integer templateId);
+	List<AlarmConfig> selectByTemplateId(Long templateId);
 
-	List<AlarmConfig> getByCollectAddrAndTemplateId(@Param("templateId") Integer templateId,
+	List<AlarmConfig> getByCollectAddrAndTemplateId(@Param("templateId") Long templateId,
 			@Param("collectAddr") String collectAddr);
 
-	List<AlarmConfig> getByClusterIdAndTemplateId(@Param("templateId") Integer templateId, @Param("clusterId") Integer clusterId);
+	List<AlarmConfig> getByClusterIdAndTemplateId(@Param("templateId") Long templateId, @Param("clusterId") Long clusterId);
 
 	List<AlarmConfig> getAlarmConfigTpls(@Param("host") String host, @Param("endpoint") String endpoint);
 }

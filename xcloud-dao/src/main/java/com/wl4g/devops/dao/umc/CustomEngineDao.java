@@ -22,17 +22,17 @@ import com.wl4g.components.core.bean.umc.CustomEngine;
 import java.util.List;
 
 public interface CustomEngineDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(CustomEngine record);
+	int insert(CustomEngine record);
 
-    int insertSelective(CustomEngine record);
+	int insertSelective(CustomEngine record);
 
-    CustomEngine selectByPrimaryKey(Integer id);
+	CustomEngine selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(CustomEngine record);
+	int updateByPrimaryKeySelective(CustomEngine record);
 
-    int updateByPrimaryKey(CustomEngine record);
+	int updateByPrimaryKey(CustomEngine record);
 
-    List<CustomEngine> list(@Param("name") String name);
+	List<CustomEngine> list(@Param("name") String name);
 }

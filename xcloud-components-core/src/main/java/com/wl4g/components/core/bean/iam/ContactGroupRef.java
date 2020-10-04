@@ -22,23 +22,23 @@ import com.wl4g.components.core.bean.BaseBean;
 public class ContactGroupRef extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer contactGroupId;
+	private Long contactGroupId;
 
-	private Integer contactId;
+	private Long contactId;
 
-	public Integer getContactGroupId() {
+	public Long getContactGroupId() {
 		return contactGroupId;
 	}
 
-	public void setContactGroupId(Integer contactGroupId) {
+	public void setContactGroupId(Long contactGroupId) {
 		this.contactGroupId = contactGroupId;
 	}
 
-	public Integer getContactId() {
+	public Long getContactId() {
 		return contactId;
 	}
 
-	public void setContactId(Integer contactId) {
+	public void setContactId(Long contactId) {
 		this.contactId = contactId;
 	}
 }

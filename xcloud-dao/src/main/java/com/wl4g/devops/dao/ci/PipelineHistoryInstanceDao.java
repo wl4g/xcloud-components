@@ -20,17 +20,17 @@ import java.util.List;
 import com.wl4g.components.core.bean.ci.PipelineHistoryInstance;
 
 public interface PipelineHistoryInstanceDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(PipelineHistoryInstance record);
+	int insert(PipelineHistoryInstance record);
 
-    int insertSelective(PipelineHistoryInstance record);
+	int insertSelective(PipelineHistoryInstance record);
 
-    PipelineHistoryInstance selectByPrimaryKey(Integer id);
+	PipelineHistoryInstance selectByPrimaryKey(Long id);
 
-    List<PipelineHistoryInstance> selectByPipeHistoryId(Integer pipeHistoryId);
+	List<PipelineHistoryInstance> selectByPipeHistoryId(Long pipeHistoryId);
 
-    int updateByPrimaryKeySelective(PipelineHistoryInstance record);
+	int updateByPrimaryKeySelective(PipelineHistoryInstance record);
 
-    int updateByPrimaryKey(PipelineHistoryInstance record);
+	int updateByPrimaryKey(PipelineHistoryInstance record);
 }

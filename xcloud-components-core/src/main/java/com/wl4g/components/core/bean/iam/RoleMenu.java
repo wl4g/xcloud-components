@@ -22,23 +22,22 @@ import com.wl4g.components.core.bean.BaseBean;
 public class RoleMenu extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer roleId;
+	private Long roleId;
+	private Long menuId;
 
-	private Integer menuId;
-
-	public Integer getRoleId() {
+	public Long getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(Integer roleId) {
+	public void setRoleId(Long roleId) {
 		this.roleId = roleId;
 	}
 
-	public Integer getMenuId() {
+	public Long getMenuId() {
 		return menuId;
 	}
 
-	public void setMenuId(Integer menuId) {
+	public void setMenuId(Long menuId) {
 		this.menuId = menuId;
 	}
 

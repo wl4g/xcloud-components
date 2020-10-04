@@ -20,20 +20,19 @@ import java.util.List;
 import com.wl4g.components.core.bean.iam.RoleUser;
 
 public interface RoleUserDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(RoleUser record);
+	int insert(RoleUser record);
 
-    int insertSelective(RoleUser record);
+	int insertSelective(RoleUser record);
 
-    RoleUser selectByPrimaryKey(Integer id);
+	RoleUser selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(RoleUser record);
+	int updateByPrimaryKeySelective(RoleUser record);
 
-    int updateByPrimaryKey(RoleUser record);
+	int updateByPrimaryKey(RoleUser record);
 
-    int deleteByUserId(Integer userId);
+	int deleteByUserId(Long userId);
 
-
-    List<Integer> selectRoleIdByUserId(Integer userID);
+	List<Long> selectRoleIdByUserId(Long userID);
 }

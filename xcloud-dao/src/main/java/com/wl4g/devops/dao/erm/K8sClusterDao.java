@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.K8sCluster;
 import java.util.List;
 
 public interface K8sClusterDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(K8sCluster record);
 
 	int insertSelective(K8sCluster record);
 
-	K8sCluster selectByPrimaryKey(Integer id);
+	K8sCluster selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(K8sCluster record);
 

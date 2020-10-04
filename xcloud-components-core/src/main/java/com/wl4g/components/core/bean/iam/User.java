@@ -63,11 +63,11 @@ public class User extends BaseBean implements Serializable {
 	}
 
 	// other
-	private List<Integer> roleIds;
+	private List<Long> roleIds;
 
 	private String roleStrs;
 
-	private List<Integer> groupIds;
+	private List<Long> groupIds;
 
 	private String groupNameStrs;
 
@@ -199,11 +199,11 @@ public class User extends BaseBean implements Serializable {
 		this.awsId = awsId == null ? null : awsId.trim();
 	}
 
-	public List<Integer> getRoleIds() {
+	public List<Long> getRoleIds() {
 		return roleIds;
 	}
 
-	public void setRoleIds(List<Integer> roleIds) {
+	public void setRoleIds(List<Long> roleIds) {
 		this.roleIds = roleIds;
 	}
 
@@ -223,11 +223,11 @@ public class User extends BaseBean implements Serializable {
 		this.groupNameStrs = groupNameStrs;
 	}
 
-	public List<Integer> getGroupIds() {
+	public List<Long> getGroupIds() {
 		return groupIds;
 	}
 
-	public void setGroupIds(List<Integer> groupIds) {
+	public void setGroupIds(List<Long> groupIds) {
 		this.groupIds = groupIds;
 	}
 }

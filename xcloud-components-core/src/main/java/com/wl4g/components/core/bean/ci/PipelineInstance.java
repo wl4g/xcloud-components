@@ -20,23 +20,22 @@ import com.wl4g.components.core.bean.BaseBean;
 public class PipelineInstance extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer deployId;
+	private Long deployId;
+	private Long instanceId;
 
-	private Integer instanceId;
-
-	public Integer getDeployId() {
+	public Long getDeployId() {
 		return deployId;
 	}
 
-	public void setDeployId(Integer deployId) {
+	public void setDeployId(Long deployId) {
 		this.deployId = deployId;
 	}
 
-	public Integer getInstanceId() {
+	public Long getInstanceId() {
 		return instanceId;
 	}
 
-	public void setInstanceId(Integer instanceId) {
+	public void setInstanceId(Long instanceId) {
 		this.instanceId = instanceId;
 	}
 }

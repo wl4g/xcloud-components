@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.DockerRepository;
 import java.util.List;
 
 public interface DockerRepositoryDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DockerRepository record);
 
 	int insertSelective(DockerRepository record);
 
-	DockerRepository selectByPrimaryKey(Integer id);
+	DockerRepository selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(DockerRepository record);
 

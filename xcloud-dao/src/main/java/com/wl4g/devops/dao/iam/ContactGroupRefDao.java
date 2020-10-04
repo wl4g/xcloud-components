@@ -20,20 +20,20 @@ import java.util.List;
 import com.wl4g.components.core.bean.iam.ContactGroupRef;
 
 public interface ContactGroupRefDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(ContactGroupRef record);
 
 	int insertSelective(ContactGroupRef record);
 
-	ContactGroupRef selectByPrimaryKey(Integer id);
+	ContactGroupRef selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(ContactGroupRef record);
 
 	int updateByPrimaryKey(ContactGroupRef record);
 
-	int deleteByContactId(Integer id);
+	int deleteByContactId(Long id);
 
-	List<ContactGroupRef> selectByContactId(Integer id);
+	List<ContactGroupRef> selectByContactId(Long id);
 
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.wl4g.devops.dao.ci.TaskDao" >
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.Task" >
-    <id column="id" property="id" jdbcType="INTEGER" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="task_name" property="taskName" jdbcType="VARCHAR" />
     <result column="app_cluster_id" property="appClusterId" jdbcType="INTEGER" />
     <result column="project_id" property="projectId" jdbcType="INTEGER" />

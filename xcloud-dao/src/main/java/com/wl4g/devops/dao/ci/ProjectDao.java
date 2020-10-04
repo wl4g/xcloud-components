@@ -22,22 +22,23 @@ import com.wl4g.components.core.bean.ci.Project;
 import java.util.List;
 
 public interface ProjectDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Project record);
 
 	int insertSelective(Project record);
 
-	Project selectByPrimaryKey(Integer id);
+	Project selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Project record);
 
 	int updateByPrimaryKey(Project record);
 
-	List<Project> list(@Param("organizationCodes")List<String> organizationCodes, @Param("groupName") String groupName, @Param("projectName") String projectName,@Param("isBoot") Integer isBoot);
+	List<Project> list(@Param("organizationCodes") List<String> organizationCodes, @Param("groupName") String groupName,
+			@Param("projectName") String projectName, @Param("isBoot") Integer isBoot);
 
 	Project getByProjectName(String projectName);
 
-	Project getByAppClusterId(Integer appGrouPId);
+	Project getByAppClusterId(Long appGrouPId);
 
 }

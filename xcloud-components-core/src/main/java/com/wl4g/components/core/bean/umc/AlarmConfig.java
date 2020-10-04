@@ -25,11 +25,11 @@ public class AlarmConfig extends BaseBean implements Serializable {
 
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer collectId;
+	private Long collectId;
 
-	private Integer templateId;
+	private Long templateId;
 
-	private Integer contactGroupId;
+	private Long contactGroupId;
 
 	private String callbackUrl;
 
@@ -38,7 +38,7 @@ public class AlarmConfig extends BaseBean implements Serializable {
 
 	private String contactGroupName;
 
-	private Integer group;
+	private Long group;
 	private String envType;
 	private String classify;
 
@@ -48,27 +48,27 @@ public class AlarmConfig extends BaseBean implements Serializable {
 	/* contacts */
 	private List<Contact> contacts;
 
-	public Integer getCollectId() {
+	public Long getCollectId() {
 		return collectId;
 	}
 
-	public void setCollectId(Integer collectId) {
+	public void setCollectId(Long collectId) {
 		this.collectId = collectId;
 	}
 
-	public Integer getTemplateId() {
+	public Long getTemplateId() {
 		return templateId;
 	}
 
-	public void setTemplateId(Integer templateId) {
+	public void setTemplateId(Long templateId) {
 		this.templateId = templateId;
 	}
 
-	public Integer getContactGroupId() {
+	public Long getContactGroupId() {
 		return contactGroupId;
 	}
 
-	public void setContactGroupId(Integer contactGroupId) {
+	public void setContactGroupId(Long contactGroupId) {
 		this.contactGroupId = contactGroupId;
 	}
 
@@ -96,11 +96,11 @@ public class AlarmConfig extends BaseBean implements Serializable {
 		this.contactGroupName = contactGroupName;
 	}
 
-	public Integer getGroup() {
+	public Long getGroup() {
 		return group;
 	}
 
-	public void setGroup(Integer group) {
+	public void setGroup(Long group) {
 		this.group = group;
 	}
 

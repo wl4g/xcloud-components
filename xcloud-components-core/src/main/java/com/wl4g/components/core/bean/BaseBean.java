@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
-import static java.lang.Math.abs;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -46,12 +45,12 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Bean info unqiue ID.
 	 */
-	private Integer id;
+	private Long id;
 
 	/**
 	 * Bean info create user.
 	 */
-	private Integer createBy;
+	private Long createBy;
 
 	/**
 	 * Bean info create date.
@@ -62,7 +61,7 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Bean info update user.
 	 */
-	private Integer updateBy;
+	private Long updateBy;
 
 	/**
 	 * Bean info update date.
@@ -95,12 +94,11 @@ public abstract class BaseBean implements Serializable {
 	 * 
 	 * @return return current preparing insert generated id.
 	 */
-	public Integer preInsert() {
+	public Long preInsert() {
 		// TODO
 		// This is a temporary ID generation scheme. You can change
 		// it to a primary key generation service later.
-
-		setId(abs((int) (SnowflakeIdGenerator.getDefault().nextId() % 10_000_000_000L))); // unsafe-convert!!!
+		setId(SnowflakeIdGenerator.getDefault().nextId());
 
 		setCreateDate(new Date());
 		setCreateBy(DEFAULT_USER_ID);
@@ -118,7 +116,7 @@ public abstract class BaseBean implements Serializable {
 	 * @param organizationCode
 	 * @return return current preparing insert generated id.
 	 */
-	public Integer preInsert(String organizationCode) {
+	public Long preInsert(String organizationCode) {
 		if (isBlank(getOrganizationCode())) {
 			setOrganizationCode(organizationCode);
 		}
@@ -133,7 +131,7 @@ public abstract class BaseBean implements Serializable {
 		setUpdateBy(DEFAULT_USER_ID);
 	}
 
-	public BaseBean withId(Integer id) {
+	public BaseBean withId(Long id) {
 		this.id = id;
 		return this;
 	}
@@ -148,7 +146,7 @@ public abstract class BaseBean implements Serializable {
 		return this;
 	}
 
-	public BaseBean withCreateBy(Integer createBy) {
+	public BaseBean withCreateBy(Long createBy) {
 		setCreateBy(createBy);
 		return this;
 	}
@@ -158,7 +156,7 @@ public abstract class BaseBean implements Serializable {
 		return this;
 	}
 
-	public BaseBean withUpdateBy(Integer updateBy) {
+	public BaseBean withUpdateBy(Long updateBy) {
 		setUpdateBy(updateBy);
 		return this;
 	}
@@ -216,7 +214,7 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Default userId.
 	 */
-	public static final int DEFAULT_USER_ID = 1;
+	public static final long DEFAULT_USER_ID = 1;
 
 	/*
 	 * Default userName: Super administrator account.

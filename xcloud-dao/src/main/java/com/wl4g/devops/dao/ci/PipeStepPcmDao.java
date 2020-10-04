@@ -19,19 +19,19 @@ import com.wl4g.components.core.bean.ci.PipeStepPcm;
 
 public interface PipeStepPcmDao {
 
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByPipeId(Integer pipeId);
+	int deleteByPipeId(Long pipeId);
 
-    int insert(PipeStepPcm record);
+	int insert(PipeStepPcm record);
 
-    int insertSelective(PipeStepPcm record);
+	int insertSelective(PipeStepPcm record);
 
-    PipeStepPcm selectByPrimaryKey(Integer id);
+	PipeStepPcm selectByPrimaryKey(Long id);
 
-    PipeStepPcm selectByPipeId(Integer pipeId);
+	PipeStepPcm selectByPipeId(Long pipeId);
 
-    int updateByPrimaryKeySelective(PipeStepPcm record);
+	int updateByPrimaryKeySelective(PipeStepPcm record);
 
-    int updateByPrimaryKey(PipeStepPcm record);
+	int updateByPrimaryKey(PipeStepPcm record);
 }

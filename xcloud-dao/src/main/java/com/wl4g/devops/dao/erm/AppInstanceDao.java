@@ -22,25 +22,25 @@ import com.wl4g.components.core.bean.erm.AppInstance;
 import java.util.List;
 
 public interface AppInstanceDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(AppInstance record);
 
 	int insertSelective(AppInstance record);
 
-	AppInstance selectByPrimaryKey(Integer id);
+	AppInstance selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(AppInstance record);
 
 	int updateByPrimaryKey(AppInstance record);
 
-	List<AppInstance> selectByClusterId(Integer clusterId);
+	List<AppInstance> selectByClusterId(Long clusterId);
 
-	int countByClusterId(Integer clusterId);
+	int countByClusterId(Long clusterId);
 
-	List<AppInstance> selectByClusterIdAndEnvType(@Param("clusterId") Integer clusterId, @Param("envType") String envType);
+	List<AppInstance> selectByClusterIdAndEnvType(@Param("clusterId") Long clusterId, @Param("envType") String envType);
 
 	List<AppInstance> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name") String name,
-			@Param("clusterId") Integer clusterId, @Param("envType") String envType, @Param("deployType") Integer deployType);
+			@Param("clusterId") Long clusterId, @Param("envType") String envType, @Param("deployType") Integer deployType);
 
 }

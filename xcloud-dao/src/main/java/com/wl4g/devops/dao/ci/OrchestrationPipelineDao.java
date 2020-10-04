@@ -20,17 +20,17 @@ import java.util.List;
 import com.wl4g.components.core.bean.ci.OrchestrationPipeline;
 
 public interface OrchestrationPipelineDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(OrchestrationPipeline record);
+	int insert(OrchestrationPipeline record);
 
-    int insertSelective(OrchestrationPipeline record);
+	int insertSelective(OrchestrationPipeline record);
 
-    OrchestrationPipeline selectByPrimaryKey(Integer id);
+	OrchestrationPipeline selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(OrchestrationPipeline record);
+	int updateByPrimaryKeySelective(OrchestrationPipeline record);
 
-    int updateByPrimaryKey(OrchestrationPipeline record);
+	int updateByPrimaryKey(OrchestrationPipeline record);
 
-    List<OrchestrationPipeline> selectByOrchestrationId(Integer OrchestrationId);
+	List<OrchestrationPipeline> selectByOrchestrationId(Long OrchestrationId);
 }

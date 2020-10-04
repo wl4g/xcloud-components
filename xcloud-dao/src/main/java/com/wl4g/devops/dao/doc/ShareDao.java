@@ -20,19 +20,19 @@ import java.util.List;
 import com.wl4g.components.core.bean.doc.Share;
 
 public interface ShareDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Share record);
+	int insert(Share record);
 
-    int insertSelective(Share record);
+	int insertSelective(Share record);
 
-    Share selectByPrimaryKey(Integer id);
+	Share selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(Share record);
+	int updateByPrimaryKeySelective(Share record);
 
-    int updateByPrimaryKey(Share record);
+	int updateByPrimaryKey(Share record);
 
-    List<Share> list();
+	List<Share> list();
 
-    Share selectByShareCode(String shareCode);
+	Share selectByShareCode(String shareCode);
 }

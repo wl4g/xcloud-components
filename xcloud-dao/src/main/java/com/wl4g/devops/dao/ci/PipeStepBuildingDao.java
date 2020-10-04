@@ -18,19 +18,19 @@ package com.wl4g.devops.dao.ci;
 import com.wl4g.components.core.bean.ci.PipeStepBuilding;
 
 public interface PipeStepBuildingDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByPipeId(Integer pipeId);
+	int deleteByPipeId(Long pipeId);
 
-    int insert(PipeStepBuilding record);
+	int insert(PipeStepBuilding record);
 
-    int insertSelective(PipeStepBuilding record);
+	int insertSelective(PipeStepBuilding record);
 
-    PipeStepBuilding selectByPrimaryKey(Integer id);
+	PipeStepBuilding selectByPrimaryKey(Long id);
 
-    PipeStepBuilding selectByPipeId(Integer pipeId);
+	PipeStepBuilding selectByPipeId(Long pipeId);
 
-    int updateByPrimaryKeySelective(PipeStepBuilding record);
+	int updateByPrimaryKeySelective(PipeStepBuilding record);
 
-    int updateByPrimaryKey(PipeStepBuilding record);
+	int updateByPrimaryKey(PipeStepBuilding record);
 }

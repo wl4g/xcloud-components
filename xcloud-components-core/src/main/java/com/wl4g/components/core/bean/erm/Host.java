@@ -27,11 +27,11 @@ public class Host extends BaseBean {
 
 	private String hostname;
 
-	private Integer idcId;
+	private Long idcId;
 
 	private Integer status;
 
-	private List<Integer> sshIds;
+	private List<Long> sshIds;
 
 	public String getName() {
 		return name;
@@ -49,11 +49,11 @@ public class Host extends BaseBean {
 		this.hostname = hostname == null ? null : hostname.trim();
 	}
 
-	public Integer getIdcId() {
+	public Long getIdcId() {
 		return idcId;
 	}
 
-	public void setIdcId(Integer idcId) {
+	public void setIdcId(Long idcId) {
 		this.idcId = idcId;
 	}
 
@@ -65,11 +65,11 @@ public class Host extends BaseBean {
 		this.status = status;
 	}
 
-	public List<Integer> getSshIds() {
+	public List<Long> getSshIds() {
 		return sshIds;
 	}
 
-	public void setSshIds(List<Integer> sshIds) {
+	public void setSshIds(List<Long> sshIds) {
 		this.sshIds = sshIds;
 	}
 }

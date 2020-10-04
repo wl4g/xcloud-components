@@ -23,7 +23,7 @@ import java.util.Date;
 public class CustomHistory extends BaseBean {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer customEngineId;
+	private Long customEngineId;
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date startTime;
@@ -37,11 +37,11 @@ public class CustomHistory extends BaseBean {
 
 	private Long costTime;
 
-	public Integer getCustomEngineId() {
+	public Long getCustomEngineId() {
 		return customEngineId;
 	}
 
-	public void setCustomEngineId(Integer customEngineId) {
+	public void setCustomEngineId(Long customEngineId) {
 		this.customEngineId = customEngineId;
 	}
 

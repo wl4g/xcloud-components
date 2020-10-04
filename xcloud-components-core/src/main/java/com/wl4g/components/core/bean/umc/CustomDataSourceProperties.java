@@ -21,17 +21,15 @@ public class CustomDataSourceProperties extends BaseBean {
 
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer dataSourceId;
-
+	private Long dataSourceId;
 	private String key;
-
 	private String value;
 
-	public Integer getDataSourceId() {
+	public Long getDataSourceId() {
 		return dataSourceId;
 	}
 
-	public void setDataSourceId(Integer dataSourceId) {
+	public void setDataSourceId(Long dataSourceId) {
 		this.dataSourceId = dataSourceId;
 	}
 

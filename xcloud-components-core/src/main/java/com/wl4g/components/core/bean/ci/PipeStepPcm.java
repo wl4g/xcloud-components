@@ -22,9 +22,9 @@ public class PipeStepPcm extends BaseBean {
 
 	private Integer enable;
 
-	private Integer pipeId;
+	private Long pipeId;
 
-	private Integer pcmId;
+	private Long pcmId;
 
 	private String xProjectId;
 
@@ -46,19 +46,19 @@ public class PipeStepPcm extends BaseBean {
 		this.enable = enable;
 	}
 
-	public Integer getPipeId() {
+	public Long getPipeId() {
 		return pipeId;
 	}
 
-	public void setPipeId(Integer pipeId) {
+	public void setPipeId(Long pipeId) {
 		this.pipeId = pipeId;
 	}
 
-	public Integer getPcmId() {
+	public Long getPcmId() {
 		return pcmId;
 	}
 
-	public void setPcmId(Integer pcmId) {
+	public void setPcmId(Long pcmId) {
 		this.pcmId = pcmId;
 	}
 

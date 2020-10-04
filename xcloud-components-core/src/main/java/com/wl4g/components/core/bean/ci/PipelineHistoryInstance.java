@@ -22,9 +22,9 @@ import com.wl4g.components.core.bean.BaseBean;
 public class PipelineHistoryInstance extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer pipeHistoryId;
+	private Long pipeHistoryId;
 
-	private Integer instanceId;
+	private Long instanceId;
 
 	private Integer status;
 
@@ -35,19 +35,19 @@ public class PipelineHistoryInstance extends BaseBean {
 	// other
 	private String instanceName;
 
-	public Integer getPipeHistoryId() {
+	public Long getPipeHistoryId() {
 		return pipeHistoryId;
 	}
 
-	public void setPipeHistoryId(Integer pipeHistoryId) {
+	public void setPipeHistoryId(Long pipeHistoryId) {
 		this.pipeHistoryId = pipeHistoryId;
 	}
 
-	public Integer getInstanceId() {
+	public Long getInstanceId() {
 		return instanceId;
 	}
 
-	public void setInstanceId(Integer instanceId) {
+	public void setInstanceId(Long instanceId) {
 		this.instanceId = instanceId;
 	}
 

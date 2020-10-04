@@ -23,18 +23,18 @@ import com.wl4g.components.core.bean.erm.HostNetcard;
 import java.util.List;
 
 public interface HostNetcardDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(HostNetcard record);
 
 	int insertSelective(HostNetcard record);
 
-	HostNetcard selectByPrimaryKey(Integer id);
+	HostNetcard selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(HostNetcard record);
 
 	int updateByPrimaryKey(HostNetcard record);
 
-	List<Host> list(@Param("organizationCodes") List<String> organizationCodes, @Param("hostId") Integer hostId,
+	List<Host> list(@Param("organizationCodes") List<String> organizationCodes, @Param("hostId") Long hostId,
 			@Param("name") String name);
 }

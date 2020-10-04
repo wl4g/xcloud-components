@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.Idc;
 import java.util.List;
 
 public interface IdcDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Idc record);
 
 	int insertSelective(Idc record);
 
-	Idc selectByPrimaryKey(Integer id);
+	Idc selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Idc record);
 

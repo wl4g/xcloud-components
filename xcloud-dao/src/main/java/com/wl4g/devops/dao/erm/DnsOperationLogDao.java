@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.DnsOperationLog;
 import java.util.List;
 
 public interface DnsOperationLogDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DnsOperationLog record);
 
 	int insertSelective(DnsOperationLog record);
 
-	DnsOperationLog selectByPrimaryKey(Integer id);
+	DnsOperationLog selectByPrimaryKey(Long id);
 
 	List<DnsOperationLog> list(@Param("organizationCodes") List<String> organizationCodes, @Param("domain") String domain);
 

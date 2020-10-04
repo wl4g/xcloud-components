@@ -22,23 +22,23 @@ import org.apache.ibatis.annotations.Param;
 import com.wl4g.components.core.bean.doc.Label;
 
 public interface LabelDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Label record);
+	int insert(Label record);
 
-    int insertSelective(Label record);
+	int insertSelective(Label record);
 
-    Label selectByPrimaryKey(Integer id);
+	Label selectByPrimaryKey(Long id);
 
-    List<Label> selectByFileId(Integer fileId);
+	List<Label> selectByFileId(Long fileId);
 
-    List<Integer> selectLabelIdsByFileId(Integer fileId);
+	List<Long> selectLabelIdsByFileId(Long fileId);
 
-    List<Label> selectAll();
+	List<Label> selectAll();
 
-    List<Label> list(@Param("name") String name);
+	List<Label> list(@Param("name") String name);
 
-    int updateByPrimaryKeySelective(Label record);
+	int updateByPrimaryKeySelective(Label record);
 
-    int updateByPrimaryKey(Label record);
+	int updateByPrimaryKey(Label record);
 }

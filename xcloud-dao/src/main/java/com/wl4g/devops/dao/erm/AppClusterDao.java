@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.AppCluster;
 import java.util.List;
 
 public interface AppClusterDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(AppCluster record);
 
 	int insertSelective(AppCluster record);
 
-	AppCluster selectByPrimaryKey(Integer id);
+	AppCluster selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(AppCluster record);
 

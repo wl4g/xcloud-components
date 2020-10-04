@@ -21,23 +21,22 @@ public class HostSsh extends BaseBean {
 
 	private static final long serialVersionUID = -7546448616357790576L;
 
-	private Integer hostId;
+	private Long hostId;
+	private Long sshId;
 
-	private Integer sshId;
-
-	public Integer getHostId() {
+	public Long getHostId() {
 		return hostId;
 	}
 
-	public void setHostId(Integer hostId) {
+	public void setHostId(Long hostId) {
 		this.hostId = hostId;
 	}
 
-	public Integer getSshId() {
+	public Long getSshId() {
 		return sshId;
 	}
 
-	public void setSshId(Integer sshId) {
+	public void setSshId(Long sshId) {
 		this.sshId = sshId;
 	}
 }

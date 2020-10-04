@@ -22,25 +22,25 @@ import com.wl4g.components.core.bean.iam.GroupRole;
 import java.util.List;
 
 public interface GroupRoleDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByRoleId(Integer roleId);
+	int deleteByRoleId(Long roleId);
 
-    int deleteByGroupId(Integer groupId);
+	int deleteByGroupId(Long groupId);
 
-    int insert(GroupRole record);
+	int insert(GroupRole record);
 
-    int insertSelective(GroupRole record);
+	int insertSelective(GroupRole record);
 
-    int insertBatch(@Param("groupRoles") List<GroupRole> groupRoles);
+	int insertBatch(@Param("groupRoles") List<GroupRole> groupRoles);
 
-    GroupRole selectByPrimaryKey(Integer id);
+	GroupRole selectByPrimaryKey(Long id);
 
-    List<Integer> selectGroupIdByRoleId(Integer roleId);
+	List<Long> selectGroupIdByRoleId(Long roleId);
 
-    List<Integer> selectRoleIdsByGroupId(Integer groupId);
+	List<Long> selectRoleIdsByGroupId(Long groupId);
 
-    int updateByPrimaryKeySelective(GroupRole record);
+	int updateByPrimaryKeySelective(GroupRole record);
 
-    int updateByPrimaryKey(GroupRole record);
+	int updateByPrimaryKey(GroupRole record);
 }

@@ -22,9 +22,9 @@ import com.wl4g.components.core.bean.BaseBean;
 public class PipeStepBuildingProject extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer buildingId;
+	private Long buildingId;
 
-	private Integer projectId;
+	private Long projectId;
 
 	private String buildCommand;
 
@@ -37,19 +37,19 @@ public class PipeStepBuildingProject extends BaseBean {
 
 	List<String> branchs;
 
-	public Integer getBuildingId() {
+	public Long getBuildingId() {
 		return buildingId;
 	}
 
-	public void setBuildingId(Integer buildingId) {
+	public void setBuildingId(Long buildingId) {
 		this.buildingId = buildingId;
 	}
 
-	public Integer getProjectId() {
+	public Long getProjectId() {
 		return projectId;
 	}
 
-	public void setProjectId(Integer projectId) {
+	public void setProjectId(Long projectId) {
 		this.projectId = projectId;
 	}
 

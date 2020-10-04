@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wl4g.devops.dao.ci.OrchestrationPipelineDao">
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.ci.OrchestrationPipeline">
-    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="orchestration_id" jdbcType="INTEGER" property="orchestrationId" />
     <result column="pipeline_id" jdbcType="INTEGER" property="pipelineId" />
     <result column="priority" jdbcType="INTEGER" property="priority" />

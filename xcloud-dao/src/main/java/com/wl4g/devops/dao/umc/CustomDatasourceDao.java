@@ -22,17 +22,17 @@ import com.wl4g.components.core.bean.umc.CustomDataSource;
 import java.util.List;
 
 public interface CustomDatasourceDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(CustomDataSource record);
+	int insert(CustomDataSource record);
 
-    int insertSelective(CustomDataSource record);
+	int insertSelective(CustomDataSource record);
 
-    CustomDataSource selectByPrimaryKey(Integer id);
+	CustomDataSource selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(CustomDataSource record);
+	int updateByPrimaryKeySelective(CustomDataSource record);
 
-    int updateByPrimaryKey(CustomDataSource record);
+	int updateByPrimaryKey(CustomDataSource record);
 
-    List<CustomDataSource> list(@Param("name") String name);
+	List<CustomDataSource> list(@Param("name") String name);
 }

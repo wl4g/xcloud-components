@@ -23,18 +23,19 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface VcsDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Vcs record);
 
 	int insertSelective(Vcs record);
 
-	Vcs selectByPrimaryKey(Integer id);
+	Vcs selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Vcs record);
 
 	int updateByPrimaryKey(Vcs record);
 
-	Page<Vcs> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name")String name, @Param("providerKind")String providerKind, @Param("authType")Integer authType);
+	Page<Vcs> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name") String name,
+			@Param("providerKind") String providerKind, @Param("authType") Integer authType);
 
 }

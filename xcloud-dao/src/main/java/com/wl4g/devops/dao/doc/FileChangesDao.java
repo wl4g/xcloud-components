@@ -22,23 +22,23 @@ import com.wl4g.components.core.bean.doc.FileChanges;
 import java.util.List;
 
 public interface FileChangesDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(FileChanges record);
+	int insert(FileChanges record);
 
-    int insertSelective(FileChanges record);
+	int insertSelective(FileChanges record);
 
-    FileChanges selectByPrimaryKey(Integer id);
+	FileChanges selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(FileChanges record);
+	int updateByPrimaryKeySelective(FileChanges record);
 
-    int updateByPrimaryKey(FileChanges record);
+	int updateByPrimaryKey(FileChanges record);
 
-    List<FileChanges> list(@Param("name")String name, @Param("lang")String lang,@Param("labelId")Integer labelId);
+	List<FileChanges> list(@Param("name") String name, @Param("lang") String lang, @Param("labelId") Long labelId);
 
-    List<FileChanges> selectByDocCode(String fileCode);
+	List<FileChanges> selectByDocCode(String fileCode);
 
-    FileChanges selectLastByDocCode(String fileCode);
+	FileChanges selectLastByDocCode(String fileCode);
 
-    void updateIsLatest(String fileCode);
+	void updateIsLatest(String fileCode);
 }

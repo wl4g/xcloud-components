@@ -26,19 +26,16 @@ import java.util.List;
 public class PipeStepNotification extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer pipeId;
-
+	private Long pipeId;
 	private Integer enable;
-
-	private Integer[] contactGroupId;
-
+	private Long[] contactGroupId;
 	private String contactGroupIds;
 
-	public Integer getPipeId() {
+	public Long getPipeId() {
 		return pipeId;
 	}
 
-	public void setPipeId(Integer pipeId) {
+	public void setPipeId(Long pipeId) {
 		this.pipeId = pipeId;
 	}
 
@@ -50,23 +47,23 @@ public class PipeStepNotification extends BaseBean {
 		this.enable = enable;
 	}
 
-	public Integer[] getContactGroupId() {
+	public Long[] getContactGroupId() {
 		return contactGroupId;
 	}
 
-	public void setContactGroupId(Integer[] contactGroupId) {
+	public void setContactGroupId(Long[] contactGroupId) {
 		this.contactGroupId = contactGroupId;
 	}
 
 	public void setContactGroupId2(String[] contactGroupId) {
 		if (!Collections2.isEmptyArray(contactGroupId)) {
-			List<Integer> list = new ArrayList<>();
+			List<Long> list = new ArrayList<>();
 			for (int i = 0; i < contactGroupId.length; i++) {
 				if (NumberUtils.isCreatable(contactGroupId[i])) {
-					list.add(Integer.parseInt(contactGroupId[i]));
+					list.add(Long.parseLong(contactGroupId[i]));
 				}
 			}
-			Integer[] result = new Integer[list.size()];
+			Long[] result = new Long[list.size()];
 			list.toArray(result);
 			this.contactGroupId = result;
 		}

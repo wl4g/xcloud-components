@@ -22,22 +22,22 @@ import com.wl4g.components.core.bean.iam.RoleMenu;
 import java.util.List;
 
 public interface RoleMenuDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int deleteByRoleId(Integer roleId);
+	int deleteByRoleId(Long roleId);
 
-    int insert(RoleMenu record);
+	int insert(RoleMenu record);
 
-    int insertSelective(RoleMenu record);
+	int insertSelective(RoleMenu record);
 
-    RoleMenu selectByPrimaryKey(Integer id);
+	RoleMenu selectByPrimaryKey(Long id);
 
-    List<Integer> selectMenuIdByRoleId(Integer id);
+	List<Long> selectMenuIdByRoleId(Long id);
 
-    int updateByPrimaryKeySelective(RoleMenu record);
+	int updateByPrimaryKeySelective(RoleMenu record);
 
-    int updateByPrimaryKey(RoleMenu record);
+	int updateByPrimaryKey(RoleMenu record);
 
-    int insertBatch(@Param("roleMenus") List<RoleMenu> roleMenus);
+	int insertBatch(@Param("roleMenus") List<RoleMenu> roleMenus);
 
 }

@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.erm.Ssh;
 import java.util.List;
 
 public interface SshDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Ssh record);
 
 	int insertSelective(Ssh record);
 
-	Ssh selectByPrimaryKey(Integer id);
+	Ssh selectByPrimaryKey(Long id);
 
 	Ssh selectByName(String name);
 

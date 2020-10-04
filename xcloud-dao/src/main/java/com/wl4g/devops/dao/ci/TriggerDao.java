@@ -22,23 +22,23 @@ import com.wl4g.components.core.bean.ci.Trigger;
 import java.util.List;
 
 public interface TriggerDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Trigger record);
 
 	int insertSelective(Trigger record);
 
-	Trigger selectByPrimaryKey(Integer id);
+	Trigger selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Trigger record);
 
 	int updateByPrimaryKey(Trigger record);
 
-	List<Trigger> list(@Param("organizationCodes")List<String> organizationCodes, @Param("id") Integer id, @Param("name") String name, @Param("taskId") Integer taskId,
-			@Param("enable") Integer enable, @Param("startDate") String startDate, @Param("endDate") String endDate);
+	List<Trigger> list(@Param("organizationCodes") List<String> organizationCodes, @Param("id") Long id,
+			@Param("name") String name, @Param("taskId") Long taskId, @Param("enable") Integer enable,
+			@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-	Trigger getTriggerByAppClusterIdAndBranch(@Param("appClusterId") Integer appClusterId,
-			@Param("branchName") String branchName);
+	Trigger getTriggerByAppClusterIdAndBranch(@Param("appClusterId") Long appClusterId, @Param("branchName") String branchName);
 
 	List<Trigger> selectByType(@Param("type") Integer type);
 

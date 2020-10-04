@@ -20,23 +20,22 @@ import com.wl4g.components.core.bean.BaseBean;
 public class GroupUser extends BaseBean {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer groupId;
+	private Long groupId;
+	private Long userId;
 
-	private Integer userId;
-
-	public Integer getGroupId() {
+	public Long getGroupId() {
 		return groupId;
 	}
 
-	public void setGroupId(Integer groupId) {
+	public void setGroupId(Long groupId) {
 		this.groupId = groupId;
 	}
 
-	public Integer getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(Integer userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

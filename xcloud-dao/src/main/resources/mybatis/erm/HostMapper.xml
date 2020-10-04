@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.wl4g.devops.dao.erm.HostDao" >
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.erm.Host" >
-    <id column="id" property="id" jdbcType="INTEGER" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="organization_code" property="organizationCode" jdbcType="VARCHAR" />
     <result column="hostname" property="hostname" jdbcType="VARCHAR" />

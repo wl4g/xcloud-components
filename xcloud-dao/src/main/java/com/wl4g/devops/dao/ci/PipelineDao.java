@@ -23,22 +23,23 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface PipelineDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Pipeline record);
+	int insert(Pipeline record);
 
-    int insertSelective(Pipeline record);
+	int insertSelective(Pipeline record);
 
-    Pipeline selectByPrimaryKey(Integer id);
+	Pipeline selectByPrimaryKey(Long id);
 
-    List<Pipeline> selectByClusterId(Integer clusterId);
+	List<Pipeline> selectByClusterId(Long clusterId);
 
-    int updateByPrimaryKeySelective(Pipeline record);
+	int updateByPrimaryKeySelective(Pipeline record);
 
-    int updateByPrimaryKey(Pipeline record);
+	int updateByPrimaryKey(Pipeline record);
 
-    List<Pipeline> list(@Param("organizationCodes") List<String> organizationCodes, @Param("id") Integer id, @Param("pipeName") String pipeName,
-                        @Param("providerKind") String providerKind, @Param("environment") String environment, @Param("clusterName") String clusterName);
+	List<Pipeline> list(@Param("organizationCodes") List<String> organizationCodes, @Param("id") Long id,
+			@Param("pipeName") String pipeName, @Param("providerKind") String providerKind,
+			@Param("environment") String environment, @Param("clusterName") String clusterName);
 
-    List<AppInstance> selectInstancesByDeployId(@Param("deployId") Integer deployId);
+	List<AppInstance> selectInstancesByDeployId(@Param("deployId") Long deployId);
 }

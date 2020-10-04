@@ -20,18 +20,18 @@ import java.util.List;
 import com.wl4g.components.core.bean.iam.NotificationContact;
 
 public interface NotificationContactDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(NotificationContact record);
 
 	int insertSelective(NotificationContact record);
 
-	NotificationContact selectByPrimaryKey(Integer id);
+	NotificationContact selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(NotificationContact record);
 
 	int updateByPrimaryKey(NotificationContact record);
 
-	List<NotificationContact> getByRecordId(Integer id);
+	List<NotificationContact> getByRecordId(Long id);
 
 }

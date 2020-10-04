@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wl4g.devops.dao.umc.CustomHistoryDao">
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.CustomHistory">
-    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="custom_engine_id" jdbcType="INTEGER" property="customEngineId" />
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />

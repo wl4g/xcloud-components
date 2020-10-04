@@ -20,7 +20,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class PipeStepDeploy extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
-	private Integer pipeId;
+	private Long pipeId;
 
 	private Integer deployType = 1;
 
@@ -30,11 +30,11 @@ public class PipeStepDeploy extends BaseBean {
 
 	private String deployConfigContent;
 
-	public Integer getPipeId() {
+	public Long getPipeId() {
 		return pipeId;
 	}
 
-	public void setPipeId(Integer pipeId) {
+	public void setPipeId(Long pipeId) {
 		this.pipeId = pipeId;
 	}
 

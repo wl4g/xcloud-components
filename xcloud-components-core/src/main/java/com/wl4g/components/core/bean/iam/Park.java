@@ -20,9 +20,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class Park extends BaseBean {
 	private static final long serialVersionUID = -6218650823617924058L;
 
-	private Integer id;
-
-	private Integer groupId;
+	private Long groupId;
 
 	private String displayName;
 
@@ -32,19 +30,11 @@ public class Park extends BaseBean {
 
 	private String address;
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public Integer getGroupId() {
+	public Long getGroupId() {
 		return groupId;
 	}
 
-	public void setGroupId(Integer groupId) {
+	public void setGroupId(Long groupId) {
 		this.groupId = groupId;
 	}
 
@@ -79,4 +69,5 @@ public class Park extends BaseBean {
 	public void setAddress(String address) {
 		this.address = address == null ? null : address.trim();
 	}
+
 }

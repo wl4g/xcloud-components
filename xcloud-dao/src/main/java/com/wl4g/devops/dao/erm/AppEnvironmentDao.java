@@ -22,9 +22,9 @@ import com.wl4g.components.core.bean.erm.AppEnvironment;
 import java.util.List;
 
 public interface AppEnvironmentDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-	int deleteByClusterId(Integer cluster);
+	int deleteByClusterId(Long cluster);
 
 	int insert(AppEnvironment record);
 
@@ -32,11 +32,11 @@ public interface AppEnvironmentDao {
 
 	int insertSelective(AppEnvironment record);
 
-	AppEnvironment selectByPrimaryKey(Integer id);
+	AppEnvironment selectByPrimaryKey(Long id);
 
-	List<AppEnvironment> selectByClusterId(Integer id);
+	List<AppEnvironment> selectByClusterId(Long id);
 
-	AppEnvironment selectByClusterIdAndEnv(@Param("clusterId") Integer clusterId, @Param("envType") String envType);
+	AppEnvironment selectByClusterIdAndEnv(@Param("clusterId") Long clusterId, @Param("envType") String envType);
 
 	int updateByPrimaryKeySelective(AppEnvironment record);
 

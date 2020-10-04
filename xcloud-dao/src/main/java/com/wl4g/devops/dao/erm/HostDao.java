@@ -22,19 +22,19 @@ import com.wl4g.components.core.bean.erm.Host;
 import java.util.List;
 
 public interface HostDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Host record);
 
 	int insertSelective(Host record);
 
-	Host selectByPrimaryKey(Integer id);
+	Host selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Host record);
 
 	int updateByPrimaryKey(Host record);
 
 	List<Host> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name") String name,
-			@Param("hostname") String hostname, @Param("idcId") Integer idcId);
+			@Param("hostname") String hostname, @Param("idcId") Long idcId);
 
 }

@@ -44,7 +44,7 @@ public class FileChanges extends BaseBean {
 
 	private List<Label> labels;
 
-	private List<Integer> labelIds;
+	private List<Long> labelIds;
 
 	private String createByStr;
 
@@ -128,11 +128,11 @@ public class FileChanges extends BaseBean {
 		this.labels = labels;
 	}
 
-	public List<Integer> getLabelIds() {
+	public List<Long> getLabelIds() {
 		return labelIds;
 	}
 
-	public void setLabelIds(List<Integer> labelIds) {
+	public void setLabelIds(List<Long> labelIds) {
 		this.labelIds = labelIds;
 	}
 

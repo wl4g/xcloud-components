@@ -21,23 +21,22 @@ public class DockerInstance extends BaseBean {
 
 	private static final long serialVersionUID = -7546448616357790576L;
 
-	private Integer dockerId;
+	private Long dockerId;
+	private Long hostId;
 
-	private Integer hostId;
-
-	public Integer getDockerId() {
+	public Long getDockerId() {
 		return dockerId;
 	}
 
-	public void setDockerId(Integer dockerId) {
+	public void setDockerId(Long dockerId) {
 		this.dockerId = dockerId;
 	}
 
-	public Integer getHostId() {
+	public Long getHostId() {
 		return hostId;
 	}
 
-	public void setHostId(Integer hostId) {
+	public void setHostId(Long hostId) {
 		this.hostId = hostId;
 	}
 }

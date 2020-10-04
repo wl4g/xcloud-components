@@ -27,7 +27,7 @@ public class AlarmRecord extends BaseBean implements Serializable {
 
 	private String name;
 
-	private Integer templateId;
+	private Long templateId;
 
 	private Date gatherTime;
 
@@ -51,11 +51,11 @@ public class AlarmRecord extends BaseBean implements Serializable {
 		this.name = name == null ? null : name.trim();
 	}
 
-	public Integer getTemplateId() {
+	public Long getTemplateId() {
 		return templateId;
 	}
 
-	public void setTemplateId(Integer templateId) {
+	public void setTemplateId(Long templateId) {
 		this.templateId = templateId;
 	}
 

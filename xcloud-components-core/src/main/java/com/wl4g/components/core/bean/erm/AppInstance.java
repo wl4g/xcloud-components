@@ -30,21 +30,17 @@ public class AppInstance extends BaseBean {
 
 	private String name;
 
-	private Integer clusterId;
+	private Long clusterId;
 
-	private Integer versionId;
+	private Long versionId;
 
-	// private Integer deployType;
+	private Long hostId;
 
-	private Integer hostId;
+	private Long k8sId;
 
-	private Integer k8sId;
-
-	private Integer dockerId;
+	private Long dockerId;
 
 	private String cossRefBucket;
-
-	// private Integer sshId;
 
 	private String envType;
 
@@ -70,29 +66,29 @@ public class AppInstance extends BaseBean {
 
 	private DockerCluster dockerCluster;
 
-	private List<Integer> hosts;
+	private List<Long> hosts;
 
-	public Integer getClusterId() {
+	public Long getClusterId() {
 		return clusterId;
 	}
 
-	public void setClusterId(Integer clusterId) {
+	public void setClusterId(Long clusterId) {
 		this.clusterId = clusterId;
 	}
 
-	public Integer getVersionId() {
+	public Long getVersionId() {
 		return versionId;
 	}
 
-	public void setVersionId(Integer versionId) {
+	public void setVersionId(Long versionId) {
 		this.versionId = versionId;
 	}
 
-	public Integer getHostId() {
+	public Long getHostId() {
 		return hostId;
 	}
 
-	public void setHostId(Integer hostId) {
+	public void setHostId(Long hostId) {
 		this.hostId = hostId;
 	}
 
@@ -124,19 +120,19 @@ public class AppInstance extends BaseBean {
 		this.remark = remark;
 	}
 
-	public Integer getK8sId() {
+	public Long getK8sId() {
 		return k8sId;
 	}
 
-	public void setK8sId(Integer k8sId) {
+	public void setK8sId(Long k8sId) {
 		this.k8sId = k8sId;
 	}
 
-	public Integer getDockerId() {
+	public Long getDockerId() {
 		return dockerId;
 	}
 
-	public void setDockerId(Integer dockerId) {
+	public void setDockerId(Long dockerId) {
 		this.dockerId = dockerId;
 	}
 
@@ -196,11 +192,11 @@ public class AppInstance extends BaseBean {
 		this.dockerCluster = dockerCluster;
 	}
 
-	public List<Integer> getHosts() {
+	public List<Long> getHosts() {
 		return hosts;
 	}
 
-	public void setHosts(List<Integer> hosts) {
+	public void setHosts(List<Long> hosts) {
 		this.hosts = hosts;
 	}
 

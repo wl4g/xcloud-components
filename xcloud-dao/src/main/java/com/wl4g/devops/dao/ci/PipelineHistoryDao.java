@@ -23,23 +23,22 @@ import com.wl4g.components.core.bean.ci.TaskHistory;
 import java.util.List;
 
 public interface PipelineHistoryDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(PipelineHistory record);
+	int insert(PipelineHistory record);
 
-    int insertSelective(PipelineHistory record);
+	int insertSelective(PipelineHistory record);
 
-    PipelineHistory selectByPrimaryKey(Integer id);
+	PipelineHistory selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(PipelineHistory record);
+	int updateByPrimaryKeySelective(PipelineHistory record);
 
-    int updateByPrimaryKey(PipelineHistory record);
+	int updateByPrimaryKey(PipelineHistory record);
 
-    List<TaskHistory> list(@Param("organizationCodes")List<String> organizationCodes, @Param("pipeName") String pipeName, @Param("clusterName") String clusterName,
-                           @Param("environment") String environment, @Param("startDate") String startDate,
-                           @Param("endDate") String endDate, @Param("providerKind") String providerKind,
-                           @Param("orchestrationType") Integer orchestrationType,
-                           @Param("orchestrationId") Integer orchestrationId);
+	List<TaskHistory> list(@Param("organizationCodes") List<String> organizationCodes, @Param("pipeName") String pipeName,
+			@Param("clusterName") String clusterName, @Param("environment") String environment,
+			@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("providerKind") String providerKind,
+			@Param("orchestrationType") Integer orchestrationType, @Param("orchestrationId") Long orchestrationId);
 
-    int updateStatus(Long time);
+	int updateStatus(Long time);
 }

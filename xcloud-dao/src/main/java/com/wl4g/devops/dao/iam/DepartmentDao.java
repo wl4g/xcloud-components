@@ -18,17 +18,17 @@ package com.wl4g.devops.dao.iam;
 import com.wl4g.components.core.bean.iam.Department;
 
 public interface DepartmentDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Department record);
+	int insert(Department record);
 
-    int insertSelective(Department record);
+	int insertSelective(Department record);
 
-    Department selectByPrimaryKey(Integer id);
+	Department selectByPrimaryKey(Long id);
 
-    Department selectByGroupId(Integer groupId);
+	Department selectByGroupId(Long groupId);
 
-    int updateByPrimaryKeySelective(Department record);
+	int updateByPrimaryKeySelective(Department record);
 
-    int updateByPrimaryKey(Department record);
+	int updateByPrimaryKey(Department record);
 }

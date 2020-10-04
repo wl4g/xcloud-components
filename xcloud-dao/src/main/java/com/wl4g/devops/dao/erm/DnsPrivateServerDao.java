@@ -23,13 +23,14 @@ import com.wl4g.components.core.bean.erm.DnsPrivateZone;
 import java.util.List;
 
 public interface DnsPrivateServerDao {
-	int deleteByPrimaryKey(Integer id);
+
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DnsPrivateServer record);
 
 	int insertSelective(DnsPrivateServer record);
 
-	DnsPrivateServer selectByPrimaryKey(Integer id);
+	DnsPrivateServer selectByPrimaryKey(Long id);
 
 	List<DnsPrivateZone> list(@Param("organizationCodes") List<String> organizationCodes, @Param("name") String name);
 

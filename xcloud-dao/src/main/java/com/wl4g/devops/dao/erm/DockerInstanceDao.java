@@ -22,17 +22,17 @@ import com.wl4g.components.core.bean.erm.DockerInstance;
 import java.util.List;
 
 public interface DockerInstanceDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-	int deleteByDockerId(Integer dockerId);
+	int deleteByDockerId(Long dockerId);
 
 	int insert(DockerInstance record);
 
 	int insertSelective(DockerInstance record);
 
-	DockerInstance selectByPrimaryKey(Integer id);
+	DockerInstance selectByPrimaryKey(Long id);
 
-	List<Integer> selectHostIdByDockerId(Integer dockerId);
+	List<Long> selectHostIdByDockerId(Long dockerId);
 
 	int updateByPrimaryKeySelective(DockerInstance record);
 

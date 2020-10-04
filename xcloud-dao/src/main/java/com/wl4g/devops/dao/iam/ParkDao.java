@@ -18,17 +18,17 @@ package com.wl4g.devops.dao.iam;
 import com.wl4g.components.core.bean.iam.Park;
 
 public interface ParkDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(Park record);
+	int insert(Park record);
 
-    int insertSelective(Park record);
+	int insertSelective(Park record);
 
-    Park selectByPrimaryKey(Integer id);
+	Park selectByPrimaryKey(Long id);
 
-    Park selectByGroupId(Integer groupId);
+	Park selectByGroupId(Long groupId);
 
-    int updateByPrimaryKeySelective(Park record);
+	int updateByPrimaryKeySelective(Park record);
 
-    int updateByPrimaryKey(Park record);
+	int updateByPrimaryKey(Park record);
 }

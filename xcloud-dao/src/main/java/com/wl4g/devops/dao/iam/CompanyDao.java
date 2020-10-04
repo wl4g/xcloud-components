@@ -18,17 +18,19 @@ package com.wl4g.devops.dao.iam;
 import com.wl4g.components.core.bean.iam.Company;
 
 public interface CompanyDao {
-    int deleteByPrimaryKey(Integer id);
 
-    int insert(Company record);
+	int deleteByPrimaryKey(Long id);
 
-    int insertSelective(Company record);
+	int insert(Company record);
 
-    Company selectByPrimaryKey(Integer id);
+	int insertSelective(Company record);
 
-    Company selectByGroupId(Integer groupId);
+	Company selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(Company record);
+	Company selectByGroupId(Long groupId);
 
-    int updateByPrimaryKey(Company record);
+	int updateByPrimaryKeySelective(Company record);
+
+	int updateByPrimaryKey(Company record);
+
 }

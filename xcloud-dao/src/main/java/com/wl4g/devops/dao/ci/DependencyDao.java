@@ -22,22 +22,22 @@ import com.wl4g.components.core.bean.ci.Dependency;
 import java.util.List;
 
 public interface DependencyDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Dependency record);
 
 	int insertSelective(Dependency record);
 
-	Dependency selectByPrimaryKey(Integer id);
+	Dependency selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Dependency record);
 
 	int updateByPrimaryKey(Dependency record);
 
-	List<Dependency> getParentsByProjectId(Integer projectId);
+	List<Dependency> getParentsByProjectId(Long projectId);
 
 	List<Dependency> list(@Param("projectName") String projectName);
 
-	int deleteByProjectId(Integer projectId);
+	int deleteByProjectId(Long projectId);
 
 }

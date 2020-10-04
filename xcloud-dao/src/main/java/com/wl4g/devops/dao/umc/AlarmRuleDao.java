@@ -20,13 +20,13 @@ import java.util.List;
 import com.wl4g.components.core.bean.umc.AlarmRule;
 
 public interface AlarmRuleDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(AlarmRule record);
 
 	int insertSelective(AlarmRule record);
 
-	AlarmRule selectByPrimaryKey(Integer id);
+	AlarmRule selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(AlarmRule record);
 
@@ -34,10 +34,10 @@ public interface AlarmRuleDao {
 
 	List<AlarmRule> selectAll();
 
-	List<AlarmRule> selectByRecordId(Integer id);
+	List<AlarmRule> selectByRecordId(Long id);
 
-	List<AlarmRule> selectByTemplateId(Integer id);
+	List<AlarmRule> selectByTemplateId(Long id);
 
-	int deleteByTemplateId(Integer id);
+	int deleteByTemplateId(Long id);
 
 }

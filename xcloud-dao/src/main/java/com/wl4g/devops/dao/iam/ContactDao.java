@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.iam.Contact;
 import java.util.List;
 
 public interface ContactDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Contact record);
 
 	int insertSelective(Contact record);
 
-	Contact selectByPrimaryKey(Integer id);
+	Contact selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(Contact record);
 
@@ -36,6 +36,6 @@ public interface ContactDao {
 
 	List<Contact> list(@Param("name") String name);
 
-	List<Contact> getContactByGroupIds(@Param("groupIds") List<Integer> groupIds);
+	List<Contact> getContactByGroupIds(@Param("groupIds") List<Long> groupIds);
 
 }

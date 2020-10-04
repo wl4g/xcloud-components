@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.wl4g.devops.dao.umc.AlarmTemplateDao" >
   <resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.umc.AlarmTemplate" >
-    <id column="id" property="id" jdbcType="INTEGER" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="metric_id" property="metricId" jdbcType="INTEGER" />
     <result column="tags" property="tags" jdbcType="VARCHAR" />

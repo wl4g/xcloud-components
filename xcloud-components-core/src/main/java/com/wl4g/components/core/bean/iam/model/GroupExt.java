@@ -17,72 +17,23 @@ package com.wl4g.components.core.bean.iam.model;
 
 import com.wl4g.components.core.bean.BaseBean;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author vjay
  * @date 2019-11-19 11:33:00
  */
+@Getter
+@Setter
 public class GroupExt extends BaseBean {
 	private static final long serialVersionUID = 6302283757380254809L;
 
-	private Integer id;
-
-	private Integer groupId;
-
+	private Long groupId;
 	private String displayName;
-
 	private String contact;
-
 	private String contactPhone;
-
 	private String address;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public Integer getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(Integer groupId) {
-		this.groupId = groupId;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
-	public String getContact() {
-		return contact;
-	}
-
-	public void setContact(String contact) {
-		this.contact = contact;
-	}
-
-	public String getContactPhone() {
-		return contactPhone;
-	}
-
-	public void setContactPhone(String contactPhone) {
-		this.contactPhone = contactPhone;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
 
 	public static enum GroupType {
 

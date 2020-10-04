@@ -22,19 +22,19 @@ import com.wl4g.components.core.bean.erm.DnsPrivateBlacklist;
 import java.util.List;
 
 public interface DnsPrivateBlacklistDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(DnsPrivateBlacklist record);
+	int insert(DnsPrivateBlacklist record);
 
-    int insertSelective(DnsPrivateBlacklist record);
+	int insertSelective(DnsPrivateBlacklist record);
 
-    DnsPrivateBlacklist selectByPrimaryKey(Integer id);
+	DnsPrivateBlacklist selectByPrimaryKey(Long id);
 
-    DnsPrivateBlacklist selectByExpression(String expression);
+	DnsPrivateBlacklist selectByExpression(String expression);
 
-    List<DnsPrivateBlacklist> list(@Param("expression") String expression);
+	List<DnsPrivateBlacklist> list(@Param("expression") String expression);
 
-    int updateByPrimaryKeySelective(DnsPrivateBlacklist record);
+	int updateByPrimaryKeySelective(DnsPrivateBlacklist record);
 
-    int updateByPrimaryKey(DnsPrivateBlacklist record);
+	int updateByPrimaryKey(DnsPrivateBlacklist record);
 }

@@ -22,19 +22,19 @@ import com.wl4g.components.core.bean.erm.DnsPrivateZone;
 import java.util.List;
 
 public interface DnsPrivateZoneDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(DnsPrivateZone record);
 
 	int insertSelective(DnsPrivateZone record);
 
-	DnsPrivateZone selectByPrimaryKey(Integer id);
+	DnsPrivateZone selectByPrimaryKey(Long id);
 
 	DnsPrivateZone selectByZone(String zone);
 
 	List<DnsPrivateZone> list(@Param("organizationCodes") List<String> organizationCodes, @Param("zone") String zone);
 
-	int updateByPrimaryKeySelective(DnsPrivateZone record);
+	int updateByPrimaryKeySelective(DnsPrivateZone privateZone);
 
-	int updateByPrimaryKey(DnsPrivateZone record);
+	int updateByPrimaryKey(DnsPrivateZone privateZone);
 }

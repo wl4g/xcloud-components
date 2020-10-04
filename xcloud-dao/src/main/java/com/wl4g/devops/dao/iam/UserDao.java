@@ -22,22 +22,23 @@ import com.wl4g.components.core.bean.iam.User;
 import java.util.List;
 
 public interface UserDao {
-    int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
-    int insert(User record);
+	int insert(User record);
 
-    int insertSelective(User record);
+	int insertSelective(User record);
 
-    User selectByPrimaryKey(Integer id);
+	User selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(User record);
+	int updateByPrimaryKeySelective(User record);
 
-    int updateByPrimaryKey(User record);
+	int updateByPrimaryKey(User record);
 
-    List<User> list(@Param("groupIds") List<Integer> groupIds,@Param("userName") String userName,@Param("displayName") String displayName);
+	List<User> list(@Param("groupIds") List<Long> groupIds, @Param("userName") String userName,
+			@Param("displayName") String displayName);
 
-    User selectByUserName(String userName);
+	User selectByUserName(String userName);
 
-    User selectByUnionIdOrOpenId(@Param("unionId")String unionId,@Param("openId")String openId);
+	User selectByUnionIdOrOpenId(@Param("unionId") String unionId, @Param("openId") String openId);
 
 }

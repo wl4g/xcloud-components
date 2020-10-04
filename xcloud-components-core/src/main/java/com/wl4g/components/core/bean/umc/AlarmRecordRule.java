@@ -22,25 +22,23 @@ import com.wl4g.components.core.bean.BaseBean;
 public class AlarmRecordRule extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private Integer recordId;
-
-	private Integer ruleId;
-
+	private Long recordId;
+	private Long ruleId;
 	private Double compareValue;
 
-	public Integer getRecordId() {
+	public Long getRecordId() {
 		return recordId;
 	}
 
-	public void setRecordId(Integer recordId) {
+	public void setRecordId(Long recordId) {
 		this.recordId = recordId;
 	}
 
-	public Integer getRuleId() {
+	public Long getRuleId() {
 		return ruleId;
 	}
 
-	public void setRuleId(Integer ruleId) {
+	public void setRuleId(Long ruleId) {
 		this.ruleId = ruleId;
 	}
 
