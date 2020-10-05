@@ -288,7 +288,7 @@ public abstract class IAMDevOpsConstants extends DevOpsConstants {
 	/**
 	 * Delegate message source bean name.
 	 */
-	final public static String BEAN_DELEGATE_MSG_SOURCE = "iamSessionDelegateMessageBundle";
+	final public static String BEAN_SESSION_RESOURCE_MSG_BUNDLER = "iamSessionResourceMessageBundler";
 
 	//
 	// Client configuration.
