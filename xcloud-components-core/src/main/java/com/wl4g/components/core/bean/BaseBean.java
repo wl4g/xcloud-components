@@ -16,8 +16,6 @@
 package com.wl4g.components.core.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
 import com.wl4g.components.common.lang.period.PeriodFormatter;
 
@@ -46,21 +44,12 @@ public abstract class BaseBean implements Serializable {
 
 	/**
 	 * Bean unqiue ID.</br>
-	 * </br>
-	 * 
-	 * Note: Fix the precision problem of JS long: since JavaScript follows IEEE
-	 * 754 specification, the value of Java long type is beyond its processing
-	 * scope, so it is necessary to serialize the long type field to string
-	 * type.
-	 * 
 	 */
-	@JsonSerialize(using = ToStringSerializer.class)
 	private Long id;
 
 	/**
 	 * Bean info create user.
 	 */
-	@JsonSerialize(using = ToStringSerializer.class)
 	private Long createBy;
 
 	/**
@@ -72,7 +61,6 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Bean info update user.
 	 */
-	@JsonSerialize(using = ToStringSerializer.class)
 	private Long updateBy;
 
 	/**

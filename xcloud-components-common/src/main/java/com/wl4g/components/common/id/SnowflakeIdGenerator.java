@@ -16,6 +16,8 @@
 package com.wl4g.components.common.id;
 
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
+import static java.lang.Long.parseLong;
 
 /**
  * Snowflake algorithms Id generator.
@@ -73,11 +75,27 @@ public class SnowflakeIdGenerator {
 	}
 
 	/**
-	 * Gets next ID.
+	 * Gets next global UID. </br>
 	 * 
 	 * @return
 	 */
-	public synchronized long nextId() {
+	public long nextId() {
+		return nextId(true);
+	}
+
+	/**
+	 * Gets next global UID. </br>
+	 * <p>
+	 * Note: Since JavaScript follows the IEEE 754 specification (a decimal
+	 * number with a maximum length of 16), the value of Java long type is
+	 * beyond its processing range, so it is necessary to serialize the long
+	 * type field to string type. {@link #nextId(boolean isSafe)}
+	 * </p>
+	 * 
+	 * @param jsSafe
+	 * @return
+	 */
+	public synchronized long nextId(boolean jsSafe) {
 		long now = timeGen();
 		// 如果服务器时间有问题(时钟后退) 报错。
 		if (now < lastTimestamp) {
@@ -98,11 +116,27 @@ public class SnowflakeIdGenerator {
 			sequence = 0L;
 		}
 		lastTimestamp = now;
+
 		// 最后按照规则拼出ID。
 		// 000000000000000000000000000000000000000000 00000 00000 000000000000
 		// time datacenterId workerId sequence
-		return ((now - twepoch) << timestampLeftShift) | (datacenterId << datacenterIdShift) | (workerId << workerIdShift)
-				| sequence;
+		long nextGUID = ((now - twepoch) << timestampLeftShift) | (datacenterId << datacenterIdShift)
+				| (workerId << workerIdShift) | sequence;
+
+		// Process JavaScript typesafe.
+		if (jsSafe) {
+			// Note: Since JavaScript follows the IEEE 754 specification (a
+			// decimal number with a maximum length of 16), the value of Java
+			// long type is beyond its processing range, so it is necessary to
+			// serialize the long type field to string type.
+			String nextGUIDString = valueOf(nextGUID);
+			int length = nextGUIDString.length();
+			if (length > 16) {
+				nextGUID = parseLong(nextGUIDString.substring(length - 15));
+			}
+		}
+
+		return nextGUID;
 	}
 
 	/**

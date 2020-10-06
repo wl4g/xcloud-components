@@ -41,7 +41,7 @@ public class SnowflakeIdGeneratorTests {
 	public static void simpleGenerateTest1() {
 		final SnowflakeIdGenerator idGen = SnowflakeIdGenerator.getDefault();
 		for (int i = 0; i < 100; i++) {
-			System.out.println(idGen.nextId());
+			System.out.println(idGen.nextId(true));
 		}
 	}
 
