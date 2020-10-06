@@ -156,14 +156,14 @@ public abstract class PeriodFormatter {
 	 * @see {@link com.wl4g.components.core.constants.IAMDevOpsConstants#KEY_LANG_NAME}
 	 */
 	protected final String getLocalizedMessage(String localizedKey) {
-		Locale loc = locale;
+		String loc = null;
 		try {
-			loc = (Locale) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
+			loc = (String) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
 		} catch (Exception e) {
 			log.warn(format("Cannot get IAM session locale, fallback use of %s", locale), e);
 		}
 		try {
-			return getResourceBundle(isNull(loc) ? locale : loc).getString(localizedKey);
+			return getResourceBundle(isNull(loc) ? locale : new Locale(loc)).getString(localizedKey);
 		} catch (MissingResourceException e) {
 			return localizedKey;
 		}

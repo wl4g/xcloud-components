@@ -26,7 +26,7 @@ public class JacksonUtilsTests {
 
 	public static void main(String[] args) {
 		TestBar bar = new TestBar("myBar");
-		TestBean1 bean1 = new TestBean1(1, "jack", singletonMap("foo", toJSONString(bar)));
+		TestBean1 bean1 = new TestBean1(1313466574534868992L, "jack", singletonMap("foo", toJSONString(bar)));
 
 		String json = toJSONString(bean1);
 		System.out.println("Serialization...");
@@ -39,7 +39,7 @@ public class JacksonUtilsTests {
 
 	public static class TestBean1 {
 
-		private int id;
+		private long id;
 
 		private String name;
 
@@ -49,18 +49,18 @@ public class JacksonUtilsTests {
 			super();
 		}
 
-		public TestBean1(int id, String name, Map<String, String> attributes) {
+		public TestBean1(long id, String name, Map<String, String> attributes) {
 			super();
 			this.id = id;
 			this.name = name;
 			this.attributes = attributes;
 		}
 
-		public int getId() {
+		public long getId() {
 			return id;
 		}
 
-		public void setId(int id) {
+		public void setId(long id) {
 			this.id = id;
 		}
 
