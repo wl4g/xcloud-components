@@ -4,7 +4,7 @@
 	<resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.ContactChannel">
 		<id column="id" property="id" jdbcType="BIGINT" />
 		<result column="kind" jdbcType="VARCHAR" property="kind" />
-		<result column="contact_id" jdbcType="INTEGER" property="contactId" />
+		<result column="contact_id" jdbcType="BIGINT" property="contactId" />
 		<result column="primary_address" jdbcType="VARCHAR" property="primaryAddress" />
 		<result column="time_of_freq" jdbcType="INTEGER" property="timeOfFreq" />
 		<result column="num_of_freq" jdbcType="INTEGER" property="numOfFreq" />

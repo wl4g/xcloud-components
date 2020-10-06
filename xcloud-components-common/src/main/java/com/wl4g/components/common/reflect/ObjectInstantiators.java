@@ -29,7 +29,7 @@ import java.util.Objects;
  * @version v1.0 2020-08-24
  * @since
  */
-public class ObjectInstantiators {
+public abstract class ObjectInstantiators {
 
 	/**
 	 * New create instance by object class.

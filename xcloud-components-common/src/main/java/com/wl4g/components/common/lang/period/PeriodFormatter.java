@@ -15,14 +15,25 @@
  */
 package com.wl4g.components.common.lang.period;
 
+import static com.wl4g.components.common.reflect.ReflectionUtils2.findMethod;
+import static com.wl4g.components.common.reflect.ReflectionUtils2.invokeMethod;
+import static com.wl4g.components.common.lang.ClassUtils2.forName;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Locale.US;
-import static java.lang.ThreadLocal.withInitial;
+import static java.util.Objects.isNull;
+
+import java.lang.reflect.Method;
+
+import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import com.wl4g.components.common.log.SmartLogger;
 
 /**
  * {@link PeriodFormatter}
@@ -32,6 +43,16 @@ import java.util.ResourceBundle;
  * @since
  */
 public abstract class PeriodFormatter {
+
+	/**
+	 * Current configuration for locale.
+	 */
+	private Locale locale = Locale.getDefault();
+
+	/**
+	 * The lower time unit section will be ignored.
+	 */
+	private boolean ignoreLowerDate = false;
 
 	/**
 	 * Gets instance by default impl class.
@@ -58,16 +79,16 @@ public abstract class PeriodFormatter {
 	 * @return
 	 */
 	public final Locale getLocale() {
-		return locale.get();
+		return locale;
 	}
 
 	/**
 	 * Sets current thread locale.
 	 * 
-	 * @param l
+	 * @param locale
 	 */
-	public final PeriodFormatter locale(Locale l) {
-		locale.set(l);
+	public final PeriodFormatter locale(Locale locale) {
+		this.locale = locale;
 		return this;
 	}
 
@@ -76,8 +97,8 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @return
 	 */
-	public final boolean getIngoreLowerDate() {
-		return ignoreLowerDate.get();
+	public final boolean isIngoreLowerDate() {
+		return ignoreLowerDate;
 	}
 
 	/**
@@ -85,8 +106,8 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @param l
 	 */
-	public final PeriodFormatter ignoreLowerDate(boolean ignore) {
-		ignoreLowerDate.set(ignore);
+	public final PeriodFormatter ignoreLowerDate(boolean ignoreLowerDate) {
+		this.ignoreLowerDate = ignoreLowerDate;
 		return this;
 	}
 
@@ -130,21 +151,19 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @param localizedKey
 	 * @return
+	 * @see {@link com.wl4g.iam.common.utils.IamSecurityHolder#getBindValue(String)}
+	 * @see {@link com.wl4g.iam.common.i18n.SessionResourceMessageBundler#getSessionLocale()}
+	 * @see {@link com.wl4g.components.core.constants.IAMDevOpsConstants#KEY_LANG_NAME}
 	 */
 	protected final String getLocalizedMessage(String localizedKey) {
-		return getLocalizedMessage(locale.get(), localizedKey);
-	}
-
-	/**
-	 * Gets localized message by key.
-	 * 
-	 * @param l
-	 * @param localizedKey
-	 * @return
-	 */
-	protected final String getLocalizedMessage(Locale l, String localizedKey) {
+		Locale loc = locale;
 		try {
-			return getResourceBundle(l).getString(localizedKey);
+			loc = (Locale) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
+		} catch (Exception e) {
+			log.warn(format("Cannot get IAM session locale, fallback use of %s", locale), e);
+		}
+		try {
+			return getResourceBundle(isNull(loc) ? locale : loc).getString(localizedKey);
 		} catch (MissingResourceException e) {
 			return localizedKey;
 		}
@@ -156,7 +175,7 @@ public abstract class PeriodFormatter {
 	 * @param l
 	 * @return
 	 */
-	protected final ResourceBundle getResourceBundle(Locale l) {
+	private static final ResourceBundle getResourceBundle(Locale l) {
 		try {
 			return ResourceBundle.getBundle(defaultI18nResourcesBaseName, l);
 		} catch (MissingResourceException e) {
@@ -178,26 +197,32 @@ public abstract class PeriodFormatter {
 	 * Default i18n resources base-name.
 	 */
 	private static final String defaultI18nResourcesBaseName = getDefaultI18nResourcesBaseName0();
+	/**
+	 * IAM security holder method.
+	 * 
+	 * @see {@link com.wl4g.iam.common.utils.IamSecurityHolder#getBindValue(Object)}
+	 */
+	private static final Method iamSecurityHolderGetBindValueMethod;
+	private static final SmartLogger log = getLogger(PeriodFormatter.class);
 
 	/**
-	 * PeriodFormatter register instances
+	 * {@link PeriodFormatter} register instances
 	 */
-	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<Class<? extends PeriodFormatter>, PeriodFormatter>() {
-		private static final long serialVersionUID = 6381326188492266214L;
-		{
-			put(JodaPeriodFormatter.class, new JodaPeriodFormatter());
-			put(SamplePeriodFormatter.class, new SamplePeriodFormatter());
+	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<>();
+
+	static {
+		Method getBindValueMethod = null;
+		try {
+			getBindValueMethod = findMethod(
+					forName("com.wl4g.iam.common.utils.IamSecurityHolder", currentThread().getContextClassLoader()),
+					"getBindValue", Object.class);
+		} catch (ClassNotFoundException | LinkageError e) {
+			log.error("Internal error of cannot load class method", e);
 		}
-	};
+		iamSecurityHolderGetBindValueMethod = getBindValueMethod;
 
-	/**
-	 * Current configuration for locale.
-	 */
-	private static final ThreadLocal<Locale> locale = withInitial(() -> US);
-
-	/**
-	 * The lower time unit section will be ignored.
-	 */
-	private static final ThreadLocal<Boolean> ignoreLowerDate = withInitial(() -> false);
+		registers.put(JodaPeriodFormatter.class, new JodaPeriodFormatter());
+		registers.put(SamplePeriodFormatter.class, new SamplePeriodFormatter());
+	}
 
 }

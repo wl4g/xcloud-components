@@ -21,9 +21,9 @@
 		<result column="github_id" property="githubId" jdbcType="VARCHAR" />
 		<result column="aws_id" property="awsId" jdbcType="VARCHAR" />
 		<result column="remark" property="remark" jdbcType="VARCHAR" />
-		<result column="create_by" property="createBy" jdbcType="INTEGER" />
+		<result column="create_by" property="createBy" jdbcType="BIGINT" />
 		<result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
-		<result column="update_by" property="updateBy" jdbcType="INTEGER" />
+		<result column="update_by" property="updateBy" jdbcType="BIGINT" />
 		<result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
 		<result column="del_flag" property="delFlag" jdbcType="INTEGER" />
 	</resultMap>

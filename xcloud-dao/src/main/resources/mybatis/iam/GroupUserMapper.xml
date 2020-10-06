@@ -3,9 +3,9 @@
 <mapper namespace="com.wl4g.devops.dao.iam.GroupUserDao">
 	<resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.GroupUser">
 		<id column="id" property="id" jdbcType="BIGINT" />
-		<result column="group_id" property="groupId" jdbcType="INTEGER" />
-		<result column="user_id" property="userId" jdbcType="INTEGER" />
-		<result column="create_by" property="createBy" jdbcType="INTEGER" />
+		<result column="group_id" property="groupId" jdbcType="BIGINT" />
+		<result column="user_id" property="userId" jdbcType="BIGINT" />
+		<result column="create_by" property="createBy" jdbcType="BIGINT" />
 		<result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
 	</resultMap>
 	<sql id="Base_Column_List">

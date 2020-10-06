@@ -16,10 +16,12 @@
 package com.wl4g.components.common.bean;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import static com.wl4g.components.common.reflect.ReflectionUtils2.*;
 import static com.wl4g.components.common.reflect.TypeUtils2.isSimpleCollectionType;
 import static com.wl4g.components.common.reflect.TypeUtils2.isSimpleType;
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -33,6 +35,23 @@ import static java.util.Objects.nonNull;
  * @since
  */
 public abstract class BeanUtils2 {
+
+	/**
+	 * Calls the given callback on all fields of the target class, recursively
+	 * running the class hierarchy up to copy all declared fields.</br>
+	 * It will contain all the fields defined by all parent or superclasses. At
+	 * the same time, the target and the source object must be compatible.
+	 * 
+	 * @param dest
+	 *            The target object to copy to
+	 * @param src
+	 *            Source object
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static void deepCopyFieldState(Object dest, Object src) throws IllegalArgumentException, IllegalAccessException {
+		deepCopyFieldState(dest, src, DEFAULT_FIELD_FILTER, DEFAULT_FIELD_COPYER);
+	}
 
 	/**
 	 * Calls the given callback on all fields of the target class, recursively
@@ -101,7 +120,7 @@ public abstract class BeanUtils2 {
 		Class<?> targetClass = dest.getClass(), sourceClass = src.getClass();
 		if (!isCompatibleType(dest.getClass(), src.getClass())) {
 			throw new IllegalArgumentException(
-					String.format("Incompatible two objects, target class: %s, source class: %s", targetClass, sourceClass));
+					format("Incompatible two objects, target class: %s, source class: %s", targetClass, sourceClass));
 		}
 
 		Class<?> targetCls = dest.getClass(); // [MARK0]
@@ -145,9 +164,12 @@ public abstract class BeanUtils2 {
 		// Recursive traversal matching and processing
 		Class<?> sourceClass = src.getClass();
 		for (Field tf : hierarchyDestClass.getDeclaredFields()) {
+			if (Modifier.isFinal(tf.getModifiers())) { // Must be filtered
+				continue;
+			}
+
 			makeAccessible(tf);
 			Object targetPropertyValue = tf.get(dest); // See:[MARK0]
-
 			Object sourcePropertyValue = null;
 			Field sf = findField(sourceClass, tf.getName());
 			if (nonNull(sf)) {

@@ -17,9 +17,9 @@
 		<result column="icon" property="icon" jdbcType="VARCHAR" />
 		<result column="classify" property="classify" jdbcType="VARCHAR" />
 		<result column="sort" property="sort" jdbcType="INTEGER" />
-		<result column="create_by" property="createBy" jdbcType="INTEGER" />
+		<result column="create_by" property="createBy" jdbcType="BIGINT" />
 		<result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
-		<result column="update_by" property="updateBy" jdbcType="INTEGER" />
+		<result column="update_by" property="updateBy" jdbcType="BIGINT" />
 		<result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
 		<result column="del_flag" property="delFlag" jdbcType="INTEGER" />
 	</resultMap>

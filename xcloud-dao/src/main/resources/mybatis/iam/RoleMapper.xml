@@ -8,9 +8,9 @@
 		<result column="type" property="type" jdbcType="INTEGER" />
 		<result column="enable" property="enable" jdbcType="INTEGER" />
 		<result column="status" property="status" jdbcType="INTEGER" />
-		<result column="create_by" property="createBy" jdbcType="INTEGER" />
+		<result column="create_by" property="createBy" jdbcType="BIGINT" />
 		<result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
-		<result column="update_by" property="updateBy" jdbcType="INTEGER" />
+		<result column="update_by" property="updateBy" jdbcType="BIGINT" />
 		<result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
 		<result column="del_flag" property="delFlag" jdbcType="INTEGER" />
 
@@ -243,8 +243,7 @@
 		#{displayName,jdbcType=VARCHAR},
 		type = #{type,jdbcType=INTEGER},
 		enable = #{enable,jdbcType=INTEGER},
-		status =
-		#{status,jdbcType=INTEGER},
+		status = #{status,jdbcType=INTEGER},
 		create_by = #{createBy,jdbcType=BIGINT},
 		create_date = #{createDate,jdbcType=TIMESTAMP},
 		update_by =

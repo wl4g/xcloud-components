@@ -63,7 +63,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(years);
-					if (getIngoreLowerDate() && months > 0) {
+					if (!isIngoreLowerDate() && months > 0) {
 						sb.append(".");
 						sb.append(months);
 					}
@@ -97,7 +97,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(months);
-					if (getIngoreLowerDate() && days > 0) {
+					if (!isIngoreLowerDate() && days > 0) {
 						sb.append(".");
 						sb.append(days);
 					}
@@ -131,7 +131,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(days);
-					if (getIngoreLowerDate() && hours > 0) {
+					if (!isIngoreLowerDate() && hours > 0) {
 						sb.append(".");
 						sb.append(hours);
 					}
@@ -165,7 +165,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(hours);
-					if (getIngoreLowerDate() && min > 0) {
+					if (!isIngoreLowerDate() && min > 0) {
 						sb.append(".");
 						sb.append(min);
 					}
@@ -194,7 +194,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 				if (isPrintDecimalAlway()) {
 					sb.append(" ");
 					sb.append(min);
-					if (getIngoreLowerDate() && sec > 0) {
+					if (!isIngoreLowerDate() && sec > 0) {
 						sb.append(".");
 						sb.append(sec);
 					}
@@ -207,7 +207,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 					sb.append(getLocalizedMessage("period.formatter.minutes"));
 				}
 			}
-			if (sec > 1) {
+			if (!isIngoreLowerDate() && sec > 1) {
 				sb.append(" ");
 				sb.append(sec);
 				sb.append(" ");

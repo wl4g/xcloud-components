@@ -3,9 +3,9 @@
 <mapper namespace="com.wl4g.devops.dao.iam.GroupMenuDao">
 	<resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.GroupMenu">
 		<id column="id" property="id" jdbcType="BIGINT" />
-		<result column="group_id" property="groupId" jdbcType="INTEGER" />
-		<result column="menu_id" property="menuId" jdbcType="INTEGER" />
-		<result column="create_by" property="createBy" jdbcType="INTEGER" />
+		<result column="group_id" property="groupId" jdbcType="BIGINT" />
+		<result column="menu_id" property="menuId" jdbcType="BIGINT" />
+		<result column="create_by" property="createBy" jdbcType="BIGINT" />
 		<result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
 	</resultMap>
 	<sql id="Base_Column_List">
