@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.iam.ClusterConfig;
 import java.util.List;
 
 public interface ClusterConfigDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(ClusterConfig record);
 
 	int insertSelective(ClusterConfig record);
 
-	ClusterConfig selectByPrimaryKey(Integer id);
+	ClusterConfig selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(ClusterConfig record);
 

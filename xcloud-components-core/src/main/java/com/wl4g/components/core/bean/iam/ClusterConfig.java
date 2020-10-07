@@ -27,7 +27,7 @@ import com.wl4g.components.core.bean.BaseBean;
 public class ClusterConfig extends BaseBean {
 	private static final long serialVersionUID = -7546448616357790576L;
 
-	private Integer clusterId;
+	private Long clusterId;
 	private String name;
 	private String displayName;
 	private Integer type;
@@ -44,11 +44,11 @@ public class ClusterConfig extends BaseBean {
 		this.viewExtranetBaseUri = viewExtranetBaseUri;
 	}
 
-	public Integer getClusterId() {
+	public Long getClusterId() {
 		return clusterId;
 	}
 
-	public void setClusterId(Integer clusterId) {
+	public void setClusterId(Long clusterId) {
 		this.clusterId = clusterId;
 	}
 

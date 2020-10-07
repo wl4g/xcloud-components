@@ -22,13 +22,13 @@ import com.wl4g.components.core.bean.iam.ContactGroup;
 import java.util.List;
 
 public interface ContactGroupDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(ContactGroup record);
 
 	int insertSelective(ContactGroup record);
 
-	ContactGroup selectByPrimaryKey(Integer id);
+	ContactGroup selectByPrimaryKey(Long id);
 
 	int updateByPrimaryKeySelective(ContactGroup record);
 

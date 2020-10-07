@@ -20,13 +20,13 @@ import java.util.List;
 import com.wl4g.components.core.bean.iam.Area;
 
 public interface AreaDao {
-	int deleteByPrimaryKey(Integer id);
+	int deleteByPrimaryKey(Long id);
 
 	int insert(Area record);
 
 	int insertSelective(Area record);
 
-	Area selectByPrimaryKey(Integer id);
+	Area selectByPrimaryKey(Long id);
 
 	List<Area> getTotal();
 
