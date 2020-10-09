@@ -60,13 +60,15 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 	protected final SmartLogger log = getLogger(getClass());
 
 	/** Refresh configuration properties. */
-	protected final HotspotLoaderProperties config;
+	private final HotspotLoaderProperties config;
 	/** Monitor objectives for {@link SqlSessionFactory} */
-	protected final SqlSessionFactoryBean sessionFactory;
+	private final SqlSessionFactoryBean sessionFactory;
+
 	/** Refresher of last timestamp. */
-	final private AtomicLong lastRefreshTime = new AtomicLong(0L);
+	private final AtomicLong lastRefreshTime = new AtomicLong(0L);
 	/** Runner thread boss. */
 	private Thread boss;
+
 	/** Mybatis sql sessions configurations. */
 	private Configuration configuration;
 	private Resource[] mapperLocations;
@@ -128,6 +130,7 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 		Field mapperLocaionsField = findField(SqlSessionFactoryBean.class, "mapperLocations", Resource[].class);
 		makeAccessible(mapperLocaionsField);
 		mapperLocations = (Resource[]) getField(mapperLocaionsField, sessionFactory);
+
 		// Convert to origin resources.
 		mapperLocations = getOriginResources(mapperLocations);
 
@@ -256,9 +259,13 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 		List<Resource> res = new ArrayList<>(mapperLocations.length);
 		if (nonNull(mapperLocations)) {
 			for (Resource r : mapperLocations) {
-				String path = r.getFile().getAbsolutePath();
-				path = replace(path, TARGET_PART_PATH, SRC_PART_PATH);
-				res.add(new FileSystemResource(path));
+				// If the mapper XML is in jar, it cannot be loaded (and not
+				// necessary).
+				if (r.isFile()) {
+					String path = r.getFile().getAbsolutePath();
+					path = replace(path, TARGET_PART_PATH, SRC_PART_PATH);
+					res.add(new FileSystemResource(path));
+				}
 			}
 		}
 		return res.toArray(new Resource[] {});
