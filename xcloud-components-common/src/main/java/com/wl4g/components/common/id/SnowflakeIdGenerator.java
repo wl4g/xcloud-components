@@ -41,7 +41,7 @@ public class SnowflakeIdGenerator {
 	// Worker node ID.
 	private final long workerId;
 	// Data center ID.
-	private final long datacenterId;
+	private final long dataCenterId;
 	// Sequence ID.
 	private final AtomicLong sequence = new AtomicLong(0L);
 
@@ -52,11 +52,11 @@ public class SnowflakeIdGenerator {
 		this(BitsDefine.StandardSafeJs, 0L, 0L, 0L);
 	}
 
-	public SnowflakeIdGenerator(BitsDefine def, long workerId, long datacenterId, long sequence) {
-		validate(def, workerId, datacenterId, sequence);
+	public SnowflakeIdGenerator(BitsDefine def, long workerId, long dataCenterId, long sequence) {
+		validate(def, workerId, dataCenterId, sequence);
 		this.def = def;
 		this.workerId = workerId;
-		this.datacenterId = datacenterId;
+		this.dataCenterId = dataCenterId;
 		this.sequence.set(sequence);
 	}
 
@@ -89,8 +89,8 @@ public class SnowflakeIdGenerator {
 
 		// Finally, the ID is calculated according to the rules.
 		// 000000000000000000000000000000000000000000 00000 00000 000000000000
-		// time datacenterId workerId sequence
-		return ((now - def.twepoch) << def.timestampLeftShift) | (datacenterId << def.datacenterIdShift)
+		// time dataCenterId workerId sequence
+		return ((now - def.twepoch) << def.timestampLeftShift) | (dataCenterId << def.dataCenterIdShift)
 				| (workerId << def.workerIdShift) | sequence.get();
 	}
 
@@ -122,19 +122,19 @@ public class SnowflakeIdGenerator {
 	 * 
 	 * @param def
 	 * @param workerId
-	 * @param datacenterId
+	 * @param dataCenterId
 	 * @param sequence
 	 */
-	private void validate(BitsDefine def, long workerId, long datacenterId, long sequence) {
+	private void validate(BitsDefine def, long workerId, long dataCenterId, long sequence) {
 		notNullOf(def, "bitsDefine");
 		isTrueOf(workerId >= 0, "workerId>=0");
-		isTrueOf(datacenterId >= 0, "datacenterId>=0");
+		isTrueOf(dataCenterId >= 0, "dataCenterId>=0");
 		isTrueOf(sequence >= 0, "sequence>=0");
 		isTrueOf(def.sequenceBits >= 0, "sequenceBits>=0");
 		if (workerId > def.maxWorkerId || workerId < 0) {
 			throw new IllegalArgumentException(format("worker Id can't be greater than %d or less than 0", def.maxWorkerId));
 		}
-		if (datacenterId > def.maxDatacenterId || datacenterId < 0) {
+		if (dataCenterId > def.maxDatacenterId || dataCenterId < 0) {
 			throw new IllegalArgumentException(
 					format("datacenter Id can't be greater than %d or less than 0", def.maxDatacenterId));
 		}
@@ -169,52 +169,52 @@ public class SnowflakeIdGenerator {
 	 */
 	public static final class BitsDefine {
 
-		// Epoch 1288834974657L (e.g: Thu, 04 Nov 2010 01:42:54 GMT)
+		// Epoch (e.g: 1288834974657L => Thu, 04 Nov 2010 01:42:54 GMT)
 		final long twepoch;
-		// Node ID length
+		// Node ID length bits.
 		final long workerIdBits;
-		// Data center ID length.
-		final long datacenterIdBits;
+		// Data Center ID length bits.
+		final long dataCenterIdBits;
 		// The maximum number of machine nodes supported is 0-31, a total of 32
 		final long maxWorkerId;
 		// The maximum number of data center nodes supported is 0-31, a total of
 		// 32
 		final long maxDatacenterId;
-		// Serial number 12 digits.
+		// Serial number length bits.
 		final long sequenceBits;
-		// Machine node left shift.
+		// Machine node left shift length bits.
 		final long workerIdShift;
-		// Data center node moves.
-		final long datacenterIdShift;
-		// Time milliseconds shift.
+		// Data center node moves length bits.
+		final long dataCenterIdShift;
+		// Time milliseconds shift length bits.
 		final long timestampLeftShift;
-		// Sequence mask.
+		// Sequence mask bits.
 		final long sequenceMask;
 
-		public BitsDefine(long twepoch, long workerIdBits, long datacenterIdBits, long sequenceBits) {
+		public BitsDefine(long twepoch, long workerIdBits, long dataCenterIdBits, long sequenceBits) {
 			this.twepoch = twepoch;
 			this.workerIdBits = workerIdBits;
-			this.datacenterIdBits = datacenterIdBits;
+			this.dataCenterIdBits = dataCenterIdBits;
 			// The maximum number of machine nodes supported is 0-31, a total of
 			// 32
 			this.maxWorkerId = -1L ^ (-1L << workerIdBits);
 			// The maximum number of data center nodes supported is 0-31, a
 			// total of 32
-			this.maxDatacenterId = -1L ^ (-1L << datacenterIdBits);
+			this.maxDatacenterId = -1L ^ (-1L << dataCenterIdBits);
 			// Serial number. (e.g: 12 digits)
 			this.sequenceBits = sequenceBits;
 			// Machine node left shift bits. (e.g: 12 bits)
 			this.workerIdShift = sequenceBits;
 			// Data center node moves left bits. (e.g: 17 bits)
-			this.datacenterIdShift = sequenceBits + workerIdBits;
+			this.dataCenterIdShift = sequenceBits + workerIdBits;
 			// Time milliseconds shift left bits. (e.g: 22 bits)
-			this.timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits;
+			this.timestampLeftShift = sequenceBits + workerIdBits + dataCenterIdBits;
 			// Sequence mask bits. (e.g: 4095 bits).
 			this.sequenceMask = -1L ^ (-1L << sequenceBits);
 			// Validation
 			isTrueOf(twepoch >= 0, "twepoch>=0");
 			isTrueOf(workerIdBits >= 0, "workerIdBits>=0");
-			isTrueOf(datacenterIdBits >= 0, "datacenterIdBits>=0");
+			isTrueOf(dataCenterIdBits >= 0, "dataCenterIdBits>=0");
 			isTrueOf(sequenceBits >= 0, "sequenceBits>=0");
 		}
 
