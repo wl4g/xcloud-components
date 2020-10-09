@@ -44,7 +44,8 @@ import static org.apache.commons.lang3.SystemUtils.USER_HOME;
  */
 public abstract class SSH2Holders<S, F> {
 
-	final protected SmartLogger log = getLogger(getClass());
+
+	final static protected SmartLogger log = getLogger(SSH2Holders.class);
 
 	/**
 	 * Gets default {@link SSH2Holders} instance by provider class.
