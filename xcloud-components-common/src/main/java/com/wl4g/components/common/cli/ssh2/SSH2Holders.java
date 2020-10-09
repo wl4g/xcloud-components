@@ -15,10 +15,10 @@
  */
 package com.wl4g.components.common.cli.ssh2;
 
-import com.wl4g.components.common.collection.RegisteredUnmodifiableMap;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.common.reflect.ObjectInstantiators;
 
 import java.io.CharArrayWriter;
 import java.io.File;
@@ -30,6 +30,7 @@ import java.util.Map;
 import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.SystemUtils.USER_HOME;
 
@@ -46,18 +47,19 @@ public abstract class SSH2Holders<S, F> {
 	final protected SmartLogger log = getLogger(getClass());
 
 	/**
-	 * Get default {@link SSH2Holders} instance by provider class.
+	 * Gets default {@link SSH2Holders} instance by provider class.
 	 * 
 	 * @param <T>
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public final static <T extends SSH2Holders> T getDefault() {
+		// @see:xcloud-components-common/pom.xml#<groupId>com.hierynomus</groupId>
 		return (T) getInstance(SshjHolder.class);
 	}
 
 	/**
-	 * Get {@link SSH2Holders} instance by provider class.
+	 * Gets {@link SSH2Holders} instance by provider class.
 	 * 
 	 * @param <T>
 	 * @param providerClass
@@ -65,8 +67,16 @@ public abstract class SSH2Holders<S, F> {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public final static <T extends SSH2Holders> T getInstance(Class<T> providerClass) {
-		isTrue(providerRegistry.containsKey(providerClass), "No such ssh2 provider of : %s", providerClass);
-		return (T) providerRegistry.get(providerClass);
+		T t = (T) registry.get(providerClass);
+		if (isNull(t)) {
+			synchronized (SSH2Holders.class) {
+				t = (T) registry.get(providerClass);
+				if (isNull(t)) {
+					registry.put(providerClass, (t = ObjectInstantiators.newInstance(providerClass)));
+				}
+			}
+		}
+		return t;
 	}
 
 	// --- Transfer files. ---
@@ -193,23 +203,10 @@ public abstract class SSH2Holders<S, F> {
 	public abstract Ssh2KeyPair generateKeypair(AlgorithmType type, String comment) throws Exception;
 
 	/**
-	 * {@link SSH2Holders} provider registry.
+	 * {@link SSH2Holders} providers registry.
 	 */
 	@SuppressWarnings("rawtypes")
-	private final static Map<Class<? extends SSH2Holders>, SSH2Holders> providerRegistry = new RegisteredUnmodifiableMap<Class<? extends SSH2Holders>, SSH2Holders>(
-			new HashMap<>()) {
-		{
-			putAll(new HashMap<Class<? extends SSH2Holders>, SSH2Holders>() {
-				private static final long serialVersionUID = 6854310693801773032L;
-				{
-					put(EthzHolder.class, new EthzHolder());
-					put(SshjHolder.class, new SshjHolder());
-					put(SshdHolder.class, new SshdHolder());
-					put(JschHolder.class, new JschHolder());
-				}
-			});
-		}
-	};
+	private final static Map<Class<? extends SSH2Holders>, SSH2Holders> registry = new HashMap<>();
 
 	/**
 	 * Default IO buffer size.
@@ -315,7 +312,7 @@ public abstract class SSH2Holders<S, F> {
 	 * </p>
 	 */
 	@Deprecated
-	final public static String DEFAULT_LINUX_ENV_CMD = join(new String[] {
+	public static final String DEFAULT_LINUX_ENV_CMD = join(new String[] {
 			// e.g: CentOS|Ubuntu
 			"source /etc/profile",
 			// e.g: CentOS

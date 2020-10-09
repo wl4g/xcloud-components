@@ -237,7 +237,8 @@
 		<dependency>
 			<groupId>com.hierynomus</groupId>
 			<artifactId>sshj</artifactId>
-			<scope>provided</scope>
+			<!-- @see com.wl4g.components.common.cli.ssh2.SSH2Holders#getDefault() -->
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.jcraft</groupId>
