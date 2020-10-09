@@ -19,9 +19,11 @@ import com.google.common.annotations.Beta;
 import com.wl4g.components.common.collection.Collections2;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
+import com.wl4g.components.common.log.SmartLogger;
 
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Command;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 import net.schmizz.sshj.xfer.FileSystemFile;
@@ -30,14 +32,15 @@ import net.schmizz.sshj.xfer.scp.ScpCommandLine;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
+import static com.wl4g.components.common.cli.ssh2.SshjHolder.CommandSessionWrapper;
 import static com.wl4g.components.common.io.ByteStreamUtils.readFullyToString;
 import static com.wl4g.components.common.lang.Assert2.hasText;
 import static com.wl4g.components.common.lang.Assert2.notNull;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * SSHJ based SSH2 tools.
@@ -47,7 +50,9 @@ import static java.util.Objects.nonNull;
  * @since
  */
 @Beta
-public class SshjHolder extends SSH2Holders<Session.Command, SCPFileTransfer> {
+public class SshjHolder extends SSH2Holders<CommandSessionWrapper, SCPFileTransfer> {
+
+	private static final SmartLogger log = getLogger(SshjHolder.class);
 
 	// --- Transfer files. ---
 
@@ -164,9 +169,10 @@ public class SshjHolder extends SSH2Holders<Session.Command, SCPFileTransfer> {
 
 	// --- Execution commands. ---
 
-	public SshExecResponse execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
+	public Ssh2ExecResult execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
 			long timeoutMs) throws Exception {
-		return execWaitForComplete(host, user, pemPrivateKey, password, command, cmd -> {
+		return execWaitForComplete(host, user, pemPrivateKey, password, command, s -> {
+			Session.Command cmd = s.getCommand();
 			String message = null, errmsg = null;
 			if (nonNull(cmd.getInputStream())) {
 				message = readFullyToString(cmd.getInputStream());
@@ -174,24 +180,24 @@ public class SshjHolder extends SSH2Holders<Session.Command, SCPFileTransfer> {
 			if (nonNull(cmd.getErrorStream())) {
 				errmsg = readFullyToString(cmd.getErrorStream());
 			}
-			return new SshExecResponse(Objects.nonNull(cmd.getExitSignal()) ? cmd.getExitSignal().toString() : null,
-					cmd.getExitStatus(), message, errmsg);
+			return new Ssh2ExecResult(nonNull(cmd.getExitSignal()) ? cmd.getExitSignal().toString() : null, cmd.getExitStatus(),
+					message, errmsg);
 		}, timeoutMs);
 	}
 
 	@Override
 	public <T> T execWaitForComplete(String host, String user, char[] pemPrivateKey, String password, String command,
-			ProcessFunction<Session.Command, T> processor, long timeoutMs) throws Exception {
-		return doExecCommand(host, user, pemPrivateKey, password, command, cmd -> {
+			ProcessFunction<CommandSessionWrapper, T> processor, long timeoutMs) throws Exception {
+		return doExecCommand(host, user, pemPrivateKey, password, command, s -> {
 			// Wait for completed by condition.
-			cmd.join(timeoutMs, TimeUnit.MILLISECONDS);
-			return processor.process(cmd);
+			s.getCommand().join(timeoutMs, MILLISECONDS);
+			return processor.process(s);
 		});
 	}
 
 	@Override
 	public <T> T doExecCommand(String host, String user, char[] pemPrivateKey, String password, String command,
-			ProcessFunction<Session.Command, T> processor) throws Exception {
+			ProcessFunction<CommandSessionWrapper, T> processor) throws Exception {
 		hasText(host, "SSH2 command host can't empty.");
 		hasText(user, "SSH2 command user can't empty.");
 		notNull(processor, "SSH2 command processor can't null.");
@@ -217,10 +223,12 @@ public class SshjHolder extends SSH2Holders<Session.Command, SCPFileTransfer> {
 				ssh.authPassword(user, password);
 			}
 			session = ssh.startSession();
+
 			// TODO
 			command = "source /etc/profile\nsource /etc/bashrc\n" + command;
 			cmd = session.exec(command);
-			return processor.process(cmd);
+
+			return processor.process(new CommandSessionWrapper(session, cmd));
 		} catch (Exception e) {
 			throw e;
 		} finally {
@@ -247,6 +255,33 @@ public class SshjHolder extends SSH2Holders<Session.Command, SCPFileTransfer> {
 	@Override
 	public Ssh2KeyPair generateKeypair(AlgorithmType type, String comment) throws Exception {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@link CommandSessionWrapper}
+	 *
+	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+	 * @version v1.0 2020-10-09
+	 * @since
+	 */
+	public static class CommandSessionWrapper {
+		private final Session session;
+		private final Session.Command command;
+
+		public CommandSessionWrapper(Session session, Command command) {
+			super();
+			this.session = session;
+			this.command = command;
+		}
+
+		public Session getSession() {
+			return session;
+		}
+
+		public Session.Command getCommand() {
+			return command;
+		}
+
 	}
 
 }

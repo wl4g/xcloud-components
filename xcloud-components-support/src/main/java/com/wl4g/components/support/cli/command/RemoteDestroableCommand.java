@@ -44,29 +44,30 @@ public class RemoteDestroableCommand extends DestroableCommand {
 	final private String password;
 
 	public RemoteDestroableCommand(String command, long timeoutMs, String user, String host, char[] pemPrivateKey) {
-		this(null, command, false, timeoutMs, user, host, pemPrivateKey,null);
+		this(null, command, false, timeoutMs, user, host, pemPrivateKey, null);
 	}
 
 	public RemoteDestroableCommand(String command, boolean destroable, long timeoutMs, String user, String host,
 			char[] pemPrivateKey) {
-		this(null, command, destroable, timeoutMs, user, host, pemPrivateKey,null);
+		this(null, command, destroable, timeoutMs, user, host, pemPrivateKey, null);
 	}
 
 	public RemoteDestroableCommand(String processId, String command, long timeoutMs, String user, String host,
 			char[] pemPrivateKey) {
-		this(processId, command, true, timeoutMs, user, host, pemPrivateKey,null);
+		this(processId, command, true, timeoutMs, user, host, pemPrivateKey, null);
 	}
 
-	public RemoteDestroableCommand(String command, long timeoutMs, String user, String host, String  passrod) {
-		this(null, command, false, timeoutMs, user, host, null,passrod);
+	public RemoteDestroableCommand(String command, long timeoutMs, String user, String host, String passrod) {
+		this(null, command, false, timeoutMs, user, host, null, passrod);
 	}
 
 	public RemoteDestroableCommand(String processId, String command, boolean destroable, long timeoutMs, String user, String host,
-			char[] pemPrivateKey,String password) {
+			char[] pemPrivateKey, String password) {
 		super(processId, command, destroable, timeoutMs);
 		hasText(user, "Command remote user can't empty.");
 		hasText(host, "Command remote host can't empty.");
-		isTrue(Objects.nonNull(pemPrivateKey) || StringUtils.isNotBlank(password),"Command remote ssh pubkey or passrod can't empty.");
+		isTrue(Objects.nonNull(pemPrivateKey) || StringUtils.isNotBlank(password),
+				"Command remote ssh pubkey or passrod can't empty.");
 		this.user = user;
 		this.host = host;
 		this.pemPrivateKey = pemPrivateKey;
@@ -88,4 +89,5 @@ public class RemoteDestroableCommand extends DestroableCommand {
 	public String getPassword() {
 		return password;
 	}
+
 }

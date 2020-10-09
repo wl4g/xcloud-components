@@ -44,7 +44,7 @@ import static org.apache.commons.lang3.SystemUtils.USER_HOME;
  */
 public abstract class SSH2Holders<S, F> {
 
-	final protected SmartLogger log = getLogger(getClass());
+	private static final SmartLogger log = getLogger(SSH2Holders.class);
 
 	/**
 	 * Gets default {@link SSH2Holders} instance by provider class.
@@ -133,7 +133,7 @@ public abstract class SSH2Holders<S, F> {
 	 * @return
 	 * @throws IOException
 	 */
-	public abstract SshExecResponse execWaitForResponse(String host, String user, char[] pemPrivateKey, String password,
+	public abstract Ssh2ExecResult execWaitForResponse(String host, String user, char[] pemPrivateKey, String password,
 			String command, long timeoutMs) throws Exception;
 
 	/**
@@ -214,13 +214,13 @@ public abstract class SSH2Holders<S, F> {
 	final public static int DEFAULT_TRANSFER_BUFFER = 1024 * 6;
 
 	/**
-	 * {@link SshExecResponse}
+	 * {@link Ssh2ExecResult}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version 2020年1月9日 v1.0.0
 	 * @see
 	 */
-	public final static class SshExecResponse {
+	public final static class Ssh2ExecResult {
 
 		/** Remote commands exit signal. */
 		final private String exitSignal;
@@ -234,7 +234,7 @@ public abstract class SSH2Holders<S, F> {
 		/** Error message */
 		final private String errmsg;
 
-		public SshExecResponse(String exitSignal, Integer exitCode, String message, String errmsg) {
+		public Ssh2ExecResult(String exitSignal, Integer exitCode, String message, String errmsg) {
 			super();
 			this.exitSignal = exitSignal;
 			this.exitCode = exitCode;

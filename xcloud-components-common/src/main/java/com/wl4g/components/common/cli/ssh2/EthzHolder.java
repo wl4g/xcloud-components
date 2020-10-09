@@ -21,6 +21,7 @@ import com.wl4g.components.common.annotation.Stable;
 import com.wl4g.components.common.collection.Collections2;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
+import com.wl4g.components.common.log.SmartLogger;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,6 +33,7 @@ import java.io.IOException;
 import static ch.ethz.ssh2.ChannelCondition.CLOSED;
 import static com.wl4g.components.common.io.ByteStreamUtils.readFullyToString;
 import static com.wl4g.components.common.lang.Assert2.*;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -44,6 +46,8 @@ import static java.util.Objects.nonNull;
  */
 @Stable
 public class EthzHolder extends SSH2Holders<Session, SCPClient> {
+
+	private static final SmartLogger log = getLogger(EthzHolder.class);
 
 	// --- Transfer files. ---
 
@@ -165,7 +169,7 @@ public class EthzHolder extends SSH2Holders<Session, SCPClient> {
 	// --- Execution commands. ---
 
 	@Override
-	public SshExecResponse execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
+	public Ssh2ExecResult execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
 			long timeoutMs) throws Exception {
 		return execWaitForComplete(host, user, pemPrivateKey, password, command, session -> {
 			String message = null, errmsg = null;
@@ -175,7 +179,7 @@ public class EthzHolder extends SSH2Holders<Session, SCPClient> {
 			if (nonNull(session.getStderr())) {
 				errmsg = readFullyToString(session.getStderr());
 			}
-			return new SshExecResponse(session.getExitSignal(), session.getExitStatus(), message, errmsg);
+			return new Ssh2ExecResult(session.getExitSignal(), session.getExitStatus(), message, errmsg);
 		}, timeoutMs);
 	}
 

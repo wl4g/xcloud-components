@@ -18,6 +18,7 @@ package com.wl4g.components.common.cli.ssh2;
 import com.google.common.annotations.Beta;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
+import com.wl4g.components.common.log.SmartLogger;
 
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.channel.ChannelExec;
@@ -36,6 +37,7 @@ import java.util.Objects;
 
 import static com.wl4g.components.common.lang.Assert2.hasText;
 import static com.wl4g.components.common.lang.Assert2.notNull;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -49,6 +51,8 @@ import static java.util.Objects.nonNull;
  */
 @Beta
 public class SshdHolder extends SSH2Holders<ChannelExec, ScpClient> {
+
+	private static final SmartLogger log = getLogger(SshdHolder.class);
 
 	// --- Transfer files. ---
 
@@ -167,7 +171,7 @@ public class SshdHolder extends SSH2Holders<ChannelExec, ScpClient> {
 
 	// --- Execution commands. ---
 
-	public SshExecResponse execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
+	public Ssh2ExecResult execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
 			long timeoutMs) throws Exception {
 		return execWaitForComplete(host, user, pemPrivateKey, password, command, session -> {
 			String msg = null, errmsg = null;
@@ -178,7 +182,7 @@ public class SshdHolder extends SSH2Holders<ChannelExec, ScpClient> {
 			if (nonNull(session.getErr())) {
 				errmsg = session.getErr().toString();
 			}
-			return new SshExecResponse(session.getExitSignal(), session.getExitStatus(), msg, errmsg);
+			return new Ssh2ExecResult(session.getExitSignal(), session.getExitStatus(), msg, errmsg);
 		}, timeoutMs);
 	}
 

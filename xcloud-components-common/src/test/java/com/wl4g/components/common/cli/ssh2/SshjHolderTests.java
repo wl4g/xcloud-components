@@ -53,7 +53,7 @@ public class SshjHolderTests {
 
 	public static void sshjExecTest() throws Exception {
 		// Test execute command
-		SSH2Holders.SshExecResponse sshExecResponse = SSH2Holders.getInstance(SshjHolder.class).execWaitForResponse("10.0.0.160", "root",
+		SSH2Holders.Ssh2ExecResult sshExecResponse = SSH2Holders.getInstance(SshjHolder.class).execWaitForResponse("10.0.0.160", "root",
 				PRIVATE_KEY.toCharArray(),null, "mvn -version", 60000);
 		System.out.println("success=" + sshExecResponse.getMessage());
 		System.out.println("fail=" + sshExecResponse.getErrmsg());

@@ -18,7 +18,7 @@ package com.wl4g.components.common.cli.ssh2;
 
 import com.wl4g.components.common.cli.ssh2.SSH2Holders;
 import com.wl4g.components.common.cli.ssh2.SshdHolder;
-import com.wl4g.components.common.cli.ssh2.SSH2Holders.SshExecResponse;
+import com.wl4g.components.common.cli.ssh2.SSH2Holders.Ssh2ExecResult;
 import com.wl4g.components.common.resource.ResourceUtils2;
 
 import org.apache.commons.io.FileUtils;
@@ -63,7 +63,7 @@ public class SshdHolderTests {
 
 	public static void execCatCommandTest1() throws Exception {
 		String cmd = "cat /tmp/test_vim_file.txt";
-		SshExecResponse resp = SSH2Holders.getInstance(SshdHolder.class).execWaitForResponse("127.0.0.1", "wanglsir",
+		Ssh2ExecResult resp = SSH2Holders.getInstance(SshdHolder.class).execWaitForResponse("127.0.0.1", "wanglsir",
 				PRIVATE_KEY.toCharArray(),null, cmd, 3_000);
 		out.println("stdout=" + resp.getMessage());
 		out.println("stderr=" + resp.getErrmsg());

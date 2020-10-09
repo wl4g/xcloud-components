@@ -15,8 +15,8 @@
  */
 package com.wl4g.components.support.cli;
 
-import com.wl4g.components.common.cli.ssh2.EthzHolder;
 import com.wl4g.components.common.cli.ssh2.SSH2Holders;
+import com.wl4g.components.common.cli.ssh2.SshjHolder.CommandSessionWrapper;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.task.RunnerProperties;
 import com.wl4g.components.core.exception.support.IllegalProcessStateException;
@@ -27,10 +27,14 @@ import com.wl4g.components.support.cli.command.LocalDestroableCommand;
 import com.wl4g.components.support.cli.command.RemoteDestroableCommand;
 import com.wl4g.components.support.cli.destroy.DestroySignal;
 import com.wl4g.components.support.cli.process.DestroableProcess;
+import com.wl4g.components.support.cli.process.EthzDestroableProcess;
 import com.wl4g.components.support.cli.process.LocalDestroableProcess;
-import com.wl4g.components.support.cli.process.RemoteDestroableProcess;
+import com.wl4g.components.support.cli.process.SshdDestroableProcess;
+import com.wl4g.components.support.cli.process.SshjDestroableProcess;
 import com.wl4g.components.support.cli.repository.ProcessRepository;
 import com.wl4g.components.support.task.ApplicationTaskRunner;
+
+import ch.ethz.ssh2.Session;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +42,8 @@ import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.sshd.client.channel.ChannelExec;
 
 import static com.wl4g.components.common.cli.ProcessUtils.*;
 import static com.wl4g.components.common.io.ByteStreamUtils.*;
@@ -50,6 +56,7 @@ import static java.lang.System.arraycopy;
 import static java.lang.Thread.sleep;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -96,7 +103,7 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 		// Check exited?
 		try {
 			// Wait for completed.
-			dp.waitFor(cmd.getTimeoutMs(), TimeUnit.MILLISECONDS);
+			dp.waitFor(cmd.getTimeoutMs(), MILLISECONDS);
 
 			// Waiting be completed.
 			Integer exitValue = null;
@@ -171,8 +178,8 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 		// Stderr/Stdout stream process.
 		CountDownLatch latch = new CountDownLatch(2);
 		try {
-			inputStreamRead0(dp.getStderr(), executor, latch, callback, dp, true);
-			inputStreamRead0(dp.getStdout(), executor, latch, callback, dp, false);
+			readInputStream(dp.getStderr(), executor, latch, callback, dp, true);
+			readInputStream(dp.getStdout(), executor, latch, callback, dp, false);
 			latch.await(cmd.getTimeoutMs(), TimeUnit.MILLISECONDS); // Await-done
 		} finally {
 			// Destroy process.
@@ -205,11 +212,12 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	protected DestroableProcess doExecRemote(RemoteDestroableCommand cmd) throws InterruptedException, Exception {
 		log.info("Exec remote command: {}", cmd.getCmd());
 
-		return SSH2Holders.getInstance(EthzHolder.class).execWaitForComplete(cmd.getHost(), cmd.getUser(),
-				cmd.getPemPrivateKey(), cmd.getPassword(), cmd.getCmd(), s -> new RemoteDestroableProcess(cmd.getProcessId(), cmd, s),
+		return (DestroableProcess) SSH2Holders.getDefault().execWaitForComplete(cmd.getHost(), cmd.getUser(),
+				cmd.getPemPrivateKey(), cmd.getPassword(), cmd.getCmd(), s -> wrapDestroableProcess(cmd.getProcessId(), cmd, s),
 				cmd.getTimeoutMs());
 	}
 
@@ -228,7 +236,7 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	 * @see {@link ch.ethz.ssh2.Session#close()}
 	 * @see {@link ch.ethz.ssh2.channel.ChannelManager#closeChannel(Channel,String,boolean)}
 	 */
-	protected void doDestroy(DestroySignal signal) throws TimeoutDestroyProcessException {
+	protected void destroy(DestroySignal signal) throws TimeoutDestroyProcessException {
 		notNull(signal, "Destroy signal must not be null.");
 		isTrue(signal.getTimeoutMs() >= DEFAULT_DESTROY_INTERVALMS,
 				String.format("Destroy timeoutMs must be less than or equal to %s", DEFAULT_DESTROY_INTERVALMS));
@@ -256,7 +264,7 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	 * 
 	 * @param timeoutMs
 	 */
-	private void destroy0(DestroableProcess dpw, long timeoutMs) {
+	private final void destroy0(DestroableProcess dpw, long timeoutMs) {
 		notNull(dpw, "Destroable process can't null.");
 		try {
 			dpw.getStdin().close();
@@ -305,7 +313,7 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	 * @param iserr
 	 * @throws IOException
 	 */
-	private void inputStreamRead0(InputStream in, Executor executor, CountDownLatch latch, ProcessCallback callback,
+	private final void readInputStream(InputStream in, Executor executor, CountDownLatch latch, ProcessCallback callback,
 			DestroableProcess dpw, boolean iserr) {
 		notNull(dpw, "DestroableProcess can't null.");
 		notNull(in, "Process inputStream can't null");
@@ -338,12 +346,34 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	 * @param command
 	 * @return
 	 */
-	private boolean isLocalStderr(DestroableCommand command) {
+	private final boolean isLocalStderr(DestroableCommand command) {
 		return (command instanceof LocalDestroableCommand) && ((LocalDestroableCommand) command).hasStderr();
 	}
 
-	final public static long DEFAULT_DESTROY_INTERVALMS = 200L;
-	final public static long DEFAULT_DESTROY_TIMEOUTMS = 30 * 1000L;
-	final public static int DEFAULT_BUFFER_SIZE = 1024 * 4;
+	/**
+	 * Wrapper remote destroable process.
+	 * 
+	 * @param processId
+	 * @param command
+	 * @param session
+	 * @return
+	 */
+	private final DestroableProcess wrapDestroableProcess(String processId, DestroableCommand command, Object session) {
+		DestroableProcess process = null;
+		if (session instanceof Session) {
+			process = new EthzDestroableProcess(processId, command, (Session) session);
+		} else if (session instanceof CommandSessionWrapper) { // Sshj
+			process = new SshjDestroableProcess(processId, command, (CommandSessionWrapper) session);
+		} else if (session instanceof ChannelExec) { // Sshd
+			process = new SshdDestroableProcess(processId, command, (ChannelExec) session);
+		} else if (session instanceof Void) { // Jsch
+			// TODO
+		}
+		return notNull(process, "No supported remote process of %s", session);
+	}
+
+	public final static long DEFAULT_DESTROY_INTERVALMS = 200L;
+	public final static long DEFAULT_DESTROY_TIMEOUTMS = 30 * 1000L;
+	public final static int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 }

@@ -56,7 +56,7 @@ public class JschHolder extends SSH2Holders<Void, Void> {
 	// --- Execution commands. ---
 
 	@Override
-	public SshExecResponse execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
+	public Ssh2ExecResult execWaitForResponse(String host, String user, char[] pemPrivateKey, String password, String command,
 			long timeoutMs) throws Exception {
 		throw new UnsupportedOperationException();
 	}
