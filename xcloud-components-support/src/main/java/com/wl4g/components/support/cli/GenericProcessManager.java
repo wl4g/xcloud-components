@@ -378,11 +378,17 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	public final static long DEFAULT_DESTROY_TIMEOUTMS = 30 * 1000L;
 	public final static int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
-	public final static boolean isEthzClass = isPresent("ch.ethz.ssh2.Session", currentThread().getContextClassLoader());
-	public final static boolean isSshjClass = isPresent("net.schmizz.sshj.connection.channel.direct.Session",
-			currentThread().getContextClassLoader());
-	public final static boolean isSshdClass = isPresent("org.apache.sshd.client.channel.ChannelExec",
-			currentThread().getContextClassLoader());
-	public final static boolean isJschClass = isPresent("com.jcraft.jsch.JSch", currentThread().getContextClassLoader());
+	public final static boolean isEthzClass;
+	public final static boolean isSshjClass;
+	public final static boolean isSshdClass;
+	public final static boolean isJschClass;
+
+	static {
+		ClassLoader classLoader = currentThread().getContextClassLoader();
+		isEthzClass = isPresent("ch.ethz.ssh2.Session", classLoader);
+		isSshjClass = isPresent("net.schmizz.sshj.connection.channel.direct.Session", classLoader);
+		isSshdClass = isPresent("org.apache.sshd.client.channel.ChannelExec", classLoader);
+		isJschClass = isPresent("com.jcraft.jsch.JSch", classLoader);
+	}
 
 }
