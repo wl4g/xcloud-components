@@ -17,6 +17,7 @@ package com.wl4g.components.common.cli.ssh2;
 
 import ch.ethz.ssh2.*;
 
+import com.wl4g.components.common.annotation.Stable;
 import com.wl4g.components.common.collection.Collections2;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
@@ -41,6 +42,7 @@ import static java.util.Objects.nonNull;
  * @version v1.0 2019年5月24日
  * @since
  */
+@Stable
 public class EthzHolder extends SSH2Holders<Session, SCPClient> {
 
 	// --- Transfer files. ---

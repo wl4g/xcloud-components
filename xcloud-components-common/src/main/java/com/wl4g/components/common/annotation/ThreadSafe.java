@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * Documenting annotation to indicate a class is thread-safe and may be shared
  * among multiple threads.
  *
- * @see NotThreadSafe
+ * @see {@link NotThreadSafe}
  */
 @Documented
 @Target(ElementType.TYPE)

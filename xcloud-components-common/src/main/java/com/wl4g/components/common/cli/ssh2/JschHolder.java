@@ -15,6 +15,7 @@
  */
 package com.wl4g.components.common.cli.ssh2;
 
+import com.google.common.annotations.Beta;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.KeyPair;
 import com.wl4g.components.common.function.CallbackFunction;
@@ -29,6 +30,7 @@ import java.io.*;
  * @version v1.0 2019年5月24日
  * @since
  */
+@Beta
 public class JschHolder extends SSH2Holders<Void, Void> {
 
 	// --- Transfer files. ---

@@ -15,6 +15,7 @@
  */
 package com.wl4g.components.common.cli.ssh2;
 
+import com.google.common.annotations.Beta;
 import com.wl4g.components.common.collection.Collections2;
 import com.wl4g.components.common.function.CallbackFunction;
 import com.wl4g.components.common.function.ProcessFunction;
@@ -45,6 +46,7 @@ import static java.util.Objects.nonNull;
  * @version v1.0 2019年5月24日
  * @since
  */
+@Beta
 public class SshjHolder extends SSH2Holders<Session.Command, SCPFileTransfer> {
 
 	// --- Transfer files. ---

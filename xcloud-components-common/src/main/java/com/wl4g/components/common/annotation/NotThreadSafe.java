@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * Documenting annotation to indicate a class is not thread-safe and should not
  * be used in a multi-threaded context.
  *
- * @see ThreadSafe
+ * @see {@link ThreadSafe}
  */
 @Documented
 @Target(ElementType.TYPE)
