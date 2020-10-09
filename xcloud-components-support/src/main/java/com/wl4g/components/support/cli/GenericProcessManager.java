@@ -53,12 +53,14 @@ import static com.wl4g.components.common.lang.Exceptions.getStackTraceAsString;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
 import static java.lang.System.arraycopy;
+import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.ClassUtils.isPresent;
 
 /**
  * Abstract generic command-line process management implements.
@@ -360,13 +362,13 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	 */
 	private final DestroableProcess wrapDestroableProcess(String processId, DestroableCommand command, Object session) {
 		DestroableProcess process = null;
-		if (session instanceof Session) {
+		if (isEthzClass && session instanceof Session) {
 			process = new EthzDestroableProcess(processId, command, (Session) session);
-		} else if (session instanceof CommandSessionWrapper) { // Sshj
+		} else if (isSshjClass && session instanceof CommandSessionWrapper) { // Sshj
 			process = new SshjDestroableProcess(processId, command, (CommandSessionWrapper) session);
-		} else if (session instanceof ChannelExec) { // Sshd
+		} else if (isSshdClass && session instanceof ChannelExec) { // Sshd
 			process = new SshdDestroableProcess(processId, command, (ChannelExec) session);
-		} else if (session instanceof Void) { // Jsch
+		} else if (isJschClass && session instanceof Void) { // Jsch
 			// TODO
 		}
 		return notNull(process, "No supported remote process of %s", session);
@@ -375,5 +377,12 @@ public abstract class GenericProcessManager extends ApplicationTaskRunner<Runner
 	public final static long DEFAULT_DESTROY_INTERVALMS = 200L;
 	public final static long DEFAULT_DESTROY_TIMEOUTMS = 30 * 1000L;
 	public final static int DEFAULT_BUFFER_SIZE = 1024 * 4;
+
+	public final static boolean isEthzClass = isPresent("ch.ethz.ssh2.Session", currentThread().getContextClassLoader());
+	public final static boolean isSshjClass = isPresent("net.schmizz.sshj.connection.channel.direct.Session",
+			currentThread().getContextClassLoader());
+	public final static boolean isSshdClass = isPresent("org.apache.sshd.client.channel.ChannelExec",
+			currentThread().getContextClassLoader());
+	public final static boolean isJschClass = isPresent("com.jcraft.jsch.JSch", currentThread().getContextClassLoader());
 
 }
