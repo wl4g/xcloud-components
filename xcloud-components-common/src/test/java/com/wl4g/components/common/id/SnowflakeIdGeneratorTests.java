@@ -15,6 +15,10 @@
  */
 package com.wl4g.components.common.id;
 
+import static java.lang.String.valueOf;
+import static java.lang.System.currentTimeMillis;
+import static java.lang.System.out;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -34,18 +38,23 @@ import com.wl4g.components.common.id.SnowflakeIdGenerator;
 public class SnowflakeIdGeneratorTests {
 
 	public static void main(String[] args) {
-		simpleGenerateTest1();
-		concurrentGenerateCostTest2();
+		simpleGenerateCase();
+		concurrentGenerateCostCase();
 	}
 
-	public static void simpleGenerateTest1() {
+	public static void simpleGenerateCase() {
+		out.println("=== simpleGenerateCase ====");
+
 		final SnowflakeIdGenerator idGen = SnowflakeIdGenerator.getDefault();
 		for (int i = 0; i < 100; i++) {
-			System.out.println(idGen.nextId(true));
+			out.println(idGen.nextId());
 		}
+		out.println("生成的ID位数(十进制)：" + valueOf(idGen.nextId()).length());
 	}
 
-	public static void concurrentGenerateCostTest2() {
+	public static void concurrentGenerateCostCase() {
+		out.println("=== concurrentGenerateCostCase ====");
+
 		final SnowflakeIdGenerator idGen = SnowflakeIdGenerator.getDefault();
 		long avg = 0, runCount = 10, idGenCount = 100_0000;
 		for (long count = 0; count < runCount; count++) {
@@ -60,17 +69,18 @@ public class SnowflakeIdGeneratorTests {
 			}
 			ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 			try {
-				long s = System.currentTimeMillis();
+				long s = currentTimeMillis();
 				executor.invokeAll(taskParts, 10_000, TimeUnit.SECONDS);
-				long s_avg = System.currentTimeMillis() - s;
+				long s_avg = currentTimeMillis() - s;
 				avg += s_avg;
-				System.out.println("第" + count + "次完成所需时间: " + s_avg / 1.0e3 + "秒");
+				out.println("第" + count + "次完成所需时间: " + s_avg / 1.0e3 + "秒");
 				executor.shutdown();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("总共运行" + runCount + "次，每次生成" + idGenCount + "个ID，平均完成时间需要: " + avg / 10 / 1.0e3 + "秒");
+		out.println("生成的ID位数(十进制)：" + valueOf(idGen.nextId()).length());
+		out.println("每次生成" + idGenCount + "个ID，总共运行" + runCount + "次，平均完成时间需要: " + avg / 10 / 1.0e3 + "秒");
 	}
 
 }
