@@ -164,6 +164,9 @@
       <if test="label != null" >
         label = #{label,jdbcType=VARCHAR},
       </if>
+      <if test="labelEn != null" >
+        label_en = #{labelEn,jdbcType=VARCHAR},
+      </if>
       <if test="type != null" >
         type = #{type,jdbcType=VARCHAR},
       </if>
