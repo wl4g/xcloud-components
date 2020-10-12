@@ -16,9 +16,14 @@
 package com.wl4g.components.core.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
 import com.wl4g.components.common.lang.period.PeriodFormatter;
 
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
+import io.swagger.annotations.ApiParam;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -85,8 +90,16 @@ public abstract class BaseBean implements Serializable {
 	private String organizationCode;
 
 	/**
-	 * Logistic delete status.
+	 * Logistic delete status. </br>
+	 * </br>
+	 * Note: In order to be compatible with the different usages of the
+	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
+	 * ways that will work.
 	 */
+	@JsonIgnore
+	@ApiModelProperty(readOnly = true, hidden = true)
+	@ApiParam(hidden = true)
+	@JsonIgnoreProperties(allowGetters = false, allowSetters = false)
 	private Integer delFlag;
 
 	/**
@@ -99,14 +112,12 @@ public abstract class BaseBean implements Serializable {
 		// This is a temporary ID generation scheme. You can change
 		// it to a primary key generation service later.
 		setId(SnowflakeIdGenerator.getDefault().nextId());
-
 		setCreateDate(new Date());
 		setCreateBy(DEFAULT_USER_ID);
 		setUpdateDate(getCreateDate());
 		setUpdateBy(DEFAULT_USER_ID);
 		setDelFlag(DEL_FLAG_NORMAL);
 		setEnable(ENABLED);
-
 		return getId();
 	}
 
@@ -178,10 +189,30 @@ public abstract class BaseBean implements Serializable {
 
 	// --- Function's. ---
 
+	/**
+	 * Note: In order to be compatible with the different usages of the
+	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
+	 * ways that will work.
+	 * 
+	 * @return
+	 */
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	public String getHumanCreateDate() {
 		return isNull(getCreateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getCreateDate().getTime());
 	}
 
+	/**
+	 * Note: In order to be compatible with the different usages of the
+	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
+	 * ways that will work.
+	 * 
+	 * @return
+	 */
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	public String getHumanUpdateDate() {
 		return isNull(getUpdateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getUpdateDate().getTime());
 	}
