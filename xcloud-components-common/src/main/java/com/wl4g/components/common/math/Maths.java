@@ -174,7 +174,7 @@ public abstract class Maths {
 	 *            divisor
 	 * @return Quotient of two parameters (BigDecimal)
 	 */
-	public static BigDecimal divide(double v1, double v2) {
+	public static BigDecimal zdivide(double v1, double v2) {
 		return divide(v1, v2, DEFAULT_DIV_SCALE);
 	}
 
@@ -193,7 +193,7 @@ public abstract class Maths {
 	 * @return Quotient of two parameters (BigDecimal)
 	 */
 	public static BigDecimal divide(double v1, double v2, int scale) {
-		return divide(BigDecimal.valueOf(v1), BigDecimal.valueOf(v2));
+		return divide(BigDecimal.valueOf(v1), BigDecimal.valueOf(v2), scale);
 	}
 
 	/**
