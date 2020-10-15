@@ -26,10 +26,29 @@ import java.math.RoundingMode;
  * @see
  */
 public abstract class Maths {
-	/** Default division accuracy */
-	final private static int DEFAULT_DIV_SCALE = 2;
 
 	// --- Basic mathematical function's. ---
+
+	/**
+	 * Round the decimal.
+	 * 
+	 * @param v
+	 * @return
+	 */
+	public static BigDecimal round(double v) {
+		return round(v, DEFAULT_DIV_SCALE);
+	}
+
+	/**
+	 * Round the decimal. {@link BigDecimal#ROUND_HALF_UP}
+	 * 
+	 * @param v
+	 * @param scale
+	 * @return
+	 */
+	public static BigDecimal round(double v, int scale) {
+		return new BigDecimal(v).setScale(scale, BigDecimal.ROUND_HALF_UP);
+	}
 
 	/**
 	 * Exact addition
@@ -235,11 +254,11 @@ public abstract class Maths {
 		}
 
 		if (v2.compareTo(BigDecimal.ZERO) == 0) {
-			throw new IllegalArgumentException("除数不能为0");
+			throw new IllegalArgumentException("Divisor cannot be 0");
 		}
 
 		if (scale < 0) {
-			throw new IllegalArgumentException("精确度不能小于0");
+			throw new IllegalArgumentException("The accuracy(scale) cannot be less than 0");
 		}
 
 		return v1.divide(v2, scale, BigDecimal.ROUND_HALF_UP);
@@ -293,10 +312,10 @@ public abstract class Maths {
 	 * Exact multiplication
 	 * 
 	 * @param v1
-	 *            被乘数
+	 *            Multiplicand
 	 * @param v2
-	 *            乘数
-	 * @return 两个参数的积(String)
+	 *            multiplier
+	 * @return Product of two parameters (string)
 	 */
 	public static String multiply(String v1, String v2) {
 		if (isBlank0(v1)) {
@@ -316,10 +335,10 @@ public abstract class Maths {
 	 * then the number shall be rounded
 	 * 
 	 * @param v1
-	 *            被除数
+	 *            Divisor
 	 * @param v2
-	 *            除数
-	 * @return 两个参数的商(String)
+	 *            Divisor
+	 * @return Quotient of two parameters (string)
 	 */
 	public static String divide(String v1, String v2) {
 		return divide(v1, v2, DEFAULT_DIV_SCALE);
@@ -331,12 +350,13 @@ public abstract class Maths {
 	 * rounded
 	 * 
 	 * @param v1
-	 *            被除数
+	 *            Divisor
 	 * @param v2
-	 *            除数
+	 *            Divisor
 	 * @param scale
-	 *            表示表示需要精确到小数点以后几位
-	 * @return 两个参数的商(String)
+	 *            Indicates that it needs to be accurate to several decimal
+	 *            places
+	 * @return Quotient of two parameters (string)
 	 */
 	public static String divide(String v1, String v2, int scale) {
 		if (null == v1) {
@@ -356,18 +376,18 @@ public abstract class Maths {
 	 * Precise addition operation to calculate the sum of multiple values. If
 	 * there is a null value, it will be ignored
 	 * 
-	 * @param valList
+	 * @param values
 	 *            Addend set
 	 * @return The sum of two parameters (BigDecimal)
 	 */
-	public static BigDecimal sum(BigDecimal v1, BigDecimal... valList) {
+	public static BigDecimal sum(BigDecimal v1, BigDecimal... values) {
 		if (null == v1) {
 			v1 = BigDecimal.ZERO;
 		}
-		if (null == valList || valList.length == 0) {
+		if (null == values || values.length == 0) {
 			return v1;
 		}
-		for (BigDecimal val : valList) {
+		for (BigDecimal val : values) {
 			if (null != val) {
 				v1 = v1.add(val);
 			}
@@ -379,19 +399,19 @@ public abstract class Maths {
 	 * Precise addition operation to calculate the sum of multiple values. If
 	 * there is a null value, it will be ignored
 	 * 
-	 * @param valList
+	 * @param values
 	 *            Addend set
 	 * @return The sum of two parameters (string)
 	 */
-	public static String sum(String v1, String... valList) {
+	public static String sum(String v1, String... values) {
 		if (isBlank0(v1)) {
 			v1 = "0";
 		}
-		if (null == valList || valList.length == 0) {
+		if (null == values || values.length == 0) {
 			return v1;
 		}
 		BigDecimal b1 = new BigDecimal(v1.trim());
-		for (String val : valList) {
+		for (String val : values) {
 			if (!isBlank0(val)) {
 				b1 = add(b1, new BigDecimal(val.trim()));
 			}
@@ -400,44 +420,44 @@ public abstract class Maths {
 	}
 
 	/**
-	 * Get average
+	 * Gets average
 	 * 
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static BigDecimal avg(BigDecimal... valList) {
-		if (null != valList && valList.length != 0) {
-			return divide(sum(BigDecimal.ZERO, valList), new BigDecimal(valList.length));
+	public static BigDecimal avg(BigDecimal... values) {
+		if (null != values && values.length != 0) {
+			return divide(sum(BigDecimal.ZERO, values), new BigDecimal(values.length));
 		}
 		return BigDecimal.ZERO;
 	}
 
 	/**
-	 * Get average
+	 * Gets average
 	 * 
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static String avg(String... valList) {
-		if (null != valList && valList.length != 0) {
-			return divide(sum("0", valList), String.valueOf(valList.length));
+	public static String avg(String... values) {
+		if (null != values && values.length != 0) {
+			return divide(sum("0", values), String.valueOf(values.length));
 		}
 		return "0";
 	}
 
 	/**
-	 * Get maximum
+	 * Gets maximum
 	 * 
 	 * @param v1
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static BigDecimal max(BigDecimal v1, BigDecimal... valList) {
+	public static BigDecimal max(BigDecimal v1, BigDecimal... values) {
 		BigDecimal max = v1;
-		if (null == valList || valList.length == 0) {
+		if (null == values || values.length == 0) {
 			return max;
 		}
-		for (BigDecimal val : valList) {
+		for (BigDecimal val : values) {
 			if (null != val && val.compareTo(max) > 0) {
 				max = val;
 			}
@@ -446,32 +466,32 @@ public abstract class Maths {
 	}
 
 	/**
-	 * Get maximum
+	 * Gets maximum
 	 * 
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static BigDecimal maxArr(BigDecimal... valList) {
-		if (null == valList || valList.length == 0) {
+	public static BigDecimal maxArr(BigDecimal... values) {
+		if (null == values || values.length == 0) {
 			return null;
 		}
 
-		return max(valList[0], valList);
+		return max(values[0], values);
 	}
 
 	/**
-	 * Get minimum
+	 * Gets minimum
 	 * 
 	 * @param v1
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static BigDecimal min(BigDecimal v1, BigDecimal... valList) {
+	public static BigDecimal min(BigDecimal v1, BigDecimal... values) {
 		BigDecimal min = v1;
-		if (null == valList || valList.length == 0) {
+		if (null == values || values.length == 0) {
 			return min;
 		}
-		for (BigDecimal val : valList) {
+		for (BigDecimal val : values) {
 			if (null != val && val.compareTo(min) < 0) {
 				min = val;
 			}
@@ -480,35 +500,35 @@ public abstract class Maths {
 	}
 
 	/**
-	 * Get minimum
+	 * Gets minimum
 	 * 
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static BigDecimal minArr(BigDecimal... valList) {
-		if (null == valList || valList.length == 0) {
+	public static BigDecimal minArr(BigDecimal... values) {
+		if (null == values || values.length == 0) {
 			return null;
 		}
-		return min(valList[0], valList);
+		return min(values[0], values);
 	}
 
 	/**
-	 * Get maximum
+	 * Gets maximum
 	 * 
 	 * @param v1
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static String max(String v1, String... valList) {
+	public static String max(String v1, String... values) {
 		if (isBlank0(v1)) {
 			return null;
 		}
-		if (null == valList || valList.length == 0) {
+		if (null == values || values.length == 0) {
 			return v1;
 		}
 		BigDecimal maxBd = new BigDecimal(v1.trim());
 
-		for (String val : valList) {
+		for (String val : values) {
 			if (!isBlank0(val) && new BigDecimal(val).compareTo(maxBd) > 0) {
 				maxBd = new BigDecimal(val);
 			}
@@ -517,35 +537,35 @@ public abstract class Maths {
 	}
 
 	/**
-	 * Get maximum
+	 * Gets maximum
 	 * 
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static String maxArr(String... valList) {
-		if (null == valList || valList.length == 0) {
+	public static String maxArr(String... values) {
+		if (null == values || values.length == 0) {
 			return null;
 		}
-		return max(valList[0], valList);
+		return max(values[0], values);
 	}
 
 	/**
-	 * Get minimum
+	 * Gets minimum
 	 * 
 	 * @param v1
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static String min(String v1, String... valList) {
+	public static String min(String v1, String... values) {
 		if (isBlank0(v1)) {
 			return null;
 		}
-		if (null == valList || valList.length == 0) {
+		if (null == values || values.length == 0) {
 			return v1;
 		}
 		BigDecimal minBd = new BigDecimal(v1.trim());
 
-		for (String val : valList) {
+		for (String val : values) {
 			if (!isBlank0(val) && new BigDecimal(val).compareTo(minBd) < 0) {
 				minBd = new BigDecimal(val);
 			}
@@ -554,16 +574,16 @@ public abstract class Maths {
 	}
 
 	/**
-	 * Get minimum
+	 * Gets minimum
 	 * 
-	 * @param valList
+	 * @param values
 	 * @return
 	 */
-	public static String minArr(String... valList) {
-		if (null == valList || valList.length == 0) {
+	public static String minArr(String... values) {
+		if (null == values || values.length == 0) {
 			return null;
 		}
-		return min(valList[0], valList);
+		return min(values[0], values);
 	}
 
 	/**
@@ -575,5 +595,8 @@ public abstract class Maths {
 	private static boolean isBlank0(String str) {
 		return null == str || str.trim().length() == 0;
 	}
+
+	/** Default division accuracy */
+	private static final int DEFAULT_DIV_SCALE = 2;
 
 }
