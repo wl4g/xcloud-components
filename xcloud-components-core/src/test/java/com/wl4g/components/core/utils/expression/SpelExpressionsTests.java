@@ -36,18 +36,20 @@ public class SpelExpressionsTests {
 
 	@Test
 	public void mapSpelCase() {
-		String expression = "#{name}";
-
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", "Mia");
 		model.put("age", 25);
+		model.put("isAmerican", true);
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("workyear", 1);
 		attributes.put("income", 20000);
 		model.put("attributes", attributes);
 
-		String result = SpelExpressions.create().resolve(expression, model);
-		System.out.println(result);
+		String result1 = SpelExpressions.create().resolve("#{name}", model);
+		System.out.println(result1);
+
+		Object result2 = SpelExpressions.create().resolve("#{isAmerican}", model);
+		System.out.println(result2);
 	}
 
 	@Test
