@@ -12,7 +12,7 @@
 		<result column="parent_ids" property="parentIds" jdbcType="VARCHAR" />
 		<result column="permission" property="permission" jdbcType="VARCHAR" />
 		<result column="page_location" property="pageLocation" jdbcType="VARCHAR" />
-		<result column="route_path" property="routePath" jdbcType="VARCHAR" />
+		<result column="route_namespace" property="routeNamespace" jdbcType="VARCHAR" />
 		<result column="render_target" property="renderTarget" jdbcType="VARCHAR" />
 		<result column="icon" property="icon" jdbcType="VARCHAR" />
 		<result column="classify" property="classify" jdbcType="VARCHAR" />
@@ -26,11 +26,11 @@
 	<sql id="Base_Column_List">
 		id, name, display_name, type, level, status, parent_id, parent_ids, permission,
 		page_location,
-		route_path,render_target, icon, classify, sort,create_by, create_date, update_by, update_date, del_flag
+		route_namespace,render_target, icon, classify, sort,create_by, create_date, update_by, update_date, del_flag
 	</sql>
 	<sql id="Base_Column_List_m">
 		m.id, m.name, m.display_name, m.type, m.level, m.status, m.parent_id, m.parent_ids, m.permission,
-		m.page_location,m.route_path,m.render_target, m.icon, m.classify, m.sort,m.create_by, m.create_date, m.update_by,
+		m.page_location,m.route_namespace,m.render_target, m.icon, m.classify, m.sort,m.create_by, m.create_date, m.update_by,
 		m.update_date,
 		m.del_flag
 	</sql>
@@ -88,7 +88,7 @@
 		type, level, status,
 		parent_id, parent_ids,
 		permission,
-		page_location, route_path,render_target, icon, classify, sort, create_by,
+		page_location, route_namespace,render_target, icon, classify, sort, create_by,
 		create_date, update_by, update_date,
 		del_flag)
 		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
@@ -96,7 +96,7 @@
 		#{level,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
 		#{parentId,jdbcType=BIGINT}, #{parentIds,jdbcType=VARCHAR},
 		#{permission,jdbcType=VARCHAR},
-		#{pageLocation,jdbcType=VARCHAR}, #{routePath,jdbcType=VARCHAR},#{renderTarget,jdbcType=VARCHAR},
+		#{pageLocation,jdbcType=VARCHAR}, #{routeNamespace,jdbcType=VARCHAR},#{renderTarget,jdbcType=VARCHAR},
 		#{icon,jdbcType=VARCHAR}, #{classify,jdbcType=VARCHAR},#{sort,jdbcType=INTEGER}, #{createBy,jdbcType=BIGINT},
 		#{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP},
 		#{delFlag,jdbcType=INTEGER})
@@ -135,8 +135,8 @@
 			<if test="pageLocation != null">
 				page_location,
 			</if>
-			<if test="routePath != null">
-				route_path,
+			<if test="routeNamespace != null">
+				route_namespace,
 			</if>
 			<if test="renderTarget != null">
 				render_target,
@@ -197,8 +197,8 @@
 			<if test="pageLocation != null">
 				#{pageLocation,jdbcType=VARCHAR},
 			</if>
-			<if test="routePath != null">
-				#{routePath,jdbcType=VARCHAR},
+			<if test="routeNamespace != null">
+				#{routeNamespace,jdbcType=VARCHAR},
 			</if>
 			<if test="renderTarget != null">
 				#{renderTarget,jdbcType=VARCHAR},
@@ -259,8 +259,8 @@
 			<if test="pageLocation != null">
 				page_location = #{pageLocation,jdbcType=VARCHAR},
 			</if>
-			<if test="routePath != null">
-				route_path = #{routePath,jdbcType=VARCHAR},
+			<if test="routeNamespace != null">
+				route_namespace = #{routeNamespace,jdbcType=VARCHAR},
 			</if>
 			<if test="renderTarget != null">
 				render_target = #{renderTarget,jdbcType=VARCHAR},
@@ -306,7 +306,7 @@
 		permission =
 		#{permission,jdbcType=VARCHAR},
 		page_location = #{pageLocation,jdbcType=VARCHAR},
-		route_path = #{routePath,jdbcType=VARCHAR},
+		route_namespace = #{routeNamespace,jdbcType=VARCHAR},
 		render_target = #{renderTarget,jdbcType=VARCHAR},
 		icon = #{icon,jdbcType=VARCHAR},
 		classify = #{classify,jdbcType=VARCHAR},
