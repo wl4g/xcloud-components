@@ -59,6 +59,8 @@ public class Pipeline extends BaseBean {
 
 	private Long deployId;
 
+	private List<PipeStepBuildingProject> pipeStepBuildingProjects;
+
 	public String getPipeName() {
 		return pipeName;
 	}
@@ -193,5 +195,13 @@ public class Pipeline extends BaseBean {
 
 	public void setDeployId(Long deployId) {
 		this.deployId = deployId;
+	}
+
+	public List<PipeStepBuildingProject> getPipeStepBuildingProjects() {
+		return pipeStepBuildingProjects;
+	}
+
+	public void setPipeStepBuildingProjects(List<PipeStepBuildingProject> pipeStepBuildingProjects) {
+		this.pipeStepBuildingProjects = pipeStepBuildingProjects;
 	}
 }

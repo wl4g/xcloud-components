@@ -9,6 +9,8 @@
 		<result column="ref" jdbcType="VARCHAR" property="ref" />
 		<result column="enable" jdbcType="INTEGER" property="enable" />
 		<result column="sort" jdbcType="INTEGER" property="sort" />
+
+		<result column="project_name" jdbcType="VARCHAR" property="projectName" />
 	</resultMap>
 	<sql id="Base_Column_List">
 		id, building_id, project_id, build_command, ref, enable, sort
@@ -32,8 +34,10 @@
 
 	<select id="selectByPipeId" parameterType="java.lang.Long" resultMap="BaseResultMap">
 		select
-		<include refid="Base_Column_List_bp" />
-		from ci_pipe_step_building_project bp inner join ci_pipe_step_building b on b.id=bp.building_id
+		<include refid="Base_Column_List_bp" />,p.project_name
+		from ci_pipe_step_building_project bp
+		inner join ci_pipe_step_building b on b.id=bp.building_id
+		inner join ci_project p on p.id=bp.project_id
 		where b.pipe_id = #{pipeId,jdbcType=BIGINT}
 		order by bp.sort asc
 	</select>
