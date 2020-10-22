@@ -15,12 +15,14 @@
  */
 package com.wl4g.components.core.bean.iam;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wl4g.components.core.bean.BaseBean;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import com.wl4g.components.core.bean.BaseBean;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Menu extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 

@@ -85,10 +85,23 @@ public class JedisService {
 			} else {
 				result = adapter.set(key, value);
 			}
-			log.debug("set {} = {}", key, value);
+			log.debug("set {} = {} {}", key, value, cacheSeconds);
 			return result;
 		});
 
+	}
+
+	public String set(final String key, final String value, final long milliseconds) {
+		return doExecuteWithRedis(adapter -> {
+			String result = null;
+			if (milliseconds != 0) {
+				result = adapter.psetex(key, milliseconds, value);
+			} else {
+				result = adapter.set(key, value);
+			}
+			log.debug("set {} = {} {}", key, value, milliseconds);
+			return result;
+		});
 	}
 
 	public <T> ScanCursor<T> scan(final String pattern, final int batch, final Class<T> valueType) {
@@ -114,6 +127,23 @@ public class JedisService {
 			return result;
 		});
 	}
+
+	public Long expire(final String key,final long milliseconds) {
+		return doExecuteWithRedis(adapter -> {
+			long result = adapter.pexpire(key, milliseconds);
+			log.debug("expire {} {}", key, milliseconds);
+			return result;
+		});
+	}
+
+	public Long expire(final byte[] key,final long milliseconds) {
+		return doExecuteWithRedis(adapter -> {
+			long result = adapter.pexpire(key, milliseconds);
+			log.debug("expire {} {}", key, milliseconds);
+			return result;
+		});
+	}
+
 
 	public Boolean exists(final String key) {
 		return doExecuteWithRedis(adapter -> {
