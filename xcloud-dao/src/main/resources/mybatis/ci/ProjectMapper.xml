@@ -8,6 +8,7 @@
 		<result column="vcs_id" jdbcType="INTEGER" property="vcsId" />
 		<result column="http_url" jdbcType="VARCHAR" property="httpUrl" />
 		<result column="ssh_url" jdbcType="VARCHAR" property="sshUrl" />
+		<result column="git_info" jdbcType="VARCHAR" property="gitInfo" />
 		<result column="app_cluster_id" jdbcType="INTEGER" property="appClusterId" />
 		<result column="lock_status" jdbcType="INTEGER" property="lockStatus" />
 		<result column="is_boot" jdbcType="INTEGER" property="isBoot" />
@@ -42,11 +43,11 @@
 
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, project_name, organization_code, vcs_id, http_url,ssh_url, app_cluster_id, lock_status,is_boot,
+		id, project_name, organization_code, vcs_id, http_url,ssh_url, git_info, app_cluster_id, lock_status,is_boot,
 		remark, del_flag, create_date, create_by, update_date, update_by
 	</sql>
 	<sql id="Base_Column_List_p">
-		p.id, p.project_name, p.organization_code, p.vcs_id, p.http_url,p.ssh_url, p.app_cluster_id, p.lock_status,p.is_boot,
+		p.id, p.project_name, p.organization_code, p.vcs_id, p.http_url,p.ssh_url, p.git_info, p.app_cluster_id, p.lock_status,p.is_boot,
 		p.remark, p.del_flag, p.create_date, p.create_by, p.update_date, p.update_by
 	</sql>
 
@@ -72,13 +73,13 @@
 		where id = #{id,jdbcType=BIGINT}
 	</delete>
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.ci.Project">
-		insert into ci_project (id, project_name, organization_code, vcs_id,http_url,ssh_url
+		insert into ci_project (id, project_name, organization_code, vcs_id,http_url,ssh_url, git_info
 		app_cluster_id,
 		lock_status, is_boot, remark, del_flag,
 		create_date, create_by, update_date,
 		update_by)
 		values (#{id,jdbcType=BIGINT},
-		#{vcs_id,jdbcType=BIGINT},#{projectName,jdbcType=VARCHAR},#{organizationCode,jdbcType=VARCHAR},#{httpUrl,jdbcType=VARCHAR},#{sshUrl,jdbcType=VARCHAR},
+		#{vcs_id,jdbcType=BIGINT},#{projectName,jdbcType=VARCHAR},#{organizationCode,jdbcType=VARCHAR},#{httpUrl,jdbcType=VARCHAR},#{sshUrl,jdbcType=VARCHAR},#{gitInfo,jdbcType=VARCHAR},
 		#{appClusterId,jdbcType=BIGINT},
 		#{lockStatus,jdbcType=INTEGER},#{isBoot,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER},
 		#{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP},
@@ -105,6 +106,9 @@
 			</if>
 			<if test="sshUrl != null">
 				ssh_url,
+			</if>
+			<if test="gitInfo != null">
+				git_info,
 			</if>
 			<if test="appClusterId != null">
 				app_cluster_id,
@@ -153,6 +157,9 @@
 			<if test="sshUrl != null">
 				#{sshUrl,jdbcType=VARCHAR},
 			</if>
+			<if test="gitInfo != null">
+				#{gitInfo,jdbcType=VARCHAR},
+			</if>
 			<if test="appClusterId != null">
 				#{appClusterId,jdbcType=BIGINT},
 			</if>
@@ -200,6 +207,9 @@
 			<if test="sshUrl != null">
 				ssh_url = #{sshUrl,jdbcType=VARCHAR},
 			</if>
+			<if test="gitInfo != null">
+				git_info = #{gitInfo,jdbcType=VARCHAR},
+			</if>
 			<if test="appClusterId != null">
 				app_cluster_id = #{appClusterId,jdbcType=BIGINT},
 			</if>
@@ -238,6 +248,7 @@
 		organization_code = #{organizationCode,jdbcType=VARCHAR},
 		http_url = #{httpUrl,jdbcType=VARCHAR},
 		ssh_url = #{sshUrl,jdbcType=VARCHAR},
+		git_info = #{gitInfo,jdbcType=VARCHAR},
 		app_cluster_id = #{appClusterId,jdbcType=BIGINT},
 		lock_status = #{lockStatus,jdbcType=INTEGER},
 		is_boot = #{isBoot,jdbcType=INTEGER},
