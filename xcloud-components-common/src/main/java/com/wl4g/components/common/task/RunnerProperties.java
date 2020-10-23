@@ -30,12 +30,9 @@ import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
  */
 public class RunnerProperties implements Serializable {
 	final private static long serialVersionUID = -1996272636830701232L;
-	final private static int DEFAULT_CONCURRENCY = -1;
-	final private static long DEFAULT_KEEP_ALIVE_TIME = 0L;
-	final private static int DEFAULT_ACCEPT_QUEUE = 1;
 
 	/** Whether to start the boss thread asynchronously. */
-	private boolean asyncStartup = false;
+	private boolean asyncStartup = DEFAULT_ASYNCSTARTUP;
 
 	/**
 	 * When the concurrency is less than 0, it means that the worker thread
@@ -62,16 +59,12 @@ public class RunnerProperties implements Serializable {
 		this(asyncStartup, DEFAULT_CONCURRENCY);
 	}
 
+	public RunnerProperties(int concurrency) {
+		this(DEFAULT_ASYNCSTARTUP, concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
+	}
+
 	public RunnerProperties(boolean asyncStartup, int concurrency) {
-		this(concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
-	}
-
-	public RunnerProperties(int concurrency, long keepAliveTime, int acceptQueue) {
-		this(concurrency, keepAliveTime, acceptQueue, null);
-	}
-
-	public RunnerProperties(int concurrency, long keepAliveTime, int acceptQueue, RejectedExecutionHandler reject) {
-		this(true, concurrency, keepAliveTime, acceptQueue, reject);
+		this(asyncStartup, concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
 	}
 
 	public RunnerProperties(boolean asyncStartup, int concurrency, long keepAliveTime, int acceptQueue,
@@ -162,5 +155,10 @@ public class RunnerProperties implements Serializable {
 		return "TaskProperties [concurrency=" + concurrency + ", keepAliveTime=" + keepAliveTime + ", acceptQueue=" + acceptQueue
 				+ ", reject=" + reject + "]";
 	}
+
+	final private static boolean DEFAULT_ASYNCSTARTUP = false;
+	final private static int DEFAULT_CONCURRENCY = -1;
+	final private static long DEFAULT_KEEP_ALIVE_TIME = 0L;
+	final private static int DEFAULT_ACCEPT_QUEUE = 1;
 
 }

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
 import com.wl4g.components.common.lang.period.PeriodFormatter;
+import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.core.utils.expression.SpelExpressions;
 
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
@@ -30,7 +32,9 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.Date;
 
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
+import static java.lang.String.valueOf;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -44,8 +48,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Getter
 @Setter
 public abstract class BaseBean implements Serializable {
-
 	private static final long serialVersionUID = 8940373806493080114L;
+	private static final transient SmartLogger log = getLogger(BaseBean.class);
 
 	/**
 	 * Bean unqiue ID.</br>
@@ -112,10 +116,11 @@ public abstract class BaseBean implements Serializable {
 		// This is a temporary ID generation scheme. You can change
 		// it to a primary key generation service later.
 		setId(SnowflakeIdGenerator.getDefault().nextId());
+		Long principalId = getCurrentPrincipalId();
 		setCreateDate(new Date());
-		setCreateBy(DEFAULT_USER_ID);
+		setCreateBy(principalId);
 		setUpdateDate(getCreateDate());
-		setUpdateBy(DEFAULT_USER_ID);
+		setUpdateBy(principalId);
 		setDelFlag(DEL_FLAG_NORMAL);
 		setEnable(ENABLED);
 		return getId();
@@ -139,7 +144,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	public void preUpdate() {
 		setUpdateDate(new Date());
-		setUpdateBy(DEFAULT_USER_ID);
+		setUpdateBy(UNKNOWN_USER_ID);
 	}
 
 	public BaseBean withId(Long id) {
@@ -223,38 +228,80 @@ public abstract class BaseBean implements Serializable {
 	}
 
 	/**
+	 * Gets current authentication principal ID.
+	 * 
+	 * @return
+	 */
+	private static final Long getCurrentPrincipalId() {
+		Object curPrincipalId = null;
+		// Frist get by request
+		// try {
+		// HttpServletRequest request = ((ServletRequestAttributes)
+		// RequestContextHolder.currentRequestAttributes())
+		// .getRequest();
+		// curPrincipalId = request.getRemoteUser();
+		// } catch (Throwable e1) {
+		// Fallback get by IAM
+		try {
+			curPrincipalId = spelExpression
+					.resolve("#{T(com.wl4g.iam.common.utils.IamSecurityHolder).getPrincipalInfo().getPrincipalId()}", null);
+		} catch (Throwable e2) {
+			log.warn("Cannot get IAM authenticated principal, fallback getting. caused by: {}", e2.getMessage());
+			// Fallback get by Spring Security
+			// try {
+			// // org.springframework.security.core.userdetails.UserDetails
+			// curPrincipalId = spelExpression.resolve(
+			// "#{T(SecurityContextHolder.getContext().getAuthentication().getPrincipal().getUsername()}",
+			// null);
+			// } catch (Throwable e3) {
+			curPrincipalId = UNKNOWN_USER_ID;
+			// log.warn(format("Cannot get spring security authenticated
+			// principal, fallback use: '%s', caused by: {}",
+			// curPrincipalId), e3.getMessage());
+			// }
+		}
+		// }
+		return Long.parseLong(valueOf(curPrincipalId));
+	}
+
+	/**
 	 * Generic Status: enabled
 	 */
-	public static final int ENABLED = 1;
+	public static transient final int ENABLED = 1;
 
 	/**
 	 * Generic Status: disabled
 	 */
-	public static final int DISABLED = 0;
+	public static transient final int DISABLED = 0;
 
 	/**
 	 * Generic Status: normal (not deleted)
 	 */
-	public static final int DEL_FLAG_NORMAL = 0;
+	public static transient final int DEL_FLAG_NORMAL = 0;
 
 	/**
 	 * Generic Status: deleted
 	 */
-	public static final int DEL_FLAG_DELETE = 1;
+	public static transient final int DEL_FLAG_DELETE = 1;
 
 	/**
-	 * Default userId.
+	 * Unknown user ID.
 	 */
-	public static final long DEFAULT_USER_ID = 1;
+	public static transient final long UNKNOWN_USER_ID = -1;
 
 	/*
-	 * Default userName: Super administrator account.
+	 * Default super administrator user name.
 	 */
-	public static final String DEFAULT_USER_ROOT = "root";
+	public static transient final String DEFAULT_SUPER_USER = "root";
 
 	/*
 	 * Human date formatter instance.
 	 */
-	public static final PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
+	public static transient final PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
+
+	/**
+	 * {@link SpelExpressions}
+	 */
+	public static transient final SpelExpressions spelExpression = SpelExpressions.create();
 
 }

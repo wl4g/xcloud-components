@@ -214,7 +214,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<!-- Ethz SSH2 -->
 		<dependency>
@@ -260,7 +260,7 @@
 		<dependency>
 			<groupId>com.typesafe</groupId>
 			<artifactId>config</artifactId>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<!-- NLP (pinyin) -->
 		<dependency>

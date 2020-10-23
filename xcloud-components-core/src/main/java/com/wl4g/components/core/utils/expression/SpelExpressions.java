@@ -99,6 +99,17 @@ public abstract class SpelExpressions {
 	 * Resolving spring expression to real value.
 	 * 
 	 * @param expression
+	 * @return
+	 */
+	public <T> T resolve(@NotBlank String expression) throws EvaluationException {
+		hasTextOf(expression, "expression");
+		return resolve(expression, null);
+	}
+
+	/**
+	 * Resolving spring expression to real value.
+	 * 
+	 * @param expression
 	 * @param model
 	 * @return
 	 */

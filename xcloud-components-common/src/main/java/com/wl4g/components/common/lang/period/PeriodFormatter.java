@@ -44,6 +44,8 @@ import com.wl4g.components.common.log.SmartLogger;
  */
 public abstract class PeriodFormatter {
 
+	protected final SmartLogger log = getLogger(getClass());
+
 	/**
 	 * Current configuration for locale.
 	 */
@@ -197,18 +199,18 @@ public abstract class PeriodFormatter {
 	 * Default i18n resources base-name.
 	 */
 	private static final String defaultI18nResourcesBaseName = getDefaultI18nResourcesBaseName0();
+
+	/**
+	 * {@link PeriodFormatter} register instances
+	 */
+	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<>();
+
 	/**
 	 * IAM security holder method.
 	 * 
 	 * @see {@link com.wl4g.iam.common.utils.IamSecurityHolder#getBindValue(Object)}
 	 */
 	private static final Method iamSecurityHolderGetBindValueMethod;
-	private static final SmartLogger log = getLogger(PeriodFormatter.class);
-
-	/**
-	 * {@link PeriodFormatter} register instances
-	 */
-	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<>();
 
 	static {
 		Method getBindValueMethod = null;
@@ -217,7 +219,7 @@ public abstract class PeriodFormatter {
 					forName("com.wl4g.iam.common.utils.IamSecurityHolder", currentThread().getContextClassLoader()),
 					"getBindValue", Object.class);
 		} catch (ClassNotFoundException | LinkageError e) {
-			log.error("Internal error of cannot load class method", e);
+			getLogger(PeriodFormatter.class).error("Internal error of cannot load class method", e);
 		}
 		iamSecurityHolderGetBindValueMethod = getBindValueMethod;
 
