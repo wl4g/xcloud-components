@@ -15,10 +15,11 @@
  */
 package com.wl4g.components.core.bean.ci;
 
+import com.wl4g.components.core.bean.BaseBean;
+import com.wl4g.components.core.bean.vcs.CompositeBasicVcsProjectModel;
+
 import java.io.Serializable;
 import java.util.List;
-
-import com.wl4g.components.core.bean.BaseBean;
 
 import static java.util.Objects.nonNull;
 
@@ -40,6 +41,10 @@ public class Project extends BaseBean implements Serializable {
 	private String httpUrl;
 
 	private String sshUrl;
+
+	private String gitInfo;
+
+	private CompositeBasicVcsProjectModel vcsProject;
 
 	private Long appClusterId;
 
@@ -142,6 +147,22 @@ public class Project extends BaseBean implements Serializable {
 
 	public void setIsBoot(Integer isBoot) {
 		this.isBoot = isBoot;
+	}
+
+	public String getGitInfo() {
+		return gitInfo;
+	}
+
+	public void setGitInfo(String gitInfo) {
+		this.gitInfo = gitInfo;
+	}
+
+	public CompositeBasicVcsProjectModel getVcsProject() {
+		return vcsProject;
+	}
+
+	public void setVcsProject(CompositeBasicVcsProjectModel vcsProject) {
+		this.vcsProject = vcsProject;
 	}
 
 	@Override
