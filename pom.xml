@@ -1,7 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.wl4g</groupId>
 	<artifactId>xcloud-components</artifactId>
+	<version>master</version>
 	<packaging>pom</packaging>
 	<name>XCloud Components</name>
 	<url>http://xcloud.wl4g.com</url>
@@ -49,15 +51,10 @@
 			<timezone>+8</timezone>
 		</developer>
 	</developers>
-	<parent>
-		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-parent</artifactId>
-		<version>master</version>
-	</parent>
 	<modules>
 		<module>xcloud-components-bom</module>
-        <module>xcloud-components-common</module>
-        <module>xcloud-components-common-shade</module>
+		<module>xcloud-components-common</module>
+		<module>xcloud-components-common-shade</module>
 		<module>xcloud-components-opencv</module>
 		<module>xcloud-components-core</module>
 		<module>xcloud-components-support</module>
