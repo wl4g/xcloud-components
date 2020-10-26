@@ -5,9 +5,9 @@
 	<packaging>jar</packaging>
 	<name>XCloud Components Common</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud parent projects.</description>
+	<description>A XCloud components common.</description>
 	<organization>
-		<name>Wanglsir</name>
+		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
 	</organization>
 	<licenses>
@@ -64,7 +64,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-bom</artifactId>
+				<artifactId>xcloud-components-bom</artifactId>
 				<version>master</version>
 				<type>pom</type>
 				<scope>import</scope>
@@ -134,22 +134,10 @@
 			<artifactId>joda-time</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<!-- Compression's -->
-		<dependency>
-			<groupId>org.xerial.snappy</groupId>
-			<artifactId>snappy-java</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>io.protostuff</groupId>
 			<artifactId>protostuff-core</artifactId>
 			<scope>compile</scope>
-		</dependency>
-		<!-- Excel -->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>easyexcel</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<!-- Protostuff -->
 		<dependency>
@@ -162,12 +150,6 @@
 			<groupId>nl.bitwalker</groupId>
 			<artifactId>UserAgentUtils</artifactId>
 			<scope>compile</scope>
-		</dependency>
-		<!-- Template -->
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<!-- Javax fundation -->
 		<dependency>
@@ -185,6 +167,18 @@
 			<artifactId>javax.inject</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Compression's -->
+		<dependency>
+			<groupId>org.xerial.snappy</groupId>
+			<artifactId>snappy-java</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Template -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -201,9 +195,14 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
-			<scope>compile</scope>
+			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -211,10 +210,23 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- Excel -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>easyexcel</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<!-- SSHJ -->
+		<dependency>
+			<groupId>com.hierynomus</groupId>
+			<artifactId>sshj</artifactId>
+			<!-- @see com.wl4g.components.common.cli.ssh2.SSH2Holders#getDefault() -->
+			<scope>compile</scope>
 		</dependency>
 		<!-- Ethz SSH2 -->
 		<dependency>
@@ -233,13 +245,6 @@
 			<artifactId>sshd-scp</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- SSHJ -->
-		<dependency>
-			<groupId>com.hierynomus</groupId>
-			<artifactId>sshj</artifactId>
-			<!-- @see com.wl4g.components.common.cli.ssh2.SSH2Holders#getDefault() -->
-			<scope>compile</scope>
-		</dependency>
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
@@ -250,11 +255,6 @@
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
 			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>compile</scope>
 		</dependency>
 		<!-- Hocon config -->
 		<dependency>
