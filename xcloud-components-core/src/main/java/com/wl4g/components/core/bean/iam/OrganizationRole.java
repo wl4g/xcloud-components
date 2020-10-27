@@ -17,7 +17,7 @@ package com.wl4g.components.core.bean.iam;
 
 import com.wl4g.components.core.bean.BaseBean;
 
-public class GroupRole extends BaseBean {
+public class OrganizationRole extends BaseBean {
 	private static final long serialVersionUID = 381411777614066880L;
 
 	private Long groupId;

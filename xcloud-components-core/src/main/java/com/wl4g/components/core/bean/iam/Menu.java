@@ -26,9 +26,9 @@ import java.util.Objects;
 public class Menu extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
-	private String name;
+	private String nameEn;
 
-	private String displayName;
+	private String nameZh;
 
 	private Integer type;
 
@@ -37,8 +37,6 @@ public class Menu extends BaseBean implements Serializable {
 	private Integer level;
 
 	private Long parentId;
-
-	private String parentIds;
 
 	private String permission;
 
@@ -58,20 +56,20 @@ public class Menu extends BaseBean implements Serializable {
 
 	private List<Menu> children;
 
-	public String getName() {
-		return name;
+	public String getNameEn() {
+		return nameEn;
 	}
 
-	public void setName(String name) {
-		this.name = name == null ? null : name.trim();
+	public void setNameEn(String nameEn) {
+		this.nameEn = nameEn == null ? null : nameEn.trim();
 	}
 
-	public String getDisplayName() {
-		return displayName;
+	public String getNameZh() {
+		return nameZh;
 	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName == null ? null : displayName.trim();
+	public void setNameZh(String nameZh) {
+		this.nameZh = nameZh == null ? null : nameZh.trim();
 	}
 
 	public Integer getType() {
@@ -96,14 +94,6 @@ public class Menu extends BaseBean implements Serializable {
 
 	public void setParentId(Long parentId) {
 		this.parentId = parentId;
-	}
-
-	public String getParentIds() {
-		return parentIds;
-	}
-
-	public void setParentIds(String parentIds) {
-		this.parentIds = parentIds == null ? null : parentIds.trim();
 	}
 
 	public String getPermission() {

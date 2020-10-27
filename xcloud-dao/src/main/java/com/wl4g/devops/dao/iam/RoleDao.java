@@ -30,7 +30,7 @@ public interface RoleDao {
 
     Role selectByPrimaryKey(Long id);
 
-    List<Role> selectWithRoot(@Param("roleCode") String roleCode, @Param("displayName") String displayName);
+    List<Role> selectWithRoot(@Param("groupIds") List<Long> groupIds,@Param("roleCode") String roleCode, @Param("nameZh") String nameZh);
 
     int updateByPrimaryKeySelective(Role record);
 
@@ -40,7 +40,7 @@ public interface RoleDao {
 
     List<Role> selectByGroupId(Long groupId);
 
-    List<Role> selectByGroupIds(@Param("groupIds") List<Long> groupIds,@Param("roleCode") String roleCode, @Param("displayName") String displayName);
+    List<Role> selectByGroupIdsAndUserId(@Param("groupIds") List<Long> groupIds, @Param("userId") String userId, @Param("roleCode") String roleCode, @Param("nameZh") String nameZh);
 
-    List<Role> list(@Param("groupIds") List<Long> groupIds,@Param("roleCode") String roleCode, @Param("displayName") String displayName);
+    List<Role> list(@Param("groupIds") List<Long> groupIds,@Param("roleCode") String roleCode, @Param("nameZh") String nameZh);
 }

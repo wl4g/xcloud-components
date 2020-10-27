@@ -35,7 +35,7 @@ public interface UserDao {
 	int updateByPrimaryKey(User record);
 
 	List<User> list(@Param("groupIds") List<Long> groupIds, @Param("userName") String userName,
-			@Param("displayName") String displayName);
+			@Param("nameZh") String nameZh);
 
 	User selectByUserName(String userName);
 

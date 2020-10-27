@@ -15,17 +15,19 @@
  */
 package com.wl4g.components.core.bean.iam;
 
+import com.wl4g.components.core.bean.BaseBean;
+
 import java.io.Serializable;
 import java.util.List;
-
-import com.wl4g.components.core.bean.BaseBean;
 
 public class User extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
 	private String userName;
 
-	private String displayName;
+	private String nameEn;
+
+	private String nameZh;
 
 	private String password;
 
@@ -79,12 +81,20 @@ public class User extends BaseBean implements Serializable {
 		this.userName = userName == null ? null : userName.trim();
 	}
 
-	public String getDisplayName() {
-		return displayName;
+	public String getNameZh() {
+		return nameZh;
 	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName == null ? null : displayName.trim();
+	public void setNameZh(String nameZh) {
+		this.nameZh = nameZh == null ? null : nameZh.trim();
+	}
+
+	public String getNameEn() {
+		return nameEn;
+	}
+
+	public void setNameEn(String nameEn) {
+		this.nameEn = nameEn;
 	}
 
 	public String getPassword() {
