@@ -21,6 +21,7 @@ import static com.wl4g.components.common.lang.ClassUtils2.forName;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Locale.US;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.lang.reflect.Method;
 
@@ -116,13 +117,13 @@ public abstract class PeriodFormatter {
 	/**
 	 * Formatting to human Date time formatted as human friendly
 	 * 
-	 * @param nowTime
+	 * @param startTime
 	 *            current timestamp
-	 * @param targetTime
+	 * @param endTime
 	 *            Target timestamp to format
 	 * @return
 	 */
-	public abstract String formatHumanDate(long nowTime, long targetTime);
+	public abstract String formatHumanDate(long startTime, long endTime);
 
 	/**
 	 * Formatting to human Date time formatted as human friendly
@@ -141,7 +142,7 @@ public abstract class PeriodFormatter {
 	 */
 	protected final String cleanupDateEmptyString(String dateString) {
 		int safeThreshold = 10;
-		String cleared = dateString.toString().trim(), lastCleared = "";
+		String cleared = dateString.toString().trim(), lastCleared = EMPTY;
 		for (int i = 0; i < safeThreshold && !lastCleared.equals(cleared); i++, lastCleared = cleared) {
 			cleared = cleared.replace("  ", " ");
 		}

@@ -29,10 +29,10 @@ import com.wl4g.components.common.lang.period.PeriodFormatter;
 public class SamplePeriodUtilsTests {
 
 	public static void main(String[] args) {
-		calcMyBirthDateTest1();
+		calcDiffDateCase1();
 	}
 
-	public static void calcMyBirthDateTest1() {
+	public static void calcDiffDateCase1() {
 		PeriodFormatter formatter = PeriodFormatter.getDefault().locale(Locale.US);
 
 		// Pretend the current time is: 1978-06-16 16:51:22
@@ -104,6 +104,9 @@ public class SamplePeriodUtilsTests {
 		// Pretend the my birth date time is: 1977-01-16 16:51:22
 		long myBirthDate8 = 222252682000L;
 		System.out.println(formatter.formatHumanDate(nowTime8, myBirthDate8));
+
+		System.out.println("------------ Negative interval testing. ---------------");
+		System.out.println(formatter.formatHumanDate(190630282000L, 266835082000L));
 
 	}
 
