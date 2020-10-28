@@ -24,6 +24,9 @@ import static java.util.Objects.nonNull;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -41,6 +44,7 @@ public class CodecSource implements Serializable {
 	/**
 	 * Origin data bytes.
 	 */
+	@NotNull
 	final byte[] bytes;
 
 	/**
@@ -58,7 +62,7 @@ public class CodecSource implements Serializable {
 	 */
 	private transient String cachedBase58;
 
-	public CodecSource(final byte[] plainArray) {
+	public CodecSource(@NotNull final byte[] plainArray) {
 		notNullOf(plainArray, "plainArray");
 		this.bytes = plainArray;
 	}
@@ -72,7 +76,7 @@ public class CodecSource implements Serializable {
 	 *            array.
 	 * @since 1.1
 	 */
-	public CodecSource(final char[] plainChars) {
+	public CodecSource(@NotNull final char[] plainChars) {
 		notNullOf(plainChars, "plainChars");
 		this.bytes = new String(plainChars).getBytes(UTF_8);
 	}
@@ -86,34 +90,34 @@ public class CodecSource implements Serializable {
 	 *            encoding).
 	 * @since 1.1
 	 */
-	public CodecSource(final String plaintext) {
+	public CodecSource(@NotBlank final String plaintext) {
 		hasTextOf(plaintext, "plaintext");
 		this.bytes = plaintext.getBytes(UTF_8);
 	}
 
-	public byte[] getBytes() {
+	public final byte[] getBytes() {
 		return bytes;
 	}
 
-	public boolean isEmpty() {
+	public final boolean isEmpty() {
 		return isNull(bytes) || bytes.length == 0;
 	}
 
-	public synchronized String toHex() {
+	public final synchronized String toHex() {
 		if (isNull(cachedHex)) {
 			cachedHex = Hex.encodeHexString(getBytes());
 		}
 		return cachedHex;
 	}
 
-	public synchronized String toBase64() {
+	public final synchronized String toBase64() {
 		if (isNull(cachedBase64)) {
 			cachedBase64 = Base64.encodeBase64String(getBytes());
 		}
 		return cachedBase64;
 	}
 
-	public synchronized String toBase58() {
+	public final synchronized String toBase58() {
 		if (isNull(cachedBase58)) {
 			cachedBase58 = Base58.encodeBase58(getBytes());
 		}
