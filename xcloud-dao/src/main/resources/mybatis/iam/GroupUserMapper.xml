@@ -23,7 +23,7 @@
 		select
 		gu.group_id
 		from sys_group_user gu
-		left join sys_group g on g.id = gu.group_id
+		left join sys_organization g on g.id = gu.group_id
 		where gu.user_id = #{userId,jdbcType=BIGINT} and g.del_flag!=1
 	</select>
 

@@ -4,7 +4,7 @@
 	<resultMap id="BaseResultMap" type="com.wl4g.components.core.bean.iam.Role">
 		<id column="id" property="id" jdbcType="BIGINT" />
 		<result column="role_code" property="roleCode" jdbcType="VARCHAR" />
-		<result column="display_name" property="displayName" jdbcType="VARCHAR" />
+		<result column="name_zh" property="nameZh" jdbcType="VARCHAR" />
 		<result column="type" property="type" jdbcType="INTEGER" />
 		<result column="enable" property="enable" jdbcType="INTEGER" />
 		<result column="status" property="status" jdbcType="INTEGER" />
@@ -18,11 +18,11 @@
 
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, role_code, display_name, type, enable, status, create_by, create_date, update_by,
+		id, role_code, name_zh, type, enable, status, create_by, create_date, update_by,
 		update_date, del_flag
 	</sql>
 	<sql id="Base_Column_List_r">
-		r.id, r.role_code, r.display_name, r.type, r.enable, r.status, r.create_by, r.create_date, r.update_by,
+		r.id, r.role_code, r.name_zh, r.type, r.enable, r.status, r.create_by, r.create_date, r.update_by,
 		r.update_date, r.del_flag
 	</sql>
 
@@ -35,14 +35,21 @@
 
 	<select id="selectWithRoot" resultMap="BaseResultMap" parameterType="java.util.Map">
 		select
-		<include refid="Base_Column_List" />
-		from sys_role
-		where del_flag!=1
+		<include refid="Base_Column_List_r" />
+		from sys_role r
+		left join sys_organization_role gr on r.id=gr.role_id
+		where r.del_flag!=1
+		<if test="groupIds != null and groupIds.size() > 0">
+			and gr.organization_id in
+			<foreach collection="groupIds" item="groupId" index="index" open="(" close=")" separator=",">
+				#{groupId}
+			</foreach>
+		</if>
 		<if test="roleCode != null and roleCode !='' ">
 			AND role_code LIKE CONCAT('%','${roleCode}','%')
 		</if>
-		<if test="displayName != null and displayName !='' ">
-			AND display_name LIKE CONCAT('%','${displayName}','%')
+		<if test="nameZh != null and nameZh !='' ">
+			AND name_zh LIKE CONCAT('%','${nameZh}','%')
 		</if>
 	</select>
 
@@ -58,28 +65,31 @@
 		select
 		<include refid="Base_Column_List_r" />
 		from sys_role r
-		left join sys_group_role gr on r.id=gr.role_id
-		where r.del_flag!=1 and gr.group_id = #{groupId,jdbcType=BIGINT}
+		left join sys_organization_role gr on r.id=gr.role_id
+		where r.del_flag!=1 and gr.organization_id = #{groupId,jdbcType=BIGINT}
 	</select>
 
-	<select id="selectByGroupIds" resultMap="BaseResultMap" parameterType="java.util.Map">
+	<select id="selectByGroupIdsAndUserId" resultMap="BaseResultMap" parameterType="java.util.Map">
 		select
 		<include refid="Base_Column_List_r" />
 		from sys_role r
+		left join sys_role_user ru on r.id=ru.role_id
+		left join sys_organization_role gr on r.id=gr.role_id
 		where r.del_flag!=1
 		<if test="groupIds != null and groupIds.size() > 0">
-			and exists (select 1 from sys_group_role gr where r.id=gr.role_id
-			and gr.group_id in
+			and gr.organization_id in
 			<foreach collection="groupIds" item="groupId" index="index" open="(" close=")" separator=",">
-				#{groupId}
+			#{groupId}
 			</foreach>
-			)
+		</if>
+		<if test="userId != null and userId !='' ">
+			and ru.user_id=#{userId}
 		</if>
 		<if test="roleCode != null and roleCode !='' ">
 			AND r.role_code LIKE CONCAT('%','${roleCode}','%')
 		</if>
-		<if test="displayName != null and displayName !='' ">
-			AND r.display_name LIKE CONCAT('%','${displayName}','%')
+		<if test="nameZh != null and nameZh !='' ">
+			AND r.name_zh LIKE CONCAT('%','${nameZh}','%')
 		</if>
 	</select>
 
@@ -87,12 +97,12 @@
 		select
 		<include refid="Base_Column_List_r" />
 		from sys_role r
-		left join sys_group_role gr on r.id=gr.role_id
+		left join sys_organization_role gr on r.id=gr.role_id
 		where r.del_flag!=1
 
 		<if test="groupIds != null and groupIds.size() > 0">
-			and exists (select 1 from sys_group_role gr where r.id=gr.role_id
-			and gr.group_id in
+			and exists (select 1 from sys_organization_role gr where r.id=gr.role_id
+			and gr.organization_id in
 			<foreach collection="groupIds" item="groupId" index="index" open="(" close=")" separator=",">
 				#{groupId}
 			</foreach>
@@ -102,8 +112,8 @@
 		<if test="roleCode != null and roleCode !='' ">
 			AND r.role_code LIKE CONCAT('%','${roleCode}','%')
 		</if>
-		<if test="displayName != null and displayName !='' ">
-			AND r.display_name LIKE CONCAT('%','${displayName}','%')
+		<if test="nameZh != null and nameZh !='' ">
+			AND r.name_zh LIKE CONCAT('%','${nameZh}','%')
 		</if>
 
 	</select>
@@ -114,13 +124,13 @@
 		where id = #{id,jdbcType=BIGINT}
 	</delete>
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.iam.Role">
-		insert into sys_role (id, role_code, display_name,
+		insert into sys_role (id, role_code, name_zh,
 		type, enable, status,
 		create_by,
 		create_date, update_by,
 		update_date, del_flag)
 		values (#{id,jdbcType=BIGINT}, #{roleCode,jdbcType=VARCHAR},
-		#{displayName,jdbcType=VARCHAR},
+		#{nameZh,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER}, #{enable,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
 		#{createBy,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT},
 		#{updateDate,jdbcType=TIMESTAMP},
@@ -136,8 +146,8 @@
 			<if test="roleCode != null">
 				role_code,
 			</if>
-			<if test="displayName != null">
-				display_name,
+			<if test="nameZh != null">
+				name_zh,
 			</if>
 			<if test="type != null">
 				type,
@@ -171,8 +181,8 @@
 			<if test="roleCode != null">
 				#{roleCode,jdbcType=VARCHAR},
 			</if>
-			<if test="displayName != null">
-				#{displayName,jdbcType=VARCHAR},
+			<if test="nameZh != null">
+				#{nameZh,jdbcType=VARCHAR},
 			</if>
 			<if test="type != null">
 				#{type,jdbcType=INTEGER},
@@ -206,8 +216,8 @@
 			<if test="roleCode != null">
 				role_code = #{roleCode,jdbcType=VARCHAR},
 			</if>
-			<if test="displayName != null">
-				display_name = #{displayName,jdbcType=VARCHAR},
+			<if test="nameZh != null">
+				name_zh = #{nameZh,jdbcType=VARCHAR},
 			</if>
 			<if test="type != null">
 				type = #{type,jdbcType=INTEGER},
@@ -239,8 +249,7 @@
 	<update id="updateByPrimaryKey" parameterType="com.wl4g.components.core.bean.iam.Role">
 		update sys_role
 		set role_code = #{roleCode,jdbcType=VARCHAR},
-		display_name =
-		#{displayName,jdbcType=VARCHAR},
+		name_zh = #{nameZh,jdbcType=VARCHAR},
 		type = #{type,jdbcType=INTEGER},
 		enable = #{enable,jdbcType=INTEGER},
 		status = #{status,jdbcType=INTEGER},

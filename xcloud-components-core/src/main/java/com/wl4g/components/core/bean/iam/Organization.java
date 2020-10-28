@@ -27,14 +27,14 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class Group extends BaseBean implements Serializable {
+public class Organization extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
 	private String organizationCode;
 
-	private String name;
+	private String nameEn;
 
-	private String displayName;
+	private String nameZh;
 
 	private Integer type;
 
@@ -50,7 +50,7 @@ public class Group extends BaseBean implements Serializable {
 	// --- Temporary fields. ---
 	//
 
-	private List<Group> children;
+	private List<Organization> children;
 	private List<Long> menuIds;
 	private List<Long> roleIds;
 	private GroupExt groupExt;
@@ -61,7 +61,7 @@ public class Group extends BaseBean implements Serializable {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		Group group = (Group) o;
+		Organization group = (Organization) o;
 		return Objects.equals(getId(), group.getId());
 	}
 

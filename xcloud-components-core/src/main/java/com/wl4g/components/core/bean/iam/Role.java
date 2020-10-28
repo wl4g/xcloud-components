@@ -15,23 +15,27 @@
  */
 package com.wl4g.components.core.bean.iam;
 
+import com.wl4g.components.core.bean.BaseBean;
+
 import java.util.List;
 import java.util.Objects;
-
-import com.wl4g.components.core.bean.BaseBean;
 
 public class Role extends BaseBean {
 	private static final long serialVersionUID = 381411777614066880L;
 
 	private String roleCode;
 
-	private String displayName;
+	private String nameZh;
 
 	private Integer type;
 
 	private Integer status;
 
 	private String groupDisplayName;
+
+	private Long organizationId;
+
+	private String menusStr;
 
 	private List<Long> menuIds;
 	private List<Long> groupIds;
@@ -44,12 +48,12 @@ public class Role extends BaseBean {
 		this.roleCode = roleCode;
 	}
 
-	public String getDisplayName() {
-		return displayName;
+	public String getNameZh() {
+		return nameZh;
 	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName == null ? null : displayName.trim();
+	public void setNameZh(String nameZh) {
+		this.nameZh = nameZh == null ? null : nameZh.trim();
 	}
 
 	public Integer getType() {
@@ -90,6 +94,22 @@ public class Role extends BaseBean {
 
 	public void setGroupIds(List<Long> groupIds) {
 		this.groupIds = groupIds;
+	}
+
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+
+	public void setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
+	}
+
+	public String getMenusStr() {
+		return menusStr;
+	}
+
+	public void setMenusStr(String menusStr) {
+		this.menusStr = menusStr;
 	}
 
 	@Override

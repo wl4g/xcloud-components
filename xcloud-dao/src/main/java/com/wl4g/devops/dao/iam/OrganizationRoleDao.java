@@ -15,29 +15,32 @@
  */
 package com.wl4g.devops.dao.iam;
 
+import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.components.core.bean.iam.OrganizationRole;
+
 import java.util.List;
 
-import com.wl4g.components.core.bean.iam.Group;
-
-public interface GroupDao {
+public interface OrganizationRoleDao {
 	int deleteByPrimaryKey(Long id);
 
-	int insert(Group record);
+	int deleteByRoleId(Long roleId);
 
-	int insertSelective(Group record);
+	int deleteByGroupId(Long groupId);
 
-	Group selectByPrimaryKey(Long id);
+	int insert(OrganizationRole record);
 
-	int updateByPrimaryKeySelective(Group record);
+	int insertSelective(OrganizationRole record);
 
-	int updateByPrimaryKey(Group record);
+	int insertBatch(@Param("groupRoles") List<OrganizationRole> groupRoles);
 
-	List<Group> selectByUserId(Long userId);
+	OrganizationRole selectByPrimaryKey(Long id);
 
-	List<Group> selectByRoot();
+	List<Long> selectGroupIdByRoleId(Long roleId);
 
-	List<Group> selectByRoleId(Long roleId);
+	List<Long> selectRoleIdsByGroupId(Long groupId);
 
-	List<Group> selectByParentId(Long parentId);
+	int updateByPrimaryKeySelective(OrganizationRole record);
 
+	int updateByPrimaryKey(OrganizationRole record);
 }

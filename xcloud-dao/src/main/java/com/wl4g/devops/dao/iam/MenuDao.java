@@ -38,6 +38,8 @@ public interface MenuDao {
 
 	List<Menu> selectByUserId(@Param("userId") Long userId);
 
+	List<Menu> selectByRoleId(Long ruleId);
+
 	List<Menu> selectByUserIdAccessGroup(Long userId);
 
 	List<Menu> selectWithRoot();
