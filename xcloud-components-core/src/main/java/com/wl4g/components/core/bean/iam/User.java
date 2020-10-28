@@ -15,46 +15,43 @@
  */
 package com.wl4g.components.core.bean.iam;
 
+import java.io.Serializable;
+
 import com.wl4g.components.core.bean.BaseBean;
 
-import java.io.Serializable;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+/**
+ * {@link User}
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version 2019-05-28
+ * @sine v1.0.0
+ * @see
+ */
+@Getter
+@Setter
 public class User extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 381411777614066880L;
 
 	private String userName;
-
 	private String nameEn;
-
 	private String nameZh;
-
 	private String password;
-
+	private String pubSalt; // public salt
 	private Integer userType;
-
 	private Integer status;
-
 	private String email;
-
 	private String phone;
-
 	private String wechatOpenId;
-
 	private String wechatUnionId;
-
 	private String facebookId;
-
 	private String googleId;
-
 	private String twitterId;
-
 	private String linkedinId;
-
 	private String alipayId;
-
 	private String githubId;
-
 	private String awsId;
 
 	public User() {
@@ -64,180 +61,4 @@ public class User extends BaseBean implements Serializable {
 		this.userName = userName;
 	}
 
-	// other
-	private List<Long> roleIds;
-
-	private String roleStrs;
-
-	private List<Long> groupIds;
-
-	private String groupNameStrs;
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName == null ? null : userName.trim();
-	}
-
-	public String getNameZh() {
-		return nameZh;
-	}
-
-	public void setNameZh(String nameZh) {
-		this.nameZh = nameZh == null ? null : nameZh.trim();
-	}
-
-	public String getNameEn() {
-		return nameEn;
-	}
-
-	public void setNameEn(String nameEn) {
-		this.nameEn = nameEn;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password == null ? null : password.trim();
-	}
-
-	public Integer getUserType() {
-		return userType;
-	}
-
-	public void setUserType(Integer userType) {
-		this.userType = userType;
-	}
-
-	public Integer getStatus() {
-		return status;
-	}
-
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email == null ? null : email.trim();
-	}
-
-	public String getPhone() {
-		return phone;
-	}
-
-	public void setPhone(String phone) {
-		this.phone = phone == null ? null : phone.trim();
-	}
-
-	public String getWechatOpenId() {
-		return wechatOpenId;
-	}
-
-	public void setWechatOpenId(String wechatOpenId) {
-		this.wechatOpenId = wechatOpenId == null ? null : wechatOpenId.trim();
-	}
-
-	public String getWechatUnionId() {
-		return wechatUnionId;
-	}
-
-	public void setWechatUnionId(String wechatUnionId) {
-		this.wechatUnionId = wechatUnionId == null ? null : wechatUnionId.trim();
-	}
-
-	public String getFacebookId() {
-		return facebookId;
-	}
-
-	public void setFacebookId(String facebookId) {
-		this.facebookId = facebookId == null ? null : facebookId.trim();
-	}
-
-	public String getGoogleId() {
-		return googleId;
-	}
-
-	public void setGoogleId(String googleId) {
-		this.googleId = googleId == null ? null : googleId.trim();
-	}
-
-	public String getTwitterId() {
-		return twitterId;
-	}
-
-	public void setTwitterId(String twitterId) {
-		this.twitterId = twitterId == null ? null : twitterId.trim();
-	}
-
-	public String getLinkedinId() {
-		return linkedinId;
-	}
-
-	public void setLinkedinId(String linkedinId) {
-		this.linkedinId = linkedinId == null ? null : linkedinId.trim();
-	}
-
-	public String getAlipayId() {
-		return alipayId;
-	}
-
-	public void setAlipayId(String alipayId) {
-		this.alipayId = alipayId == null ? null : alipayId.trim();
-	}
-
-	public String getGithubId() {
-		return githubId;
-	}
-
-	public void setGithubId(String githubId) {
-		this.githubId = githubId == null ? null : githubId.trim();
-	}
-
-	public String getAwsId() {
-		return awsId;
-	}
-
-	public void setAwsId(String awsId) {
-		this.awsId = awsId == null ? null : awsId.trim();
-	}
-
-	public List<Long> getRoleIds() {
-		return roleIds;
-	}
-
-	public void setRoleIds(List<Long> roleIds) {
-		this.roleIds = roleIds;
-	}
-
-	public String getRoleStrs() {
-		return roleStrs;
-	}
-
-	public void setRoleStrs(String roleStrs) {
-		this.roleStrs = roleStrs;
-	}
-
-	public String getGroupNameStrs() {
-		return groupNameStrs;
-	}
-
-	public void setGroupNameStrs(String groupNameStrs) {
-		this.groupNameStrs = groupNameStrs;
-	}
-
-	public List<Long> getGroupIds() {
-		return groupIds;
-	}
-
-	public void setGroupIds(List<Long> groupIds) {
-		this.groupIds = groupIds;
-	}
 }
