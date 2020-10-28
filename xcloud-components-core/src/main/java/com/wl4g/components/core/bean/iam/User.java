@@ -16,6 +16,7 @@
 package com.wl4g.components.core.bean.iam;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.wl4g.components.core.bean.BaseBean;
 
@@ -53,6 +54,13 @@ public class User extends BaseBean implements Serializable {
 	private String alipayId;
 	private String githubId;
 	private String awsId;
+
+	// --- Temporary. ---
+
+	private List<Long> roleIds;
+	private String roleStrs;
+	private List<Long> groupIds;
+	private String groupNameStrs;
 
 	public User() {
 	}

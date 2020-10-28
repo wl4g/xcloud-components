@@ -43,7 +43,7 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 	@Override
 	public String formatHumanDate(long startTime, long endTime) {
 		if (startTime > endTime) {
-			log.warn("StartTime: {} must be greater than or equal to the endTime: {}", startTime, endTime);
+			log.debug("StartTime: {} must be greater than or equal to the endTime: {}", startTime, endTime);
 		}
 
 		StringBuffer sb = new StringBuffer();

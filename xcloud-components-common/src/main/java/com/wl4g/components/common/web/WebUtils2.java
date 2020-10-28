@@ -54,6 +54,7 @@ import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
+import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.StringUtils2;
 
@@ -956,6 +957,9 @@ public abstract class WebUtils2 {
 	 */
 	@Beta
 	public static boolean checkRequestErrorStacktrace(ServletRequest request) {
+		if (JvmRuntimeKit.isJVMDebugging) {
+			return true;
+		}
 		String _stacktraceVal = request.getParameter(PARAM_STACKTRACE);
 		if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
 			_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
