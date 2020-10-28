@@ -23,12 +23,12 @@
 		<result column="del_flag" property="delFlag" jdbcType="INTEGER" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, name_en, name_zh, type, level, status, parent_id, parent_ids, permission,
+		id, name_en, name_zh, type, level, status, parent_id, permission,
 		page_location,
 		route_namespace,render_target, icon, classify, sort,create_by, create_date, update_by, update_date, del_flag
 	</sql>
 	<sql id="Base_Column_List_m">
-		m.id, m.name_en, m.name_zh, m.type, m.level, m.status, m.parent_id, m.parent_ids, m.permission,
+		m.id, m.name_en, m.name_zh, m.type, m.level, m.status, m.parent_id, m.permission,
 		m.page_location,m.route_namespace,m.render_target, m.icon, m.classify, m.sort,m.create_by, m.create_date, m.update_by,
 		m.update_date,
 		m.del_flag
@@ -93,7 +93,7 @@
 	<insert id="insert" parameterType="com.wl4g.components.core.bean.iam.Menu">
 		insert into sys_menu (id, name_en, name_zh,
 		type, level, status,
-		parent_id, parent_ids,
+		parent_id,
 		permission,
 		page_location, route_namespace,render_target, icon, classify, sort, create_by,
 		create_date, update_by, update_date,
@@ -101,7 +101,7 @@
 		values (#{id,jdbcType=BIGINT}, #{nameEn,jdbcType=VARCHAR}, #{nameZh,jdbcType=VARCHAR},
 		#{type,jdbcType=INTEGER},
 		#{level,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
-		#{parentId,jdbcType=BIGINT}, #{parentIds,jdbcType=VARCHAR},
+		#{parentId,jdbcType=BIGINT},
 		#{permission,jdbcType=VARCHAR},
 		#{pageLocation,jdbcType=VARCHAR}, #{routeNamespace,jdbcType=VARCHAR},#{renderTarget,jdbcType=VARCHAR},
 		#{icon,jdbcType=VARCHAR}, #{classify,jdbcType=VARCHAR},#{sort,jdbcType=INTEGER}, #{createBy,jdbcType=BIGINT},
@@ -132,9 +132,6 @@
 			</if>
 			<if test="parentId != null">
 				parent_id,
-			</if>
-			<if test="parentIds != null">
-				parent_ids,
 			</if>
 			<if test="permission != null">
 				permission,
@@ -195,9 +192,6 @@
 			<if test="parentId != null">
 				#{parentId,jdbcType=BIGINT},
 			</if>
-			<if test="parentIds != null">
-				#{parentIds,jdbcType=VARCHAR},
-			</if>
 			<if test="permission != null">
 				#{permission,jdbcType=VARCHAR},
 			</if>
@@ -257,9 +251,6 @@
 			<if test="parentId != null">
 				parent_id = #{parentId,jdbcType=BIGINT},
 			</if>
-			<if test="parentIds != null">
-				parent_ids = #{parentIds,jdbcType=VARCHAR},
-			</if>
 			<if test="permission != null">
 				permission = #{permission,jdbcType=VARCHAR},
 			</if>
@@ -309,7 +300,6 @@
 		status =
 		#{status,jdbcType=INTEGER},
 		parent_id = #{parentId,jdbcType=BIGINT},
-		parent_ids = #{parentIds,jdbcType=VARCHAR},
 		permission =
 		#{permission,jdbcType=VARCHAR},
 		page_location = #{pageLocation,jdbcType=VARCHAR},
