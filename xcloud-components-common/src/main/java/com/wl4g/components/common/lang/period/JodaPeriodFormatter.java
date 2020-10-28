@@ -19,7 +19,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Locale.*;
@@ -39,11 +38,8 @@ import java.util.Map;
 public class JodaPeriodFormatter extends PeriodFormatter {
 
 	@Override
-	public String formatHumanDate(long nowTime, long targetTime) {
-		isTrue((nowTime - targetTime) >= 0, "Current time: %s must be greater than or equal to the target time: %s", nowTime,
-				targetTime);
-
-		Period period = new Period(new DateTime(targetTime), new DateTime(nowTime));
+	public String formatHumanDate(long startTime, long endTime) {
+		Period period = new Period(new DateTime(endTime), new DateTime(startTime));
 		String elapsed = getPeriodFormatter(CANADA).print(period);
 		return cleanupDateEmptyString(elapsed.concat(getLocalizedMessage("period.formatter.ago")));
 	}

@@ -15,8 +15,8 @@
  */
 package com.wl4g.components.common.lang.period;
 
-import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static java.lang.System.currentTimeMillis;
+import static java.lang.Math.abs;
 
 /**
  * {@link SamplePeriodFormatter}
@@ -41,12 +41,13 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 	}
 
 	@Override
-	public String formatHumanDate(long nowTime, long targetTime) {
-		isTrue((nowTime - targetTime) >= 0, "Current time: %s must be greater than or equal to the target time: %s", nowTime,
-				targetTime);
+	public String formatHumanDate(long startTime, long endTime) {
+		if (startTime > endTime) {
+			log.warn("StartTime: {} must be greater than or equal to the endTime: {}", startTime, endTime);
+		}
 
 		StringBuffer sb = new StringBuffer();
-		long diffSec = (nowTime - targetTime) / 1000;
+		long diffSec = (startTime - endTime) / 1000;
 
 		long sec = (diffSec >= 60 ? diffSec % 60 : diffSec);
 		long min = (diffSec = (diffSec / 60)) >= 60 ? diffSec % 60 : diffSec;
@@ -54,6 +55,17 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 		long days = (diffSec = (diffSec / 24)) >= 30 ? diffSec % 30 : diffSec;
 		long months = (diffSec = (diffSec / 30)) >= 12 ? diffSec % 12 : diffSec;
 		long years = (diffSec = (diffSec / 12));
+
+		// Calculate output negative interval.
+		final boolean isAbs = diffSec < 0;
+		if (isAbs) {
+			sec = abs(sec);
+			min = abs(min);
+			hours = abs(hours);
+			days = abs(days);
+			months = abs(months);
+			years = abs(years);
+		}
 
 		if (years > 0) {
 			if (years == 1) {
@@ -228,7 +240,14 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 		}
 		sb.append(" ".concat(getLocalizedMessage("period.formatter.ago")));
 
-		return cleanupDateEmptyString(sb.toString());
+		// Cleanup empty chars
+		String periodString = cleanupDateEmptyString(sb.toString());
+
+		// Output negative interval.
+		if (isAbs) {
+			periodString = "-".concat(periodString);
+		}
+		return periodString;
 	}
 
 	@Override
