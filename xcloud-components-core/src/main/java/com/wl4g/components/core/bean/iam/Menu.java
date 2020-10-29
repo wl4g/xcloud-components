@@ -56,6 +56,8 @@ public class Menu extends BaseBean implements Serializable {
 
 	private List<Menu> children;
 
+	private String parentRoutePath;
+
 	public String getNameEn() {
 		return nameEn;
 	}
@@ -174,6 +176,14 @@ public class Menu extends BaseBean implements Serializable {
 
 	public void setRouteNamespace(String routeNamespace) {
 		this.routeNamespace = routeNamespace;
+	}
+
+	public String getParentRoutePath() {
+		return parentRoutePath;
+	}
+
+	public void setParentRoutePath(String parentRoutePath) {
+		this.parentRoutePath = parentRoutePath;
 	}
 
 	@Override

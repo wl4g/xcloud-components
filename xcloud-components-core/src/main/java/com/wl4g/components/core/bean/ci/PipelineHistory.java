@@ -51,6 +51,8 @@ public class PipelineHistory extends BaseBean {
 
 	private String createByName;
 
+	private String environment;
+
 	private List<PipelineHistoryInstance> pipelineHistoryInstances;
 
 	public Long getPipeId() {
@@ -171,5 +173,13 @@ public class PipelineHistory extends BaseBean {
 
 	public void setOrchestrationId(Long orchestrationId) {
 		this.orchestrationId = orchestrationId;
+	}
+
+	public String getEnvironment() {
+		return environment;
+	}
+
+	public void setEnvironment(String environment) {
+		this.environment = environment;
 	}
 }
