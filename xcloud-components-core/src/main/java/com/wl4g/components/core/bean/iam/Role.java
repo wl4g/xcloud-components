@@ -40,6 +40,8 @@ public class Role extends BaseBean {
 	private List<Long> menuIds;
 	private List<Long> groupIds;
 
+	private Integer userCount;
+
 	public String getRoleCode() {
 		return roleCode;
 	}
@@ -110,6 +112,14 @@ public class Role extends BaseBean {
 
 	public void setMenusStr(String menusStr) {
 		this.menusStr = menusStr;
+	}
+
+	public Integer getUserCount() {
+		return userCount;
+	}
+
+	public void setUserCount(Integer userCount) {
+		this.userCount = userCount;
 	}
 
 	@Override
