@@ -54,6 +54,7 @@ public class Organization extends BaseBean implements Serializable {
 	private List<Long> menuIds;
 	private List<Long> roleIds;
 	private GroupExt groupExt;
+	private Integer roleCount;
 
 	@Override
 	public boolean equals(Object o) {
