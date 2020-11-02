@@ -234,7 +234,6 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>${javax-servlet-api.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<!-- Validation, Note: that the use of '$NO-MVN-MAN-VER$' is valid for the current dependency. When this project is referenced externally, 
 				the indirect dependency will fail, possibly leading to dependency incompatible versions. -->
@@ -636,7 +635,6 @@
 				<groupId>com.belerweb</groupId>
 				<artifactId>pinyin4j</artifactId>
 				<version>${belerweb.pinyin4j.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<!-- Testing's. -->
 			<dependency>
