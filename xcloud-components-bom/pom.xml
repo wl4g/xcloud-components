@@ -108,7 +108,7 @@
 		<!-- Excel/word's. -->
 		<easyexcel.version>2.2.6</easyexcel.version>
 		<!-- Task scheduler's -->
-		<quartz.version>2.2.2</quartz.version>
+		<quartz.version>2.3.2</quartz.version>
 		<!-- Serialized's -->
 		<!-- <fastjson.version>1.2.56</fastjson.version> -->
 		<jackson.version>2.11.0</jackson.version>
