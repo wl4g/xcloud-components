@@ -51,15 +51,19 @@ public class AES128ECBPKCS5Tests {
 		out.println("decrypt => " + aes.decrypt(key.getBytes(), cipherText).toString());
 
 		System.out.println("-------------------");
-		// productionDbPasswdGenerateCase();
+		generatePasswdCase();
 	}
 
-	public static void productionDbPasswdGenerateCase() {
+	public static void generatePasswdCase() {
 		AES128ECBPKCS5 aes = new AES128ECBPKCS5();
-		CodecSource genKey = aes.generateKey();
+		// CodecSource genKey = aes.generateKey();
+		CodecSource genKey = new CodecSource("ba718f87b49d489c6c37aa9214e908ff");
 		out.println("genKey=" + genKey.toHex());
+		out.println("genKey=" + genKey.toString());
 
-		CodecSource encrypted = aes.encrypt(genKey.getBytes(), new CodecSource("gzsm123456"));
+		CodecSource encrypted = aes.encrypt(genKey.getBytes(), new CodecSource("gzsm123"));
+		// CodecSource encrypted =
+		// CodecSource.fromHex("DFDDD7F502E694F3E40D750FEEAE423D");
 		out.println("encrypted=" + encrypted.toHex());
 		out.println("decrypted=" + aes.decrypt(genKey.getBytes(), encrypted));
 	}
