@@ -51,14 +51,17 @@ public class AES128ECBPKCS5Tests {
 		out.println("decrypt => " + aes.decrypt(key.getBytes(), cipherText).toString());
 
 		System.out.println("-------------------");
-		// productionDbPasswordDecryptTest1();
+		// productionDbPasswdGenerateCase();
 	}
 
-	public static void productionDbPasswordDecryptTest1() {
+	public static void productionDbPasswdGenerateCase() {
 		AES128ECBPKCS5 aes = new AES128ECBPKCS5();
-		String plainText = "DFDDD7F502E694F3E40D750FEEAE423D";
-		CodecSource key = new CodecSource(System.getenv("DEVOPS_DB_PASSWD"));
-		System.out.println(aes.decrypt(key.getBytes(), CodecSource.fromHex(plainText)));
+		CodecSource genKey = aes.generateKey();
+		out.println("genKey=" + genKey.toHex());
+
+		CodecSource encrypted = aes.encrypt(genKey.getBytes(), new CodecSource("gzsm123456"));
+		out.println("encrypted=" + encrypted.toHex());
+		out.println("decrypted=" + aes.decrypt(genKey.getBytes(), encrypted));
 	}
 
 }
