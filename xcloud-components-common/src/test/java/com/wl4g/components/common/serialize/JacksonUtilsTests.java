@@ -15,11 +15,15 @@
  */
 package com.wl4g.components.common.serialize;
 
+import static com.wl4g.components.common.serialize.JacksonUtils.deepClone;
 import static com.wl4g.components.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
+import static java.lang.System.out;
 import static java.util.Collections.singletonMap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JacksonUtilsTests {
@@ -29,12 +33,33 @@ public class JacksonUtilsTests {
 		TestBean1 bean1 = new TestBean1(1313466574534868992L, "jack", singletonMap("foo", toJSONString(bar)));
 
 		String json = toJSONString(bean1);
-		System.out.println("Serialization...");
-		System.out.println(json);
+		out.println("Serialization...");
+		out.println(json);
 
-		System.out.println("Deserialization...");
-		System.out.println(parseJSON(json, TestBean1.class));
+		out.println("Deserialization...");
+		out.println(parseJSON(json, TestBean1.class));
 
+		out.println("deepClone0...");
+		out.println(deepClone(new ArrayList<>()));
+
+		out.println("deepClone1...");
+		List<TestBar> list1 = new ArrayList<>();
+		list1.add(new TestBar("myBar00"));
+		out.println(deepClone(list1));
+
+		out.println("deepClone2...");
+		Map<String, TestBar> map = new HashMap<>();
+		map.put("bar1", new TestBar("myBar11"));
+		out.println(deepClone(map));
+
+		out.println("deepClone3...");
+		Map<String, List<Map<String, TestBar>>> map2 = new HashMap<>();
+		Map<String, TestBar> map21 = new HashMap<>();
+		map21.put("bar21", new TestBar("myBar211"));
+		List<Map<String, TestBar>> list2 = new ArrayList<>();
+		list2.add(map21);
+		map2.put("bar2", list2);
+		out.println(deepClone(map2));
 	}
 
 	public static class TestBean1 {

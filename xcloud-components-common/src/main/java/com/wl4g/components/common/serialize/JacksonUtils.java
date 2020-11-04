@@ -20,12 +20,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.wl4g.components.common.reflect.ResolvableType;
+import com.wl4g.components.common.reflect.TypeUtils2;
 
 import static java.util.Objects.isNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * JACKSON utility tools.
@@ -196,6 +203,55 @@ public abstract class JacksonUtils {
 	 */
 	public static <T> T convertBean(Object bean, JavaType toJavaType) {
 		return defaultObjectMapper.convertValue(bean, toJavaType);
+	}
+
+	/**
+	 * Deep cloning object with JSON serial-deserial.
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <T> T deepClone(T obj) {
+		if (isNull(obj)) {
+			return null;
+		}
+
+		ResolvableType resolver = ResolvableType.forClass(obj.getClass());
+		if (Collection.class.isAssignableFrom(obj.getClass())) {
+			ObjectReader reader = null;
+			ResolvableType[] generics = resolver.getGenerics();
+			if (!isNull(generics) && generics.length == 1) {
+				Class<?> clazz = generics[0].getRawClass();
+				if (!isNull(clazz)) {
+					reader = defaultObjectMapper.readerForListOf(clazz);
+				}
+			}
+			if (isNull(reader)) { // Fallback
+				Collection collect = (Collection) obj;
+				if (collect.isEmpty()) {
+					return obj;
+				}
+				Iterator<Object> it = collect.iterator();
+				if (it.hasNext()) {
+					reader = defaultObjectMapper.readerForListOf(it.next().getClass());
+				}
+			}
+			try {
+				return reader.readValue(toJSONString(obj));
+			} catch (JsonProcessingException e) {
+				throw new IllegalStateException(e);
+			}
+		} else if (Map.class.isAssignableFrom(obj.getClass())) {
+			Map map = (Map) obj;
+			Map cloneMap = new LinkedHashMap<>(map.size());
+			map.forEach((key, val) -> cloneMap.put(deepClone(key), deepClone(val)));
+		} else if (TypeUtils2.isSimpleType(obj.getClass())) { // Simple Class
+			return obj;
+		}
+
+		// Custom bean(obj field after recursion)
+		return (T) parseJSON(toJSONString(obj), obj.getClass());
 	}
 
 	/**

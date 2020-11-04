@@ -20,11 +20,13 @@ import org.springframework.cglib.core.Converter;
 import org.springframework.objenesis.Objenesis;
 import org.springframework.objenesis.ObjenesisStd;
 
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.cglib.beans.BeanCopier.create;
 import static org.springframework.util.Assert.notNull;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -50,6 +52,7 @@ public abstract class BeanCopierUtils {
 	@SuppressWarnings("unchecked")
 	public static <O> O clone(O src) {
 		notNull(src, "Mapper bean source object is required");
+		checkSupport(src, null);
 		try {
 			O newObj = (O) objenesis.newInstance(src.getClass());
 			return (O) mapper(src, newObj, null);
@@ -103,6 +106,7 @@ public abstract class BeanCopierUtils {
 	private static <O, T> T doBeanMapper(O src, T dst, Converter converter) {
 		notNull(src, "Mapper bean source object is required");
 		notNull(dst, "Mapper bean target object is required");
+		checkSupport(src, dst);
 
 		// Gets cache key.
 		String baseKey = generateKey(src.getClass(), dst.getClass());
@@ -126,6 +130,27 @@ public abstract class BeanCopierUtils {
 	 */
 	private static String generateKey(Class<?> src, Class<?> dst) {
 		return src.toString() + dst.toString();
+	}
+
+	/**
+	 * Check is supported input type of src and dest.
+	 * 
+	 * @param src
+	 * @param dst
+	 */
+	private static void checkSupport(Object src, Object dst) {
+		if (!isNull(src)) {
+			Class<?> clazz = src.getClass();
+			if (Collection.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz)) {
+				throw new IllegalArgumentException(format("Not supported copier input type source: %s", clazz));
+			}
+		}
+		if (!isNull(dst)) {
+			Class<?> clazz = dst.getClass();
+			if (Collection.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz)) {
+				throw new IllegalArgumentException(format("Not supported copier input type target: %s", clazz));
+			}
+		}
 	}
 
 	/**

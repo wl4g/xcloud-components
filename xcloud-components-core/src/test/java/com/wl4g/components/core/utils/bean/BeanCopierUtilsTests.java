@@ -18,6 +18,8 @@ package com.wl4g.components.core.utils.bean;
 import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
 import static java.lang.System.out;
 
+import java.util.ArrayList;
+
 import com.wl4g.components.core.utils.bean.BeanCopierUtils;
 
 public class BeanCopierUtilsTests {
@@ -34,6 +36,9 @@ public class BeanCopierUtilsTests {
 
 		MyUserPrincipal p2 = BeanCopierUtils.clone(p1);
 		out.println("clone p2 object: " + toJSONString(p2) + ", hashCode: " + p2.hashCode());
+
+		// for test Error
+		BeanCopierUtils.clone(new ArrayList<>());
 
 	}
 
