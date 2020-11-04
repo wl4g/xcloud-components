@@ -63,7 +63,7 @@ public class TreeConvertorTests {
 		private String parentId;
 		private Integer level;
 		private Integer sum;
-		private Double value;
+		private Object data;
 		private Double total;
 		private List<MyTree> childrens;
 
@@ -83,7 +83,7 @@ public class TreeConvertorTests {
 			this.id = id;
 			this.parentId = parentId;
 			this.name = name;
-			this.value = value;
+			this.data = value;
 		}
 
 		@Override
@@ -121,12 +121,14 @@ public class TreeConvertorTests {
 			this.name = name;
 		}
 
-		public Double getValue() {
-			return value;
+		@Override
+		public Object getData() {
+			return data;
 		}
 
-		public void setValue(Double value) {
-			this.value = value;
+		@Override
+		public void setData(Object data) {
+			this.data = data;
 		}
 
 		public Double getTotal() {
@@ -147,7 +149,7 @@ public class TreeConvertorTests {
 
 		@Override
 		public String toString() {
-			return "MyTree [id=" + id + ", name=" + name + ", parentId=" + parentId + ", level=" + level + ", value=" + value
+			return "MyTree [id=" + id + ", name=" + name + ", parentId=" + parentId + ", level=" + level + ", value=" + data
 					+ ", total=" + total + ", childrens=" + childrens + "]";
 		}
 

@@ -268,9 +268,9 @@ public class TreeConvertor<T extends TreeNode<T>> {
 
 		void setSum(Integer sum);
 
-		Double getValue();
+		Object getData();
 
-		void setValue(Double value);
+		void setData(Object data);
 
 		Double getTotal();
 
