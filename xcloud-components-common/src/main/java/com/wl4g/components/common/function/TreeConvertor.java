@@ -252,6 +252,8 @@ public class TreeConvertor<T extends TreeNode<T>> {
 	 */
 	public static interface TreeNode<T> extends Serializable {
 
+		// --- Tree node basic. ---
+
 		String getId();
 
 		void setId(String id);
@@ -260,25 +262,42 @@ public class TreeConvertor<T extends TreeNode<T>> {
 
 		void setParentId(String parentId);
 
-		Integer getLevel();
+		int getLevel();
 
-		void setLevel(Integer level);
-
-		Integer getSum();
-
-		void setSum(Integer sum);
-
-		Object getData();
-
-		void setData(Object data);
-
-		Double getTotal();
-
-		void setTotal(Double value);
+		void setLevel(int level);
 
 		List<T> getChildrens();
 
 		void setChildrens(List<T> childrens);
+
+		// --- Node statistics. ---
+
+		default int getCount() {
+			// Ignore
+			return -1;
+		}
+
+		default void setCount(int count) {
+			// Ignore
+		}
+
+		default Double getSum() {
+			// Ignore
+			return null;
+		}
+
+		default void setSum(Double sum) {
+			// Ignore
+		}
+
+		default Double getValue() {
+			// Ignore
+			return null;
+		}
+
+		default void setValue(Double data) {
+			// Ignore
+		}
 
 	}
 
