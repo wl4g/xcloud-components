@@ -18,6 +18,9 @@ package com.wl4g.components.data.page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.pagehelper.Page;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -33,6 +36,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @version v1.0 2018年9月7日
  * @since
  */
+@ApiModel("Page query data")
 public class PageModel implements Serializable {
 	private static final long serialVersionUID = -7002775417254397561L;
 
@@ -45,6 +49,7 @@ public class PageModel implements Serializable {
 	/**
 	 * Page record rows.
 	 */
+	@ApiModelProperty("Query data records")
 	private List<Object> records = emptyList();
 
 	public PageModel() {
