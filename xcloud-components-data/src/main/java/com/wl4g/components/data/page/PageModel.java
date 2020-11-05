@@ -37,20 +37,20 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @since
  */
 @ApiModel("Page query data")
-public class PageModel implements Serializable {
+public class PageModel<E> implements Serializable {
 	private static final long serialVersionUID = -7002775417254397561L;
 
 	/**
 	 * Page of {@link Page}
 	 */
 	@JsonIgnore
-	private Page<Object> page;
+	private Page<E> page;
 
 	/**
 	 * Page record rows.
 	 */
 	@ApiModelProperty("Query data records")
-	private List<Object> records = emptyList();
+	private List<E> records = emptyList();
 
 	public PageModel() {
 		this(1, 10);
@@ -91,15 +91,14 @@ public class PageModel implements Serializable {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> List<T> getRecords() {
-		return (List<T>) records;
+	public List<E> getRecords() {
+		return records;
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> void setRecords(List<T> records) {
+	public void setRecords(List<Object> records) {
 		if (!isEmpty(records)) {
-			this.records = (List<Object>) records;
+			this.records = (List<E>) records;
 		}
 	}
 
@@ -108,9 +107,8 @@ public class PageModel implements Serializable {
 	 *
 	 * @param page
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> void page(Page<T> page) {
-		this.page = (Page<Object>) page;
+	public void page(Page<E> page) {
+		this.page = page;
 	}
 
 	/**
@@ -118,7 +116,7 @@ public class PageModel implements Serializable {
 	 * 
 	 * @return
 	 */
-	private Page<Object> forPage() {
+	private Page<E> forPage() {
 		if (isNull(page)) {
 			synchronized (this) {
 				if (isNull(page)) {
