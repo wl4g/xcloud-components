@@ -54,6 +54,9 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Bean unqiue ID.</br>
 	 */
+	@ApiModelProperty(readOnly = true, hidden = true)
+	@ApiParam(hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Long id;
 
 	/**
