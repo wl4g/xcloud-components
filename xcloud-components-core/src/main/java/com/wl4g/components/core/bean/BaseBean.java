@@ -59,23 +59,35 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Bean info create user.
 	 */
+	@ApiModelProperty(readOnly = true, hidden = true)
+	@ApiParam(hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Long createBy;
 
 	/**
 	 * Bean info create date.
 	 */
+	@ApiModelProperty(readOnly = true, hidden = true)
+	@ApiParam(hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date createDate;
 
 	/**
 	 * Bean info update user.
 	 */
+	@ApiModelProperty(readOnly = true, hidden = true)
+	@ApiParam(hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Long updateBy;
 
 	/**
 	 * Bean info update date.
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	@ApiModelProperty(readOnly = true, hidden = true)
+	@ApiParam(hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Date updateDate;
 
 	/**
