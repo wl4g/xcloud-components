@@ -52,7 +52,7 @@ public class PageModel<E> implements Serializable {
 	/**
 	 * Page record rows.
 	 */
-	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY, hidden = true)
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
 	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private List<E> records = emptyList();
