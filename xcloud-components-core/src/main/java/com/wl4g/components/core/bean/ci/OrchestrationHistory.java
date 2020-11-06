@@ -2,58 +2,28 @@ package com.wl4g.components.core.bean.ci;
 
 import com.wl4g.components.core.bean.BaseBean;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+/**
+ * {@link OrchestrationHistory}
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version 2019-11-06
+ * @sine v1.0.0
+ * @see
+ */
+@Getter
+@Setter
 public class OrchestrationHistory extends BaseBean {
-    private static final long serialVersionUID = 6815608076300843748L;
+	private static final long serialVersionUID = 6815608076300843748L;
 
-    private String runId;
+	private String runId;
+	private Integer status;
+	private String info;
+	private Long costTime;
+	private List<PipelineHistory> pipeHistories;
 
-    private Integer status;
-
-    private String info;
-
-    private Long costTime;
-
-    private List<TaskHistory> taskHistories;
-
-    public String getRunId() {
-        return runId;
-    }
-
-    public void setRunId(String runId) {
-        this.runId = runId == null ? null : runId.trim();
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info == null ? null : info.trim();
-    }
-
-    public List<TaskHistory> getTaskHistories() {
-        return taskHistories;
-    }
-
-    public void setTaskHistories(List<TaskHistory> taskHistories) {
-        this.taskHistories = taskHistories;
-    }
-
-    public Long getCostTime() {
-        return costTime;
-    }
-
-    public void setCostTime(Long costTime) {
-        this.costTime = costTime;
-    }
 }

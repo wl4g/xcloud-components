@@ -95,10 +95,9 @@ public class PageModel<E> implements Serializable {
 		return records;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void setRecords(List<Object> records) {
+	public void setRecords(List<E> records) {
 		if (!isEmpty(records)) {
-			this.records = (List<E>) records;
+			this.records = records;
 		}
 	}
 

@@ -17,7 +17,7 @@ package com.wl4g.components.core.bean.erm;
 
 import com.wl4g.components.core.bean.BaseBean;
 
-public class Ssh extends BaseBean {
+public class SshBean extends BaseBean {
 
 	private static final long serialVersionUID = -7546448616357790576L;
 

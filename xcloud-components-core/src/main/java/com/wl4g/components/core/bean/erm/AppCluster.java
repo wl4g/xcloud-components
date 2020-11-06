@@ -39,7 +39,7 @@ public class AppCluster extends BaseBean {
 	private String endpoint;
 	private Long sshId;
 	private Integer deployType;
-	private Ssh ssh;
+	private SshBean ssh;
 
 	// --- Temporary. ---
 

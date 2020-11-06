@@ -17,7 +17,7 @@ package com.wl4g.components.core.bean.erm;
 
 import com.wl4g.components.core.bean.BaseBean;
 
-public class Idc extends BaseBean {
+public class IdcBean extends BaseBean {
 
 	private static final long serialVersionUID = -7546448616357790576L;
 
