@@ -30,7 +30,6 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Customized page model.
@@ -101,7 +100,7 @@ public class PageModel<E> implements Serializable {
 	}
 
 	public void setRecords(List<E> records) {
-		if (!isEmpty(records)) {
+		if (!isNull(records)) {
 			this.records = records;
 		}
 	}
