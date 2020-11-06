@@ -49,7 +49,45 @@ public class PageModel<E> implements Serializable {
 	private Page<E> page;
 
 	/**
-	 * Page record rows.
+	 * Page record rows.</br>
+	 * </br>
+	 * 
+	 * <b>Note:</b> The following annotation combination configuration does not
+	 * implement the effect that the records field can make the request display
+	 * no two responses. Can't swagger2 still achieve this effect: when the type
+	 * of request and response are the same model class, can't some fields be
+	 * displayed or not displayed according to the request and response? </br>
+	 * </br>
+	 * 
+	 * <p>
+	 * for negative examples:
+	 * 
+	 * <pre>
+	 * &#64;ApiOperation(value = "Query myuser page list")
+	 * &#64;RequestMapping(value = "/list", method = { GET })
+	 * public RespBase&lt;PageModel&lt;MyUserModel&gt;&gt; list(PageModel&lt;MyUserModel&gt; pm, MyUserModel param) {
+	 * 	RespBase&lt;PageModel&lt;MyUserModel&gt;&gt; resp = RespBase.create();
+	 * 	resp.setData(myUserService.page(pm, param));
+	 * 	return resp;
+	 * }
+	 * </pre>
+	 * 
+	 * for positive examples(Solution):
+	 * 
+	 * <pre>
+	 * &#64;ApiOperation(value = "Query myuser page list")
+	 * &#64;ApiImplicitParams({
+	 *	&#64;ApiImplicitParam(name = "pageNum", dataType = "int32", defaultValue = "1"),
+	 *	&#64;ApiImplicitParam(name = "pageSize", dataType = "int32", defaultValue = "10")
+	 * })
+	 * &#64;RequestMapping(value = "/list", method = { GET })
+	 * public RespBase&lt;PageModel&lt;MyUserModel&gt;&gt; list({@code @ApiIgnore} PageModel&lt;MyUserModel&gt; pm, MyUserModel param) {
+	 * 	RespBase&lt;PageModel&lt;MyUserModel&gt;&gt; resp = RespBase.create();
+	 * 	resp.setData(myUserService.page(pm, param));
+	 * 	return resp;
+	 * }
+	 * </pre>
+	 * </p>
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
