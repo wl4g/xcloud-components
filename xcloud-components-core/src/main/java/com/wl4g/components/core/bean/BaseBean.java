@@ -54,44 +54,10 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * Bean unqiue ID.</br>
 	 */
-	@ApiModelProperty(readOnly = true, hidden = true)
-	@ApiParam(hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = true)
 	private Long id;
-
-	/**
-	 * Bean info create user.
-	 */
-	@ApiModelProperty(readOnly = true, hidden = true)
-	@ApiParam(hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
-	private Long createBy;
-
-	/**
-	 * Bean info create date.
-	 */
-	@ApiModelProperty(readOnly = true, hidden = true)
-	@ApiParam(hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	private Date createDate;
-
-	/**
-	 * Bean info update user.
-	 */
-	@ApiModelProperty(readOnly = true, hidden = true)
-	@ApiParam(hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
-	private Long updateBy;
-
-	/**
-	 * Bean info update date.
-	 */
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	@ApiModelProperty(readOnly = true, hidden = true)
-	@ApiParam(hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
-	private Date updateDate;
 
 	/**
 	 * Is enabled
@@ -99,14 +65,48 @@ public abstract class BaseBean implements Serializable {
 	private Integer enable;
 
 	/**
+	 * For data permission, associated Organization (tree) code query
+	 */
+	private String organizationCode;
+
+	/**
 	 * Bean info remark desciprtion.
 	 */
 	private String remark;
 
 	/**
-	 * For data permission, associated Organization (tree) code query
+	 * Bean info create user.
 	 */
-	private String organizationCode;
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	private Long createBy;
+
+	/**
+	 * Bean info create date.
+	 */
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	private Date createDate;
+
+	/**
+	 * Bean info update user.
+	 */
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	private Long updateBy;
+
+	/**
+	 * Bean info update date.
+	 */
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	private Date updateDate;
 
 	/**
 	 * Logistic delete status. </br>
@@ -117,7 +117,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	@JsonIgnore
 	@ApiModelProperty(readOnly = true, hidden = true)
-	@ApiParam(hidden = true)
+	@ApiParam(hidden = true, readOnly = true)
 	@JsonIgnoreProperties(allowGetters = false, allowSetters = false)
 	private Integer delFlag;
 
@@ -172,6 +172,11 @@ public abstract class BaseBean implements Serializable {
 		return this;
 	}
 
+	public BaseBean withOrganizationCode(String organizationCode) {
+		setOrganizationCode(organizationCode);
+		return this;
+	}
+
 	public BaseBean withRemark(String remark) {
 		setRemark(remark);
 		return this;
@@ -197,11 +202,6 @@ public abstract class BaseBean implements Serializable {
 		return this;
 	}
 
-	public BaseBean withOrganizationCode(String organizationCode) {
-		setOrganizationCode(organizationCode);
-		return this;
-	}
-
 	public BaseBean withDelFlag(Integer delFlag) {
 		setDelFlag(delFlag);
 		return this;
@@ -217,7 +217,7 @@ public abstract class BaseBean implements Serializable {
 	 * @return
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
-	@ApiParam(readOnly = true)
+	@ApiParam(readOnly = true, hidden = true)
 	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	public String getHumanCreateDate() {
 		return isNull(getCreateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getCreateDate().getTime());
@@ -231,7 +231,7 @@ public abstract class BaseBean implements Serializable {
 	 * @return
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
-	@ApiParam(readOnly = true)
+	@ApiParam(readOnly = true, hidden = true)
 	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	public String getHumanUpdateDate() {
 		return isNull(getUpdateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getUpdateDate().getTime());

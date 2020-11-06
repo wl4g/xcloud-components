@@ -16,10 +16,13 @@
 package com.wl4g.components.data.page;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.pagehelper.Page;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
+import io.swagger.annotations.ApiParam;
 
 import java.io.Serializable;
 import java.util.List;
@@ -43,13 +46,15 @@ public class PageModel<E> implements Serializable {
 	/**
 	 * Page of {@link Page}
 	 */
-	@JsonIgnore
+	@JsonIgnore(true)
 	private Page<E> page;
 
 	/**
 	 * Page record rows.
 	 */
-	@ApiModelProperty("Query data records")
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY, hidden = true)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private List<E> records = emptyList();
 
 	public PageModel() {
