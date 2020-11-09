@@ -179,7 +179,6 @@ public class ServletSmartErrorHandler extends AbstractErrorController {
 	@Target({ ElementType.TYPE })
 	@Documented
 	public static @interface ServletErrorController {
-
 	}
 
 	private static final String DEFAULT_ERROR_PATH = "/error";

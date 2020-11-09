@@ -118,13 +118,13 @@ public class ErrorControllerAutoConfiguration {
 	public static class ServletErrorControllerConfirguation extends AbstractHandlerMappingSupport {
 
 		@Bean
-		public ServletSmartErrorHandler servletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
+		public ServletSmartErrorHandler servletSmartErrorHandler(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
 				CompositeErrorConfigurer adapter) {
 			return new ServletSmartErrorHandler(config, errorAttrs, adapter);
 		}
 
 		@Bean
-		public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
+		public PrefixHandlerMapping servletErrorControllerPrefixHandlerMapping() {
 			return super.newPrefixHandlerMapping("/", ServletErrorController.class);
 		}
 
