@@ -25,6 +25,7 @@ import static com.wl4g.components.common.web.WebUtils2.ResponseType.isRespJSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.springframework.ui.freemarker.FreeMarkerTemplateUtils.processTemplateIntoString;
+import static java.util.Collections.emptyMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -101,7 +102,7 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	 * @return
 	 */
 	public Integer getStatus(Throwable th) {
-		return getStatus(th);
+		return getStatus(emptyMap(), th);
 	}
 
 	/**
