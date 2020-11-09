@@ -15,22 +15,16 @@
  */
 package com.wl4g.components.core.bean.ci;
 
-import java.util.List;
-
 import com.wl4g.components.core.bean.BaseBean;
 
-public class PipeStepBuilding extends BaseBean {
+public class PipeStageInstanceCommand extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
 	private Long pipeId;
+
 	private String preCommand;
+
 	private String postCommand;
-	private Integer refType;
-
-	// ==================Expand==================
-
-	private List<PipeStepBuildingProject> pipeStepBuildingProjects;
-	private String ref;
 
 	public Long getPipeId() {
 		return pipeId;
@@ -54,29 +48,5 @@ public class PipeStepBuilding extends BaseBean {
 
 	public void setPostCommand(String postCommand) {
 		this.postCommand = postCommand == null ? null : postCommand.trim();
-	}
-
-	public List<PipeStepBuildingProject> getPipeStepBuildingProjects() {
-		return pipeStepBuildingProjects;
-	}
-
-	public void setPipeStepBuildingProjects(List<PipeStepBuildingProject> pipeStepBuildingProjects) {
-		this.pipeStepBuildingProjects = pipeStepBuildingProjects;
-	}
-
-	public Integer getRefType() {
-		return refType;
-	}
-
-	public void setRefType(Integer refType) {
-		this.refType = refType;
-	}
-
-	public String getRef() {
-		return ref;
-	}
-
-	public void setRef(String ref) {
-		this.ref = ref;
 	}
 }

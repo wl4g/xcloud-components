@@ -17,7 +17,7 @@ package com.wl4g.components.core.bean.ci;
 
 import com.wl4g.components.core.bean.BaseBean;
 
-public class PipeStepPcm extends BaseBean {
+public class PipeStagePcm extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
 	private Integer enable;

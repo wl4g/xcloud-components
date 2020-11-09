@@ -23,7 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PipeStepNotification extends BaseBean {
+public class PipeStageNotification extends BaseBean {
 	private static final long serialVersionUID = 6815608076300843748L;
 
 	private Long pipeId;

@@ -43,15 +43,15 @@ public class Pipeline extends BaseBean {
 
 	private Long[] instanceIds;
 
-	private PipeStepBuilding pipeStepBuilding;
+	private PipeStageBuilding pipeStepBuilding;
 
-	private PipeStepPcm pipeStepPcm;
+	private PipeStagePcm pipeStepPcm;
 
-	private PipeStepNotification pipeStepNotification;
+	private PipeStageNotification pipeStepNotification;
 
-	private PipeStepInstanceCommand pipeStepInstanceCommand;
+	private PipeStageInstanceCommand pipeStepInstanceCommand;
 
-	private PipeStepDeploy pipeStepDeploy;
+	private PipeStageDeploy pipeStepDeploy;
 
 	private Integer pcmEnable;
 
@@ -59,7 +59,7 @@ public class Pipeline extends BaseBean {
 
 	private Long deployId;
 
-	private List<PipeStepBuildingProject> pipeStepBuildingProjects;
+	private List<PipeStageBuildingProject> pipeStepBuildingProjects;
 
 	public String getPipeName() {
 		return pipeName;
@@ -133,35 +133,35 @@ public class Pipeline extends BaseBean {
 		this.instanceIds = instanceIds;
 	}
 
-	public PipeStepBuilding getPipeStepBuilding() {
+	public PipeStageBuilding getPipeStepBuilding() {
 		return pipeStepBuilding;
 	}
 
-	public void setPipeStepBuilding(PipeStepBuilding pipeStepBuilding) {
+	public void setPipeStepBuilding(PipeStageBuilding pipeStepBuilding) {
 		this.pipeStepBuilding = pipeStepBuilding;
 	}
 
-	public PipeStepPcm getPipeStepPcm() {
+	public PipeStagePcm getPipeStepPcm() {
 		return pipeStepPcm;
 	}
 
-	public void setPipeStepPcm(PipeStepPcm pipeStepPcm) {
+	public void setPipeStepPcm(PipeStagePcm pipeStepPcm) {
 		this.pipeStepPcm = pipeStepPcm;
 	}
 
-	public PipeStepNotification getPipeStepNotification() {
+	public PipeStageNotification getPipeStepNotification() {
 		return pipeStepNotification;
 	}
 
-	public void setPipeStepNotification(PipeStepNotification pipeStepNotification) {
+	public void setPipeStepNotification(PipeStageNotification pipeStepNotification) {
 		this.pipeStepNotification = pipeStepNotification;
 	}
 
-	public PipeStepInstanceCommand getPipeStepInstanceCommand() {
+	public PipeStageInstanceCommand getPipeStepInstanceCommand() {
 		return pipeStepInstanceCommand;
 	}
 
-	public void setPipeStepInstanceCommand(PipeStepInstanceCommand pipeStepInstanceCommand) {
+	public void setPipeStepInstanceCommand(PipeStageInstanceCommand pipeStepInstanceCommand) {
 		this.pipeStepInstanceCommand = pipeStepInstanceCommand;
 	}
 
@@ -181,11 +181,11 @@ public class Pipeline extends BaseBean {
 		this.pcmId = pcmId;
 	}
 
-	public PipeStepDeploy getPipeStepDeploy() {
+	public PipeStageDeploy getPipeStepDeploy() {
 		return pipeStepDeploy;
 	}
 
-	public void setPipeStepDeploy(PipeStepDeploy pipeStepDeploy) {
+	public void setPipeStepDeploy(PipeStageDeploy pipeStepDeploy) {
 		this.pipeStepDeploy = pipeStepDeploy;
 	}
 
@@ -197,11 +197,11 @@ public class Pipeline extends BaseBean {
 		this.deployId = deployId;
 	}
 
-	public List<PipeStepBuildingProject> getPipeStepBuildingProjects() {
+	public List<PipeStageBuildingProject> getPipeStepBuildingProjects() {
 		return pipeStepBuildingProjects;
 	}
 
-	public void setPipeStepBuildingProjects(List<PipeStepBuildingProject> pipeStepBuildingProjects) {
+	public void setPipeStepBuildingProjects(List<PipeStageBuildingProject> pipeStepBuildingProjects) {
 		this.pipeStepBuildingProjects = pipeStepBuildingProjects;
 	}
 }
