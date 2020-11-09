@@ -95,7 +95,17 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	}
 
 	/**
-	 * Obtain exception {@link HttpStatus}
+	 * Obtain exception http status. {@link HttpStatus}
+	 * 
+	 * @param th
+	 * @return
+	 */
+	public Integer getStatus(Throwable th) {
+		return getStatus(th);
+	}
+
+	/**
+	 * Obtain exception http status. {@link HttpStatus}
 	 * 
 	 * @param model
 	 * @param th
@@ -136,7 +146,8 @@ public abstract class ErrorConfigurer implements InitializingBean {
 
 			// When the client is not a browser or the exception rendering
 			// configuration is empty, the JSON message is returned by default.
-			if (isNull(uriOrTpl) || isRespJSON(extractor, null)) { // Response errjson
+			if (isNull(uriOrTpl) || isRespJSON(extractor, null)) { // Response
+																	// errjson
 				RespBase<Object> resp = new RespBase<>(newCode(status, errmsg));
 				if (!(uriOrTpl instanceof Template)) {
 					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);
