@@ -123,19 +123,16 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	public abstract String getRootCause(Map<String, Object> model, Throwable th);
 
 	/**
-	 * Do automatic handling errors.
+	 * Handle automatic errors & rendering.
 	 * 
-	 * @param queryFetch
-	 *            request query parameter fetcher.
-	 * @param headers
-	 *            request headers.
+	 * @param extractor
 	 * @param model
 	 * @param th
+	 * @param errorHandler
 	 * @return handle errors result(if necessary). for example: {@link Mono}
 	 */
-	public Object autoHandleGlobalErrors(@NotNull RequestExtractor extractor, @NotNull Map<String, Object> model,
+	public Object handleErrorRendering(@NotNull RequestExtractor extractor, @NotNull Map<String, Object> model,
 			@NotNull Throwable th, @NotNull RenderingErrorHandler errorHandler) {
-
 		try {
 			// Obtain custom extension response status.
 			int status = getStatus(model, th);
@@ -146,13 +143,12 @@ public abstract class ErrorConfigurer implements InitializingBean {
 
 			// When the client is not a browser or the exception rendering
 			// configuration is empty, the JSON message is returned by default.
-			if (isNull(uriOrTpl) || isRespJSON(extractor, null)) { // Response
-																	// errjson
+			if (isNull(uriOrTpl) || isRespJSON(extractor, null)) { // Resp json
 				RespBase<Object> resp = new RespBase<>(newCode(status, errmsg));
 				if (!(uriOrTpl instanceof Template)) {
 					resp.forMap().put(DEFAULT_REDIRECT_KEY, uriOrTpl);
 				}
-				log.error("Resp errjson => {}", resp.asJson());
+				log.error("Resp err json => {}", resp.asJson());
 				return errorHandler.renderingWithJson(model, resp);
 			}
 			// Rendering errview
@@ -178,13 +174,46 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	}
 
 	/**
+	 * Gets redirectUri rendering errors page view.
+	 * 
+	 * @param status
+	 * @return
+	 * @throws TemplateException
+	 * @throws IOException
+	 */
+	private Object getRedirectUriOrRenderErrorView(int status) throws IOException, TemplateException {
+		Template tpl = errorTplMappingCache.get(status);
+		if (nonNull(tpl)) { // error template?
+			return tpl;
+		}
+
+		// error redirect URI
+		String errorRedirectUri = config.getRenderingMapping().get(status);
+		if (isBlank(errorRedirectUri)) {
+			log.debug("No render template or redirection URI found for error status: %s", status);
+			return null;
+		}
+		return errorRedirectUri.substring(DEFAULT_REDIRECT_PREFIX.length());
+	}
+
+	/**
+	 * Check redirection error URI.
+	 * 
+	 * @param uriOrTpl
+	 * @return
+	 */
+	private boolean isErrorRedirectURI(String uriOrTpl) {
+		return startsWithIgnoreCase(uriOrTpl, DEFAULT_REDIRECT_PREFIX);
+	}
+
+	/**
 	 * Extract meaningful valid errors messages.
 	 * 
 	 * @param model
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected String extractValidErrorsMessage(@NotNull Map<String, Object> model) {
+	public static String extractValidErrorsMessage(@NotNull Map<String, Object> model) {
 		notNull(model, "Shouldn't be here");
 
 		StringBuffer errmsg = new StringBuffer();
@@ -230,39 +259,6 @@ public abstract class ErrorConfigurer implements InitializingBean {
 		}
 
 		return errmsg.toString();
-	}
-
-	/**
-	 * Gets redirectUri rendering errors page view.
-	 * 
-	 * @param status
-	 * @return
-	 * @throws TemplateException
-	 * @throws IOException
-	 */
-	private Object getRedirectUriOrRenderErrorView(int status) throws IOException, TemplateException {
-		Template tpl = errorTplMappingCache.get(status);
-		if (nonNull(tpl)) { // error template?
-			return tpl;
-		}
-
-		// error redirect URI
-		String errorRedirectUri = config.getRenderingMapping().get(status);
-		if (isBlank(errorRedirectUri)) {
-			log.debug("No render template or redirection URI found for error status: %s", status);
-			return null;
-		}
-		return errorRedirectUri.substring(DEFAULT_REDIRECT_PREFIX.length());
-	}
-
-	/**
-	 * Check redirection error URI.
-	 * 
-	 * @param uriOrTpl
-	 * @return
-	 */
-	private boolean isErrorRedirectURI(String uriOrTpl) {
-		return startsWithIgnoreCase(uriOrTpl, DEFAULT_REDIRECT_PREFIX);
 	}
 
 	/**

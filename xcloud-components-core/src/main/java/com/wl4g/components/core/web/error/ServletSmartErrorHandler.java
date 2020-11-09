@@ -15,6 +15,11 @@
  */
 package com.wl4g.components.core.web.error;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -36,6 +41,7 @@ import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.checkRequestErrorStacktrace;
 import static com.wl4g.components.common.web.WebUtils2.write;
 import static com.wl4g.components.common.web.WebUtils2.writeJson;
+import static com.wl4g.components.core.web.error.ServletSmartErrorHandler.ServletErrorController;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
@@ -51,10 +57,10 @@ import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
  * @version v1.0 2019年1月10日
  * @since
  */
-@GlobalErrorController
+@ServletErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
-public class ServletSmartErrorController extends AbstractErrorController {
+public class ServletSmartErrorHandler extends AbstractErrorController {
 
 	protected final SmartLogger log = getLogger(getClass());
 
@@ -64,7 +70,7 @@ public class ServletSmartErrorController extends AbstractErrorController {
 	/** {@link ErrorConfigurer} */
 	protected final CompositeErrorConfigurer configurer;
 
-	public ServletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttributes,
+	public ServletSmartErrorHandler(ErrorHandlerProperties config, ErrorAttributes errorAttributes,
 			CompositeErrorConfigurer configurer) {
 		super(errorAttributes);
 		this.config = notNullOf(config, "config");
@@ -78,7 +84,7 @@ public class ServletSmartErrorController extends AbstractErrorController {
 	 */
 	@Override
 	public String getErrorPath() {
-		return DEFAULT_PATH_ERROR;
+		return DEFAULT_ERROR_PATH;
 	}
 
 	/**
@@ -89,14 +95,14 @@ public class ServletSmartErrorController extends AbstractErrorController {
 	 * @param th
 	 * @return
 	 */
-	@RequestMapping(DEFAULT_PATH_ERROR)
+	@RequestMapping(DEFAULT_ERROR_PATH)
 	@ExceptionHandler({ Exception.class })
 	public void doAnyHandleError(final HttpServletRequest request, final HttpServletResponse response, final Exception th) {
 		// Obtain errors attributes.
 		Map<String, Object> model = getErrorAttributes(request, th);
 
 		// handle errors
-		configurer.autoHandleGlobalErrors(new RequestExtractor() {
+		configurer.handleErrorRendering(new RequestExtractor() {
 			@Override
 			public String getQueryParam(String name) {
 				return request.getParameter(name);
@@ -125,6 +131,7 @@ public class ServletSmartErrorController extends AbstractErrorController {
 				return null;
 			}
 		});
+
 	}
 
 	/**
@@ -161,6 +168,20 @@ public class ServletSmartErrorController extends AbstractErrorController {
 		return checkRequestErrorStacktrace(request);
 	}
 
-	final private static String DEFAULT_PATH_ERROR = "/error";
+	/**
+	 * {@link ServletErrorController}
+	 *
+	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+	 * @version v1.0 2020-09-09
+	 * @since
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE })
+	@Documented
+	public static @interface ServletErrorController {
+
+	}
+
+	private static final String DEFAULT_ERROR_PATH = "/error";
 
 }

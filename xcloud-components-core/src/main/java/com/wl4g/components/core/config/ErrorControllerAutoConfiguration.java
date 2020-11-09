@@ -48,9 +48,9 @@ import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
 import com.wl4g.components.core.web.error.CompositeErrorConfigurer;
 import com.wl4g.components.core.web.error.DefaultErrorConfigurer;
 import com.wl4g.components.core.web.error.ErrorConfigurer;
-import com.wl4g.components.core.web.error.GlobalErrorController;
 import com.wl4g.components.core.web.error.ReactiveSmartErrorHandler;
-import com.wl4g.components.core.web.error.ServletSmartErrorController;
+import com.wl4g.components.core.web.error.ServletSmartErrorHandler;
+import com.wl4g.components.core.web.error.ServletSmartErrorHandler.ServletErrorController;
 
 /**
  * Smart DevOps error controller auto configuration
@@ -118,14 +118,14 @@ public class ErrorControllerAutoConfiguration {
 	public static class ServletErrorControllerConfirguation extends AbstractHandlerMappingSupport {
 
 		@Bean
-		public ServletSmartErrorController servletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
+		public ServletSmartErrorHandler servletSmartErrorController(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
 				CompositeErrorConfigurer adapter) {
-			return new ServletSmartErrorController(config, errorAttrs, adapter);
+			return new ServletSmartErrorHandler(config, errorAttrs, adapter);
 		}
 
 		@Bean
 		public PrefixHandlerMapping errorControllerPrefixHandlerMapping() {
-			return super.newPrefixHandlerMapping("/", GlobalErrorController.class);
+			return super.newPrefixHandlerMapping("/", ServletErrorController.class);
 		}
 
 	}

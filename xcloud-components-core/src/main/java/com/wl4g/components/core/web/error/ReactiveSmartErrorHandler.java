@@ -108,7 +108,7 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 	private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
 		Map<String, Object> model = getErrorAttributes(request, false);
 
-		return (Mono<ServerResponse>) configurer.autoHandleGlobalErrors(new RequestExtractor() {
+		return (Mono<ServerResponse>) configurer.handleErrorRendering(new RequestExtractor() {
 			@Override
 			public String getQueryParam(String name) {
 				return request.queryParam(name).orElse(null);
