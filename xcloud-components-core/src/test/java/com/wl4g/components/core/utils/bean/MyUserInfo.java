@@ -28,6 +28,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,8 @@ import java.util.function.Function;
 
 import javax.validation.constraints.NotBlank;
 
-import com.wl4g.components.core.bean.iam.SocialAuthorizeInfo;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Simple IAM principal account information.
@@ -48,7 +50,7 @@ import com.wl4g.components.core.bean.iam.SocialAuthorizeInfo;
  * @version v1.0.0 2018-04-31
  * @since
  */
-public class MyUserPrincipal implements Serializable {
+public class MyUserInfo implements Serializable {
 	private static final long serialVersionUID = -2148910955172545592L;
 
 	/** Authenticate principal ID. */
@@ -74,21 +76,21 @@ public class MyUserPrincipal implements Serializable {
 	/** Authenticate principal attributes. */
 	private Attributes attributes;
 
-	public MyUserPrincipal() {
+	public MyUserInfo() {
 		super();
 	}
 
-	public MyUserPrincipal(@NotBlank MyUserPrincipal info) {
+	public MyUserInfo(@NotBlank MyUserInfo info) {
 		this(info.getPrincipalId(), info.getPrincipal(), info.getStoredCredentials(), info.getRoles(), info.getPermissions(),
 				info.getOrganization(), info.attributes());
 	}
 
-	public MyUserPrincipal(@NotBlank String principalId, String principal, String storedCredentials, String roles,
+	public MyUserInfo(@NotBlank String principalId, String principal, String storedCredentials, String roles,
 			String permissions, PrincipalOrganization organization) {
 		this(principalId, principal, storedCredentials, roles, permissions, organization, null);
 	}
 
-	public MyUserPrincipal(@NotBlank String principalId, String principal, String storedCredentials, String roles,
+	public MyUserInfo(@NotBlank String principalId, String principal, String storedCredentials, String roles,
 			String permissions, PrincipalOrganization organization, Attributes attributes) {
 		setPrincipalId(principalId);
 		setPrincipal(principal);
@@ -112,7 +114,7 @@ public class MyUserPrincipal implements Serializable {
 		this.principalId = principalId;
 	}
 
-	public final MyUserPrincipal withPrincipalId(String principalId) {
+	public final MyUserInfo withPrincipalId(String principalId) {
 		setPrincipalId(principalId);
 		return this;
 	}
@@ -130,7 +132,7 @@ public class MyUserPrincipal implements Serializable {
 		this.principal = principal;
 	}
 
-	public final MyUserPrincipal withPrincipal(String principal) {
+	public final MyUserInfo withPrincipal(String principal) {
 		setPrincipal(principal);
 		return this;
 	}
@@ -149,7 +151,7 @@ public class MyUserPrincipal implements Serializable {
 		this.storedCredentials = storedCredentials;
 	}
 
-	public final MyUserPrincipal withStoredCredentials(String storedCredentials) {
+	public final MyUserInfo withStoredCredentials(String storedCredentials) {
 		setStoredCredentials(storedCredentials);
 		return this;
 	}
@@ -167,7 +169,7 @@ public class MyUserPrincipal implements Serializable {
 		this.roles = roles;
 	}
 
-	public final MyUserPrincipal withRoles(String roles) {
+	public final MyUserInfo withRoles(String roles) {
 		setRoles(roles);
 		return this;
 	}
@@ -185,7 +187,7 @@ public class MyUserPrincipal implements Serializable {
 		this.organization = organization;
 	}
 
-	public MyUserPrincipal withOrganization(PrincipalOrganization organization) {
+	public MyUserInfo withOrganization(PrincipalOrganization organization) {
 		setOrganization(organization);
 		return this;
 	}
@@ -203,7 +205,7 @@ public class MyUserPrincipal implements Serializable {
 		this.permissions = permissions;
 	}
 
-	public final MyUserPrincipal withPermissions(String permissions) {
+	public final MyUserInfo withPermissions(String permissions) {
 		setPermissions(permissions);
 		return this;
 	}
@@ -233,7 +235,7 @@ public class MyUserPrincipal implements Serializable {
 	 * @param attributes
 	 * @return
 	 */
-	public final MyUserPrincipal withAttributes(Attributes attributes) {
+	public final MyUserInfo withAttributes(Attributes attributes) {
 		setAttributes(attributes);
 		return this;
 	}
@@ -247,7 +249,7 @@ public class MyUserPrincipal implements Serializable {
 	/**
 	 * Validation.
 	 */
-	public final MyUserPrincipal validate() throws IllegalArgumentException {
+	public final MyUserInfo validate() throws IllegalArgumentException {
 		hasText(getPrincipalId(), "Authenticate principalId can't empty");
 		hasText(getPrincipal(), "Authenticate principal name can't empty");
 		// hasText(getRoles(), "Authenticate roles can't empty");
@@ -259,7 +261,7 @@ public class MyUserPrincipal implements Serializable {
 	// --- Authenticating parameter's. ---
 
 	/**
-	 * {@link MyUserPrincipal} attributes wrapper.
+	 * {@link MyUserInfo} attributes wrapper.
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version 2020年7月7日 v1.0.0
@@ -998,6 +1000,107 @@ public class MyUserPrincipal implements Serializable {
 			private static final long serialVersionUID = 6965751111221042024L;
 
 		};
+
+	}
+
+	/**
+	 * Social provider authorized info
+	 * 
+	 * @author wangl.sir
+	 * @version v1.0 2019年2月21日
+	 * @since
+	 */
+	public static class SocialAuthorizeInfo implements Serializable {
+		private static final long serialVersionUID = -434937172743067451L;
+
+		/**
+		 * social networking service provider ID
+		 */
+		private String provider;
+
+		/**
+		 * social networking provider open-id
+		 */
+		private String openId;
+
+		/**
+		 * social networking provider union-id.(If exist)
+		 */
+		private String unionId;
+
+		/**
+		 * Oauth2 authorized user information
+		 */
+		private Map<String, Object> userProfile = new HashMap<>();
+
+		public SocialAuthorizeInfo() {
+			super();
+		}
+
+		public SocialAuthorizeInfo(String provider, String openId) {
+			this(provider, openId, null);
+		}
+
+		public SocialAuthorizeInfo(String provider, String openId, String unionId) {
+			this(provider, openId, unionId, null);
+		}
+
+		public SocialAuthorizeInfo(String provider, String openId, String unionId, Map<String, Object> userProfile) {
+			Assert.notNull(provider, "'provider' must not be null");
+			Assert.notNull(openId, "'openId' must not be null");
+			this.provider = provider;
+			this.openId = openId;
+			this.unionId = unionId;
+			if (!CollectionUtils.isEmpty(userProfile)) {
+				this.userProfile.putAll(userProfile);
+			}
+		}
+
+		public String getProvider() {
+			return provider;
+		}
+
+		public void setProvider(String providerId) {
+			this.provider = providerId;
+		}
+
+		public String getOpenId() {
+			return openId;
+		}
+
+		public void setOpenId(String openId) {
+			this.openId = openId;
+		}
+
+		public String getUnionId() {
+			return unionId;
+		}
+
+		public void setUnionId(String unionId) {
+			this.unionId = unionId;
+		}
+
+		public Map<String, Object> getUserProfile() {
+			return userProfile;
+		}
+
+		public void setUserProfile(Map<String, Object> userProfile) {
+			this.userProfile = userProfile;
+		}
+
+		/**
+		 * As json string.
+		 * 
+		 * @return
+		 */
+		public String asJsonString() {
+			return toJSONString(this);
+		}
+
+		@Override
+		public String toString() {
+			return asJsonString();
+		}
 
 	}
 

@@ -28,13 +28,13 @@ public class BeanCopierUtilsTests {
 		//
 		// 注：bean的setter方法必须是标准的，如：setter方法有返回值也会导致无法复制
 		//
-		MyUserPrincipal p1 = new MyUserPrincipal();
+		MyUserInfo p1 = new MyUserInfo();
 		p1.setPrincipalId("001");
 		p1.setPrincipal("zs");
 		p1.attributes().put("aa", "11");
 		out.println("source p1 object: " + toJSONString(p1) + ", hashCode: " + p1.hashCode());
 
-		MyUserPrincipal p2 = BeanCopierUtils.clone(p1);
+		MyUserInfo p2 = BeanCopierUtils.clone(p1);
 		out.println("clone p2 object: " + toJSONString(p2) + ", hashCode: " + p2.hashCode());
 
 		// for test Error
