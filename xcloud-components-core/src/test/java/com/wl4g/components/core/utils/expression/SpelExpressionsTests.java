@@ -87,9 +87,37 @@ public class SpelExpressionsTests {
 	public void modelCallObjectMethodSpelCase() {
 		String expression = "#{joinUtil.join(name)}";
 		Map<String, Object> model = new HashMap<>();
-		model.put("name", "Mia");
 		model.put("joinUtil", new JoinUtil());
+		model.put("name", "Mia");
 		System.out.println("result: " + SpelExpressions.create().resolve(expression, model));
+	}
+
+	/**
+	 * <b style='color:red'>[Warning]</b> this is a reflection of remote command
+	 * execution attack test, please call the external program must pay
+	 * attention to, such as setting white list filtering.</br>
+	 * </br>
+	 * 
+	 * for example1:
+	 * 
+	 * <pre>
+	 * String expression = "#{T(com.wl4g.components.common.reflect.ReflectionUtils2).invokeMethod(T(com.wl4g.components.common.reflect.ReflectionUtils2).findMethod(T(java.lang.Class).forName(\"com.wl4g.components.common.cli.ProcessUtils\"),\"execSingle\"),null,\"rm -rf /tmp/test1\")}";
+	 * System.out.println("result: " + SpelExpressions.create().resolve(expression, null));
+	 * </pre>
+	 * 
+	 * for example2:
+	 * 
+	 * <pre>
+	 * String expression = "#{T(com.wl4g.components.common.cli.ProcessUtils).execSingle(\"rm -rf /tmp/test1\")}";
+	 * System.out.println("result: " + SpelExpressions.create().resolve(expression, null));
+	 * </pre>
+	 * 
+	 * @throws ClassNotFoundException
+	 */
+	@Test
+	public void invokeAttackSpelCase() throws ClassNotFoundException {
+		String expression = "#{T(com.wl4g.components.common.cli.ProcessUtils).execSingle(\"rm -rf /tmp/test1\")}";
+		System.out.println("result: " + SpelExpressions.create().resolve(expression, null));
 	}
 
 	public static class JoinUtil {

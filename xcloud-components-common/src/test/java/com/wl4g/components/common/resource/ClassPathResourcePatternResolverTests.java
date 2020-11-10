@@ -22,7 +22,7 @@ import java.util.Set;
 import com.wl4g.components.common.resource.StreamResource;
 import com.wl4g.components.common.resource.resolver.ClassPathResourcePatternResolver;
 
-public class PathPatternResourceMatchingResolverTests {
+public class ClassPathResourcePatternResolverTests {
 
 	public static void main(String[] args) throws Exception {
 		getPatternResourcesTests();
@@ -41,8 +41,8 @@ public class PathPatternResourceMatchingResolverTests {
 	private static final String locationPattern;
 
 	static {
-		String location = PathPatternResourceMatchingResolverTests.class.getName().replace(".", "/")
-				.replace(PathPatternResourceMatchingResolverTests.class.getSimpleName(), "");
+		String location = ClassPathResourcePatternResolverTests.class.getName().replace(".", "/")
+				.replace(ClassPathResourcePatternResolverTests.class.getSimpleName(), "");
 		locationPattern = "classpath*:/" + location.concat("**/*.*");
 	}
 
