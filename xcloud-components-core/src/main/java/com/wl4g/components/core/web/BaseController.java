@@ -19,6 +19,7 @@ import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Locale.US;
+import static java.util.Objects.isNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 
 import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.io.CompressUtils;
@@ -106,17 +108,36 @@ public abstract class BaseController {
 	 * 
 	 * @param response
 	 * @param srcFile
+	 * @param filename
 	 * @throws IOException
 	 */
 	protected void writeFile(@NotNull HttpServletResponse response, @NotNull File srcFile, @NotBlank String filename)
 			throws IOException {
+		writeFile(response, srcFile, filename, null);
+	}
+
+	/**
+	 * Output file stream with {@link HttpServletResponse}.
+	 * 
+	 * @param response
+	 * @param srcFile
+	 * @param filename
+	 * @param headers
+	 * @throws IOException
+	 */
+	protected void writeFile(@NotNull HttpServletResponse response, @NotNull File srcFile, @NotBlank String filename,
+			@Nullable HttpHeaders headers) throws IOException {
 		notNullOf(response, "response");
 		notNullOf(srcFile, "srcDir");
 		hasTextOf(filename, "filename");
 
-		response.setHeader("Content-Type", "application/octet-stream");
 		response.setCharacterEncoding("utf-8");
-		response.setHeader("Content-Disposition", "attachment;filename=".concat(filename));
+		if (!isNull(headers)) {
+			headers.keySet().forEach(name -> response.setHeader(name, headers.getFirst(name)));
+		} else { // By default download
+			response.setHeader("Content-Type", "application/octet-stream");
+			response.setHeader("Content-Disposition", "attachment;filename=".concat(filename));
+		}
 		FileIOUtils.copyFile(srcFile, response.getOutputStream());
 		response.flushBuffer();
 	}
