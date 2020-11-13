@@ -217,7 +217,7 @@ public abstract class PeriodFormatter {
 		Method getBindValueMethod = null;
 		try {
 			getBindValueMethod = findMethod(
-					forName("com.wl4g.iam.common.utils.IamSecurityHolder", currentThread().getContextClassLoader()),
+					forName("com.wl4g.iam.core.utils.IamSecurityHolder", currentThread().getContextClassLoader()),
 					"getBindValue", Object.class);
 		} catch (ClassNotFoundException | LinkageError e) {
 			getLogger(PeriodFormatter.class).error("Internal error of cannot load class method", e);
