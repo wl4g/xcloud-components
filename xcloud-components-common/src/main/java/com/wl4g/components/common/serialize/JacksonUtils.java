@@ -246,6 +246,7 @@ public abstract class JacksonUtils {
 			Map map = (Map) obj;
 			Map cloneMap = new LinkedHashMap<>(map.size());
 			map.forEach((key, val) -> cloneMap.put(deepClone(key), deepClone(val)));
+			return (T) cloneMap;
 		} else if (TypeUtils2.isSimpleType(obj.getClass())) { // Simple Class
 			return obj;
 		}
