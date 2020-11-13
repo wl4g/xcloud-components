@@ -108,10 +108,9 @@ public interface MessageNotifier extends Operator<NotifierKind> {
 	/**
 	 * Sending notification message.
 	 * 
-	 * @param <T>
 	 * @param msg
 	 */
-	<T extends NotifyMessage> void send(GenericNotifyMessage msg);
+	void send(GenericNotifyMessage msg);
 
 	/**
 	 * Sending notification message for complete reply.
