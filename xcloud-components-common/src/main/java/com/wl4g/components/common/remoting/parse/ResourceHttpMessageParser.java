@@ -16,6 +16,7 @@
 package com.wl4g.components.common.remoting.parse;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -110,7 +111,7 @@ public class ResourceHttpMessageParser extends AbstractHttpMessageParser<StreamR
 
 	@Override
 	protected HttpMediaType getDefaultContentType(StreamResource resource) {
-		return MediaTypeFactory.getMediaType(resource).orElse(HttpMediaType.APPLICATION_OCTET_STREAM);
+		return MediaTypeFactory.getMediaType(resource).filter(m -> !isNull(m)).orElse(HttpMediaType.APPLICATION_OCTET_STREAM);
 	}
 
 	@Override

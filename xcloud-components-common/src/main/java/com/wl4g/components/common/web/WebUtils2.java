@@ -356,7 +356,8 @@ public abstract class WebUtils2 {
 			return null;
 		}
 		return params.entrySet().stream().filter(e -> equalsIgnoreCase(e.getKey(), name))
-				.map(e -> CollectionUtils2.isEmpty(e.getValue()) ? e.getValue().get(0) : null).findFirst().orElse(null);
+				.map(e -> CollectionUtils2.isEmpty(e.getValue()) ? e.getValue().get(0) : null).filter(e -> !isNull(e)).findFirst()
+				.orElse(null);
 	}
 
 	/**

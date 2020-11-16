@@ -15,6 +15,9 @@
  */
 package com.wl4g.components.core.utils;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static com.wl4g.components.common.lang.Assert2.hasTextOf;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
 
@@ -24,14 +27,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.util.Assert;
-
-import com.google.common.base.Charsets;
 
 /**
- * YAML/Properties source check utility.
+ * YAML and properties source resovler.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
@@ -40,31 +43,45 @@ import com.google.common.base.Charsets;
  */
 public abstract class PropertySources {
 
-	public static Map<String, Object> resolve(Type type, String content) {
-		Assert.notNull(type, "The 'type' argument must be null");
-		Assert.notNull(content, "The 'content' argument must be null");
+	/**
+	 * Resolving configuration content of {@link ConfigType}
+	 * 
+	 * @param type
+	 * @param content
+	 * @return if resolved null return empty {@link Map}.
+	 */
+	public static Map<String, Object> resolve(@NotNull ConfigType type, @NotBlank String content) {
+		notNullOf(type, "configType");
+		hasTextOf(content, "configContent");
 		return type.getHandle().resolve(content);
 	}
 
-	public static enum Type {
-		YML(new YamlResolverHandle()), YAML(new YamlResolverHandle()), PROPS(new PropertiesResolverHandle());
+	/**
+	 * {@link ConfigType}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @sine v1.0
+	 * @see
+	 */
+	public static enum ConfigType {
+		YML(new YamlResolveHandler()), YAML(new YamlResolveHandler()), PROPS(new PropertiesResolveHandler());
 
-		private ResolverHandle handle;
+		private ResolveHandler handle;
 
-		private Type(ResolverHandle handle) {
+		private ConfigType(ResolveHandler handle) {
 			this.handle = handle;
 		}
 
-		public ResolverHandle getHandle() {
+		public ResolveHandler getHandle() {
 			return handle;
 		}
 
-		public void setHandle(ResolverHandle handle) {
+		public void setHandle(ResolveHandler handle) {
 			this.handle = handle;
 		}
 
-		public static Type of(String name) {
-			for (Type t : values()) {
+		public static ConfigType of(String name) {
+			for (ConfigType t : values()) {
 				if (t.name().equalsIgnoreCase(String.valueOf(name))) {
 					return t;
 				}
@@ -74,29 +91,51 @@ public abstract class PropertySources {
 
 	}
 
-	public static interface ResolverHandle {
+	/**
+	 * {@link ResolveHandler}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @sine v1.0
+	 * @see
+	 */
+	public static interface ResolveHandler {
 		Map<String, Object> resolve(String content);
 	}
 
-	public static class YamlResolverHandle implements ResolverHandle {
+	/**
+	 * {@link YamlResolveHandler}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @sine v1.0
+	 * @see
+	 */
+	private static class YamlResolveHandler implements ResolveHandler {
 
 		@Override
 		public Map<String, Object> resolve(String content) {
-			YamlPropertiesFactoryBean ymlFb = new YamlPropertiesFactoryBean();
+			YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
+			factory.setResources(new ByteArrayResource(content.getBytes(UTF_8)));
+			factory.afterPropertiesSet();
 
-			ymlFb.setResources(new ByteArrayResource(content.getBytes(Charsets.UTF_8)));
-			ymlFb.afterPropertiesSet();
 			// Properties to map
 			Map<String, Object> map = new HashMap<>();
-			if (nonNull(ymlFb) && nonNull(ymlFb.getObject())) {
-				ymlFb.getObject().forEach((k, v) -> map.put(valueOf(k), v));
+			if (nonNull(factory) && nonNull(factory.getObject())) {
+				factory.getObject().forEach((k, v) -> map.put(valueOf(k), v));
 			}
+
 			return map;
 		}
 
 	}
 
-	public static class PropertiesResolverHandle implements ResolverHandle {
+	/**
+	 * {@link PropertiesResolveHandler}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @sine v1.0
+	 * @see
+	 */
+	private static class PropertiesResolveHandler implements ResolveHandler {
 
 		@Override
 		public Map<String, Object> resolve(String content) {

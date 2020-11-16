@@ -16,7 +16,6 @@
 package com.wl4g.components.core.config.listener;
 
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static java.util.Collections.singletonMap;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationStartingEvent;
@@ -24,24 +23,20 @@ import org.springframework.boot.context.logging.LoggingApplicationListener;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.GenericApplicationListener;
-import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
-import org.springframework.core.annotation.Order;
 
 import com.wl4g.components.common.log.SmartLogger;
 
 /**
- * System boot defaults settings listener.</br>
- * refer: {@link LoggingApplicationListener} implements.
+ * Application starting event processing listener.</br>
  * 
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2020年5月20日
  * @since
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 9)
-public class BootDefaultSetApplicationListener implements GenericApplicationListener {
+public abstract class AbstractStartingApplicationListener implements GenericApplicationListener {
 
-	final protected SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
 	@Override
 	public boolean supportsEventType(ResolvableType resolvableType) {
@@ -56,18 +51,21 @@ public class BootDefaultSetApplicationListener implements GenericApplicationList
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationStartingEvent) {
-			onApplicationStartingEvent((ApplicationStartingEvent) event);
+			try {
+				onStarting((ApplicationStartingEvent) event);
+			} catch (Exception e) {
+				throw new IllegalStateException(e);
+			}
 		}
 	}
 
 	/**
-	 * Pre settings default properties.
+	 * On starting event configuration processing.
 	 * 
 	 * @param event
+	 * @throws Exception
 	 */
-	private void onApplicationStartingEvent(ApplicationStartingEvent event) {
-		event.getSpringApplication().setDefaultProperties(singletonMap("spring.main.allow-bean-definition-overriding", "true"));
-	}
+	protected abstract void onStarting(ApplicationStartingEvent event) throws Exception;
 
 	/**
 	 * Check type is assignable from supportedTypes

@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
-import com.wl4g.components.core.annotation.ConditionalOnJdwpDebug;
+import com.wl4g.components.core.annotation.condition.ConditionalOnJdwpDebug;
 import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader;
 import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoaderProperties;
 

@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.common.remoting.standard;
 
+import static java.util.Objects.isNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -113,7 +115,7 @@ public final class MediaTypeFactory {
 	 */
 	public static List<HttpMediaType> getMediaTypes(@Nullable String filename) {
 		return Optional.ofNullable(StringUtils2.getFilenameExtension(filename)).map(s -> s.toLowerCase(Locale.ENGLISH))
-				.map(fileExtensionToMediaTypes::get).orElse(Collections.emptyList());
+				.map(fileExtensionToMediaTypes::get).filter(n -> !isNull(n)).orElse(Collections.emptyList());
 	}
 
 	// e.g: com/wl4g/devops/components/tools/common/remoting/mime.types

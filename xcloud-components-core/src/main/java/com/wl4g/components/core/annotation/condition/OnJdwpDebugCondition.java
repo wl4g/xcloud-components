@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.annotation;
+package com.wl4g.components.core.annotation.condition;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -25,7 +25,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import static com.wl4g.components.common.jvm.JvmRuntimeKit.*;
 import static com.wl4g.components.common.lang.Assert2.isTrue;
-import static com.wl4g.components.core.annotation.ConditionalOnJdwpDebug.*;
+import static com.wl4g.components.core.annotation.condition.ConditionalOnJdwpDebug.*;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
