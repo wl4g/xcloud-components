@@ -91,23 +91,57 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 		}
 
 		MappedStatement statement = (MappedStatement) invoc.getArgs()[0];
-		if (statement.getSqlCommandType() != SqlCommandType.INSERT) {
-			return; // Interception only insert methods.
-		}
-
-		// Sets generated key
-		for (int i = 1; i < invoc.getArgs().length; i++) {
-			Object arg = invoc.getArgs()[i];
-			if (BaseBean.class.isAssignableFrom(arg.getClass())) {
-				BaseBean bean = (BaseBean) arg;
-				// Ignored if external is sets.
-				if (!isNull(bean) && isNull(bean.getId())) {
-					bean.setId(SnowflakeIdGenerator.getDefault().nextId());
-					log.debug("Dynamic sets generated primary key ID for: {}, method: {}", bean.getId(), invoc.getMethod());
+		SqlCommandType cmdType = statement.getSqlCommandType();
+		// Sets insertion attributes value
+		if (cmdType == SqlCommandType.INSERT) {
+			for (int i = 1; i < invoc.getArgs().length; i++) {
+				Object arg = invoc.getArgs()[i];
+				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
+					BaseBean bean = (BaseBean) arg;
+					// Assign sets primary key ID.
+					if (!isNull(bean) && isNull(bean.getId())) {
+						// TODO using by remote global IdGenerator servers.
+						bean.setId(SnowflakeIdGenerator.getDefault().nextId());
+						log.debug("Dynamic assigned primary key ID for: {}, method: {}", bean.getId(), invoc.getMethod());
+					}
+					if (isSettableInsertion(bean)) {
+						bean.preInsert();
+					}
 				}
 			}
 		}
+		// Sets updation attributes value
+		else if (cmdType == SqlCommandType.UPDATE) {
+			for (int i = 1; i < invoc.getArgs().length; i++) {
+				Object arg = invoc.getArgs()[i];
+				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
+					BaseBean bean = (BaseBean) arg;
+					if (isSettableUpdation(bean)) {
+						bean.preUpdate();
+					}
+				}
+			}
+		}
+	}
 
+	/**
+	 * Check whether parameter properties need to be set when insertion.
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	private boolean isSettableInsertion(BaseBean bean) {
+		return isNull(bean.getCreateDate()) || isNull(bean.getCreateBy());
+	}
+
+	/**
+	 * Check whether parameter properties need to be set when updating.
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	private boolean isSettableUpdation(BaseBean bean) {
+		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
 	}
 
 }

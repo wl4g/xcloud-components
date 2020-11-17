@@ -18,7 +18,6 @@ package com.wl4g.components.core.bean;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wl4g.components.common.id.SnowflakeIdGenerator;
 import com.wl4g.components.common.lang.period.PeriodFormatter;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.utils.expression.SpelExpressions;
@@ -127,15 +126,10 @@ public abstract class BaseBean implements Serializable {
 	 * @return return current preparing insert generated id.
 	 */
 	public Long preInsert() {
-		// TODO
-		// This is a temporary ID generation scheme. You can change
-		// it to a primary key generation service later.
-		setId(SnowflakeIdGenerator.getDefault().nextId());
-		Long principalId = getCurrentPrincipalId();
 		setCreateDate(new Date());
-		setCreateBy(principalId);
+		setCreateBy(getCurrentPrincipal());
 		setUpdateDate(getCreateDate());
-		setUpdateBy(principalId);
+		setUpdateBy(getCreateBy());
 		setDelFlag(DEL_FLAG_NORMAL);
 		setEnable(ENABLED);
 		return getId();
@@ -243,40 +237,53 @@ public abstract class BaseBean implements Serializable {
 	}
 
 	/**
-	 * Gets current authentication principal ID.
+	 * Gets current authentication principal(ID/name).
 	 * 
 	 * @return
 	 */
-	private static final Long getCurrentPrincipalId() {
-		Object curPrincipalId = null;
+	private static final Long getCurrentPrincipal() {
+		Throwable err = null;
+		Object principal = null; // Principal(ID/name)
+
 		// Frist get by request
 		// try {
 		// HttpServletRequest request = ((ServletRequestAttributes)
 		// RequestContextHolder.currentRequestAttributes())
 		// .getRequest();
-		// curPrincipalId = request.getRemoteUser();
+		// curPrincipal = request.getRemoteUser();
 		// } catch (Throwable e1) {
-		// Fallback get by IAM
-		try {
-			curPrincipalId = spelExpr
-					.resolve("#{T(com.wl4g.iam.core.utils.IamSecurityHolder).getIamPrincipal().getPrincipalId()}");
-		} catch (Throwable e2) {
-			log.warn("Cannot get IAM authenticated principal, fallback getting. caused by: {}", e2.getMessage());
-			// Fallback get by Spring Security
-			// try {
-			// // org.springframework.security.core.userdetails.UserDetails
-			// curPrincipalId = spelExpression.resolve(
-			// "#{T(SecurityContextHolder.getContext().getAuthentication().getPrincipal().getUsername()}",
-			// null);
-			// } catch (Throwable e3) {
-			curPrincipalId = UNKNOWN_USER_ID;
-			// log.warn(format("Cannot get spring security authenticated
-			// principal, fallback use: '%s', caused by: {}",
-			// curPrincipalId), e3.getMessage());
-			// }
-		}
+		// err = e1;
+		// log.warn("Cannot get request authenticated principal. cause by: {}",
+		// err.getMessage());
 		// }
-		return Long.parseLong(valueOf(curPrincipalId));
+
+		// Fallback get by IAM
+		if (isNull(principal)) {
+			try {
+				principal = spelExpr.resolve("#{T(IamSecurityHolder).getPrincipalInfo().getPrincipalId()}");
+			} catch (Throwable e2) {
+				err = e2;
+				log.warn("Cannot fallback get IAM authenticated principal. cause by: {}", err.getMessage());
+			}
+		}
+
+		// Fallback get by spring security
+		// if (isNull(curPrincipal)) {
+		// try {
+		// // org.springframework.security.core.userdetails.UserDetails
+		// curPrincipal = spelExpr
+		// .resolve("#{T(SecurityContextHolder).getContext().getAuthentication().getPrincipal().getName()}",
+		// null);
+		// } catch (Throwable e3) {
+		// err = e3;
+		// curPrincipal = UNKNOWN_USER_ID;
+		// log.warn(format("Cannot fallback get spring-security authenticated
+		// principal, using fallback: '%s', cause by: {}",
+		// curPrincipal), err.getMessage());
+		// }
+		// }
+
+		return Long.parseLong(valueOf(principal));
 	}
 
 	/**
