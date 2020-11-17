@@ -220,7 +220,7 @@ public abstract class PeriodFormatter {
 					forName("com.wl4g.iam.core.utils.IamSecurityHolder", currentThread().getContextClassLoader()), "getBindValue",
 					Object.class);
 		} catch (ClassNotFoundException | LinkageError e) {
-			getLogger(PeriodFormatter.class).error("Internal error of cannot load class method", e);
+			getLogger(PeriodFormatter.class).warn("Internal error of cannot load class method. - {}", e.getMessage());
 		}
 		iamSecurityHolderGetBindValueMethod = getBindValueMethod;
 

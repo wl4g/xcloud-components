@@ -18,7 +18,6 @@ package com.wl4g.components.core.bean;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wl4g.components.common.lang.period.PeriodFormatter;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.utils.expression.SpelExpressions;
 
@@ -91,6 +90,18 @@ public abstract class BaseBean implements Serializable {
 	private Date createDate;
 
 	/**
+	 * Human creation date.</br>
+	 * </br>
+	 * Note: In order to be compatible with the different usages of the
+	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
+	 * ways that will work.
+	 */
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	private String humanCreateDate;
+
+	/**
 	 * Bean info update user.
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
@@ -106,6 +117,18 @@ public abstract class BaseBean implements Serializable {
 	@ApiParam(readOnly = true, hidden = true)
 	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Date updateDate;
+
+	/**
+	 * Human updation date.</br>
+	 * </br>
+	 * Note: In order to be compatible with the different usages of the
+	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
+	 * ways that will work.
+	 */
+	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
+	@ApiParam(readOnly = true, hidden = true)
+	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	private String humanUpdateDate;
 
 	/**
 	 * Logistic delete status. </br>
@@ -203,34 +226,6 @@ public abstract class BaseBean implements Serializable {
 
 	// --- Function's. ---
 
-	/**
-	 * Note: In order to be compatible with the different usages of the
-	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
-	 * ways that will work.
-	 * 
-	 * @return
-	 */
-	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
-	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
-	public String getHumanCreateDate() {
-		return isNull(getCreateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getCreateDate().getTime());
-	}
-
-	/**
-	 * Note: In order to be compatible with the different usages of the
-	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
-	 * ways that will work.
-	 * 
-	 * @return
-	 */
-	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
-	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
-	public String getHumanUpdateDate() {
-		return isNull(getUpdateDate()) ? null : defaultPeriodFormatter.formatHumanDate(getUpdateDate().getTime());
-	}
-
 	@Override
 	public String toString() {
 		return getClass().getSimpleName().concat("<").concat(toJSONString(this)).concat(">");
@@ -315,11 +310,6 @@ public abstract class BaseBean implements Serializable {
 	 * Default super administrator user name.
 	 */
 	public static transient final String DEFAULT_SUPER_USER = "root";
-
-	/*
-	 * Human date formatter instance.
-	 */
-	public static transient final PeriodFormatter defaultPeriodFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 	/**
 	 * {@link SpelExpressions}

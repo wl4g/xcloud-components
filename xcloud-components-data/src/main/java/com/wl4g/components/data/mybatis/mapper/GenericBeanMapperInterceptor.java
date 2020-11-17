@@ -19,8 +19,11 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
+import com.wl4g.components.common.lang.period.PeriodFormatter;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.bean.BaseBean;
 
@@ -48,15 +51,27 @@ import java.util.Properties;
  * @sine v1.0
  * @see https://www.jianshu.com/p/0a72bb1f6a21
  */
-@Intercepts(@Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }))
+@Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }),
+		@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class,
+				ResultHandler.class }) })
 public class GenericBeanMapperInterceptor implements Interceptor {
 
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Override
 	public Object intercept(Invocation invoc) throws Throwable {
-		// Sets primary key.
-		setupBeanPrimaryKeyIfNecessary(invoc);
+		if (isNull(invoc.getArgs())) {
+			return invoc.proceed();
+		}
+
+		MappedStatement statement = (MappedStatement) invoc.getArgs()[0];
+		SqlCommandType command = statement.getSqlCommandType();
+
+		// Sets update|insert bean attributes.
+		applyBeanWithUpdationIfNecessary(invoc, command);
+
+		// Sets query bean attributes.
+		applyBeanWithQueryIfNecessary(invoc, command);
 
 		return invoc.proceed();
 	}
@@ -81,19 +96,14 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	}
 
 	/**
-	 * Sets saving bean primary key ID(if necessary).
+	 * Sets bean attributes with updation and insertion(if necessary).
 	 * 
 	 * @param invoc
+	 * @param command
 	 */
-	private void setupBeanPrimaryKeyIfNecessary(Invocation invoc) {
-		if (isNull(invoc.getArgs())) {
-			return;
-		}
-
-		MappedStatement statement = (MappedStatement) invoc.getArgs()[0];
-		SqlCommandType cmdType = statement.getSqlCommandType();
+	private void applyBeanWithUpdationIfNecessary(Invocation invoc, SqlCommandType command) {
 		// Sets insertion attributes value
-		if (cmdType == SqlCommandType.INSERT) {
+		if (command == SqlCommandType.INSERT) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
 				Object arg = invoc.getArgs()[i];
 				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
@@ -111,7 +121,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 			}
 		}
 		// Sets updation attributes value
-		else if (cmdType == SqlCommandType.UPDATE) {
+		else if (command == SqlCommandType.UPDATE) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
 				Object arg = invoc.getArgs()[i];
 				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
@@ -122,6 +132,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -143,5 +154,35 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	private boolean isSettableUpdation(BaseBean bean) {
 		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
 	}
+
+	/**
+	 * Sets bean attributes with query(if necessary).
+	 * 
+	 * @param invoc
+	 * @param command
+	 */
+	private void applyBeanWithQueryIfNecessary(Invocation invoc, SqlCommandType command) {
+		// Sets insertion attributes value
+		if (command == SqlCommandType.SELECT) {
+			for (int i = 1; i < invoc.getArgs().length; i++) {
+				Object arg = invoc.getArgs()[i];
+				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
+					BaseBean bean = (BaseBean) arg;
+					if (!isNull(bean) && (isNull(bean.getHumanCreateDate()) || isNull(bean.getHumanCreateDate()))) {
+						bean.setHumanCreateDate(isNull(bean.getCreateDate()) ? null
+								: periodFormatter.formatHumanDate(bean.getCreateDate().getTime()));
+						bean.setHumanUpdateDate(isNull(bean.getUpdateDate()) ? null
+								: periodFormatter.formatHumanDate(bean.getUpdateDate().getTime()));
+					}
+				}
+			}
+		}
+
+	}
+
+	/*
+	 * Human date formatter instance.
+	 */
+	public static transient final PeriodFormatter periodFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 }
