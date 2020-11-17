@@ -22,7 +22,6 @@ import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -39,7 +38,6 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ClassUtils.convertClassNameToResourcePath;
 
-import com.github.pagehelper.PageHelper;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.data.mybatis.session.SmartSqlSessionFactoryBean;
 
@@ -60,33 +58,23 @@ public abstract class AbstractDataSourceAutoConfiguration {
 	/**
 	 * New create {@link MultiSqlSessionFactoryBean} instance
 	 * 
-	 * @param dataSource
 	 * @param config
+	 * @param dataSource
+	 * @param interceptors
 	 * @return
 	 * @throws Exception
 	 */
-	protected SqlSessionFactoryBean createSmartSqlSessionFactoryBean(DataSource dataSource, MybatisProperties config)
-			throws Exception {
+	protected SqlSessionFactoryBean createSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
+			List<Interceptor> interceptors) throws Exception {
 		// Define path matcher resolver.
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
-		// Create SqlSessionFactory
+		// Build SqlSessionFactory
 		SqlSessionFactoryBean factory = new SmartSqlSessionFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setTypeAliases(getTypeAliases(resolver, config));
 		factory.setConfigLocation(new ClassPathResource(config.getConfigLocation()));
-
-		// Page.
-		PageHelper pageHelper = new PageHelper();
-		Properties props = new Properties();
-		props.setProperty("dialect", "mysql");
-		props.setProperty("reasonable", "true");
-		props.setProperty("supportMethodsArguments", "true");
-		props.setProperty("returnPageInfo", "check");
-		props.setProperty("params", "count=countSql");
-		pageHelper.setProperties(props); // 添加插件
-		factory.setPlugins(new Interceptor[] { pageHelper });
-
+		factory.setPlugins(interceptors.toArray(new Interceptor[0]));
 		factory.setMapperLocations(getDaoMappers(resolver, config));
 		return factory;
 	}

@@ -21,6 +21,7 @@ import com.alibaba.druid.support.http.WebStatFilter;
 import com.wl4g.components.common.codec.CodecSource;
 import com.wl4g.components.common.crypto.symmetric.AES128ECBPKCS5;
 
+import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -34,6 +35,7 @@ import static java.lang.String.valueOf;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * DataSource configuration
@@ -85,9 +87,9 @@ public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration 
 	}
 
 	@Bean
-	public SqlSessionFactoryBean druidSmartSqlSessionFactoryBean(DataSource dataSource, MybatisProperties config)
-			throws Exception {
-		return createSmartSqlSessionFactoryBean(dataSource, config);
+	public SqlSessionFactoryBean druidSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
+			List<Interceptor> interceptors) throws Exception {
+		return createSmartSqlSessionFactoryBean(config, dataSource, interceptors);
 	}
 
 	@Bean
