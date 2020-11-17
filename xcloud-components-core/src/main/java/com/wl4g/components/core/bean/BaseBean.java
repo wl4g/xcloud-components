@@ -258,8 +258,8 @@ public abstract class BaseBean implements Serializable {
 		// } catch (Throwable e1) {
 		// Fallback get by IAM
 		try {
-			curPrincipalId = spelExpression
-					.resolve("#{T(com.wl4g.iam.common.utils.IamSecurityHolder).getIamPrincipal().getPrincipalId()}", null);
+			curPrincipalId = spelExpr
+					.resolve("#{T(com.wl4g.iam.core.utils.IamSecurityHolder).getIamPrincipal().getPrincipalId()}");
 		} catch (Throwable e2) {
 			log.warn("Cannot get IAM authenticated principal, fallback getting. caused by: {}", e2.getMessage());
 			// Fallback get by Spring Security
@@ -317,6 +317,6 @@ public abstract class BaseBean implements Serializable {
 	/**
 	 * {@link SpelExpressions}
 	 */
-	public static transient final SpelExpressions spelExpression = SpelExpressions.create();
+	public static transient final SpelExpressions spelExpr = SpelExpressions.create();
 
 }

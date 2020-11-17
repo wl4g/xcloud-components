@@ -154,7 +154,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @param localizedKey
 	 * @return
-	 * @see {@link com.wl4g.iam.common.utils.IamSecurityHolder#getBindValue(String)}
+	 * @see {@link com.wl4g.iam.core.utils.IamSecurityHolder#getBindValue(String)}
 	 * @see {@link com.wl4g.iam.common.i18n.SessionResourceMessageBundler#getSessionLocale()}
 	 * @see {@link com.wl4g.components.core.constants.IAMDevOpsConstants#KEY_LANG_NAME}
 	 */
@@ -163,7 +163,7 @@ public abstract class PeriodFormatter {
 		try {
 			loc = (String) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
 		} catch (Exception e) {
-			log.warn(format("Cannot get IAM session locale, fallback use of %s", locale), e);
+			log.warn(format("Cannot get IAM session locale, fallback use '%s'", locale), e);
 		}
 		try {
 			return getResourceBundle(isNull(loc) ? locale : new Locale(loc)).getString(localizedKey);
@@ -209,7 +209,7 @@ public abstract class PeriodFormatter {
 	/**
 	 * IAM security holder method.
 	 * 
-	 * @see {@link com.wl4g.iam.common.utils.IamSecurityHolder#getBindValue(Object)}
+	 * @see {@link com.wl4g.iam.core.utils.IamSecurityHolder#getBindValue(Object)}
 	 */
 	private static final Method iamSecurityHolderGetBindValueMethod;
 
@@ -217,8 +217,8 @@ public abstract class PeriodFormatter {
 		Method getBindValueMethod = null;
 		try {
 			getBindValueMethod = findMethod(
-					forName("com.wl4g.iam.core.utils.IamSecurityHolder", currentThread().getContextClassLoader()),
-					"getBindValue", Object.class);
+					forName("com.wl4g.iam.core.utils.IamSecurityHolder", currentThread().getContextClassLoader()), "getBindValue",
+					Object.class);
 		} catch (ClassNotFoundException | LinkageError e) {
 			getLogger(PeriodFormatter.class).error("Internal error of cannot load class method", e);
 		}

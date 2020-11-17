@@ -143,7 +143,7 @@ public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 			public Pointcut getPointcut() {
 				return new Pointcut() {
 
-					final private List<String> EXCLUDED_METHODS = new ArrayList<String>(4) {
+					final private List<String> EXCLUDE_METHODS = new ArrayList<String>(4) {
 						private static final long serialVersionUID = 3369346948736795743L;
 						{
 							addAll(asList(Operator.class.getDeclaredMethods()).stream().map(m -> m.getName()).collect(toList()));
@@ -160,9 +160,10 @@ public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 							@Override
 							public boolean matches(Method method, Class<?> targetClass) {
 								Class<?> declareClass = method.getDeclaringClass();
-								return !isAbstract(method.getModifiers()) && isPublic(method.getModifiers())
-										&& !isInterface(declareClass.getModifiers())
-										&& !EXCLUDED_METHODS.contains(method.getName());
+								int mod = method.getModifiers();
+								String name = method.getName();
+								return !isAbstract(mod) && isPublic(mod) && !isInterface(declareClass.getModifiers())
+										&& !EXCLUDE_METHODS.contains(name);
 							}
 
 							@Override

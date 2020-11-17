@@ -57,6 +57,7 @@ import com.wl4g.components.common.log.SmartLogger;
  * @since
  */
 public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
+
 	protected final SmartLogger log = getLogger(getClass());
 
 	/** Refresh configuration properties. */
