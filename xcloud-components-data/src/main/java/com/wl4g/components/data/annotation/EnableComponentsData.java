@@ -27,7 +27,7 @@ import com.wl4g.components.data.config.DruidAutoConfiguration;
 import com.wl4g.components.data.config.MybatisAutoConfiguration;
 
 /**
- * {@link AutoConfigureComponentsDataSource}
+ * {@link EnableComponentsData}
  *
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2020-08-05
@@ -37,6 +37,6 @@ import com.wl4g.components.data.config.MybatisAutoConfiguration;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @Import({ DruidAutoConfiguration.class, MybatisAutoConfiguration.class, })
-public @interface AutoConfigureComponentsDataSource {
+public @interface EnableComponentsData {
 
 }
