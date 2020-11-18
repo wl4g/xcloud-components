@@ -17,7 +17,6 @@ package com.wl4g.components.support.cli;
 
 import static com.wl4g.components.common.lang.Exceptions.getRootCausesString;
 import static com.wl4g.components.common.lang.ThreadUtils2.sleepRandom;
-import static com.wl4g.components.core.constants.SupportDevOpsConstants.*;
 import static com.wl4g.components.support.cli.destroy.DestroySignalMessage.DestroyState.*;
 import static com.wl4g.components.support.redis.jedis.JedisOperator.RedisProtoUtil.*;
 import static java.util.Objects.isNull;
@@ -48,10 +47,6 @@ import com.wl4g.components.support.redis.jedis.JedisService;
  * @since
  */
 public class NodeProcessManagerImpl extends GenericProcessManager {
-	final public static long DEFAULT_MIN_WATCH_MS = 2_00L;
-	final public static long DEFAULT_MAX_WATCH_MS = 2_000L;
-	/** Default destruction signal expired seconds. */
-	final public static int DEFAULT_SIGNAL_EXPIRED_SEC = (int) (3 * TimeUnit.MILLISECONDS.toSeconds(DEFAULT_MAX_WATCH_MS));
 
 	/** Application name. */
 	@Value("${spring.application.name}")
@@ -217,5 +212,24 @@ public class NodeProcessManagerImpl extends GenericProcessManager {
 		Assert.hasText(processId, "ProcessId must not be empty.");
 		return SIGNAL_PROCESS_DESTROY_RET + processId;
 	}
+
+	/** Command-line process watcher locker. */
+	final public static String LOCK_CLI_PROCESS_DESTROY = "cli.process.destroy";
+
+	/**
+	 * Command-line process destroy signal.
+	 */
+	final public static String SIGNAL_PROCESS_DESTROY = "cli.process.destroy_";
+
+	/**
+	 * Command-line process destroy signal result.
+	 */
+	final public static String SIGNAL_PROCESS_DESTROY_RET = "cli.process.destroy.ret_";
+
+	final public static long DEFAULT_MIN_WATCH_MS = 2_00L;
+	final public static long DEFAULT_MAX_WATCH_MS = 2_000L;
+
+	/** Default destruction signal expired seconds. */
+	final public static int DEFAULT_SIGNAL_EXPIRED_SEC = (int) (3 * TimeUnit.MILLISECONDS.toSeconds(DEFAULT_MAX_WATCH_MS));
 
 }

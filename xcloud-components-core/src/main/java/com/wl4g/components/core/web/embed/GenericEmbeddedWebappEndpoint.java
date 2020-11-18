@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.wl4g.components.common.resource.StreamResource;
 import com.wl4g.components.common.resource.resolver.ClassPathResourcePatternResolver;
 import com.wl4g.components.common.resource.resolver.ResourcePatternResolver;
-import com.wl4g.components.core.config.DefaultEmbeddedWebappsAutoConfiguration.GenericEmbeddedWebappsProperties;
+import com.wl4g.components.core.config.DefaultEmbeddedWebappAutoConfiguration.GenericEmbeddedWebappProperties;
 import com.wl4g.components.core.web.BaseController;
 import com.wl4g.components.core.web.embed.WebResourceCache.*;
 
@@ -50,18 +50,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Generic embedded webapps resource controller
+ * Generic embedded webapp endpoint.
  *
  * @author wangl.sir
  * @version v1.0 2019年1月9日
  * @since
  */
-public abstract class GenericEmbeddedWebappsEndpoint extends BaseController {
+public abstract class GenericEmbeddedWebappEndpoint extends BaseController {
 
 	/**
 	 * {@link DefaultWebAppControllerProperties}
 	 */
-	final protected GenericEmbeddedWebappsProperties config;
+	final protected GenericEmbeddedWebappProperties config;
 
 	/**
 	 * Web file buffer cache
@@ -73,11 +73,11 @@ public abstract class GenericEmbeddedWebappsEndpoint extends BaseController {
 	 */
 	final protected ResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
 
-	public GenericEmbeddedWebappsEndpoint(GenericEmbeddedWebappsProperties config) {
+	public GenericEmbeddedWebappEndpoint(GenericEmbeddedWebappProperties config) {
 		this(config, new DefaultWebappsGuavaCache());
 	}
 
-	public GenericEmbeddedWebappsEndpoint(GenericEmbeddedWebappsProperties config, WebResourceCache cache) {
+	public GenericEmbeddedWebappEndpoint(GenericEmbeddedWebappProperties config, WebResourceCache cache) {
 		notNullOf(config, "embeddedWebappControllerProperties");
 		this.config = config;
 		this.cache = cache;
