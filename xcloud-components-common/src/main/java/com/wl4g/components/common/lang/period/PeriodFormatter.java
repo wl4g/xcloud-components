@@ -26,6 +26,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import java.lang.reflect.Method;
 
 import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 
 import java.util.HashMap;
@@ -81,7 +82,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @return
 	 */
-	public final Locale getLocale() {
+	public Locale getLocale() {
 		return locale;
 	}
 
@@ -90,7 +91,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @param locale
 	 */
-	public final PeriodFormatter locale(Locale locale) {
+	public PeriodFormatter locale(Locale locale) {
 		this.locale = locale;
 		return this;
 	}
@@ -100,7 +101,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @return
 	 */
-	public final boolean isIngoreLowerDate() {
+	public boolean isIngoreLowerDate() {
 		return ignoreLowerDate;
 	}
 
@@ -109,7 +110,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @param l
 	 */
-	public final PeriodFormatter ignoreLowerDate(boolean ignoreLowerDate) {
+	public PeriodFormatter ignoreLowerDate(boolean ignoreLowerDate) {
 		this.ignoreLowerDate = ignoreLowerDate;
 		return this;
 	}
@@ -132,7 +133,9 @@ public abstract class PeriodFormatter {
 	 *            Target timestamp to format
 	 * @return
 	 */
-	public abstract String formatHumanDate(long targetTime);
+	public String formatHumanDate(long targetTime) {
+		return formatHumanDate(currentTimeMillis(), targetTime);
+	}
 
 	/**
 	 * Cleanup date empty string.
@@ -140,7 +143,7 @@ public abstract class PeriodFormatter {
 	 * @param dateString
 	 * @return
 	 */
-	protected final String cleanupDateEmptyString(String dateString) {
+	protected String cleanupDateEmptyString(String dateString) {
 		int safeThreshold = 10;
 		String cleared = dateString.toString().trim(), lastCleared = EMPTY;
 		for (int i = 0; i < safeThreshold && !lastCleared.equals(cleared); i++, lastCleared = cleared) {
@@ -158,7 +161,7 @@ public abstract class PeriodFormatter {
 	 * @see {@link com.wl4g.iam.common.i18n.SessionResourceMessageBundler#getSessionLocale()}
 	 * @see {@link com.wl4g.components.core.constants.IAMDevOpsConstants#KEY_LANG_NAME}
 	 */
-	protected final String getLocalizedMessage(String localizedKey) {
+	protected String getLocalizedMessage(String localizedKey) {
 		String loc = null;
 		try {
 			loc = (String) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
@@ -175,12 +178,12 @@ public abstract class PeriodFormatter {
 	/**
 	 * Gets resources bundle.
 	 * 
-	 * @param l
+	 * @param loc
 	 * @return
 	 */
-	private static final ResourceBundle getResourceBundle(Locale l) {
+	private static ResourceBundle getResourceBundle(Locale loc) {
 		try {
-			return ResourceBundle.getBundle(defaultI18nResourcesBaseName, l);
+			return ResourceBundle.getBundle(defaultI18nResourcesBaseName, loc);
 		} catch (MissingResourceException e) {
 			return ResourceBundle.getBundle(defaultI18nResourcesBaseName, US);
 		}
@@ -191,7 +194,7 @@ public abstract class PeriodFormatter {
 	 * 
 	 * @return
 	 */
-	private static final String getDefaultI18nResourcesBaseName0() {
+	private static String getDefaultI18nResourcesBaseName0() {
 		String className = PeriodFormatter.class.getName();
 		return className.substring(0, className.lastIndexOf(".")).replace(".", "/").concat("/messages");
 	}

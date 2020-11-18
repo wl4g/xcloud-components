@@ -23,7 +23,6 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 import com.wl4g.components.common.id.SnowflakeIdGenerator;
-import com.wl4g.components.common.lang.period.PeriodFormatter;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.bean.BaseBean;
 
@@ -67,11 +66,11 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 		MappedStatement statement = (MappedStatement) invoc.getArgs()[0];
 		SqlCommandType command = statement.getSqlCommandType();
 
-		// Sets update|insert bean attributes.
-		applyBeanWithUpdationIfNecessary(invoc, command);
+		// Sets update|insert properties
+		applyUpdationPropertiesIfNecessary(invoc, command);
 
-		// Sets query bean attributes.
-		applyBeanWithQueryIfNecessary(invoc, command);
+		// Sets query properties
+		applyQueryPropertiesIfNecessary(invoc, command);
 
 		return invoc.proceed();
 	}
@@ -96,13 +95,13 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	}
 
 	/**
-	 * Sets bean attributes with updation and insertion(if necessary).
+	 * Sets properties attributes with updation and insertion(if necessary).
 	 * 
 	 * @param invoc
 	 * @param command
 	 */
-	private void applyBeanWithUpdationIfNecessary(Invocation invoc, SqlCommandType command) {
-		// Sets insertion attributes value
+	private void applyUpdationPropertiesIfNecessary(Invocation invoc, SqlCommandType command) {
+		// Sets insert attributes
 		if (command == SqlCommandType.INSERT) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
 				Object arg = invoc.getArgs()[i];
@@ -114,23 +113,59 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 						bean.setId(SnowflakeIdGenerator.getDefault().nextId());
 						log.debug("Dynamic assigned primary key ID for: {}, method: {}", bean.getId(), invoc.getMethod());
 					}
-					if (isSettableInsertion(bean)) {
+					if (isInsertSettable(bean)) {
 						bean.preInsert();
 					}
 				}
 			}
 		}
-		// Sets updation attributes value
+		// Sets update attributes
 		else if (command == SqlCommandType.UPDATE) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
 				Object arg = invoc.getArgs()[i];
 				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
 					BaseBean bean = (BaseBean) arg;
-					if (isSettableUpdation(bean)) {
+					if (isUpdateSettable(bean)) {
 						bean.preUpdate();
 					}
 				}
 			}
+		}
+
+	}
+
+	/**
+	 * Sets properties with query(if necessary).
+	 * 
+	 * @param invoc
+	 * @param command
+	 */
+	private void applyQueryPropertiesIfNecessary(Invocation invoc, SqlCommandType command) {
+		/*
+		 * Note: In order to be compatible with the distributed microservice
+		 * architecture, it is not the best solution to convert the bean time
+		 * returned by Dao layer here. Because Dao layer may not be able to
+		 * obtain the I18N language of the current user, it is finally decided
+		 * to migrate to the web layer.
+		 */
+
+		// Sets query result attributes
+		if (command == SqlCommandType.SELECT) {
+			// for (int i = 1; i < invoc.getArgs().length; i++) {
+			// Object arg = invoc.getArgs()[i];
+			// if (BaseBean.class.isAssignableFrom(arg.getClass())) {
+			// BaseBean bean = (BaseBean) arg;
+			// if (!isNull(bean) && (isNull(bean.getHumanCreateDate()) ||
+			// isNull(bean.getHumanCreateDate()))) {
+			// bean.setHumanCreateDate(isNull(bean.getCreateDate()) ? null
+			// :
+			// periodFormatter.formatHumanDate(bean.getCreateDate().getTime()));
+			// bean.setHumanUpdateDate(isNull(bean.getUpdateDate()) ? null
+			// :
+			// periodFormatter.formatHumanDate(bean.getUpdateDate().getTime()));
+			// }
+			// }
+			// }
 		}
 
 	}
@@ -141,7 +176,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	 * @param bean
 	 * @return
 	 */
-	private boolean isSettableInsertion(BaseBean bean) {
+	private boolean isInsertSettable(BaseBean bean) {
 		return isNull(bean.getCreateDate()) || isNull(bean.getCreateBy());
 	}
 
@@ -151,38 +186,14 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	 * @param bean
 	 * @return
 	 */
-	private boolean isSettableUpdation(BaseBean bean) {
+	private boolean isUpdateSettable(BaseBean bean) {
 		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
 	}
 
-	/**
-	 * Sets bean attributes with query(if necessary).
-	 * 
-	 * @param invoc
-	 * @param command
-	 */
-	private void applyBeanWithQueryIfNecessary(Invocation invoc, SqlCommandType command) {
-		// Sets insertion attributes value
-		if (command == SqlCommandType.SELECT) {
-			for (int i = 1; i < invoc.getArgs().length; i++) {
-				Object arg = invoc.getArgs()[i];
-				if (BaseBean.class.isAssignableFrom(arg.getClass())) {
-					BaseBean bean = (BaseBean) arg;
-					if (!isNull(bean) && (isNull(bean.getHumanCreateDate()) || isNull(bean.getHumanCreateDate()))) {
-						bean.setHumanCreateDate(isNull(bean.getCreateDate()) ? null
-								: periodFormatter.formatHumanDate(bean.getCreateDate().getTime()));
-						bean.setHumanUpdateDate(isNull(bean.getUpdateDate()) ? null
-								: periodFormatter.formatHumanDate(bean.getUpdateDate().getTime()));
-					}
-				}
-			}
-		}
-
-	}
-
-	/*
-	 * Human date formatter instance.
-	 */
-	public static transient final PeriodFormatter periodFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
+	// /*
+	// * Human date formatter instance.
+	// */
+	// private static final PeriodFormatter periodFormatter =
+	// PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 }

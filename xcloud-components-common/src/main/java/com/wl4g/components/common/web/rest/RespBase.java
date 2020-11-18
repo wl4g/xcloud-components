@@ -256,7 +256,7 @@ public class RespBase<D> implements Serializable {
 			return;
 		if (checkDataAvailable()) // Data already payLoad ?
 			throw new IllegalStateException(format(
-					"RespBase.data already payLoad, In order to set it successful the data node must be the initial value or empty. - %s",
+					"Already data payload, In order to set it successful the data node must be the initial value or empty. - %s",
 					getData()));
 
 		this.data = data;
@@ -319,7 +319,7 @@ public class RespBase<D> implements Serializable {
 	public synchronized DataMap<Object> asMap() {
 		if (isNull(getData()))
 			return null;
-		if (data instanceof Map) // Type of Map ?
+		if (data instanceof Map) // typeof Map ?
 			return (DataMap<Object>) getData();
 
 		setData((D) convertBean(data, DataMap.class));
@@ -344,15 +344,14 @@ public class RespBase<D> implements Serializable {
 			 * ###[Note(scene): This logic is to solve the data analysis of, for
 			 * example:{@link org.springframework.web.client.RestTemplate}.response]
 			 */
-			if (data instanceof Map) { // e.g:LinkedHashMap
+			if (data instanceof Map) { // e.g: LinkedHashMap
 				if (!(data instanceof DataMap)) {
 					this.data = (D) new DataMap<>((Map) data);
 				}
 			} else {
-				String errmsg = format(
+				throw new UnsupportedOperationException(format(
 						"Illegal type compatible operation, because RespBase.data has initialized the available data, class type is: %s, and forMap() requires RespBase.data to be uninitialized or the initialized data type is must an instance of Map",
-						data.getClass());
-				throw new UnsupportedOperationException(errmsg);
+						data.getClass()));
 			}
 		}
 		return (DataMap<Object>) data;
@@ -402,7 +401,7 @@ public class RespBase<D> implements Serializable {
 				+ "]";
 	}
 
-	// --- Function tool's. ---
+	// --- Function's. ---
 
 	/**
 	 * Gets restful exceptions and corresponding response status code.

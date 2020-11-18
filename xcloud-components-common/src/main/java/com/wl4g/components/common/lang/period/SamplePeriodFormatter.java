@@ -15,7 +15,6 @@
  */
 package com.wl4g.components.common.lang.period;
 
-import static java.lang.System.currentTimeMillis;
 import static java.lang.Math.abs;
 
 /**
@@ -248,11 +247,6 @@ public class SamplePeriodFormatter extends PeriodFormatter {
 			periodString = "-".concat(periodString);
 		}
 		return periodString;
-	}
-
-	@Override
-	public String formatHumanDate(long targetTime) {
-		return formatHumanDate(currentTimeMillis(), targetTime);
 	}
 
 }

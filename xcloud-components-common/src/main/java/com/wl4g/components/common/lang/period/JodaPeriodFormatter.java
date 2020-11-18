@@ -20,7 +20,6 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatterBuilder;
 
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
-import static java.lang.System.currentTimeMillis;
 import static java.util.Locale.*;
 import static java.util.Objects.isNull;
 
@@ -42,11 +41,6 @@ public class JodaPeriodFormatter extends PeriodFormatter {
 		Period period = new Period(new DateTime(endTime), new DateTime(startTime));
 		String elapsed = getPeriodFormatter(CANADA).print(period);
 		return cleanupDateEmptyString(elapsed.concat(getLocalizedMessage("period.formatter.ago")));
-	}
-
-	@Override
-	public String formatHumanDate(long targetTime) {
-		return formatHumanDate(currentTimeMillis(), targetTime);
 	}
 
 	/**
