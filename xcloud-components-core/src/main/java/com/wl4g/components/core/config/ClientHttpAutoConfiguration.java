@@ -51,7 +51,8 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
 
 @Configuration
-@ConditionalOnClass({ RestTemplate.class, ClientHttpConnector.class, HttpClient.class })
+@ConditionalOnClass({
+		RestTemplate.class/* , ClientHttpConnector.class, HttpClient.class */ })
 public class ClientHttpAutoConfiguration {
 
 	@Bean
