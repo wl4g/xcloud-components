@@ -52,6 +52,7 @@
 		</developer>
 	</developers>
 	<modules>
+		<module>xcloud-components-bom</module>
 		<module>xcloud-components-common</module>
 		<module>xcloud-components-common-shade</module>
 		<module>xcloud-components-core</module>
@@ -170,7 +171,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-web</artifactId>
 				<version>${spring-boot.version}</version>
-
 				<exclusions>
 					<exclusion>
 						<groupId>org.hibernate</groupId>
