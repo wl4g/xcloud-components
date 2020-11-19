@@ -49,6 +49,7 @@ import static java.util.Objects.nonNull;
  * @auhtor Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2018年9月7日
  * @since
+ * @see https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/Interceptor.md
  */
 @ApiModel("Pagination query result")
 public class PageModel<E> implements Serializable {

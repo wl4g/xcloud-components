@@ -22,7 +22,8 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import com.wl4g.components.common.id.SnowflakeIdGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.bean.BaseBean;
 
@@ -56,6 +57,9 @@ import java.util.Properties;
 public class GenericBeanMapperInterceptor implements Interceptor {
 
 	protected final SmartLogger log = getLogger(getClass());
+
+	@Autowired
+	private IdGenerator idGenerator;
 
 	@Override
 	public Object intercept(Invocation invoc) throws Throwable {
@@ -109,8 +113,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 					BaseBean bean = (BaseBean) arg;
 					// Assign sets primary key ID.
 					if (!isNull(bean) && isNull(bean.getId())) {
-						// TODO using by remote global IdGenerator servers.
-						bean.setId(SnowflakeIdGenerator.getDefault().nextId());
+						bean.setId(idGenerator.nextId(bean));
 						log.debug("Dynamic assigned primary key ID for: {}, method: {}", bean.getId(), invoc.getMethod());
 					}
 					if (isInsertSettable(bean)) {

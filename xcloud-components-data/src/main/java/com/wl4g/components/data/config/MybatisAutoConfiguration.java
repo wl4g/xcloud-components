@@ -20,6 +20,7 @@ import java.util.Properties;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,7 @@ import com.wl4g.components.core.annotation.condition.ConditionalOnJdwpDebug;
 import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader;
 import com.wl4g.components.data.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoaderProperties;
 import com.wl4g.components.data.mybatis.mapper.GenericBeanMapperInterceptor;
+import com.wl4g.components.data.mybatis.mapper.IdGenerator;
 
 /**
  * {@link SqlSessionMapperHotspotLoader} auto configuration.
@@ -61,6 +63,16 @@ public class MybatisAutoConfiguration {
 	public SqlSessionMapperHotspotLoader sqlSessionMapperHotspotLoader(SqlSessionFactoryBean sessionFactory,
 			HotspotLoaderProperties config) {
 		return new SqlSessionMapperHotspotLoader(sessionFactory, config);
+	}
+
+	// --- Mapper ID generator. ---
+
+	// TODO using by remote global IdGenerator servers.
+	@Bean
+	@ConditionalOnMissingBean
+	public IdGenerator defaultIdGenerator() {
+		return new IdGenerator() {
+		};
 	}
 
 	// --- Mapper interceptor. ---
