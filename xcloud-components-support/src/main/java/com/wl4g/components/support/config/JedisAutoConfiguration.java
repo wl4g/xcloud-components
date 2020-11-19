@@ -111,7 +111,11 @@ public class JedisAutoConfiguration {
 		private boolean safeMode = true;
 
 		public JedisProperties() {
-			// Initialize by default
+			// Default settings.
+			/*
+			 * [Note:] importants, The default value is - 1, that is, there is
+			 * no time-out for acquiring resources, which will lead to deadlock.
+			 */
 			this.poolConfig.setMaxWaitMillis(10000);
 			this.poolConfig.setMinIdle(10);
 			this.poolConfig.setMaxIdle(100);
