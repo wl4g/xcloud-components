@@ -39,7 +39,7 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.WebUtils2;
 
 /**
- * Based abstract controller
+ * Basic abstract controller
  * 
  * @author wangl.sir
  * @version v1.0 2019年1月10日
@@ -47,7 +47,7 @@ import com.wl4g.components.common.web.WebUtils2;
  */
 public abstract class BaseController {
 
-	final protected SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
 	@Autowired
 	protected Validator validator;
@@ -145,6 +145,6 @@ public abstract class BaseController {
 	/**
 	 * SpringMVC controller redirection prefix.
 	 */
-	final public static String REDIRECT_PREFIX = "redirect:";
+	public static final String REDIRECT_PREFIX = "redirect:";
 
 }

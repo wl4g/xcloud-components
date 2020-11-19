@@ -67,7 +67,16 @@ public class MybatisAutoConfiguration {
 
 	// --- Mapper ID generator. ---
 
-	// TODO using by remote global IdGenerator servers.
+	/**
+	 * A better recommendation is to use a dedicated ID generation
+	 * services.</br>
+	 * <p>
+	 * for example: <a href='https://github.com/wl4g/xcloud-dguid'>Dguid -
+	 * https://github.com/wl4g/xcloud-dguid</a>
+	 * </p>
+	 * 
+	 * @return
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public IdGenerator defaultIdGenerator() {

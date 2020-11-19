@@ -13,39 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.model;
+package com.wl4g.components.rpc.springcloud.dubbo.eureka;
 
-import java.io.Serializable;
-
-import lombok.Getter;
-import lombok.Setter;
+import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.registry.Registry;
+import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
 
 /**
- * A general pull-down box data transmission model for Web
- * 
- * @author &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @author vjay
- * @version 2020年1月7日 v1.0.0
- * @see
+ * EurekaDubboRegistryFactory
  */
-@Getter
-@Setter
-public class SelectionModel implements Serializable {
-	private static final long serialVersionUID = -3412929918195969714L;
-
-	/**
-	 * Drop down box display value
-	 */
-	private String label;
-
-	/**
-	 * Drop down box background value.
-	 */
-	private String value;
+public class EurekaDubboRegistryFactory extends AbstractRegistryFactory {
 
 	@Override
-	public String toString() {
-		return label + ":" + value;
+	protected Registry createRegistry(URL url) {
+		return new EurekaDubboRegistry(url);
 	}
 
 }

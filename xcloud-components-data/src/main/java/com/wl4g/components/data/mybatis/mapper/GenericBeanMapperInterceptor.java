@@ -70,11 +70,11 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 		MappedStatement statement = (MappedStatement) invoc.getArgs()[0];
 		SqlCommandType command = statement.getSqlCommandType();
 
-		// Sets update|insert properties
-		applyUpdationPropertiesIfNecessary(invoc, command);
+		// Sets properties with update|insert.
+		applyUpdatePropertiesSet(invoc, command);
 
-		// Sets query properties
-		applyQueryPropertiesIfNecessary(invoc, command);
+		// Sets properties with query.
+		applyQueryPropertiesSet(invoc, command);
 
 		return invoc.proceed();
 	}
@@ -104,8 +104,8 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	 * @param invoc
 	 * @param command
 	 */
-	private void applyUpdationPropertiesIfNecessary(Invocation invoc, SqlCommandType command) {
-		// Sets insert attributes
+	private void applyUpdatePropertiesSet(Invocation invoc, SqlCommandType command) {
+		// Sets insert properties
 		if (command == SqlCommandType.INSERT) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
 				Object arg = invoc.getArgs()[i];
@@ -122,7 +122,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 				}
 			}
 		}
-		// Sets update attributes
+		// Sets update properties
 		else if (command == SqlCommandType.UPDATE) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
 				Object arg = invoc.getArgs()[i];
@@ -143,7 +143,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	 * @param invoc
 	 * @param command
 	 */
-	private void applyQueryPropertiesIfNecessary(Invocation invoc, SqlCommandType command) {
+	private void applyQueryPropertiesSet(Invocation invoc, SqlCommandType command) {
 		/*
 		 * Note: In order to be compatible with the distributed microservice
 		 * architecture, it is not the best solution to convert the bean time

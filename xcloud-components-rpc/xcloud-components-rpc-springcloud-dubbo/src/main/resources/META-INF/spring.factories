@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wl4g.components.rpc.springcloud.dubbo.core.SpringCloudDubboAutoConfiguration,\
+com.wl4g.components.rpc.springcloud.dubbo.eureka.EurekaDubboRegistryAutoConfiguration
