@@ -46,7 +46,7 @@ public class SmartSqlSessionFactoryBean extends SqlSessionFactoryBean {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Override
-	protected SqlSessionFactory buildSqlSessionFactory() throws IOException {
+	protected SqlSessionFactory buildSqlSessionFactory() throws Exception {
 		applyDefaultConfiguration();
 		return super.buildSqlSessionFactory();
 	}
