@@ -63,21 +63,23 @@ import static org.springframework.context.annotation.AnnotationConfigUtils.CONFI
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 import static org.springframework.util.ClassUtils.resolveClassName;
 
+/**
+ * {@link FeignClientToDubboProviderConfigurer}
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version v1.0 2020-11-20
+ * @sine v1.0
+ * @see
+ */
 public class FeignClientToDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
 
-	private static final String SEPARATOR = ":";
-
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Set<String> packagesToScan;
-
 	private Environment environment;
-
 	private ResourceLoader resourceLoader;
-
 	private ClassLoader classLoader;
-
 	private Service defaultService;
 
 	public FeignClientToDubboProviderConfigurer(String... packagesToScan) {
@@ -99,18 +101,34 @@ public class FeignClientToDubboProviderConfigurer
 	}
 
 	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
+
+	@Override
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
+	}
+
+	@Override
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+	}
+
+	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-
 		Set<String> resolvedPackagesToScan = resolvePackagesToScan(packagesToScan);
-
 		if (!CollectionUtils.isEmpty(resolvedPackagesToScan)) {
 			registerServiceBeans(resolvedPackagesToScan, registry);
 		} else {
-			if (logger.isWarnEnabled()) {
-				logger.warn("packagesToScan is empty , ServiceBean registry will be ignored!");
+			if (log.isWarnEnabled()) {
+				log.warn("packagesToScan is empty , ServiceBean registry will be ignored!");
 			}
 		}
-
 	}
 
 	/**
@@ -122,18 +140,13 @@ public class FeignClientToDubboProviderConfigurer
 	 *            {@link BeanDefinitionRegistry}
 	 */
 	private void registerServiceBeans(Set<String> packagesToScan, BeanDefinitionRegistry registry) {
-
 		DubboClassPathBeanDefinitionScanner scanner = new DubboClassPathBeanDefinitionScanner(registry, environment,
 				resourceLoader);
-
 		BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
-
 		scanner.setBeanNameGenerator(beanNameGenerator);
-
 		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class, true, true));
 
 		for (String packageToScan : packagesToScan) {
-
 			// Registers @Service Bean first
 			scanner.scan(packageToScan);
 
@@ -141,28 +154,20 @@ public class FeignClientToDubboProviderConfigurer
 			// @ComponentScan scans or not.
 			Set<BeanDefinitionHolder> beanDefinitionHolders = findServiceBeanDefinitionHolders(scanner, packageToScan, registry,
 					beanNameGenerator);
-
 			if (!CollectionUtils.isEmpty(beanDefinitionHolders)) {
-
 				for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 					registerServiceBean(beanDefinitionHolder, registry, scanner);
 				}
-
-				if (logger.isInfoEnabled()) {
-					logger.info(beanDefinitionHolders.size() + " annotated Dubbo's @Service Components { " + beanDefinitionHolders
+				if (log.isInfoEnabled()) {
+					log.info(beanDefinitionHolders.size() + " annotated Dubbo's @Service Components { " + beanDefinitionHolders
 							+ " } were scanned under package[" + packageToScan + "]");
 				}
-
 			} else {
-
-				if (logger.isWarnEnabled()) {
-					logger.warn("No Spring Bean annotating Dubbo's @Service was found under package[" + packageToScan + "]");
+				if (log.isWarnEnabled()) {
+					log.warn("No Spring Bean annotating Dubbo's @Service was found under package[" + packageToScan + "]");
 				}
-
 			}
-
 		}
-
 	}
 
 	/**
@@ -189,11 +194,11 @@ public class FeignClientToDubboProviderConfigurer
 
 		if (beanNameGenerator == null) {
 
-			if (logger.isInfoEnabled()) {
+			if (log.isInfoEnabled()) {
 
-				logger.info("BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR
+				log.info("BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR
 						+ "]");
-				logger.info("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
+				log.info("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
 						+ " , it maybe a potential problem on bean name generation.");
 			}
 
@@ -220,21 +225,15 @@ public class FeignClientToDubboProviderConfigurer
 	 */
 	private Set<BeanDefinitionHolder> findServiceBeanDefinitionHolders(ClassPathBeanDefinitionScanner scanner,
 			String packageToScan, BeanDefinitionRegistry registry, BeanNameGenerator beanNameGenerator) {
-
 		Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents(packageToScan);
 
-		Set<BeanDefinitionHolder> beanDefinitionHolders = new LinkedHashSet<BeanDefinitionHolder>(beanDefinitions.size());
-
+		Set<BeanDefinitionHolder> beanDefinitionHolders = new LinkedHashSet<>(beanDefinitions.size());
 		for (BeanDefinition beanDefinition : beanDefinitions) {
-
 			String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
 			BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(beanDefinition, beanName);
 			beanDefinitionHolders.add(beanDefinitionHolder);
-
 		}
-
 		return beanDefinitionHolders;
-
 	}
 
 	/**
@@ -249,44 +248,33 @@ public class FeignClientToDubboProviderConfigurer
 	 */
 	private void registerServiceBean(BeanDefinitionHolder beanDefinitionHolder, BeanDefinitionRegistry registry,
 			DubboClassPathBeanDefinitionScanner scanner) {
-
 		Class<?> beanClass = resolveClass(beanDefinitionHolder);
-
 		Service service = findAnnotation(beanClass, Service.class);
 		if (null == service) {
 			service = this.defaultService;
 		}
 
 		Class<?> interfaceClass = resolveServiceInterfaceClass(beanClass, service);
-
 		String annotatedServiceBeanName = beanDefinitionHolder.getBeanName();
-
 		AbstractBeanDefinition serviceBeanDefinition = buildServiceBeanDefinition(service, interfaceClass,
 				annotatedServiceBeanName);
 
 		// ServiceBean Bean name
 		String beanName = generateServiceBeanName(service, interfaceClass, annotatedServiceBeanName);
 
-		if (scanner.checkCandidate(beanName, serviceBeanDefinition)) { // check
-																		// duplicated
-																		// candidate
-																		// bean
+		// check duplicated candidate bean
+		if (scanner.checkCandidate(beanName, serviceBeanDefinition)) {
 			registry.registerBeanDefinition(beanName, serviceBeanDefinition);
-
-			if (logger.isInfoEnabled()) {
-				logger.warn("The BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean has been registered with name : "
+			if (log.isInfoEnabled()) {
+				log.warn("The BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean has been registered with name : "
 						+ beanName);
 			}
-
 		} else {
-
-			if (logger.isWarnEnabled()) {
-				logger.warn("The Duplicated BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean[ bean name : " + beanName
+			if (log.isWarnEnabled()) {
+				log.warn("The Duplicated BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean[ bean name : " + beanName
 						+ "] was be found , Did @DubboComponentScan scan to same package in many times?");
 			}
-
 		}
-
 	}
 
 	/**
@@ -301,80 +289,57 @@ public class FeignClientToDubboProviderConfigurer
 	 * @since 2.5.9
 	 */
 	private String generateServiceBeanName(Service service, Class<?> interfaceClass, String annotatedServiceBeanName) {
-
 		StringBuilder beanNameBuilder = new StringBuilder(ServiceBean.class.getSimpleName());
-
 		beanNameBuilder.append(SEPARATOR).append(annotatedServiceBeanName);
 
 		String interfaceClassName = interfaceClass.getName();
-
 		beanNameBuilder.append(SEPARATOR).append(interfaceClassName);
 
 		String version = service.version();
-
 		if (StringUtils.hasText(version)) {
 			beanNameBuilder.append(SEPARATOR).append(version);
 		}
 
 		String group = service.group();
-
 		if (StringUtils.hasText(group)) {
 			beanNameBuilder.append(SEPARATOR).append(group);
 		}
 
 		return beanNameBuilder.toString();
-
 	}
 
 	private Class<?> resolveServiceInterfaceClass(Class<?> annotatedServiceBeanClass, Service service) {
-
 		Class<?> interfaceClass = service.interfaceClass();
-
 		if (void.class.equals(interfaceClass)) {
-
 			interfaceClass = null;
-
 			String interfaceClassName = service.interfaceName();
-
 			if (StringUtils.hasText(interfaceClassName)) {
 				if (ClassUtils.isPresent(interfaceClassName, classLoader)) {
 					interfaceClass = resolveClassName(interfaceClassName, classLoader);
 				}
 			}
-
 		}
 
 		if (interfaceClass == null) {
-
 			Class<?>[] allInterfaces = annotatedServiceBeanClass.getInterfaces();
-
 			if (allInterfaces.length > 0) {
 				interfaceClass = allInterfaces[0];
 			}
-
 		}
 
 		Assert.notNull(interfaceClass, "@Service interfaceClass() or interfaceName() or interface class must be present!");
-
 		Assert.isTrue(interfaceClass.isInterface(), "The type that was annotated @Service is not an interface!");
-
 		return interfaceClass;
 	}
 
 	private Class<?> resolveClass(BeanDefinitionHolder beanDefinitionHolder) {
-
 		BeanDefinition beanDefinition = beanDefinitionHolder.getBeanDefinition();
-
 		return resolveClass(beanDefinition);
-
 	}
 
 	private Class<?> resolveClass(BeanDefinition beanDefinition) {
-
 		String beanClassName = beanDefinition.getBeanClassName();
-
 		return resolveClassName(beanClassName, classLoader);
-
 	}
 
 	private Set<String> resolvePackagesToScan(Set<String> packagesToScan) {
@@ -390,15 +355,11 @@ public class FeignClientToDubboProviderConfigurer
 
 	private AbstractBeanDefinition buildServiceBeanDefinition(Service service, Class<?> interfaceClass,
 			String annotatedServiceBeanName) {
-
 		BeanDefinitionBuilder builder = rootBeanDefinition(ServiceBean.class);
-
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
 
 		MutablePropertyValues propertyValues = beanDefinition.getPropertyValues();
-
 		String[] ignoreAttributeNames = of("provider", "monitor", "application", "module", "registry", "protocol", "interface");
-
 		propertyValues.addPropertyValues(new AnnotationPropertyValuesAdapter(service, environment, ignoreAttributeNames));
 
 		// References "ref" property to annotated-@Service Bean
@@ -442,9 +403,7 @@ public class FeignClientToDubboProviderConfigurer
 		 * Add {@link com.alibaba.dubbo.config.RegistryConfig} Bean reference
 		 */
 		String[] registryConfigBeanNames = service.registry();
-
 		List<RuntimeBeanReference> registryRuntimeBeanReferences = toRuntimeBeanReferences(registryConfigBeanNames);
-
 		if (!registryRuntimeBeanReferences.isEmpty()) {
 			builder.addPropertyValue("registries", registryRuntimeBeanReferences);
 		}
@@ -453,7 +412,6 @@ public class FeignClientToDubboProviderConfigurer
 		 * Add {@link com.alibaba.dubbo.config.ProtocolConfig} Bean reference
 		 */
 		String[] protocolConfigBeanNames = service.protocol();
-
 		List<RuntimeBeanReference> protocolRuntimeBeanReferences = toRuntimeBeanReferences(protocolConfigBeanNames);
 
 		if (!protocolRuntimeBeanReferences.isEmpty()) {
@@ -461,26 +419,17 @@ public class FeignClientToDubboProviderConfigurer
 		}
 
 		return builder.getBeanDefinition();
-
 	}
 
 	private ManagedList<RuntimeBeanReference> toRuntimeBeanReferences(String... beanNames) {
-
 		ManagedList<RuntimeBeanReference> runtimeBeanReferences = new ManagedList<RuntimeBeanReference>();
-
 		if (!ObjectUtils.isEmpty(beanNames)) {
-
 			for (String beanName : beanNames) {
-
 				String resolvedBeanName = environment.resolvePlaceholders(beanName);
-
 				runtimeBeanReferences.add(new RuntimeBeanReference(resolvedBeanName));
 			}
-
 		}
-
 		return runtimeBeanReferences;
-
 	}
 
 	private void addPropertyReference(BeanDefinitionBuilder builder, String propertyName, String beanName) {
@@ -488,24 +437,6 @@ public class FeignClientToDubboProviderConfigurer
 		builder.addPropertyReference(propertyName, resolvedBeanName);
 	}
 
-	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
-	}
-
-	@Override
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
-
-	@Override
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
-	}
-
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
+	private static final String SEPARATOR = ":";
 
 }

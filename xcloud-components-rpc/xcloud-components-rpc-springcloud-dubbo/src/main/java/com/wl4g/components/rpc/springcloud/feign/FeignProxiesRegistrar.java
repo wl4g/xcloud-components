@@ -16,7 +16,6 @@
 package com.wl4g.components.rpc.springcloud.feign;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -43,11 +42,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.util.*;
 
 /**
- * {@link FeignProxiesRegistrar}
+ * Patterned after Spring Integration IntegrationComponentScanRegistrar and
+ * RibbonClientsConfigurationRegistgrar
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @author Spencer Gibb
@@ -60,23 +62,25 @@ import java.util.*;
  */
 class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
 
-	private Logger logger = LoggerFactory.getLogger(FeignProxiesRegistrar.class);
-
-	// patterned after Spring Integration IntegrationComponentScanRegistrar
-	// and RibbonClientsConfigurationRegistgrar
+	private Logger log = getLogger(FeignProxiesRegistrar.class);
 
 	private ResourceLoader resourceLoader;
-
 	private Environment environment;
-
 	private BeanFactory beanFactory;
-
-	public FeignProxiesRegistrar() {
-	}
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory;
 	}
 
 	@Override
@@ -132,7 +136,7 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 					try {
 						interfaceClass = Class.forName(beanDefinition.getBeanClassName());
 					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
+						log.warn("Not found class : '{}'", beanDefinition.getBeanClassName());
 					}
 
 					// Proxy Feign Client
@@ -148,13 +152,9 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 							Object proxy = enhancer.create();
 							defaultListableBeanFactory.registerSingleton(
 									StringUtils.capitalize(interfaceClass.getSimpleName()) + "$FeignProxyController", proxy);
-							if (logger.isDebugEnabled()) {
-								logger.debug("Feign client {} proxy by {}", interfaceClass, proxy);
-							}
+							log.debug("Feign client {} proxy by {}", interfaceClass, proxy);
 						} else {
-							if (logger.isDebugEnabled()) {
-								logger.debug("Feign client {} no implementor founded", interfaceClass);
-							}
+							log.debug("Feign client {} no implementor founded", interfaceClass);
 						}
 					}
 				}
@@ -202,53 +202,6 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 		return basePackages;
 	}
 
-	@Override
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
-
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
-
-	// private String getQualifier(Map<String, Object> client) {
-	// if (client == null) {
-	// return null;
-	// }
-	// String qualifier = (String) client.get("qualifier");
-	// if (StringUtils.hasText(qualifier)) {
-	// return qualifier;
-	// }
-	// return null;
-	// }
-	//
-	// private String getClientName(Map<String, Object> client) {
-	// if (client == null) {
-	// return null;
-	// }
-	// String value = (String) client.get("value");
-	// if (!StringUtils.hasText(value)) {
-	// value = (String) client.get("name");
-	// }
-	// if (!StringUtils.hasText(value)) {
-	// value = (String) client.get("serviceId");
-	// }
-	// if (StringUtils.hasText(value)) {
-	// return value;
-	// }
-	//
-	// throw new IllegalStateException("Either 'name' or 'value' must be
-	// provided in @" + FeignClient.class.getSimpleName());
-	// }
-	//
-	// private String resolve(String value) {
-	// if (StringUtils.hasText(value)) {
-	// return this.environment.resolvePlaceholders(value);
-	// }
-	// return value;
-	// }
-
 	/**
 	 * Helper class to create a {@link TypeFilter} that matches if all the
 	 * delegates match.
@@ -273,15 +226,14 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 
 		@Override
 		public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
-
 			for (TypeFilter filter : this.delegates) {
 				if (!filter.match(metadataReader, metadataReaderFactory)) {
 					return false;
 				}
 			}
-
 			return true;
 		}
+
 	}
 
 }
