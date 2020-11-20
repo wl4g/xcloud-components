@@ -63,7 +63,7 @@ import static org.springframework.context.annotation.AnnotationConfigUtils.CONFI
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 import static org.springframework.util.ClassUtils.resolveClassName;
 
-public class FeignClientToDubboProviderBeanPostProcessor
+public class FeignClientToDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
 
 	private static final String SEPARATOR = ":";
@@ -80,15 +80,15 @@ public class FeignClientToDubboProviderBeanPostProcessor
 
 	private Service defaultService;
 
-	public FeignClientToDubboProviderBeanPostProcessor(String... packagesToScan) {
+	public FeignClientToDubboProviderConfigurer(String... packagesToScan) {
 		this(Arrays.asList(packagesToScan));
 	}
 
-	public FeignClientToDubboProviderBeanPostProcessor(Collection<String> packagesToScan) {
+	public FeignClientToDubboProviderConfigurer(Collection<String> packagesToScan) {
 		this(new LinkedHashSet<String>(packagesToScan));
 	}
 
-	public FeignClientToDubboProviderBeanPostProcessor(Set<String> packagesToScan) {
+	public FeignClientToDubboProviderConfigurer(Set<String> packagesToScan) {
 		this.packagesToScan = packagesToScan;
 		// 产生@Service 默认配置实例
 		@Service
