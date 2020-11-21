@@ -44,7 +44,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ FeignClientsProxiesRegistrar.class, FeignClientsProxiesAutoConfiguration.class })
+@Import({ FeignClientsProxiesRegistrar.class, FeignProxyMvcConfiguration.class })
 public @interface EnableFeignClientsProxies {
 
 	/**
