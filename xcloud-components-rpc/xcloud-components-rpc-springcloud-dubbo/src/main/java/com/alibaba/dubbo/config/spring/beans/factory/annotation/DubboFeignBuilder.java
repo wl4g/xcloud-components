@@ -22,35 +22,54 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.ReflectionUtils;
 
+/**
+ * {@link DubboFeignBuilder}
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version v1.0 2020-11-21
+ * @sine v1.0
+ * @see
+ */
 public class DubboFeignBuilder extends Feign.Builder {
 
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	/**
+	 * Default dubbo {@link Reference} instance.
+	 */
 	public final Reference defaultReference;
 
 	public DubboFeignBuilder() {
-		// 产生@Reference 默认配置实例
-		this.defaultReference = ReflectionUtils.findField(DubboFeignBuilder.DefaultReferenceClass.class, "field")
-				.getAnnotation(Reference.class);
+		// Generate @Reference default instance.
+		this.defaultReference = ReflectionUtils.findField(DefaultReferenceClass.class, "field").getAnnotation(Reference.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T target(Target<T> target) {
-		ReferenceBeanBuilder beanBuilder = ReferenceBeanBuilder
-				.create(defaultReference, target.getClass().getClassLoader(), applicationContext).interfaceClass(target.type());
-
 		try {
-			T object = (T) beanBuilder.build().getObject();
-			return object;
+			ReferenceBeanBuilder builder = ReferenceBeanBuilder
+					.create(defaultReference, target.getClass().getClassLoader(), applicationContext)
+					.interfaceClass(target.type());
+			return (T) builder.build().getObject();
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new IllegalStateException(e);
 		}
 	}
 
+	/**
+	 * {@link DefaultReferenceClass}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @version v1.0 2020-11-20
+	 * @sine v1.0
+	 * @see
+	 */
 	final class DefaultReferenceClass {
-		// dubbo早于eureka启动 check设为false 调用时检查
+		/**
+		 * Dubbo starts checking earlier than Eureka when check is set to false
+		 */
 		@Reference(check = false)
 		String field;
 	}
