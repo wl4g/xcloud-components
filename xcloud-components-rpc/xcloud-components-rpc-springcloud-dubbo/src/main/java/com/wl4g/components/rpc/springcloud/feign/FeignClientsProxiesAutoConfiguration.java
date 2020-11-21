@@ -16,13 +16,13 @@
 package com.wl4g.components.rpc.springcloud.feign;
 
 /**
- * {@link FeignProxiesAutoConfiguration}
+ * {@link FeignClientsProxiesAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2019-11-20
  * @sine v1.0
  * @see Thannks refer: https://gitee.com/leecho/spring-cloud-feign-proxy
  */
-public class FeignProxiesAutoConfiguration {
+public class FeignClientsProxiesAutoConfiguration {
 
 }

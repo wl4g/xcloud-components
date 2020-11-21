@@ -25,20 +25,27 @@ import java.lang.annotation.*;
  * {@link FeignClient <code>@FeignClient</code>}). Configures component scanning
  * directives for use with
  * {@link org.springframework.context.annotation.Configuration
- * <code>@Configuration</code>} classes.
+ * <code>@Configuration</code>} classes.</br>
+ * 
+ * <p style='color:red'>
+ * Note: This annotation is used instead of:
+ * {@link org.springframework.cloud.openfeign.EnableFeignClients}, Just use
+ * {@link EnableFeignClientsProxies} (because they are equal exclusion)
+ * </p>
  *
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @author Spencer Gibb
  * @author Dave Syer
  * @version v1.0 2019-11-20
  * @sine v1.0
- * @see
+ * @see Implementation of refer:
+ *      {@link org.springframework.cloud.openfeign.EnableFeignClients}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ FeignProxiesRegistrar.class, FeignProxiesAutoConfiguration.class })
-public @interface EnableFeignProxies {
+@Import({ FeignClientsProxiesRegistrar.class, FeignClientsProxiesAutoConfiguration.class })
+public @interface EnableFeignClientsProxies {
 
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise
@@ -76,8 +83,8 @@ public @interface EnableFeignProxies {
 	Class<?>[] basePackageClasses() default {};
 
 	/**
-	 * List of classes annotated with @FeignClient. If not empty, disables
-	 * classpath scanning.
+	 * List of classes annotated with {@code @FeignClient}. If not empty,
+	 * disables classpath scanning.
 	 *
 	 * @return
 	 */

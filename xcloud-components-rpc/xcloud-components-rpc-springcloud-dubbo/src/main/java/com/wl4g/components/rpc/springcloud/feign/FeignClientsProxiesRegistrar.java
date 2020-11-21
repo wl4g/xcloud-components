@@ -40,16 +40,17 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
+import static org.springframework.util.StringUtils.*;
 
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Arrays.asList;
 
 import java.io.IOException;
 import java.util.*;
 
 /**
  * Patterned after Spring Integration IntegrationComponentScanRegistrar and
- * RibbonClientsConfigurationRegistgrar
+ * RibbonClientsConfigurationRegistgrar.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @author Spencer Gibb
@@ -58,12 +59,12 @@ import java.util.*;
  * @author Gang Li
  * @version v1.0 2019-11-20
  * @sine v1.0
- * @see
+ * @see Implementation of refer:
+ *      {@link org.springframework.cloud.openfeign.FeignClientsRegistrar}
  */
-class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
+class FeignClientsProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
 
-	private Logger log = getLogger(FeignProxiesRegistrar.class);
-
+	protected final Logger log = getLogger(getClass());
 	private ResourceLoader resourceLoader;
 	private Environment environment;
 	private BeanFactory beanFactory;
@@ -93,7 +94,7 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 		scanner.setResourceLoader(this.resourceLoader);
 
 		Set<String> basePackages;
-		Map<String, Object> attrs = metadata.getAnnotationAttributes(EnableFeignProxies.class.getName());
+		Map<String, Object> attrs = metadata.getAnnotationAttributes(EnableFeignClientsProxies.class.getName());
 
 		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(FeignClient.class);
 		final Class<?>[] clients = attrs == null ? null : (Class<?>[]) attrs.get("clients");
@@ -118,7 +119,7 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 					return clientClasses.contains(cleaned);
 				}
 			};
-			scanner.addIncludeFilter(new FeignProxiesRegistrar.AllTypeFilter(Arrays.asList(filter, annotationTypeFilter)));
+			scanner.addIncludeFilter(new AllTypeFilter(asList(filter, annotationTypeFilter)));
 		}
 
 		DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
@@ -151,7 +152,7 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 							enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
 							Object proxy = enhancer.create();
 							defaultListableBeanFactory.registerSingleton(
-									StringUtils.capitalize(interfaceClass.getSimpleName()) + "$FeignProxyController", proxy);
+									capitalize(interfaceClass.getSimpleName()) + BEAN_FEIGNPROXY_SUFFIX, proxy);
 							log.debug("Feign client {} proxy by {}", interfaceClass, proxy);
 						} else {
 							log.debug("Feign client {} no implementor founded", interfaceClass);
@@ -179,16 +180,16 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 
 	protected Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) {
 		Map<String, Object> attributes = importingClassMetadata
-				.getAnnotationAttributes(EnableFeignProxies.class.getCanonicalName());
+				.getAnnotationAttributes(EnableFeignClientsProxies.class.getCanonicalName());
 
 		Set<String> basePackages = new HashSet<>();
 		for (String pkg : (String[]) attributes.get("value")) {
-			if (StringUtils.hasText(pkg)) {
+			if (hasText(pkg)) {
 				basePackages.add(pkg);
 			}
 		}
 		for (String pkg : (String[]) attributes.get("basePackages")) {
-			if (StringUtils.hasText(pkg)) {
+			if (hasText(pkg)) {
 				basePackages.add(pkg);
 			}
 		}
@@ -235,5 +236,7 @@ class FeignProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 		}
 
 	}
+
+	public static final String BEAN_FEIGNPROXY_SUFFIX = "$".concat(FeignProxyController.class.getSimpleName());
 
 }

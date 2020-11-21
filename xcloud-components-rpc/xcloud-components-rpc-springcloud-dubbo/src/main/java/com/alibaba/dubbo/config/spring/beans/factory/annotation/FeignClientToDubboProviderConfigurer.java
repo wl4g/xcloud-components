@@ -51,13 +51,13 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.alibaba.dubbo.config.spring.util.ObjectUtils.of;
+import static java.util.Arrays.asList;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
@@ -83,7 +83,7 @@ public class FeignClientToDubboProviderConfigurer
 	private Service defaultService;
 
 	public FeignClientToDubboProviderConfigurer(String... packagesToScan) {
-		this(Arrays.asList(packagesToScan));
+		this(asList(packagesToScan));
 	}
 
 	public FeignClientToDubboProviderConfigurer(Collection<String> packagesToScan) {
@@ -92,11 +92,10 @@ public class FeignClientToDubboProviderConfigurer
 
 	public FeignClientToDubboProviderConfigurer(Set<String> packagesToScan) {
 		this.packagesToScan = packagesToScan;
-		// 产生@Service 默认配置实例
+		// Generate {@code @Service} default configuration instance.
 		@Service
 		final class DefaultServiceClass {
 		}
-		;
 		this.defaultService = DefaultServiceClass.class.getAnnotation(Service.class);
 	}
 
@@ -125,9 +124,7 @@ public class FeignClientToDubboProviderConfigurer
 		if (!CollectionUtils.isEmpty(resolvedPackagesToScan)) {
 			registerServiceBeans(resolvedPackagesToScan, registry);
 		} else {
-			if (log.isWarnEnabled()) {
-				log.warn("packagesToScan is empty , ServiceBean registry will be ignored!");
-			}
+			log.warn("packagesToScan is empty , ServiceBean registry will be ignored!");
 		}
 	}
 
@@ -158,14 +155,10 @@ public class FeignClientToDubboProviderConfigurer
 				for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 					registerServiceBean(beanDefinitionHolder, registry, scanner);
 				}
-				if (log.isInfoEnabled()) {
-					log.info(beanDefinitionHolders.size() + " annotated Dubbo's @Service Components { " + beanDefinitionHolders
-							+ " } were scanned under package[" + packageToScan + "]");
-				}
+				log.info(beanDefinitionHolders.size() + " annotated Dubbo's @Service Components { " + beanDefinitionHolders
+						+ " } were scanned under package[" + packageToScan + "]");
 			} else {
-				if (log.isWarnEnabled()) {
-					log.warn("No Spring Bean annotating Dubbo's @Service was found under package[" + packageToScan + "]");
-				}
+				log.warn("No Spring Bean annotating Dubbo's @Service was found under package[" + packageToScan + "]");
 			}
 		}
 	}
@@ -184,30 +177,20 @@ public class FeignClientToDubboProviderConfigurer
 	 * @since 2.5.8
 	 */
 	private BeanNameGenerator resolveBeanNameGenerator(BeanDefinitionRegistry registry) {
-
 		BeanNameGenerator beanNameGenerator = null;
-
 		if (registry instanceof SingletonBeanRegistry) {
 			SingletonBeanRegistry singletonBeanRegistry = SingletonBeanRegistry.class.cast(registry);
 			beanNameGenerator = (BeanNameGenerator) singletonBeanRegistry.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
 		}
 
 		if (beanNameGenerator == null) {
-
-			if (log.isInfoEnabled()) {
-
-				log.info("BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR
-						+ "]");
-				log.info("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
-						+ " , it maybe a potential problem on bean name generation.");
-			}
-
+			log.info(
+					"BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR + "]");
+			log.info("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
+					+ " , it maybe a potential problem on bean name generation.");
 			beanNameGenerator = new AnnotationBeanNameGenerator();
-
 		}
-
 		return beanNameGenerator;
-
 	}
 
 	/**
@@ -265,15 +248,11 @@ public class FeignClientToDubboProviderConfigurer
 		// check duplicated candidate bean
 		if (scanner.checkCandidate(beanName, serviceBeanDefinition)) {
 			registry.registerBeanDefinition(beanName, serviceBeanDefinition);
-			if (log.isInfoEnabled()) {
-				log.warn("The BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean has been registered with name : "
-						+ beanName);
-			}
+			log.warn("The BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean has been registered with name : "
+					+ beanName);
 		} else {
-			if (log.isWarnEnabled()) {
-				log.warn("The Duplicated BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean[ bean name : " + beanName
-						+ "] was be found , Did @DubboComponentScan scan to same package in many times?");
-			}
+			log.warn("The Duplicated BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean[ bean name : " + beanName
+					+ "] was be found , Did @DubboComponentScan scan to same package in many times?");
 		}
 	}
 
