@@ -59,10 +59,11 @@ import java.util.*;
  * @author Gang Li
  * @version v1.0 2019-11-20
  * @sine v1.0
- * @see Implementation of refer:
+ * @see Implementation simulated of refer:
  *      {@link org.springframework.cloud.openfeign.FeignClientsRegistrar}
  */
-class FeignClientsProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
+class FeignProviderProxiesRegistrar
+		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
 
 	protected final Logger log = getLogger(getClass());
 	private ResourceLoader resourceLoader;
@@ -94,7 +95,7 @@ class FeignClientsProxiesRegistrar implements ImportBeanDefinitionRegistrar, Res
 		scanner.setResourceLoader(this.resourceLoader);
 
 		Set<String> basePackages;
-		Map<String, Object> attrs = metadata.getAnnotationAttributes(EnableFeignClientsProxies.class.getName());
+		Map<String, Object> attrs = metadata.getAnnotationAttributes(EnableFeignProviderProxies.class.getName());
 
 		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(FeignClient.class);
 		final Class<?>[] clients = attrs == null ? null : (Class<?>[]) attrs.get("clients");
@@ -180,7 +181,7 @@ class FeignClientsProxiesRegistrar implements ImportBeanDefinitionRegistrar, Res
 
 	protected Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) {
 		Map<String, Object> attributes = importingClassMetadata
-				.getAnnotationAttributes(EnableFeignClientsProxies.class.getCanonicalName());
+				.getAnnotationAttributes(EnableFeignProviderProxies.class.getCanonicalName());
 
 		Set<String> basePackages = new HashSet<>();
 		for (String pkg : (String[]) attributes.get("value")) {

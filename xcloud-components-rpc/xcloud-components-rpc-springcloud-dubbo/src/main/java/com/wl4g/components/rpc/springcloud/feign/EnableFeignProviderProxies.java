@@ -27,25 +27,19 @@ import java.lang.annotation.*;
  * {@link org.springframework.context.annotation.Configuration
  * <code>@Configuration</code>} classes.</br>
  * 
- * <p style='color:red'>
- * Note: This annotation is used instead of:
- * {@link org.springframework.cloud.openfeign.EnableFeignClients}, Just use
- * {@link EnableFeignClientsProxies} (because they are equal exclusion)
- * </p>
- *
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @author Spencer Gibb
  * @author Dave Syer
  * @version v1.0 2019-11-20
  * @sine v1.0
- * @see Implementation of refer:
+ * @see Implementation simulated of refer:
  *      {@link org.springframework.cloud.openfeign.EnableFeignClients}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ FeignClientsProxiesRegistrar.class, FeignProxyMvcConfiguration.class })
-public @interface EnableFeignClientsProxies {
+@Import({ FeignProviderProxiesRegistrar.class, FeignProxyMvcConfiguration.class })
+public @interface EnableFeignProviderProxies {
 
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise
