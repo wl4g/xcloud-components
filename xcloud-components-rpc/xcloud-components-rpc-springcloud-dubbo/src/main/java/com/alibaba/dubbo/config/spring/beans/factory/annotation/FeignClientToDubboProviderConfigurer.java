@@ -70,6 +70,8 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * @version v1.0 2020-11-20
  * @sine v1.0
  * @see {@link com.alibaba.dubbo.config.spring.beans.factory.annotation.ServiceAnnotationBeanPostProcessor}
+ * @see {@link com.alibaba.dubbo.config.spring.ServiceBean}
+ * @see {@link com.alibaba.dubbo.config.spring.ReferenceBean}
  */
 public class FeignClientToDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
@@ -146,7 +148,7 @@ public class FeignClientToDubboProviderConfigurer
 		for (String s : registry.getBeanDefinitionNames()) {
 			System.out.println(s);
 		}
-		
+
 		for (String packageToScan : packagesToScan) {
 			// Registers @Service Bean first
 			scanner.scan(packageToScan);
