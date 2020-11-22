@@ -69,7 +69,7 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-20
  * @sine v1.0
- * @see
+ * @see {@link com.alibaba.dubbo.config.spring.beans.factory.annotation.ServiceAnnotationBeanPostProcessor}
  */
 public class FeignClientToDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
@@ -143,6 +143,10 @@ public class FeignClientToDubboProviderConfigurer
 		scanner.setBeanNameGenerator(beanNameGenerator);
 		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class, true, true));
 
+		for (String s : registry.getBeanDefinitionNames()) {
+			System.out.println(s);
+		}
+		
 		for (String packageToScan : packagesToScan) {
 			// Registers @Service Bean first
 			scanner.scan(packageToScan);

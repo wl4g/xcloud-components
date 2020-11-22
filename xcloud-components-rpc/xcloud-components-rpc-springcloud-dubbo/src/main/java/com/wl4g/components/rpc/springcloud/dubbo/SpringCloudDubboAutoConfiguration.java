@@ -15,10 +15,13 @@
  */
 package com.wl4g.components.rpc.springcloud.dubbo;
 
+import com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration;
 import com.alibaba.dubbo.config.AbstractConfig;
 import com.alibaba.dubbo.config.spring.beans.factory.annotation.DubboFeignBuilder;
 import com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientToDubboProviderConfigurer;
 import feign.Feign;
+
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
@@ -32,12 +35,21 @@ import static com.alibaba.boot.dubbo.util.DubboUtils.BASE_PACKAGES_PROPERTY_NAME
 import static com.alibaba.boot.dubbo.util.DubboUtils.DUBBO_PREFIX;
 import static java.util.Collections.emptySet;
 
-@SuppressWarnings("unchecked")
+/**
+ * {@link SpringCloudDubboAutoConfiguration}
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version v1.0 2020-11-20
+ * @sine v1.0
+ * @see {@link com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration}
+ */
 @Configuration
 @ConditionalOnProperty(prefix = DUBBO_PREFIX, name = "enabled", matchIfMissing = true, havingValue = "true")
 @ConditionalOnClass(AbstractConfig.class)
+@AutoConfigureAfter(DubboAutoConfiguration.class)
 public class SpringCloudDubboAutoConfiguration {
 
+	@SuppressWarnings("unchecked")
 	@ConditionalOnProperty(name = BASE_PACKAGES_PROPERTY_NAME)
 	@ConditionalOnClass(ConfigurationPropertySources.class)
 	@Bean
