@@ -144,7 +144,7 @@ public class FeignProviderProxiesConfigurer
 						enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
 						Object proxy = enhancer.create();
 						beanFactory.registerSingleton(generateFeignProxyBeanName(interfaceClass.getName()), proxy);
-						log.debug("Feign client {} proxy by {}", interfaceClass, proxy);
+						log.info("Registered feign client '{}' rest proxy for '{}'", proxy, interfaceClass);
 					}
 				}
 			}
