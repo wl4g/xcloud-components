@@ -24,10 +24,12 @@ import static org.springframework.aop.support.AopUtils.getTargetClass;
 import com.alibaba.dubbo.config.spring.ServiceBean;
 
 import com.wl4g.components.common.lang.ClassUtils2;
+import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.utils.AopUtils2;
 
 import static com.wl4g.components.common.collection.Collections2.safeMap;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -46,6 +48,8 @@ import static java.util.stream.Collectors.toList;
  * @see
  */
 public class FeignProxyInvocationHandler implements InvocationHandler {
+
+	protected final SmartLogger log = getLogger(getClass());
 
 	private final DefaultListableBeanFactory beanFactory;
 	private final Class<?> targetInterfaceClass;
@@ -130,9 +134,15 @@ public class FeignProxyInvocationHandler implements InvocationHandler {
 						|| (nonNull(mapperProxyClass) && mapperProxyClass.isInstance(AopUtils2.getTarget(obj)))))
 				.collect(toList());
 		if (candidates.size() == 1) {
-			return candidates.get(0);
+			Object best = candidates.get(0);
+			log.info("Using best candidate bean: {} of targetInterfaceClass: {}, candidates: {}", best, targetInterfaceClass,
+					candidateBeans);
+			return best;
+		} else {
+			log.warn("Not found matchs best candidate bean of targetInterfaceClass: {}, candidates: {}", targetInterfaceClass,
+					candidateBeans);
+			return null;
 		}
-		return null;
 	}
 
 	/**
