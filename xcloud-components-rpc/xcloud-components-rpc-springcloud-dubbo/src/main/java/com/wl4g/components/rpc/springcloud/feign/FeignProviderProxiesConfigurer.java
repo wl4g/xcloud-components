@@ -15,18 +15,12 @@
  */
 package com.wl4g.components.rpc.springcloud.feign;
 
-import java.util.List;
 import java.util.Set;
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toList;
-
-import com.alibaba.dubbo.config.spring.ServiceBean;
 
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -44,10 +38,8 @@ import org.springframework.core.type.filter.TypeFilter;
 import static org.springframework.util.Assert.notNull;
 
 import com.wl4g.components.common.lang.Assert2;
-import static com.wl4g.components.common.collection.Collections2.safeMap;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
-import static com.wl4g.components.core.utils.AopUtils2.isCglibProxy;
 
 /**
  * The scanning injection is realized with reference to
@@ -144,36 +136,15 @@ public class FeignProviderProxiesConfigurer
 
 					// Proxy Feign Client
 					if (interfaceClass != null) {
-						// Obtain orig bean instance.
-						Object bean = null;
-						try {
-							bean = beanFactory.getBean(interfaceClass);
-						} catch (NoUniqueBeanDefinitionException e) {
-							// Fallback, find the original object from multiple
-							// beans.
-							List<Object> candidateBeans = safeMap(beanFactory.getBeansOfType(interfaceClass)).values().stream()
-									.filter(obj -> !isNull(obj) && !(obj instanceof ServiceBean) && !isCglibProxy(obj))
-									.collect(toList());
-							if (candidateBeans.size() == 1) {
-								bean = candidateBeans.get(0);
-							} else {
-								throw e;
-							}
+						Enhancer enhancer = new Enhancer();
+						if (superClass != null) {
+							enhancer.setSuperclass(superClass);
 						}
-
-						if (bean != null) {
-							Enhancer enhancer = new Enhancer();
-							if (superClass != null) {
-								enhancer.setSuperclass(superClass);
-							}
-							enhancer.setCallback(new FeignProxyInvocationHandler(bean));
-							enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
-							Object proxy = enhancer.create();
-							beanFactory.registerSingleton(generateFeignProxyBeanName(interfaceClass.getName()), proxy);
-							log.debug("Feign client {} proxy by {}", interfaceClass, proxy);
-						} else {
-							log.debug("Feign client {} no implementor founded", interfaceClass);
-						}
+						enhancer.setCallback(new FeignProxyInvocationHandler(beanFactory, interfaceClass));
+						enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
+						Object proxy = enhancer.create();
+						beanFactory.registerSingleton(generateFeignProxyBeanName(interfaceClass.getName()), proxy);
+						log.debug("Feign client {} proxy by {}", interfaceClass, proxy);
 					}
 				}
 			}

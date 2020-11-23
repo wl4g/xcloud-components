@@ -26,9 +26,11 @@ import java.lang.annotation.Target;
  * be used in a multi-threaded context.
  *
  * @see {@link ThreadSafe}
+ * @see {@link javax.annotation.concurrent.NotThreadSafe}
  */
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
+@Deprecated
 public @interface NotThreadSafe {
 }

@@ -87,6 +87,7 @@
 		<javax-inject.version>1</javax-inject.version>
 		<javax-mail.version>1.4.7</javax-mail.version>
 		<javax-servlet-api.version>4.0.1</javax-servlet-api.version>
+		<jsr305.version>3.0.1</jsr305.version>
 		<hibernate-validator.version>6.0.16.Final</hibernate-validator.version>
 		<validation-api.version>2.0.1.Final</validation-api.version>
 		<!-- JDBC's -->
@@ -205,6 +206,11 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>${javax-servlet-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>${jsr305.version}</version>
 			</dependency>
 			<!-- Validation, Note: that the use of '$NO-MVN-MAN-VER$' is valid for the current dependency. When this project is referenced externally, 
 				the indirect dependency will fail, possibly leading to dependency incompatible versions. -->
