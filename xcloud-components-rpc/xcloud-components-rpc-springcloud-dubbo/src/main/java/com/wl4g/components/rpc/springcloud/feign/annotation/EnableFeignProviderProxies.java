@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.rpc.springcloud.feign;
+package com.wl4g.components.rpc.springcloud.feign.annotation;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Import;
+
+import com.wl4g.components.rpc.springcloud.feign.FeignProxyMvcConfiguration;
 
 import java.lang.annotation.*;
 

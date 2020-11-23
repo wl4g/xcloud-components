@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.rpc.springcloud.feign;
+package com.wl4g.components.rpc.springcloud.feign.annotation;
 
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
@@ -40,6 +40,9 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import com.wl4g.components.rpc.springcloud.feign.FeignProxyController;
+import com.wl4g.components.rpc.springcloud.feign.FeignProxyInvocationHandler;
 
 import static org.springframework.util.StringUtils.*;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
