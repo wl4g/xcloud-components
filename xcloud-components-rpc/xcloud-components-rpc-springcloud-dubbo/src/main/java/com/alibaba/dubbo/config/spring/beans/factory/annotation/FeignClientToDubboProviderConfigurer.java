@@ -145,15 +145,11 @@ public class FeignClientToDubboProviderConfigurer
 		scanner.setBeanNameGenerator(beanNameGenerator);
 		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class, true, true));
 
-		for (String s : registry.getBeanDefinitionNames()) {
-			System.out.println(s);
-		}
-
 		for (String packageToScan : packagesToScan) {
-			// Registers @Service Bean first
+			// Registers @FeignClient Bean first
 			scanner.scan(packageToScan);
 
-			// Finds all BeanDefinitionHolders of @Service whether
+			// Finds all BeanDefinitionHolders of @FeignClient whether
 			// @ComponentScan scans or not.
 			Set<BeanDefinitionHolder> beanDefinitionHolders = findServiceBeanDefinitionHolders(scanner, packageToScan, registry,
 					beanNameGenerator);
@@ -161,10 +157,10 @@ public class FeignClientToDubboProviderConfigurer
 				for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 					registerServiceBean(beanDefinitionHolder, registry, scanner);
 				}
-				log.info(beanDefinitionHolders.size() + " annotated Dubbo's @Service Components { " + beanDefinitionHolders
+				log.info(beanDefinitionHolders.size() + " annotated @FeignClient Components { " + beanDefinitionHolders
 						+ " } were scanned under package[" + packageToScan + "]");
 			} else {
-				log.warn("No Spring Bean annotating Dubbo's @Service was found under package[" + packageToScan + "]");
+				log.warn("No Spring Bean annotating @FeignClient was found under package[" + packageToScan + "]");
 			}
 		}
 	}
@@ -190,9 +186,9 @@ public class FeignClientToDubboProviderConfigurer
 		}
 
 		if (beanNameGenerator == null) {
-			log.info(
+			log.warn(
 					"BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR + "]");
-			log.info("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
+			log.warn("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
 					+ " , it maybe a potential problem on bean name generation.");
 			beanNameGenerator = new AnnotationBeanNameGenerator();
 		}
@@ -226,7 +222,7 @@ public class FeignClientToDubboProviderConfigurer
 	}
 
 	/**
-	 * Registers {@link ServiceBean} from new annotated {@link Service}
+	 * Registers {@link ServiceBean} from new annotated {@link FeignClient}
 	 * {@link BeanDefinition}
 	 *
 	 * @param beanDefinitionHolder
