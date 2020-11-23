@@ -23,7 +23,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.ObjectUtils2;
 

@@ -29,7 +29,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * {@link LinkedHashMap} variant that stores String keys in a case-insensitive

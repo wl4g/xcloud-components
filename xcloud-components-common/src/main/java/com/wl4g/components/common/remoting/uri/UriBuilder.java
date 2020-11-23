@@ -19,7 +19,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 
 /**

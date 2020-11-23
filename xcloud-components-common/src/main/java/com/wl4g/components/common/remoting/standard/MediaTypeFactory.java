@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import com.google.common.io.Resources;
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.StringUtils2;

@@ -28,7 +28,7 @@ import java.net.URI;
 
 import javax.net.ssl.SSLException;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
 import static com.wl4g.components.common.remoting.standard.HttpMediaType.MULTIPART_FORM_DATA;
 

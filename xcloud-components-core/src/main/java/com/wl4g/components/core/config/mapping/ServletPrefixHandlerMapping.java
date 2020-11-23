@@ -27,7 +27,7 @@ import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * {@link ServletPrefixHandlerMapping}

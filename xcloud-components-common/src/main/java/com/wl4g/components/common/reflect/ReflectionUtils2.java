@@ -40,7 +40,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.ConcurrentReferenceHashMap;
 
 import static com.wl4g.components.common.lang.Assert2.*;

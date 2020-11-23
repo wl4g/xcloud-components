@@ -17,7 +17,7 @@ package com.wl4g.components.common.remoting;
 
 import java.net.URI;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.remoting.parse.HttpMessage;
 
 import io.netty.handler.codec.http.HttpMethod;

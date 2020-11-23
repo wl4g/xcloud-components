@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.reflect.ObjectInstantiators;
 
 import static com.wl4g.components.common.lang.StringUtils2.*;

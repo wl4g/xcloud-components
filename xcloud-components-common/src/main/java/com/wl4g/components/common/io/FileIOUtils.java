@@ -17,7 +17,7 @@ package com.wl4g.components.common.io;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.io.Resources;
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.SystemUtils;

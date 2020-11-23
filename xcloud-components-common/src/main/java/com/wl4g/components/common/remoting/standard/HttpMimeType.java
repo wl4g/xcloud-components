@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeSet;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedCaseInsensitiveMap;
 import com.wl4g.components.common.lang.Assert2;

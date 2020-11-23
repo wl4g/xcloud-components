@@ -32,7 +32,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.io.CompressUtils;
 import com.wl4g.components.common.io.FileIOUtils;
 import com.wl4g.components.common.log.SmartLogger;

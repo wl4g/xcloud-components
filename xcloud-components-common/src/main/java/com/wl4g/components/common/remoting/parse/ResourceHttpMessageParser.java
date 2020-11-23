@@ -22,7 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.io.ByteStreamUtils;
 import com.wl4g.components.common.remoting.standard.HttpMediaType;
 import com.wl4g.components.common.remoting.standard.MediaTypeFactory;

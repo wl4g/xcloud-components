@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a

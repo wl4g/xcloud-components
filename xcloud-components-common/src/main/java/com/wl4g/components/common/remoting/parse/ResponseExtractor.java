@@ -18,7 +18,7 @@ package com.wl4g.components.common.remoting.parse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.remoting.ClientHttpResponse;
 
 /**

@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.remoting.standard.HttpMimeType.MimeTypeUtils.InvalidMimeTypeException;

@@ -23,7 +23,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.io.ByteStreamUtils;
 import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.remoting.ClientHttpResponse;

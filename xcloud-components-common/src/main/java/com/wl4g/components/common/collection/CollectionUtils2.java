@@ -31,7 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.ObjectUtils2;

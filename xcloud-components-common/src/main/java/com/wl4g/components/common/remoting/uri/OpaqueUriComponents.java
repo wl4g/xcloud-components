@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.ObjectUtils2;

@@ -18,7 +18,8 @@ package com.wl4g.components.common.reflect;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
+
 import com.wl4g.components.common.lang.Assert2;
 
 /**

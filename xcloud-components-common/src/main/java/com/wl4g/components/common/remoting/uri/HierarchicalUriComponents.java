@@ -28,7 +28,7 @@ import java.util.StringJoiner;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;

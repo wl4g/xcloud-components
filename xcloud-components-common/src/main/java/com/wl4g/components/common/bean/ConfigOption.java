@@ -15,7 +15,7 @@
  */
 package com.wl4g.components.common.bean;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;

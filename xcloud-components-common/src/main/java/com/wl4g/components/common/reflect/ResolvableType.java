@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.ConcurrentReferenceHashMap;
 import com.wl4g.components.common.lang.Assert2;
 import com.wl4g.components.common.lang.ClassUtils2;

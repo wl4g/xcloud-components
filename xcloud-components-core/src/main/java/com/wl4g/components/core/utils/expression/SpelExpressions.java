@@ -15,7 +15,7 @@
  */
 package com.wl4g.components.core.utils.expression;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.ExpressionParser;

@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;
 import com.wl4g.components.common.lang.ObjectUtils2;
 import com.wl4g.components.common.lang.StringUtils2;

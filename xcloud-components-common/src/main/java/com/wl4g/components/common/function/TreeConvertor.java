@@ -25,8 +25,9 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.wl4g.components.common.annotation.NotThreadSafe;
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.wl4g.components.common.annotation.Todo;
 
 import static com.wl4g.components.common.function.TreeConvertor.TreeNode;

@@ -50,7 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.components.common.collection.multimap.MultiValueMap;

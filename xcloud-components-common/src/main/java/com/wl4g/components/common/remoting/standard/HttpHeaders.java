@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedHashSet;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.collection.multimap.LinkedCaseInsensitiveMap;
 import com.wl4g.components.common.collection.multimap.LinkedMultiValueMap;

@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 import com.wl4g.components.common.remoting.standard.HttpHeaders;
 import com.wl4g.components.common.remoting.standard.HttpStatus;
 

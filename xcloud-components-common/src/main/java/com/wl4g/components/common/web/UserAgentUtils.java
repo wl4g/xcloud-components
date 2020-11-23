@@ -22,7 +22,7 @@ import static java.util.Objects.nonNull;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
-import com.wl4g.components.common.annotation.Nullable;
+import javax.annotation.Nullable;
 
 import nl.bitwalker.useragentutils.Browser;
 import nl.bitwalker.useragentutils.BrowserType;
