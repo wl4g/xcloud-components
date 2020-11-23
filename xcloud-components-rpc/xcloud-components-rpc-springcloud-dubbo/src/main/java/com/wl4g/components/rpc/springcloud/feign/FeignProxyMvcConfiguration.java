@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.annotation.RequestHeaderMethodArgumentResolver;
+import org.springframework.web.method.annotation.RequestParamMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.PathVariableMethodArgumentResolver;
@@ -147,6 +148,9 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 						binderFactory);
 			}
 		});
+
+		// Supported for @RequestParam
+		resolvers.add(0, new RequestParamMethodArgumentResolver(true));
 
 		adapter.setArgumentResolvers(resolvers);
 	}

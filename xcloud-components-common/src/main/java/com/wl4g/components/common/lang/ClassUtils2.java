@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.common.lang;
 
+import static java.lang.Thread.currentThread;
+
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
@@ -39,9 +41,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.collections.CollectionUtils;
 
-import com.wl4g.components.common.annotation.Nullable;
 import com.wl4g.components.common.collection.ConcurrentReferenceHashMap;
 import com.wl4g.components.common.reflect.ReflectionUtils2;
 
@@ -248,7 +251,6 @@ public abstract class ClassUtils2 {
 	 * @see Class#forName(String, boolean, ClassLoader)
 	 */
 	public static Class<?> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
-
 		Assert2.notNull(name, "Name must not be null");
 
 		Class<?> clazz = resolvePrimitiveClassName(name);
@@ -326,18 +328,45 @@ public abstract class ClassUtils2 {
 	 *             by the class to be loaded here)
 	 * @see #forName(String, ClassLoader)
 	 */
-	public static Class<?> resolveClassName(String className, @Nullable ClassLoader classLoader) throws IllegalArgumentException {
-
+	public static Class<?> resolveClassName(String className, @Nullable ClassLoader classLoader) throws IllegalStateException {
 		try {
 			return forName(className, classLoader);
 		} catch (IllegalAccessError err) {
 			throw new IllegalStateException(
 					"Readability mismatch in inheritance hierarchy of class [" + className + "]: " + err.getMessage(), err);
 		} catch (LinkageError err) {
-			throw new IllegalArgumentException("Unresolvable class definition for class [" + className + "]", err);
+			throw new IllegalStateException("Unresolvable class definition for class [" + className + "]", err);
 		} catch (ClassNotFoundException ex) {
-			throw new IllegalArgumentException("Could not find class [" + className + "]", ex);
+			throw new IllegalStateException("Could not find class [" + className + "]", ex);
 		}
+	}
+
+	/**
+	 * Resolve the given class name into a Class instance
+	 * 
+	 * @param className
+	 * @param classLoader
+	 * @return
+	 * @throws IllegalStateException
+	 */
+	public static Class<?> resolveClassNameOrNull(String className, @Nullable ClassLoader classLoader)
+			throws IllegalStateException {
+		try {
+			return resolveClassName(className, classLoader);
+		} catch (RuntimeException ex) {
+			return null;
+		}
+	}
+
+	/**
+	 * Resolve the given class name into a Class instance
+	 * 
+	 * @param className
+	 * @return
+	 * @throws IllegalStateException
+	 */
+	public static Class<?> resolveClassNameOrNull(String className) throws IllegalStateException {
+		return resolveClassNameOrNull(className, currentThread().getContextClassLoader());
 	}
 
 	/**
