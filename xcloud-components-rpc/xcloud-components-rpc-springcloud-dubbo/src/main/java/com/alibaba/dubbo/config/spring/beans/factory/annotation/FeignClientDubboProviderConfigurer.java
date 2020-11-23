@@ -38,7 +38,6 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
-import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
@@ -57,14 +56,15 @@ import java.util.List;
 import java.util.Set;
 
 import static com.alibaba.dubbo.config.spring.util.ObjectUtils.of;
+import static com.wl4g.components.common.lang.Assert2.hasText;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
 import static java.util.Arrays.asList;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
-import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 import static org.springframework.util.ClassUtils.resolveClassName;
 
 /**
- * {@link FeignClientToDubboProviderConfigurer}
+ * {@code @FeignClient} service to dubbo's provider configurer.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-20
@@ -73,7 +73,7 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * @see {@link com.alibaba.dubbo.config.spring.ServiceBean}
  * @see {@link com.alibaba.dubbo.config.spring.ReferenceBean}
  */
-public class FeignClientToDubboProviderConfigurer
+public class FeignClientDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -84,15 +84,15 @@ public class FeignClientToDubboProviderConfigurer
 	private ClassLoader classLoader;
 	private Service defaultService;
 
-	public FeignClientToDubboProviderConfigurer(String... packagesToScan) {
+	public FeignClientDubboProviderConfigurer(String... packagesToScan) {
 		this(asList(packagesToScan));
 	}
 
-	public FeignClientToDubboProviderConfigurer(Collection<String> packagesToScan) {
+	public FeignClientDubboProviderConfigurer(Collection<String> packagesToScan) {
 		this(new LinkedHashSet<String>(packagesToScan));
 	}
 
-	public FeignClientToDubboProviderConfigurer(Set<String> packagesToScan) {
+	public FeignClientDubboProviderConfigurer(Set<String> packagesToScan) {
 		this.packagesToScan = packagesToScan;
 		// Generate {@code @Service} default configuration instance.
 		@Service
@@ -179,20 +179,42 @@ public class FeignClientToDubboProviderConfigurer
 	 * @since 2.5.8
 	 */
 	private BeanNameGenerator resolveBeanNameGenerator(BeanDefinitionRegistry registry) {
-		BeanNameGenerator beanNameGenerator = null;
-		if (registry instanceof SingletonBeanRegistry) {
-			SingletonBeanRegistry singletonBeanRegistry = SingletonBeanRegistry.class.cast(registry);
-			beanNameGenerator = (BeanNameGenerator) singletonBeanRegistry.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
-		}
 
-		if (beanNameGenerator == null) {
-			log.warn(
-					"BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR + "]");
-			log.warn("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
-					+ " , it maybe a potential problem on bean name generation.");
-			beanNameGenerator = new AnnotationBeanNameGenerator();
-		}
-		return beanNameGenerator;
+		// BeanNameGenerator beanNameGenerator = null;
+		// if (registry instanceof SingletonBeanRegistry) {
+		// SingletonBeanRegistry singletonBeanRegistry =
+		// SingletonBeanRegistry.class.cast(registry);
+		// beanNameGenerator = (BeanNameGenerator)
+		// singletonBeanRegistry.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
+		// }
+		//
+		// if (beanNameGenerator == null) {
+		// log.warn(
+		// "BeanNameGenerator bean can't be found in BeanFactory with name [" +
+		// CONFIGURATION_BEAN_NAME_GENERATOR + "]");
+		// log.warn("BeanNameGenerator will be a instance of " +
+		// AnnotationBeanNameGenerator.class.getName()
+		// + " , it maybe a potential problem on bean name generation.");
+		// beanNameGenerator = new AnnotationBeanNameGenerator();
+		// }
+		// return beanNameGenerator;
+
+		/**
+		 * In order to enhance the integration of feign and Dubbo, the ability
+		 * to expose rest services only by using spring
+		 * {@link org.springframework.stereotype.Service} instead of
+		 * {@link RestController} is realized {@link ServiceBean#ref} The bean
+		 * of the proxy should be set, see:
+		 * {@link com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesRegistrar#registerFeignClients()}
+		 */
+
+		return new BeanNameGenerator() {
+			@Override
+			public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+				String beanClassName = hasText(definition.getBeanClassName(), "No bean class name set");
+				return generateFeignProxyBeanName(beanClassName);
+			}
+		};
 	}
 
 	/**
@@ -215,8 +237,7 @@ public class FeignClientToDubboProviderConfigurer
 		Set<BeanDefinitionHolder> beanDefinitionHolders = new LinkedHashSet<>(beanDefinitions.size());
 		for (BeanDefinition beanDefinition : beanDefinitions) {
 			String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
-			BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(beanDefinition, beanName);
-			beanDefinitionHolders.add(beanDefinitionHolder);
+			beanDefinitionHolders.add(new BeanDefinitionHolder(beanDefinition, beanName));
 		}
 		return beanDefinitionHolders;
 	}

@@ -22,5 +22,5 @@ package com.wl4g.components.rpc.springcloud.feign;
  * process startup in distributed mode, but also can be started by local
  * debugging single JVM process.</br>
  * </br>
- * Thanks to refer: https://gitee.com/leecho/spring-cloud-feign-proxy/
+ * Thanks to refer: https://gitee.com/leecho/spring-cloud-feign-proxy
  */

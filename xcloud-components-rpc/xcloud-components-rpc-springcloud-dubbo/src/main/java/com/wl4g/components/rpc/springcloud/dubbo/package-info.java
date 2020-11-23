@@ -17,5 +17,7 @@ package com.wl4g.components.rpc.springcloud.dubbo;
 /**
  * The purpose of this module is to enable the project to easily switch between
  * Spring Cloud Feign and Dubbo to realize the remote call of the underlying
- * layer.
+ * layer.</br>
+ * </br>
+ * Thanks to refer: https://github.com/SpringCloud/spring-cloud-dubbo
  */

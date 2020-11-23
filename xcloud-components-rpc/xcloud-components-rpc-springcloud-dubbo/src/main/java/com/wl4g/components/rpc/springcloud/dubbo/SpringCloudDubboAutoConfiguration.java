@@ -18,7 +18,7 @@ package com.wl4g.components.rpc.springcloud.dubbo;
 import com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration;
 import com.alibaba.dubbo.config.AbstractConfig;
 import com.alibaba.dubbo.config.spring.beans.factory.annotation.DubboFeignBuilder;
-import com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientToDubboProviderConfigurer;
+import com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientDubboProviderConfigurer;
 import feign.Feign;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -53,9 +53,9 @@ public class SpringCloudDubboAutoConfiguration {
 	@ConditionalOnProperty(name = BASE_PACKAGES_PROPERTY_NAME)
 	@ConditionalOnClass(ConfigurationPropertySources.class)
 	@Bean
-	public FeignClientToDubboProviderConfigurer feignClientToDubboProviderConfigurer(Environment environment) {
+	public FeignClientDubboProviderConfigurer feignClientToDubboProviderConfigurer(Environment environment) {
 		Set<String> packagesToScan = environment.getProperty(BASE_PACKAGES_PROPERTY_NAME, Set.class, emptySet());
-		return new FeignClientToDubboProviderConfigurer(packagesToScan);
+		return new FeignClientDubboProviderConfigurer(packagesToScan);
 	}
 
 	@Bean

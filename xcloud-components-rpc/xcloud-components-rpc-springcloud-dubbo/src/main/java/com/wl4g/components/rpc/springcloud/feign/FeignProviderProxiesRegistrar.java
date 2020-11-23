@@ -40,9 +40,10 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import static org.springframework.util.StringUtils.*;
 
+import static org.springframework.util.StringUtils.*;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
 import static java.util.Arrays.asList;
 
 import java.io.IOException;
@@ -90,7 +91,7 @@ class FeignProviderProxiesRegistrar
 		registerFeignClients(metadata, registry);
 	}
 
-	public void registerFeignClients(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+	protected void registerFeignClients(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		ClassPathScanningCandidateComponentProvider scanner = getScanner();
 		scanner.setResourceLoader(this.resourceLoader);
 
@@ -152,8 +153,8 @@ class FeignProviderProxiesRegistrar
 							enhancer.setCallback(new FeignProxyInvocationHandler(bean));
 							enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
 							Object proxy = enhancer.create();
-							defaultListableBeanFactory.registerSingleton(
-									capitalize(interfaceClass.getSimpleName()) + BEAN_FEIGNPROXY_SUFFIX, proxy);
+							defaultListableBeanFactory.registerSingleton(generateFeignProxyBeanName(interfaceClass.getName()),
+									proxy);
 							log.debug("Feign client {} proxy by {}", interfaceClass, proxy);
 						} else {
 							log.debug("Feign client {} no implementor founded", interfaceClass);
@@ -237,7 +238,5 @@ class FeignProviderProxiesRegistrar
 		}
 
 	}
-
-	public static final String BEAN_FEIGNPROXY_SUFFIX = "$".concat(FeignProxyController.class.getSimpleName());
 
 }
