@@ -21,6 +21,8 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ServiceBean;
 import com.alibaba.dubbo.config.spring.beans.factory.annotation.AnnotationPropertyValuesAdapter;
 import com.alibaba.dubbo.config.spring.context.annotation.DubboClassPathBeanDefinitionScanner;
+import static com.alibaba.dubbo.config.spring.util.ObjectUtils.of;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -41,6 +43,7 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -49,19 +52,21 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+//import org.springframework.context.annotation.AnnotationBeanNameGenerator;
+//import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
+import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
+import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
+import static org.springframework.util.ClassUtils.resolveClassName;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import static java.util.Arrays.asList;
 
-import static com.alibaba.dubbo.config.spring.util.ObjectUtils.of;
 import static com.wl4g.components.common.lang.Assert2.hasText;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
-import static java.util.Arrays.asList;
-import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
-import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
-import static org.springframework.util.ClassUtils.resolveClassName;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.BEAN_FEIGNDUBBO_ORDER;
 
 /**
  * {@code @FeignClient} service to dubbo's provider configurer.
@@ -73,6 +78,7 @@ import static org.springframework.util.ClassUtils.resolveClassName;
  * @see {@link com.alibaba.dubbo.config.spring.ServiceBean}
  * @see {@link com.alibaba.dubbo.config.spring.ReferenceBean}
  */
+@Order(BEAN_FEIGNDUBBO_ORDER)
 public class FeignClientDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
 
@@ -187,7 +193,6 @@ public class FeignClientDubboProviderConfigurer
 		// beanNameGenerator = (BeanNameGenerator)
 		// singletonBeanRegistry.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
 		// }
-		//
 		// if (beanNameGenerator == null) {
 		// log.warn(
 		// "BeanNameGenerator bean can't be found in BeanFactory with name [" +
@@ -207,7 +212,6 @@ public class FeignClientDubboProviderConfigurer
 		 * of the proxy should be set, see:
 		 * {@link com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesRegistrar#registerFeignClients()}
 		 */
-
 		return new BeanNameGenerator() {
 			@Override
 			public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {

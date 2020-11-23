@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class EurekaDubboRegistryAutoConfiguration implements ApplicationContextAware {
+
 	private static ApplicationContext applicationContext;
 
 	public static ApplicationContext getApplicationContext() {

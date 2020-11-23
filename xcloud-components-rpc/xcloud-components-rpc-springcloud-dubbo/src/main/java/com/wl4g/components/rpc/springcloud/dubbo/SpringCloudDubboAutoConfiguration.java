@@ -46,7 +46,7 @@ import static java.util.Collections.emptySet;
 @Configuration
 @ConditionalOnProperty(prefix = DUBBO_PREFIX, name = "enabled", matchIfMissing = true, havingValue = "true")
 @ConditionalOnClass(AbstractConfig.class)
-@AutoConfigureAfter(DubboAutoConfiguration.class)
+@AutoConfigureAfter(DubboAutoConfiguration.class) // uninvalid?
 public class SpringCloudDubboAutoConfiguration {
 
 	@SuppressWarnings("unchecked")

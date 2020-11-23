@@ -15,15 +15,18 @@
  */
 package com.wl4g.components.rpc.springcloud.feign;
 
-import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static org.springframework.util.Assert.notNull;
-
+import java.util.List;
 import java.util.Set;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
+
+import com.alibaba.dubbo.config.spring.ServiceBean;
 
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -34,13 +37,19 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.TypeFilter;
+import static org.springframework.util.Assert.notNull;
 
-import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
 import com.wl4g.components.common.lang.Assert2;
+import static com.wl4g.components.common.collection.Collections2.safeMap;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
+import static com.wl4g.components.core.utils.AopUtils2.isCglibProxy;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.BEAN_FEIGNPROXY_ORDER;
 
 /**
  * The scanning injection is realized with reference to
@@ -51,6 +60,7 @@ import com.wl4g.components.common.lang.Assert2;
  * @sine v1.0
  * @see
  */
+@Order(BEAN_FEIGNPROXY_ORDER)
 public class FeignProviderProxiesConfigurer
 		implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware {
 
@@ -137,7 +147,23 @@ public class FeignProviderProxiesConfigurer
 
 					// Proxy Feign Client
 					if (interfaceClass != null) {
-						Object bean = beanFactory.getBean(interfaceClass);
+						// Obtain orig bean instance.
+						Object bean = null;
+						try {
+							bean = beanFactory.getBean(interfaceClass);
+						} catch (NoUniqueBeanDefinitionException e) {
+							// Fallback, find the original object from multiple
+							// beans.
+							List<Object> candidateBeans = safeMap(beanFactory.getBeansOfType(interfaceClass)).values().stream()
+									.filter(obj -> !isNull(obj) && !(obj instanceof ServiceBean) && !isCglibProxy(obj))
+									.collect(toList());
+							if (candidateBeans.size() == 1) {
+								bean = candidateBeans.get(0);
+							} else {
+								throw e;
+							}
+						}
+
 						if (bean != null) {
 							Enhancer enhancer = new Enhancer();
 							if (superClass != null) {
