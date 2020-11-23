@@ -18,11 +18,7 @@ package com.wl4g.components.rpc.springcloud.util;
 import static org.springframework.util.StringUtils.uncapitalize;
 
 import org.springframework.util.ClassUtils;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.dubbo.config.spring.ServiceBean;
-import com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientDubboProviderConfigurer;
-import com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesConfigurer;
 import com.wl4g.components.rpc.springcloud.feign.FeignProxyController;
 
 /**
@@ -46,16 +42,5 @@ public abstract class FeignDubboUtils {
 	}
 
 	public static final String BEAN_FEIGNPROXY_SUFFIX = "$".concat(FeignProxyController.class.getSimpleName());
-
-	/**
-	 * {@link FeignProviderProxiesConfigurer} must be executed after
-	 * {@link FeignClientDubboProviderConfigurer}, because the
-	 * {@link RestController} proxy class needs to be created first, On the
-	 * contrary, because the latter creates a Dubbo {@link ServiceBean} instance
-	 * of the service interface, it is not possible to confirm that the correct
-	 * original object is obtained in the former.
-	 */
-	public static final int BEAN_FEIGNPROXY_ORDER = 9234852;
-	public static final int BEAN_FEIGNDUBBO_ORDER = BEAN_FEIGNPROXY_ORDER + 1;
 
 }

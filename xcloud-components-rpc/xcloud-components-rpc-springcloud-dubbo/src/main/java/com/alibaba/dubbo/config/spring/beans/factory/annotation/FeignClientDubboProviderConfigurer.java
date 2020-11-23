@@ -43,7 +43,6 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -66,7 +65,6 @@ import static java.util.Arrays.asList;
 
 import static com.wl4g.components.common.lang.Assert2.hasText;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
-import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.BEAN_FEIGNDUBBO_ORDER;
 
 /**
  * {@code @FeignClient} service to dubbo's provider configurer.
@@ -78,7 +76,6 @@ import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.BEAN_FEIG
  * @see {@link com.alibaba.dubbo.config.spring.ServiceBean}
  * @see {@link com.alibaba.dubbo.config.spring.ReferenceBean}
  */
-@Order(BEAN_FEIGNDUBBO_ORDER)
 public class FeignClientDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
 
