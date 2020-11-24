@@ -90,6 +90,7 @@
 		<jsr305.version>3.0.1</jsr305.version>
 		<hibernate-validator.version>6.0.16.Final</hibernate-validator.version>
 		<validation-api.version>2.0.1.Final</validation-api.version>
+		<javassist.version>3.20.0-GA</javassist.version>
 		<!-- JDBC's -->
 		<druid.version>1.0.26</druid.version>
 		<pagehelper.version>4.1.6</pagehelper.version>
@@ -223,6 +224,12 @@
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
 				<version>${validation-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${javassist.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<!-- JDBC's -->
 			<dependency>

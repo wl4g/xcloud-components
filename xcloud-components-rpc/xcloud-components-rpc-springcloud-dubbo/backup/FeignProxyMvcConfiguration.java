@@ -15,7 +15,11 @@
  */
 package com.wl4g.components.rpc.springcloud.feign;
 
+import static com.wl4g.components.common.collection.Collections2.isEmptyArray;
+
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +29,12 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,14 +46,11 @@ import org.springframework.web.method.annotation.RequestParamMethodArgumentResol
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.PathVariableMethodArgumentResolver;
-import org.springframework.web.servlet.mvc.method.annotation.RequestAttributeMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestPartMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import org.springframework.web.servlet.mvc.method.annotation.ServletCookieValueMethodArgumentResolver;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.wl4g.components.core.framework.HierarchyParameterNameDiscoverer;
 
 /**
  * {@link FeignProxyMvcConfiguration}
@@ -162,14 +163,6 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 			}
 		});
 
-		// Supported for @RequestAttribute
-		resolvers.add(0, new RequestAttributeMethodArgumentResolver() {
-			@Override
-			public boolean supportsParameter(MethodParameter parameter) {
-				return super.supportsParameter(useInterfaceDefintionMethodParameter(parameter, RequestAttribute.class));
-			}
-		});
-
 		adapter.setArgumentResolvers(resolvers);
 	}
 
@@ -185,9 +178,54 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 	private final MethodParameter useInterfaceDefintionMethodParameter(MethodParameter parameter,
 			Class<? extends Annotation> annotationType) {
 		if (!parameter.hasParameterAnnotation(annotationType)) {
-			parameter.initParameterNameDiscovery(new HierarchyParameterNameDiscoverer());
+			parameter.initParameterNameDiscovery(new FeignProxyParameterNameDiscoverer());
 		}
 		return parameter;
+	}
+
+	/**
+	 * {@link FeignProxyParameterNameDiscoverer}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @version v1.0 2020-11-24
+	 * @sine v1.0
+	 * @see
+	 */
+	static class FeignProxyParameterNameDiscoverer extends DefaultParameterNameDiscoverer {
+
+		@Override
+		public String[] getParameterNames(Method method) {
+			String[] parameterNames = super.getParameterNames(method);
+			if (!isEmptyArray(parameterNames)) {
+				return parameterNames;
+			}
+
+			// Fallback, try to get the parameter name through the super
+			// interface as much as possible.
+			flag: for (Class<?> iClazz : method.getDeclaringClass().getInterfaces()) { // e.g:FeignProxyController
+				try {
+					Method iMethod = iClazz.getMethod(method.getName(), method.getParameterTypes());
+					Parameter[] iParameters = iMethod.getParameters();
+					String[] iParameterNames = new String[iParameters.length];
+					for (int i = 0; i < iParameters.length; i++) {
+						Parameter p = iParameters[i];
+						if (!p.isNamePresent()) {
+							// As long as one of the parameters has no name,
+							// this method cannot get the name. Then continue to
+							// try the next implementation interface.
+							continue flag;
+						}
+						iParameterNames[i] = p.getName();
+					}
+					parameterNames = iParameterNames;
+				} catch (NoSuchMethodException e) {
+					continue;
+				}
+			}
+
+			return parameterNames;
+		}
+
 	}
 
 }
