@@ -79,18 +79,18 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 		resolvers.add(0, new PathVariableMethodArgumentResolver() {
 			@Override
 			public boolean supportsParameter(MethodParameter parameter) {
-				return super.supportsParameter(initInterfaceMethodParameter(parameter, PathVariable.class));
+				return super.supportsParameter(wrapInterfaceMethodParameter(parameter, PathVariable.class));
 			}
 
 			@Override
 			protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
-				return super.createNamedValueInfo(initInterfaceMethodParameter(parameter, PathVariable.class));
+				return super.createNamedValueInfo(wrapInterfaceMethodParameter(parameter, PathVariable.class));
 			}
 
 			@Override
 			public void contributeMethodArgument(MethodParameter parameter, Object value, UriComponentsBuilder builder,
 					Map<String, Object> uriVariables, ConversionService conversionService) {
-				super.contributeMethodArgument(initInterfaceMethodParameter(parameter, PathVariable.class), value, builder,
+				super.contributeMethodArgument(wrapInterfaceMethodParameter(parameter, PathVariable.class), value, builder,
 						uriVariables, conversionService);
 			}
 		});
@@ -99,12 +99,12 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 		resolvers.add(0, new RequestHeaderMethodArgumentResolver(beanFactory) {
 			@Override
 			public boolean supportsParameter(MethodParameter parameter) {
-				return super.supportsParameter(initInterfaceMethodParameter(parameter, RequestHeader.class));
+				return super.supportsParameter(wrapInterfaceMethodParameter(parameter, RequestHeader.class));
 			}
 
 			@Override
 			protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
-				return super.createNamedValueInfo(initInterfaceMethodParameter(parameter, RequestHeader.class));
+				return super.createNamedValueInfo(wrapInterfaceMethodParameter(parameter, RequestHeader.class));
 			}
 		});
 
@@ -112,25 +112,25 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 		resolvers.add(0, new ServletCookieValueMethodArgumentResolver(beanFactory) {
 			@Override
 			public boolean supportsParameter(MethodParameter parameter) {
-				return super.supportsParameter(initInterfaceMethodParameter(parameter, CookieValue.class));
+				return super.supportsParameter(wrapInterfaceMethodParameter(parameter, CookieValue.class));
 			}
 
 			@Override
 			protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
-				return super.createNamedValueInfo(initInterfaceMethodParameter(parameter, CookieValue.class));
+				return super.createNamedValueInfo(wrapInterfaceMethodParameter(parameter, CookieValue.class));
 			}
 		});
 
-		// Supported for @RequestBody and @Valid
+		// Supported for @RequestBody/@Valid
 		resolvers.add(0, new RequestResponseBodyMethodProcessor(adapter.getMessageConverters()) {
 			@Override
 			public boolean supportsParameter(MethodParameter parameter) {
-				return super.supportsParameter(initInterfaceMethodParameter(parameter, RequestBody.class));
+				return super.supportsParameter(wrapInterfaceMethodParameter(parameter, RequestBody.class));
 			}
 
 			@Override
 			protected void validateIfApplicable(WebDataBinder binder, MethodParameter methodParam) {
-				super.validateIfApplicable(binder, initInterfaceMethodParameter(methodParam, Valid.class));
+				super.validateIfApplicable(binder, wrapInterfaceMethodParameter(methodParam, Valid.class));
 			}
 		});
 
@@ -138,31 +138,32 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 		resolvers.add(0, new RequestPartMethodArgumentResolver(adapter.getMessageConverters()) {
 			@Override
 			public boolean supportsParameter(MethodParameter parameter) {
-				return super.supportsParameter(initInterfaceMethodParameter(parameter, RequestPart.class));
+				return super.supportsParameter(wrapInterfaceMethodParameter(parameter, RequestPart.class));
 			}
 
 			@Override
 			public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest request,
 					WebDataBinderFactory binderFactory) throws Exception {
-				return super.resolveArgument(initInterfaceMethodParameter(parameter, RequestPart.class), mavContainer, request,
+				return super.resolveArgument(wrapInterfaceMethodParameter(parameter, RequestPart.class), mavContainer, request,
 						binderFactory);
 			}
 		});
 
 		// Supported for @RequestParam
-		resolvers.add(0, new RequestParamMethodArgumentResolver(true));
+		resolvers.add(0, new RequestParamMethodArgumentResolver(beanFactory, true));
 
 		adapter.setArgumentResolvers(resolvers);
 	}
 
 	/**
-	 * Initializing handler method parameter with interface class.
+	 * Wrap handler method parameter with interface class.
 	 * 
 	 * @param parameter
 	 * @param annotationType
 	 * @return
 	 */
-	private MethodParameter initInterfaceMethodParameter(MethodParameter parameter, Class<? extends Annotation> annotationType) {
+	private final MethodParameter wrapInterfaceMethodParameter(MethodParameter parameter,
+			Class<? extends Annotation> annotationType) {
 		if (!parameter.hasParameterAnnotation(annotationType)) {
 			for (Class<?> interfaceCls : parameter.getDeclaringClass().getInterfaces()) {
 				try {

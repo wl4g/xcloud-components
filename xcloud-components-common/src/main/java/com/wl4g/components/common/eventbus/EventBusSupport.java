@@ -155,6 +155,6 @@ public class EventBusSupport implements Closeable {
 	}
 
 	/** Single default instance of {@link EventBusSupport} */
-	private static EventBusSupport DEFAULT;
+	private static volatile EventBusSupport DEFAULT;
 
 }

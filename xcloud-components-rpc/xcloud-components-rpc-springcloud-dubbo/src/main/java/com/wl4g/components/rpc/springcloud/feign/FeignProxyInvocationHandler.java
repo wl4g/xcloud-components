@@ -53,16 +53,19 @@ public class FeignProxyInvocationHandler implements InvocationHandler {
 
 	private final DefaultListableBeanFactory beanFactory;
 	private final Class<?> targetInterfaceClass;
-	private Object target;
+	private volatile Object target;
 
 	/**
-	 * 如，当前运行在mybatis环境中时，由于mapper实例是动态生成的，且被{@link Configuration}注释的配置类
+	 * For example, when running in mybatis environment, the mapper instance is
+	 * dynamically generated and annotated by {@link Configuration}
 	 * {@link org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration}
-	 * 晚于{@link FeignProviderProxiesConfigurer}执行, 因此在动态注册本类的时候不能直接调用
-	 * beanFactory.getBean(..)来获取target实例，只能间接当被调用的时候再获取.
+	 * Executed later than {@link FeignProviderProxiesConfigurer}, Therefore, it
+	 * cannot be called directly when registering this class dynamically
+	 * {@link BeanFactory#getBean()} to obtain the target instance, which can
+	 * only be obtained indirectly when called.</br>
 	 * 
-	 * </br>
-	 * 具体原因分析参考spring源码：{@link org.springframework.context.support.AbstractApplicationContext#refresh()}
+	 * For specific reason analysis, refer to spring source code:
+	 * {@link org.springframework.context.support.AbstractApplicationContext#refresh()}
 	 * 
 	 * @param beanFactory
 	 * @param targetInterfaceClass
