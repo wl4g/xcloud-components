@@ -17,6 +17,7 @@ package com.wl4g.components.core.framework;
 
 import static com.wl4g.components.common.collection.Collections2.isEmptyArray;
 import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
+import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -72,6 +73,8 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
  */
 public class HierarchyParameterNameDiscoverer extends DefaultParameterNameDiscoverer {
 
+	public static final HierarchyParameterNameDiscoverer DEFAULT = new HierarchyParameterNameDiscoverer();
+
 	@Override
 	public String[] getParameterNames(Method method) {
 		String[] parameterNames = super.getParameterNames(method);
@@ -86,7 +89,7 @@ public class HierarchyParameterNameDiscoverer extends DefaultParameterNameDiscov
 		do {
 			classes.add(clazz);
 			clazz = clazz.getSuperclass();
-		} while (clazz != null && clazz != Object.class);
+		} while (nonNull(clazz) && clazz != Object.class);
 
 		// find parametered names.
 		for (Class<?> cls : classes) {

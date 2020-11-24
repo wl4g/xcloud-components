@@ -185,7 +185,7 @@ public class FeignProxyMvcConfiguration implements InitializingBean {
 	private final MethodParameter useInterfaceDefintionMethodParameter(MethodParameter parameter,
 			Class<? extends Annotation> annotationType) {
 		if (!parameter.hasParameterAnnotation(annotationType)) {
-			parameter.initParameterNameDiscovery(new HierarchyParameterNameDiscoverer());
+			parameter.initParameterNameDiscovery(HierarchyParameterNameDiscoverer.DEFAULT);
 		}
 		return parameter;
 	}
