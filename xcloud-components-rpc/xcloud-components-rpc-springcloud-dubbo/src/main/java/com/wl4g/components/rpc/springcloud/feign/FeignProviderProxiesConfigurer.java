@@ -180,6 +180,18 @@ public class FeignProviderProxiesConfigurer
 		// Must be a proxy class. refer:
 		// FeignClientDubboProviderConfigurer#resolveServiceInterfaceClass()
 		proxyBeanDefinition.setBeanClassName(proxy.getClass().getName());
+		/**
+		 * Solve the unique problem of multiple candidate bean injection.</br>
+		 * for example errors:
+		 * 
+		 * <pre>
+		 * Field organizationService in com.wl4g.iam.service.impl.RoleServiceImpl required a single bean, but 3 were found:
+		 * - organizationServiceImpl: defined in file [.../com/wl4g/iam/service/impl/OrganizationServiceImpl.class]
+		 * - organizationService$FeignProxyController: defined in null
+		 * - organizationServiceImpl$FeignProxyController: defined in file [.../com/wl4g/iam/service/impl/OrganizationServiceImpl.class]
+		 * </pre>
+		 */
+		proxyBeanDefinition.setPrimary(true);
 
 		String proxyBeanName = generateFeignProxyBeanName(interfaceClass.getName());
 		registry.registerBeanDefinition(proxyBeanName, proxyBeanDefinition);
