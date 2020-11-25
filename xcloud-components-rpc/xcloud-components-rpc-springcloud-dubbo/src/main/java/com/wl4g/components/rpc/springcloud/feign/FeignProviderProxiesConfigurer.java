@@ -31,6 +31,7 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
@@ -41,6 +42,7 @@ import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.BEAN_FEIGNPROXY_ORDER;
 
 /**
  * The scanning injection is realized with reference to
@@ -51,6 +53,7 @@ import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.FEIGNPROX
  * @sine v1.0
  * @see
  */
+@Order(BEAN_FEIGNPROXY_ORDER)
 public class FeignProviderProxiesConfigurer
 		implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware {
 

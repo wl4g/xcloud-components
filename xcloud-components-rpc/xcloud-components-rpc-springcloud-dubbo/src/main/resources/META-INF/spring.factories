@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.wl4g.components.rpc.springcloud.dubbo.SpringCloudDubboAutoConfiguration

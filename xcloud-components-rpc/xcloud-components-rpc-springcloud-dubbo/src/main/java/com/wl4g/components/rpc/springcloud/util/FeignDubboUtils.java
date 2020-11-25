@@ -66,6 +66,11 @@ public abstract class FeignDubboUtils {
 	}
 
 	/**
+	 * Mybatis mapper proxy class.
+	 */
+	public static final Class<?> mapperProxyClass = ClassUtils2.resolveClassNameOrNull("org.apache.ibatis.binding.MapperProxy");
+
+	/**
 	 * Feign proxy controller bean name suffix.
 	 */
 	public static final String FEIGNPROXY_BEAN_SUFFIX = "$".concat(FeignProxyController.class.getSimpleName());
@@ -76,8 +81,14 @@ public abstract class FeignDubboUtils {
 	public static final String FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE = "feignProxyOfInterfaceClass";
 
 	/**
-	 * Mybatis mapper proxy class.
+	 * {@link FeignProviderProxiesConfigurer} must be executed after
+	 * {@link FeignClientDubboProviderConfigurer}, because the
+	 * {@link RestController} proxy class needs to be created first, On the
+	 * contrary, because the latter creates a Dubbo {@link ServiceBean} instance
+	 * of the service interface, it is not possible to confirm that the correct
+	 * original object is obtained in the former.
 	 */
-	public static final Class<?> mapperProxyClass = ClassUtils2.resolveClassNameOrNull("org.apache.ibatis.binding.MapperProxy");
+	public static final int BEAN_FEIGNPROXY_ORDER = 9234852;
+	public static final int BEAN_FEIGNDUBBO_ORDER = BEAN_FEIGNPROXY_ORDER + 1;
 
 }

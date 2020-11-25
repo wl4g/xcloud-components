@@ -35,18 +35,17 @@ import static com.alibaba.boot.dubbo.util.DubboUtils.DUBBO_PREFIX;
 import static java.util.Collections.emptySet;
 
 /**
- * {@link SpringCloudDubboAutoConfiguration}
+ * {@link FeignDubboAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-20
  * @sine v1.0
  * @see {@link com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration}
  */
-// @Configuration
 @ConditionalOnProperty(prefix = DUBBO_PREFIX, name = "enabled", matchIfMissing = true, havingValue = "true")
 @ConditionalOnClass(AbstractConfig.class)
 @AutoConfigureAfter(DubboAutoConfiguration.class) // uninvalid?
-public class SpringCloudDubboAutoConfiguration {
+public class FeignDubboAutoConfiguration {
 
 	@SuppressWarnings("unchecked")
 	@ConditionalOnProperty(name = BASE_PACKAGES_PROPERTY_NAME)
