@@ -26,7 +26,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import java.util.Set;
@@ -43,7 +42,7 @@ import static java.util.Collections.emptySet;
  * @sine v1.0
  * @see {@link com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration}
  */
-@Configuration
+// @Configuration
 @ConditionalOnProperty(prefix = DUBBO_PREFIX, name = "enabled", matchIfMissing = true, havingValue = "true")
 @ConditionalOnClass(AbstractConfig.class)
 @AutoConfigureAfter(DubboAutoConfiguration.class) // uninvalid?

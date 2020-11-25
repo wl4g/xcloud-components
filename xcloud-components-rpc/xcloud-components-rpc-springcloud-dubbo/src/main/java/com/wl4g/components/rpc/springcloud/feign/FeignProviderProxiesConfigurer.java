@@ -26,7 +26,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -174,7 +174,7 @@ public class FeignProviderProxiesConfigurer
 		enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
 		Object proxy = enhancer.create();
 
-		GenericBeanDefinition proxyBeanDefinition = new GenericBeanDefinition();
+		RootBeanDefinition proxyBeanDefinition = new RootBeanDefinition(proxy.getClass().getName());
 		proxyBeanDefinition.setInstanceSupplier(() -> proxy);
 		proxyBeanDefinition.setAttribute(FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE, interfaceClass);
 		// Must be a proxy class. refer:

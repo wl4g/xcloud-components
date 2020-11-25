@@ -142,7 +142,6 @@ public class FeignClientDubboProviderConfigurer
 		BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 
 		DubboClassPathBeanDefinitionScanner scanner = registerServiceBeansWithScans(packagesToScan, registry, beanNameGenerator);
-
 		registerServiceBeansWithFeignProxies(registry, scanner, beanNameGenerator);
 	}
 
@@ -154,6 +153,7 @@ public class FeignClientDubboProviderConfigurer
 	 * @param beanNameGenerator
 	 * @return
 	 */
+	@Deprecated
 	private DubboClassPathBeanDefinitionScanner registerServiceBeansWithScans(Set<String> packagesToScan,
 			BeanDefinitionRegistry registry, BeanNameGenerator beanNameGenerator) {
 
@@ -162,29 +162,46 @@ public class FeignClientDubboProviderConfigurer
 		scanner.setBeanNameGenerator(beanNameGenerator);
 		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class, true, true));
 
-		for (String packageToScan : packagesToScan) {
-			// Registers @FeignClient Bean first
-			scanner.scan(packageToScan);
-
-			// Finds all BeanDefinitionHolders of @FeignClient whether
-			// @ComponentScan scans or not.
-			Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents(packageToScan);
-			if (!CollectionUtils.isEmpty(beanDefinitions)) {
-				for (BeanDefinition beanDefinition : beanDefinitions) {
-					registerServiceBean(beanDefinition, registry, scanner, beanNameGenerator);
-				}
-				log.info(beanDefinitions.size() + " annotated @FeignClient Components { " + beanDefinitions
-						+ " } were scanned under package[" + packageToScan + "]");
-			} else {
-				log.warn("No Spring Bean annotating @FeignClient was found under package[" + packageToScan + "]");
-			}
-		}
+		// for (String packageToScan : packagesToScan) {
+		// /**
+		// * Scan injection will still be performed in
+		// * {@link
+		// com.alibaba.dubbo.config.spring.beans.factory.annotation.ServiceAnnotationBeanPostProcessor#registerServiceBeans()}
+		// * </br>
+		// * Moreover, the main purpose here is to use the
+		// * {@link org.springframework.stereotype.Service} bean directly. Of
+		// * course, there is no need to inject it manually, because spring
+		// * will automatically recognize and inject it.
+		// */
+		// // Registers @FeignClient Bean first
+		// scanner.scan(packageToScan);
+		//
+		// // Finds all BeanDefinitionHolders of @FeignClient whether
+		// // @ComponentScan scans or not.
+		// Set<BeanDefinition> beanDefinitions =
+		// scanner.findCandidateComponents(packageToScan);
+		// if (!CollectionUtils.isEmpty(beanDefinitions)) {
+		// for (BeanDefinition beanDefinition : beanDefinitions) {
+		// registerServiceBean(beanDefinition, registry, scanner,
+		// beanNameGenerator);
+		// }
+		// log.info(beanDefinitions.size() + " annotated @FeignClient Components
+		// { " + beanDefinitions
+		// + " } were scanned under package[" + packageToScan + "]");
+		// } else {
+		// log.warn("No Spring Bean annotating @FeignClient was found under
+		// package[" + packageToScan + "]");
+		// }
+		// }
 
 		return scanner;
 	}
 
 	/**
 	 * Register all beans that are represented by the feign rest proxy. </br>
+	 * </br>
+	 * Scan injection will still be performed in
+	 * {@link com.alibaba.dubbo.config.spring.beans.factory.annotation.ServiceAnnotationBeanPostProcessor#registerServiceBeans()}
 	 * 
 	 * @param registry
 	 * @param scanner

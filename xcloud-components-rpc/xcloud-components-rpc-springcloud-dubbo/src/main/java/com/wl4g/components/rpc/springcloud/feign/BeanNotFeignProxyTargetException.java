@@ -29,25 +29,19 @@ import org.springframework.beans.BeansException;
  * @sine v1.0
  * @see
  */
-public class BeanNotFeignOriginalException extends BeansException {
+public class BeanNotFeignProxyTargetException extends BeansException {
 	private static final long serialVersionUID = 7629360523694589546L;
 
 	/** The offending type. */
 	private final Class<?> targetInterfaceType;
 
-	/**
-	 * Create a new BeanNotOfRequiredTypeException.
-	 * 
-	 * @param beanName
-	 *            the name of the bean requested
-	 * @param requiredType
-	 *            the required type
-	 * @param targetInterfaceType
-	 *            the actual type returned, which did not match the expected
-	 *            type
-	 */
-	public BeanNotFeignOriginalException(Class<?> targetInterfaceType) {
-		super(format("No original target instance of interface type '%s' was found for the feign proxies.", targetInterfaceType));
+	public BeanNotFeignProxyTargetException(Class<?> targetInterfaceType) {
+		this(format("No such target instance of interface type '%s' was found for the feign proxy.", targetInterfaceType),
+				targetInterfaceType);
+	}
+
+	public BeanNotFeignProxyTargetException(String msg, Class<?> targetInterfaceType) {
+		super(msg);
 		this.targetInterfaceType = notNullOf(targetInterfaceType, "targetInterfaceType");
 	}
 

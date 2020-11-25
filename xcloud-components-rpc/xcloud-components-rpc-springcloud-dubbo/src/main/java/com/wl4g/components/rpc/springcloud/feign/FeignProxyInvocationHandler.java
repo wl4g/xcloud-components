@@ -15,14 +15,14 @@
  */
 package com.wl4g.components.rpc.springcloud.feign;
 
-import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import static org.springframework.aop.support.AopUtils.getTargetClass;
 
 import com.alibaba.dubbo.config.spring.ServiceBean;
-
+import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.core.framework.aop.ProxyInvocation;
 
 import static com.wl4g.components.common.collection.Collections2.safeMap;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
@@ -47,7 +48,7 @@ import static java.util.stream.Collectors.toList;
  * @sine v1.0
  * @see
  */
-public class FeignProxyInvocationHandler implements InvocationHandler {
+public class FeignProxyInvocationHandler implements ProxyInvocation {
 	private final SmartLogger log = getLogger(getClass());
 
 	private final ApplicationContext applicationContext;
@@ -97,16 +98,14 @@ public class FeignProxyInvocationHandler implements InvocationHandler {
 	 * 
 	 * @return
 	 */
-	private final Object getTarget() {
+	@Override
+	public final Object getTarget() {
 		if (isNull(target)) {
 			synchronized (this) {
 				if (isNull(target)) {
 					// find the most original and the best from
 					// multi beans.
 					this.target = obtainBestCandidateTargetBean();
-					if (isNull(this.target)) {
-						throw new BeanNotFeignOriginalException(targetInterfaceType);
-					}
 				}
 			}
 		}
@@ -130,20 +129,31 @@ public class FeignProxyInvocationHandler implements InvocationHandler {
 	 */
 	private final Object obtainBestCandidateTargetBean() {
 		Collection<?> candidateBeans = safeMap(applicationContext.getBeansOfType(targetInterfaceType)).values();
+		if (CollectionUtils2.isEmpty(candidateBeans)) {
+			throw new BeanNotFeignProxyTargetException(targetInterfaceType);
+		}
 
 		// Filtering candidate beans
 		List<Object> bestCandidates = candidateBeans.stream().filter(bestFiltering()).collect(toList());
 
 		if (bestCandidates.size() == 1) {
 			Object best = bestCandidates.get(0);
-			log.info("Using best candidate bean: {} of target interfaceClass: {}, candidates: {}", best, targetInterfaceType,
+			log.info("Obtain best feign proxy target bean: {} of interface type: {}, candidates: {}", best, targetInterfaceType,
 					candidateBeans);
 			return best;
 		} else {
-			log.warn("Not found matchs best candidate bean of target interfaceClass: {}, candidates: {}", targetInterfaceType,
-					candidateBeans);
-			return null;
+			if (bestCandidates.size() > 1) {
+				throw new BeanNotFeignProxyTargetException(
+						format("Ambiguous feign proxy target multiple beans of interface type '%s', all candidate beans: {}",
+								targetInterfaceType, candidateBeans),
+						targetInterfaceType);
+			}
+			throw new BeanNotFeignProxyTargetException(
+					format("No best target bean of interface type '%s' was obtain for the feign proxy. candidate beans: {}",
+							targetInterfaceType, candidateBeans),
+					targetInterfaceType);
 		}
+
 	}
 
 	/**
@@ -151,7 +161,7 @@ public class FeignProxyInvocationHandler implements InvocationHandler {
 	 * 
 	 * @return
 	 */
-	protected Predicate<? super Object> bestFiltering() {
+	private Predicate<? super Object> bestFiltering() {
 		return obj -> (nonNull(obj) && !(obj instanceof ServiceBean) && !(obj instanceof FeignProxyController)
 				|| typeOfMapperProxy(obj));
 	}
