@@ -15,9 +15,6 @@
  */
 package com.wl4g.components.rpc.springcloud.feign.annotation;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -60,12 +57,10 @@ import java.util.*;
  * @see Implementation simulated of refer:
  *      {@link org.springframework.cloud.openfeign.FeignClientsRegistrar}
  */
-class FeignProviderProxiesRegistrar
-		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
+class FeignProviderProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
 
 	private ResourceLoader resourceLoader;
 	private Environment environment;
-	private BeanFactory beanFactory;
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -75,11 +70,6 @@ class FeignProviderProxiesRegistrar
 	@Override
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
-	}
-
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
 	}
 
 	@Override
@@ -127,7 +117,6 @@ class FeignProviderProxiesRegistrar
 		builder.addPropertyValue("basePackages", basePackages);
 		builder.addPropertyValue("resourceLoader", resourceLoader);
 		builder.addPropertyValue("environment", environment);
-		builder.addPropertyValue("beanFactory", beanFactory);
 
 		registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
 	}

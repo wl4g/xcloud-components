@@ -15,10 +15,14 @@
  */
 package com.wl4g.components.rpc.springcloud.util;
 
+import static com.wl4g.components.common.lang.ClassUtils2.getShortName;
+import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.uncapitalize;
 
-import org.springframework.util.ClassUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 
+import com.wl4g.components.common.lang.ClassUtils2;
+import com.wl4g.components.core.utils.AopUtils2;
 import com.wl4g.components.rpc.springcloud.feign.FeignProxyController;
 
 /**
@@ -32,15 +36,48 @@ import com.wl4g.components.rpc.springcloud.feign.FeignProxyController;
 public abstract class FeignDubboUtils {
 
 	/**
-	 * Generate feign client proxed bean name.
+	 * Check whether the feign client proxed bean name.
+	 * 
+	 * @param beanDefinition
+	 * @return
+	 */
+	public static boolean isFeignProxyBean(BeanDefinition beanDefinition) {
+		return beanDefinition.getAttribute(FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE) != null;
+	}
+
+	/**
+	 * Generate feign client proxy bean name.
 	 * 
 	 * @param interfaceClassName
 	 * @return
 	 */
 	public static String generateFeignProxyBeanName(String interfaceClassName) {
-		return uncapitalize(ClassUtils.getShortName(interfaceClassName)) + BEAN_FEIGNPROXY_SUFFIX;
+		return uncapitalize(getShortName(interfaceClassName)).concat(FEIGNPROXY_BEAN_SUFFIX);
 	}
 
-	public static final String BEAN_FEIGNPROXY_SUFFIX = "$".concat(FeignProxyController.class.getSimpleName());
+	/**
+	 * Check whether the object type belongs to mybatis's mapper proxy.
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static boolean typeOfMapperProxy(Object obj) {
+		return nonNull(mapperProxyClass) && mapperProxyClass.isInstance(AopUtils2.getTarget(obj));
+	}
+
+	/**
+	 * Feign proxy controller bean name suffix.
+	 */
+	public static final String FEIGNPROXY_BEAN_SUFFIX = "$".concat(FeignProxyController.class.getSimpleName());
+
+	/**
+	 * Feign proxy controller bean of origin interface class.
+	 */
+	public static final String FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE = "feignProxyOfInterfaceClass";
+
+	/**
+	 * Mybatis mapper proxy class.
+	 */
+	public static final Class<?> mapperProxyClass = ClassUtils2.resolveClassNameOrNull("org.apache.ibatis.binding.MapperProxy");
 
 }

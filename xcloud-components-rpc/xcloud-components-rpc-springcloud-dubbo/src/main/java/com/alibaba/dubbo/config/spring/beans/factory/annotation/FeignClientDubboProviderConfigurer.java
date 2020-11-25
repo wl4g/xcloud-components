@@ -21,6 +21,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ServiceBean;
 import com.alibaba.dubbo.config.spring.beans.factory.annotation.AnnotationPropertyValuesAdapter;
 import com.alibaba.dubbo.config.spring.context.annotation.DubboClassPathBeanDefinitionScanner;
+
 import static com.alibaba.dubbo.config.spring.util.ObjectUtils.of;
 
 import org.springframework.beans.BeansException;
@@ -30,7 +31,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -40,9 +40,6 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
-import org.springframework.context.annotation.AnnotationConfigUtils;
-import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
-import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -51,8 +48,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-//import org.springframework.context.annotation.AnnotationBeanNameGenerator;
-//import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
+
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 import static org.springframework.util.ClassUtils.resolveClassName;
@@ -61,10 +57,11 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import static java.util.Arrays.asList;
 
+import static java.util.Arrays.asList;
 import static com.wl4g.components.common.lang.Assert2.hasText;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean;
 
 /**
  * {@code @FeignClient} service to dubbo's provider configurer.
@@ -142,9 +139,26 @@ public class FeignClientDubboProviderConfigurer
 	 *            {@link BeanDefinitionRegistry}
 	 */
 	private void registerServiceBeans(Set<String> packagesToScan, BeanDefinitionRegistry registry) {
+		BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
+
+		DubboClassPathBeanDefinitionScanner scanner = registerServiceBeansWithScans(packagesToScan, registry, beanNameGenerator);
+
+		registerServiceBeansWithFeignProxies(registry, scanner, beanNameGenerator);
+	}
+
+	/**
+	 * Scan the beans that register all service implementations. </br>
+	 * 
+	 * @param packagesToScan
+	 * @param registry
+	 * @param beanNameGenerator
+	 * @return
+	 */
+	private DubboClassPathBeanDefinitionScanner registerServiceBeansWithScans(Set<String> packagesToScan,
+			BeanDefinitionRegistry registry, BeanNameGenerator beanNameGenerator) {
+
 		DubboClassPathBeanDefinitionScanner scanner = new DubboClassPathBeanDefinitionScanner(registry, environment,
 				resourceLoader);
-		BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 		scanner.setBeanNameGenerator(beanNameGenerator);
 		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class, true, true));
 
@@ -154,33 +168,41 @@ public class FeignClientDubboProviderConfigurer
 
 			// Finds all BeanDefinitionHolders of @FeignClient whether
 			// @ComponentScan scans or not.
-			Set<BeanDefinitionHolder> beanDefinitionHolders = findServiceBeanDefinitionHolders(scanner, packageToScan, registry,
-					beanNameGenerator);
-			if (!CollectionUtils.isEmpty(beanDefinitionHolders)) {
-				for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
-					registerServiceBean(beanDefinitionHolder, registry, scanner);
+			Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents(packageToScan);
+			if (!CollectionUtils.isEmpty(beanDefinitions)) {
+				for (BeanDefinition beanDefinition : beanDefinitions) {
+					registerServiceBean(beanDefinition, registry, scanner, beanNameGenerator);
 				}
-				log.info(beanDefinitionHolders.size() + " annotated @FeignClient Components { " + beanDefinitionHolders
+				log.info(beanDefinitions.size() + " annotated @FeignClient Components { " + beanDefinitions
 						+ " } were scanned under package[" + packageToScan + "]");
 			} else {
 				log.warn("No Spring Bean annotating @FeignClient was found under package[" + packageToScan + "]");
 			}
 		}
+
+		return scanner;
 	}
 
 	/**
-	 * It'd better to use BeanNameGenerator instance that should reference
-	 * {@link ConfigurationClassPostProcessor#componentScanBeanNameGenerator},
-	 * thus it maybe a potential problem on bean name generation.
-	 *
+	 * Register all beans that are represented by the feign rest proxy. </br>
+	 * 
 	 * @param registry
-	 *            {@link BeanDefinitionRegistry}
-	 * @return {@link BeanNameGenerator} instance
-	 * @see SingletonBeanRegistry
-	 * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
-	 * @see ConfigurationClassPostProcessor#processConfigBeanDefinitions
-	 * @since 2.5.8
+	 * @param scanner
+	 * @param beanNameGenerator
+	 * @see {@link com.wl4g.components.rpc.springcloud.feign.FeignProxyController}
+	 * @see {@link com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesConfigurer#registerFeignProxyBean()}
 	 */
+	private void registerServiceBeansWithFeignProxies(BeanDefinitionRegistry registry,
+			DubboClassPathBeanDefinitionScanner scanner, BeanNameGenerator beanNameGenerator) {
+
+		for (String beanName : registry.getBeanDefinitionNames()) {
+			BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
+			if (isFeignProxyBean(beanDefinition)) {
+				registerServiceBean(beanDefinition, registry, scanner, beanNameGenerator);
+			}
+		}
+	}
+
 	private BeanNameGenerator resolveBeanNameGenerator(BeanDefinitionRegistry registry) {
 
 		// BeanNameGenerator beanNameGenerator = null;
@@ -209,52 +231,27 @@ public class FeignClientDubboProviderConfigurer
 		 * of the proxy should be set, see:
 		 * {@link com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesRegistrar#registerFeignClients()}
 		 */
-		return new BeanNameGenerator() {
-			@Override
-			public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-				String beanClassName = hasText(definition.getBeanClassName(), "No bean class name set");
-				return generateFeignProxyBeanName(beanClassName);
-			}
+		return (definition, registry0) -> {
+			String beanClassName = hasText(definition.getBeanClassName(), "No bean class name set");
+			return generateFeignProxyBeanName(beanClassName);
 		};
+
 	}
 
 	/**
-	 * Finds a {@link Set} of {@link BeanDefinitionHolder BeanDefinitionHolders}
-	 * whose bean type annotated {@link Service} Annotation.
-	 *
-	 * @param scanner
-	 *            {@link ClassPathBeanDefinitionScanner}
-	 * @param packageToScan
-	 *            pachage to scan
-	 * @param registry
-	 *            {@link BeanDefinitionRegistry}
-	 * @return non-null
-	 * @since 2.5.8
-	 */
-	private Set<BeanDefinitionHolder> findServiceBeanDefinitionHolders(ClassPathBeanDefinitionScanner scanner,
-			String packageToScan, BeanDefinitionRegistry registry, BeanNameGenerator beanNameGenerator) {
-		Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents(packageToScan);
-
-		Set<BeanDefinitionHolder> beanDefinitionHolders = new LinkedHashSet<>(beanDefinitions.size());
-		for (BeanDefinition beanDefinition : beanDefinitions) {
-			String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
-			beanDefinitionHolders.add(new BeanDefinitionHolder(beanDefinition, beanName));
-		}
-		return beanDefinitionHolders;
-	}
-
-	/**
-	 * Registers {@link ServiceBean} from new annotated {@link FeignClient}
-	 * {@link BeanDefinition}
-	 *
-	 * @param beanDefinitionHolder
+	 * Register dubbo service bean.
+	 * 
+	 * @param beanDefinition
 	 * @param registry
 	 * @param scanner
-	 * @see ServiceBean
-	 * @see BeanDefinition
+	 * @param beanNameGenerator
 	 */
-	private void registerServiceBean(BeanDefinitionHolder beanDefinitionHolder, BeanDefinitionRegistry registry,
-			DubboClassPathBeanDefinitionScanner scanner) {
+	private void registerServiceBean(BeanDefinition beanDefinition, BeanDefinitionRegistry registry,
+			DubboClassPathBeanDefinitionScanner scanner, BeanNameGenerator beanNameGenerator) {
+
+		String annotatedServiceBeanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
+		BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(beanDefinition, annotatedServiceBeanName);
+
 		Class<?> beanClass = resolveClass(beanDefinitionHolder);
 		Service service = findAnnotation(beanClass, Service.class);
 		if (null == service) {
@@ -262,20 +259,19 @@ public class FeignClientDubboProviderConfigurer
 		}
 
 		Class<?> interfaceClass = resolveServiceInterfaceClass(beanClass, service);
-		String annotatedServiceBeanName = beanDefinitionHolder.getBeanName();
 		AbstractBeanDefinition serviceBeanDefinition = buildServiceBeanDefinition(service, interfaceClass,
 				annotatedServiceBeanName);
 
 		// ServiceBean Bean name
-		String beanName = generateServiceBeanName(service, interfaceClass, annotatedServiceBeanName);
+		String serviceBeanName = generateServiceBeanName(service, interfaceClass, annotatedServiceBeanName);
 
 		// check duplicated candidate bean
-		if (scanner.checkCandidate(beanName, serviceBeanDefinition)) {
-			registry.registerBeanDefinition(beanName, serviceBeanDefinition);
-			log.warn("The BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean has been registered with name : "
-					+ beanName);
+		if (scanner.checkCandidate(serviceBeanName, serviceBeanDefinition)) {
+			registry.registerBeanDefinition(serviceBeanName, serviceBeanDefinition);
+			log.info("The BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean has been registered with name : "
+					+ serviceBeanName);
 		} else {
-			log.warn("The Duplicated BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean[ bean name : " + beanName
+			log.warn("The Duplicated BeanDefinition[" + serviceBeanDefinition + "] of ServiceBean[ bean name : " + serviceBeanName
 					+ "] was be found , Did @DubboComponentScan scan to same package in many times?");
 		}
 	}
@@ -337,12 +333,7 @@ public class FeignClientDubboProviderConfigurer
 
 	private Class<?> resolveClass(BeanDefinitionHolder beanDefinitionHolder) {
 		BeanDefinition beanDefinition = beanDefinitionHolder.getBeanDefinition();
-		return resolveClass(beanDefinition);
-	}
-
-	private Class<?> resolveClass(BeanDefinition beanDefinition) {
-		String beanClassName = beanDefinition.getBeanClassName();
-		return resolveClassName(beanClassName, classLoader);
+		return resolveClassName(beanDefinition.getBeanClassName(), classLoader);
 	}
 
 	private Set<String> resolvePackagesToScan(Set<String> packagesToScan) {

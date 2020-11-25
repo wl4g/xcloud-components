@@ -26,7 +26,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -37,9 +37,10 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.TypeFilter;
 import static org.springframework.util.Assert.notNull;
 
-import com.wl4g.components.common.lang.Assert2;
+import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.generateFeignProxyBeanName;
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE;
 
 /**
  * The scanning injection is realized with reference to
@@ -58,6 +59,7 @@ public class FeignProviderProxiesConfigurer
 	private ApplicationContext applicationContext;
 	@SuppressWarnings("unused")
 	private String beanName;
+
 	private TypeFilter includeFilter;
 	private Class<?> superClass;
 	private Set<String> basePackages;
@@ -65,7 +67,6 @@ public class FeignProviderProxiesConfigurer
 	@Deprecated
 	private ResourceLoader resourceLoader;
 	private Environment environment;
-	private DefaultListableBeanFactory beanFactory;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -97,10 +98,6 @@ public class FeignProviderProxiesConfigurer
 		this.environment = environment;
 	}
 
-	public void setBeanFactory(DefaultListableBeanFactory beanFactory) {
-		this.beanFactory = beanFactory;
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		notNull(this.basePackages, "Property 'basePackage' is required");
@@ -113,7 +110,7 @@ public class FeignProviderProxiesConfigurer
 
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		ClassPathScanningCandidateComponentProvider scanner = getScanner();
+		ClassPathScanningCandidateComponentProvider scanner = createScanner();
 		// scanner.setResourceLoader(resourceLoader);
 		scanner.setResourceLoader(applicationContext);
 		scanner.addIncludeFilter(includeFilter);
@@ -124,8 +121,8 @@ public class FeignProviderProxiesConfigurer
 				if (candidateComponent instanceof AnnotatedBeanDefinition) {
 					// verify annotated class is an interface
 					AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
-					AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
-					Assert2.isTrue(annotationMetadata.isInterface(), "@FeignClient can only be specified on an interface");
+					AnnotationMetadata annoMetadata = beanDefinition.getMetadata();
+					isTrue(annoMetadata.isInterface(), "@FeignClient can only be specified on an interface");
 
 					Class<?> interfaceClass = null;
 					try {
@@ -133,18 +130,9 @@ public class FeignProviderProxiesConfigurer
 					} catch (ClassNotFoundException e) {
 						log.warn("Not found class : '{}'", beanDefinition.getBeanClassName());
 					}
-
-					// Proxy Feign Client
+					// Proxy feign client
 					if (interfaceClass != null) {
-						Enhancer enhancer = new Enhancer();
-						if (superClass != null) {
-							enhancer.setSuperclass(superClass);
-						}
-						enhancer.setCallback(new FeignProxyInvocationHandler(beanFactory, interfaceClass));
-						enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
-						Object proxy = enhancer.create();
-						beanFactory.registerSingleton(generateFeignProxyBeanName(interfaceClass.getName()), proxy);
-						log.info("Registered feign client '{}' rest proxy for '{}'", proxy, interfaceClass);
+						registerFeignProxyBean(registry, interfaceClass);
 					}
 				}
 			}
@@ -152,7 +140,7 @@ public class FeignProviderProxiesConfigurer
 
 	}
 
-	protected ClassPathScanningCandidateComponentProvider getScanner() {
+	protected ClassPathScanningCandidateComponentProvider createScanner() {
 		return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
 			@Override
 			protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
@@ -165,6 +153,37 @@ public class FeignProviderProxiesConfigurer
 				return isCandidate;
 			}
 		};
+	}
+
+	/**
+	 * Register feign client rest proxy bean with {@link FeignProxyController}
+	 * </br>
+	 * [Note]: Bean definition className must be a proxy class, refer to:
+	 * {@link com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientDubboProviderConfigurer#resolveServiceInterfaceClass()}
+	 * {@link com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean()}
+	 * 
+	 * @param registry
+	 * @param interfaceClass
+	 */
+	protected void registerFeignProxyBean(BeanDefinitionRegistry registry, Class<?> interfaceClass) {
+		Enhancer enhancer = new Enhancer();
+		if (superClass != null) {
+			enhancer.setSuperclass(superClass);
+		}
+		enhancer.setCallback(new FeignProxyInvocationHandler(applicationContext, interfaceClass));
+		enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
+		Object proxy = enhancer.create();
+
+		GenericBeanDefinition proxyBeanDefinition = new GenericBeanDefinition();
+		proxyBeanDefinition.setInstanceSupplier(() -> proxy);
+		proxyBeanDefinition.setAttribute(FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE, interfaceClass);
+		// Must be a proxy class. refer:
+		// FeignClientDubboProviderConfigurer#resolveServiceInterfaceClass()
+		proxyBeanDefinition.setBeanClassName(proxy.getClass().getName());
+
+		String proxyBeanName = generateFeignProxyBeanName(interfaceClass.getName());
+		registry.registerBeanDefinition(proxyBeanName, proxyBeanDefinition);
+		log.info("Register feign client rest proxy: '{}' by interfaceClass: '{}'", proxy, interfaceClass);
 	}
 
 }
