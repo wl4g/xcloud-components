@@ -99,7 +99,7 @@ public class FeignProxyInvocationHandler implements ProxyInvocation {
 	 * @return
 	 */
 	@Override
-	public final Object getTarget() {
+	public Object getTarget() {
 		if (isNull(target)) {
 			synchronized (this) {
 				if (isNull(target)) {
@@ -161,7 +161,7 @@ public class FeignProxyInvocationHandler implements ProxyInvocation {
 	 * 
 	 * @return
 	 */
-	private Predicate<? super Object> bestFiltering() {
+	private final Predicate<? super Object> bestFiltering() {
 		return obj -> (nonNull(obj) && !(obj instanceof ServiceBean) && !(obj instanceof FeignProxyController)
 				|| typeOfMapperProxy(obj));
 	}
