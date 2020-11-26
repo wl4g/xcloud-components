@@ -107,7 +107,7 @@ public class DelegateServletHandlerMappingAutoConfiguration implements WebMvcReg
 					if (mapping.isSupport(beanName, beanType)) {
 						delegated = true;
 						mapping.doDetectHandlerMethods(beanName);
-						log.info("Delegated first request mapping handler for: {}", mapping);
+						log.info("Delegating best request handler mapping for: {}", mapping);
 						break;
 					}
 				}
