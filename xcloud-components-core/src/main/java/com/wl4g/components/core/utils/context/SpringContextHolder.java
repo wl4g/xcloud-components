@@ -15,13 +15,15 @@
  */
 package com.wl4g.components.core.utils.context;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import com.wl4g.components.common.log.SmartLogger;
 
 /**
  * Spring container context holder.</br>
@@ -34,11 +36,12 @@ import org.springframework.stereotype.Component;
  * @version v1.0.0 2019-07-12
  * @since
  */
-@Component("devopsUtilitySpringContainerContexts")
+@Component("globalSpringApplicationContextHolder")
 @Lazy(false)
 @Deprecated
-public class SpringContexts implements ApplicationContextAware, DisposableBean {
-	final private static Logger logger = LoggerFactory.getLogger(SpringContexts.class);
+public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
+
+	final private static SmartLogger log = getLogger(SpringContextHolder.class);
 
 	private static ApplicationContext _actx;
 
@@ -48,9 +51,9 @@ public class SpringContexts implements ApplicationContextAware, DisposableBean {
 	 */
 	@Override
 	public void setApplicationContext(ApplicationContext actx) {
-		logger.debug("Inject the ApplicationContext into the SpringContextHolder:" + actx);
+		log.debug("Inject the ApplicationContext into the SpringContextHolder:" + actx);
 		if (_actx != null) {
-			logger.warn("The ApplicationContext in the SpringContextHolder is overridden. The original ApplicationContext is:"
+			log.warn("The ApplicationContext in the SpringContextHolder is overridden. The original ApplicationContext is:"
 					+ _actx);
 		}
 		_actx = actx; // NOSONAR
@@ -96,7 +99,7 @@ public class SpringContexts implements ApplicationContextAware, DisposableBean {
 	 * Clear the ApplicationContext in the SpringContextHolder to Null.
 	 */
 	public static void clear() {
-		logger.debug("Clear the ApplicationContext in the SpringContextHolder:" + _actx);
+		log.debug("Clear the ApplicationContext in the SpringContextHolder:" + _actx);
 		_actx = null;
 	}
 

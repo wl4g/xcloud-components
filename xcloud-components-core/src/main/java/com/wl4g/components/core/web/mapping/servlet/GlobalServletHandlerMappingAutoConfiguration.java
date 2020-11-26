@@ -38,7 +38,10 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.web.mapping.SmartHandlerMapping;
 
 /**
- * {@link DelegateServletHandlerMappingAutoConfiguration}
+ * Global application delegate request handler mapping auto configuration. </br>
+ * </br>
+ * Notes: Application level global priority and uniqueness configurer (will
+ * override the spring default instance).
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-26
@@ -49,16 +52,16 @@ import com.wl4g.components.core.web.mapping.SmartHandlerMapping;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DelegateServletHandlerMappingAutoConfiguration implements WebMvcRegistrations {
+public class GlobalServletHandlerMappingAutoConfiguration implements WebMvcRegistrations {
 
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return delegateRequestMappingHandlerMapping();
+		return globalDelegateRequestMappingHandlerMapping();
 	}
 
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	@Bean
-	public DelegateRequestMappingHandlerMapping delegateRequestMappingHandlerMapping() {
+	public DelegateRequestMappingHandlerMapping globalDelegateRequestMappingHandlerMapping() {
 		return new DelegateRequestMappingHandlerMapping();
 	}
 
@@ -70,7 +73,7 @@ public class DelegateServletHandlerMappingAutoConfiguration implements WebMvcReg
 	 * @sine v1.0
 	 * @see
 	 */
-	public static class DelegateRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
+	static class DelegateRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
 
 		protected final SmartLogger log = getLogger(getClass());
 
@@ -82,7 +85,9 @@ public class DelegateServletHandlerMappingAutoConfiguration implements WebMvcReg
 		@Override
 		public void afterPropertiesSet() {
 			// Sort multi handler mappings.
-			AnnotationAwareOrderComparator.sort(handlerMappings);
+			if (!CollectionUtils2.isEmpty(handlerMappings)) {
+				AnnotationAwareOrderComparator.sort(handlerMappings);
+			}
 
 			super.afterPropertiesSet();
 		}

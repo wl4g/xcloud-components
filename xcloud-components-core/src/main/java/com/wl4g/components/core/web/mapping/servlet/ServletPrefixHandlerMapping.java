@@ -27,8 +27,6 @@ import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.wl4g.components.core.web.mapping.PrefixHandlerMapping;
-
 import javax.annotation.Nullable;
 
 /**
@@ -40,7 +38,7 @@ import javax.annotation.Nullable;
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
  */
-public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping implements PrefixHandlerMapping {
+public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping {
 
 	private final String mappingPrefix;
 	private final Object handlers[];

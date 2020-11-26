@@ -49,10 +49,9 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
 
 import com.wl4g.components.core.web.mapping.AbstractHandlerMappingSupport;
-import com.wl4g.components.core.web.mapping.PrefixHandlerMapping;
 
 /**
- * Smart DevOps error controller auto configuration
+ * Global error controller handler auto configuration.
  * 
  * @author wangl.sir
  * @version v1.0 2019年1月10日
@@ -79,7 +78,7 @@ public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupp
 	}
 
 	@Bean
-	public PrefixHandlerMapping errorHandlerPrefixHandlerMapping() {
+	public Object errorHandlerPrefixHandlerMapping() {
 		return super.newPrefixHandlerMapping("/", ErrorController.class);
 	}
 

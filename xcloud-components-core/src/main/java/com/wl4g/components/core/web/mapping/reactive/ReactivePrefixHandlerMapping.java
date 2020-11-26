@@ -29,7 +29,6 @@ import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
 
-import com.wl4g.components.core.web.mapping.PrefixHandlerMapping;
 import com.wl4g.components.core.web.mapping.AbstractHandlerMappingSupport.PathUtils;
 
 import javax.annotation.Nullable;
@@ -43,7 +42,7 @@ import javax.annotation.Nullable;
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
  */
-public class ReactivePrefixHandlerMapping extends RequestMappingHandlerMapping implements PrefixHandlerMapping {
+public class ReactivePrefixHandlerMapping extends RequestMappingHandlerMapping {
 
 	private final String mappingPrefix;
 	private final Object handlers[];

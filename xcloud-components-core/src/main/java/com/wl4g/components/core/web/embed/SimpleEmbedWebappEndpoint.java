@@ -23,7 +23,7 @@ import com.wl4g.components.common.resource.StreamResource;
 import com.wl4g.components.common.resource.resolver.ClassPathResourcePatternResolver;
 import com.wl4g.components.common.resource.resolver.ResourcePatternResolver;
 import com.wl4g.components.core.web.BaseController;
-import com.wl4g.components.core.web.embed.DefaultEmbeddedWebappAutoConfiguration.GenericEmbeddedWebappProperties;
+import com.wl4g.components.core.web.embed.EmbedWebappAutoConfiguration.SimpleEmbedWebappProperties;
 import com.wl4g.components.core.web.embed.WebResourceCache.*;
 
 import static com.google.common.io.ByteStreams.*;
@@ -50,18 +50,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Generic embedded webapp endpoint.
+ * Simple generic embedded webapp endpoint.
  *
  * @author wangl.sir
  * @version v1.0 2019年1月9日
  * @since
  */
-public abstract class GenericEmbeddedWebappEndpoint extends BaseController {
+public class SimpleEmbedWebappEndpoint extends BaseController {
 
 	/**
 	 * {@link DefaultWebAppControllerProperties}
 	 */
-	final protected GenericEmbeddedWebappProperties config;
+	final protected SimpleEmbedWebappProperties config;
 
 	/**
 	 * Web file buffer cache
@@ -73,11 +73,11 @@ public abstract class GenericEmbeddedWebappEndpoint extends BaseController {
 	 */
 	final protected ResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
 
-	public GenericEmbeddedWebappEndpoint(GenericEmbeddedWebappProperties config) {
+	public SimpleEmbedWebappEndpoint(SimpleEmbedWebappProperties config) {
 		this(config, new DefaultWebappsGuavaCache());
 	}
 
-	public GenericEmbeddedWebappEndpoint(GenericEmbeddedWebappProperties config, WebResourceCache cache) {
+	public SimpleEmbedWebappEndpoint(SimpleEmbedWebappProperties config, WebResourceCache cache) {
 		notNullOf(config, "embeddedWebappControllerProperties");
 		this.config = config;
 		this.cache = cache;

@@ -61,7 +61,7 @@ public abstract class AbstractHandlerMappingSupport implements ApplicationContex
 	 * @param annotationClass
 	 * @return
 	 */
-	protected PrefixHandlerMapping newPrefixHandlerMapping(@NotBlank String mappingPrefix,
+	protected Object newPrefixHandlerMapping(@NotBlank String mappingPrefix,
 			@NotNull Class<? extends Annotation> annotationClass) {
 		hasTextOf(mappingPrefix, "mappingPrefix");
 		notNullOf(annotationClass, "annotationClass");
@@ -77,7 +77,7 @@ public abstract class AbstractHandlerMappingSupport implements ApplicationContex
 	 * @param handlers
 	 * @return
 	 */
-	protected PrefixHandlerMapping newPrefixHandlerMapping(@NotBlank String mappingPrefix, @NotNull Object... handlers) {
+	protected Object newPrefixHandlerMapping(@NotBlank String mappingPrefix, @NotNull Object... handlers) {
 		hasTextOf(mappingPrefix, "mappingPrefix");
 		notNullOf(handlers, "handlers");
 		if (isReactiveWebApplication()) { // Reactive priority
