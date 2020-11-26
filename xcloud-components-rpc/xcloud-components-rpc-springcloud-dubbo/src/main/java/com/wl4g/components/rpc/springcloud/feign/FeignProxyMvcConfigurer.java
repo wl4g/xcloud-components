@@ -28,6 +28,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionService;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import org.springframework.web.bind.WebDataBinder;
@@ -55,6 +56,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wl4g.components.core.framework.HierarchyParameterNameDiscoverer;
 import com.wl4g.components.core.web.mapping.SmartHandlerMapping;
+import static com.wl4g.components.rpc.springcloud.feign.FeignProxyMvcConfigurer.FeignProxyHandlerMapping.ORDER_VALUE;
 
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean;
 
@@ -210,6 +212,7 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 	 * @sine v1.0
 	 * @see
 	 */
+	@Order(ORDER_VALUE)
 	public static class FeignProxyHandlerMapping extends RequestMappingHandlerMapping implements SmartHandlerMapping {
 
 		@Override
@@ -232,6 +235,8 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 				}
 			}
 		}
+
+		public static final int ORDER_VALUE = 54321;
 
 	}
 

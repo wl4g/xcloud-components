@@ -17,6 +17,7 @@ package com.wl4g.components.core.web.mapping.servlet;
 
 import static com.wl4g.components.common.collection.Collections2.safeList;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Objects.nonNull;
 
 import java.util.List;
 
@@ -74,15 +75,28 @@ public class DelegateServletHandlerMappingAutoConfiguration implements WebMvcReg
 		protected final SmartLogger log = getLogger(getClass());
 
 		@Autowired(required = false)
-		protected List<SmartHandlerMapping> handlerMapping;
+		private List<SmartHandlerMapping> handlerMappings;
+
+		private boolean print = false;
+
+		@Override
+		public void afterPropertiesSet() {
+			// Sort multi handler mappings.
+			AnnotationAwareOrderComparator.sort(handlerMappings);
+
+			super.afterPropertiesSet();
+		}
 
 		@Override
 		protected void processCandidateBean(String beanName) {
-			if (CollectionUtils2.isEmpty(handlerMapping)) {
-				// Skip customize request handler mapping.
+			if (CollectionUtils2.isEmpty(handlerMappings)) {
+				if (!print) {
+					print = true;
+					log.warn(
+							"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
+				}
+				// Fallback request handler mapping.
 				super.processCandidateBean(beanName);
-				log.warn(
-						"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
 				return;
 			}
 
@@ -92,27 +106,27 @@ public class DelegateServletHandlerMappingAutoConfiguration implements WebMvcReg
 			} catch (Throwable ex) {
 				// An unresolvable bean type, probably from a lazy bean - let's
 				// ignore it.
-				if (logger.isTraceEnabled()) {
-					logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
-				}
+				log.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 
-			if (beanType != null && isHandler(beanType)) {
-				// Multi handler mappings sorts.
-				AnnotationAwareOrderComparator.sort(handlerMapping);
-
-				boolean delegated = false;
-				for (SmartHandlerMapping mapping : safeList(handlerMapping)) {
+			if (nonNull(beanType) && isHandler(beanType)) {
+				boolean matched = false;
+				for (SmartHandlerMapping mapping : safeList(handlerMappings)) {
 					// Invoke best matchs handler.
 					if (mapping.isSupport(beanName, beanType)) {
-						delegated = true;
-						mapping.doDetectHandlerMethods(beanName);
+						matched = true;
 						log.info("Delegating best request handler mapping for: {}", mapping);
+						mapping.doDetectHandlerMethods(beanName);
 						break;
 					}
 				}
-				if (!delegated) {
-					log.warn("No suitable request mapping processor was found. all handler mappings: {}", handlerMapping);
+				if (!matched) {
+					if (!print) {
+						print = true;
+						log.warn("No suitable request mapping processor was found. all handler mappings: {}", handlerMappings);
+					}
+					// Fallback request handler mapping.
+					super.processCandidateBean(beanName);
 				}
 			}
 
