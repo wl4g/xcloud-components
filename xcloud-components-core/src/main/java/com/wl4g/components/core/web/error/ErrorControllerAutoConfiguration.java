@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config;
+package com.wl4g.components.core.web.error;
 
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
-import static com.wl4g.components.core.config.ErrorControllerAutoConfiguration.KEY_PROPERTY_PREFIX;
 import static com.wl4g.components.common.serialize.JacksonUtils.convertBean;
+import static com.wl4g.components.core.web.error.ErrorControllerAutoConfiguration.KEY_PROPERTY_PREFIX;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Documented;
@@ -48,13 +48,8 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
 
-import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
-import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
-import com.wl4g.components.core.web.error.CompositeErrorConfigurer;
-import com.wl4g.components.core.web.error.DefaultErrorConfigurer;
-import com.wl4g.components.core.web.error.ErrorConfigurer;
-import com.wl4g.components.core.web.error.ReactiveSmartErrorHandler;
-import com.wl4g.components.core.web.error.ServletSmartErrorHandler;
+import com.wl4g.components.core.web.mapping.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.web.mapping.PrefixHandlerMapping;
 
 /**
  * Smart DevOps error controller auto configuration

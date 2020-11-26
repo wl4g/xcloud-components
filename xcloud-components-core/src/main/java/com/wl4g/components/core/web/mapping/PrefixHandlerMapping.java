@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config.mapping;
+package com.wl4g.components.core.web.mapping;
 
 /**
  * {@link PrefixHandlerMapping}
@@ -24,5 +24,21 @@ package com.wl4g.components.core.config.mapping;
  * @see
  */
 public interface PrefixHandlerMapping {
+
+	/**
+	 * Gets request handler. </br>
+	 * </br>
+	 * refer:
+	 * {@link org.springframework.web.reactive.HandlerMapping#getHandler(org.springframework.web.server.ServerWebExchange)}</br>
+	 * </br>
+	 * {@link org.springframework.web.servlet.HandlerMapping#getHandler(javax.servlet.http.HttpServletRequest)}
+	 * 
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	default Object getHandler(Object request) throws Exception {
+		return null;
+	}
 
 }

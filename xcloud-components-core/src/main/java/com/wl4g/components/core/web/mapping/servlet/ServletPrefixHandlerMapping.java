@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config.mapping;
+package com.wl4g.components.core.web.mapping.servlet;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import org.springframework.web.reactive.result.condition.PatternsRequestCondition;
-import org.springframework.web.reactive.result.method.RequestMappingInfo;
-import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import com.wl4g.components.core.web.mapping.PrefixHandlerMapping;
 
 import javax.annotation.Nullable;
-import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport.PathUtils;
 
 /**
- * {@link ReactivePrefixHandlerMapping}
+ * {@link ServletPrefixHandlerMapping}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020-09-12
@@ -41,12 +40,12 @@ import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport.Pat
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
  */
-public class ReactivePrefixHandlerMapping extends RequestMappingHandlerMapping implements PrefixHandlerMapping {
+public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping implements PrefixHandlerMapping {
 
 	private final String mappingPrefix;
 	private final Object handlers[];
 
-	public ReactivePrefixHandlerMapping(@Nullable String mappingPrefix, @NotNull Object... handlers) {
+	public ServletPrefixHandlerMapping(@Nullable String mappingPrefix, @NotNull Object... handlers) {
 		// Default by empty
 		this.mappingPrefix = isBlank(mappingPrefix) ? "" : mappingPrefix;
 		this.handlers = handlers.clone();
@@ -75,19 +74,16 @@ public class ReactivePrefixHandlerMapping extends RequestMappingHandlerMapping i
 	}
 
 	private RequestMappingInfo withPrefix(RequestMappingInfo mapping) {
-		PatternsRequestCondition patterns = new PatternsRequestCondition(
-				withNewPatterns(mapping.getPatternsCondition().getPatterns()));
+		List<String> newPatterns = withNewPatterns(mapping);
+
+		PatternsRequestCondition patterns = new PatternsRequestCondition(newPatterns.toArray(new String[newPatterns.size()]));
 		return new RequestMappingInfo(patterns, mapping.getMethodsCondition(), mapping.getParamsCondition(),
 				mapping.getHeadersCondition(), mapping.getConsumesCondition(), mapping.getProducesCondition(),
 				mapping.getCustomCondition());
 	}
 
-	/**
-	 * @see {@link de.codecentric.boot.admin.server.web.reactive.AdminControllerHandlerMapping#withNewPatterns(Set)}
-	 */
-	private List<PathPattern> withNewPatterns(Set<PathPattern> patterns) {
-		return patterns.stream()
-				.map(pattern -> getPathPatternParser().parse(PathUtils.normalizePath(mappingPrefix.concat(pattern.toString()))))
+	private List<String> withNewPatterns(RequestMappingInfo mapping) {
+		return mapping.getPatternsCondition().getPatterns().stream().map(pattern -> mappingPrefix.concat(pattern))
 				.collect(toList());
 	}
 

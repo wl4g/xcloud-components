@@ -26,7 +26,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.components.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 /**
  * Default basic error configure.

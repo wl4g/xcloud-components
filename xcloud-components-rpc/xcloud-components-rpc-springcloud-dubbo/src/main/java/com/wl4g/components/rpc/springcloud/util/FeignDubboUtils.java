@@ -16,6 +16,7 @@
 package com.wl4g.components.rpc.springcloud.util;
 
 import static com.wl4g.components.common.lang.ClassUtils2.getShortName;
+import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.uncapitalize;
 
@@ -36,13 +37,23 @@ import com.wl4g.components.rpc.springcloud.feign.FeignProxyController;
 public abstract class FeignDubboUtils {
 
 	/**
-	 * Check whether the feign client proxed bean name.
+	 * Check whether the feign provider proxed bean name.
 	 * 
 	 * @param beanDefinition
 	 * @return
 	 */
 	public static boolean isFeignProxyBean(BeanDefinition beanDefinition) {
 		return beanDefinition.getAttribute(FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE) != null;
+	}
+
+	/**
+	 * Check whether the feign provider proxed bean name.
+	 * 
+	 * @param beanName
+	 * @return
+	 */
+	public static boolean isFeignProxyBean(String beanName) {
+		return valueOf(beanName).endsWith(FEIGNPROXY_BEAN_SUFFIX);
 	}
 
 	/**

@@ -177,7 +177,7 @@ public class FeignProviderProxiesConfigurer
 		enhancer.setInterfaces(new Class[] { interfaceClass, FeignProxyController.class });
 		Object proxy = enhancer.create();
 
-		RootBeanDefinition proxyBeanDefinition = new RootBeanDefinition(proxy.getClass().getName());
+		RootBeanDefinition proxyBeanDefinition = new RootBeanDefinition();
 		proxyBeanDefinition.setInstanceSupplier(() -> proxy);
 		proxyBeanDefinition.setAttribute(FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE, interfaceClass);
 		// Must be a proxy class. refer:

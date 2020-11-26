@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config;
+package com.wl4g.components.core.web.embed;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -22,9 +22,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.wl4g.components.core.config.mapping.AbstractHandlerMappingSupport;
-import com.wl4g.components.core.config.mapping.PrefixHandlerMapping;
-import com.wl4g.components.core.web.embed.GenericEmbeddedWebappEndpoint;
+import com.wl4g.components.core.web.mapping.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.web.mapping.PrefixHandlerMapping;
 
 import java.util.Properties;
 

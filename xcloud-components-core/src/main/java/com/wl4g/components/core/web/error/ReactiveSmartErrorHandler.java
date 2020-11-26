@@ -47,8 +47,9 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.CookieUtils;
 import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
-import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
+import com.wl4g.components.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+
 import static com.wl4g.components.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
 
 import reactor.core.publisher.Mono;

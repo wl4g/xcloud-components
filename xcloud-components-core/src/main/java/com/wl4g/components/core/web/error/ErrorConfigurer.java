@@ -49,7 +49,8 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.view.Freemarkers;
 import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
-import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.components.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+
 import static com.wl4g.components.common.web.rest.RespBase.RetCode.newCode;
 
 import freemarker.template.Configuration;

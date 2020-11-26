@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.wl4g.components.common.resource.StreamResource;
 import com.wl4g.components.common.resource.resolver.ClassPathResourcePatternResolver;
 import com.wl4g.components.common.resource.resolver.ResourcePatternResolver;
-import com.wl4g.components.core.config.DefaultEmbeddedWebappAutoConfiguration.GenericEmbeddedWebappProperties;
 import com.wl4g.components.core.web.BaseController;
+import com.wl4g.components.core.web.embed.DefaultEmbeddedWebappAutoConfiguration.GenericEmbeddedWebappProperties;
 import com.wl4g.components.core.web.embed.WebResourceCache.*;
 
 import static com.google.common.io.ByteStreams.*;

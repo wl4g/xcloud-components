@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.config.mapping;
+package com.wl4g.components.core.web.mapping;
 
 import static com.wl4g.components.common.lang.Assert2.hasTextOf;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
@@ -30,6 +30,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
 
 import com.wl4g.components.common.lang.ClassUtils2;
+import com.wl4g.components.core.web.mapping.reactive.ReactivePrefixHandlerMapping;
+import com.wl4g.components.core.web.mapping.servlet.ServletPrefixHandlerMapping;
 
 /**
  * Abstract prefix request handler mapping auto configuration support.
@@ -99,7 +101,7 @@ public abstract class AbstractHandlerMappingSupport implements ApplicationContex
 	 * 
 	 * @see
 	 */
-	protected final static class PathUtils {
+	public final static class PathUtils {
 
 		private PathUtils() {
 		}

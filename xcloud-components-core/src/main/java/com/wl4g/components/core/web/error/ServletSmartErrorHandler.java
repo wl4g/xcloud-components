@@ -42,9 +42,9 @@ import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
-import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorController;
-import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
+import com.wl4g.components.core.web.error.ErrorControllerAutoConfiguration.ErrorController;
+import com.wl4g.components.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 /**
  * Servlet smart global error controller.

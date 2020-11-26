@@ -25,8 +25,11 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,12 +47,16 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.PathVariableMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestAttributeMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestPartMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import org.springframework.web.servlet.mvc.method.annotation.ServletCookieValueMethodArgumentResolver;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wl4g.components.core.framework.HierarchyParameterNameDiscoverer;
+import com.wl4g.components.core.web.mapping.SmartHandlerMapping;
+
+import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean;
 
 /**
  * {@link FeignProxyMvcConfigurer}
@@ -66,6 +73,11 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 
 	@Autowired
 	private ConfigurableBeanFactory beanFactory;
+
+	@Bean
+	public FeignProxyHandlerMapping feignProxyHandlerMapping() {
+		return new FeignProxyHandlerMapping();
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -188,6 +200,39 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 			parameter.initParameterNameDiscovery(HierarchyParameterNameDiscoverer.DEFAULT);
 		}
 		return parameter;
+	}
+
+	/**
+	 * {@link FeignProxyHandlerMapping}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @version v1.0 2020-11-26
+	 * @sine v1.0
+	 * @see
+	 */
+	public static class FeignProxyHandlerMapping extends RequestMappingHandlerMapping implements SmartHandlerMapping {
+
+		@Override
+		public boolean isSupport(String beanName, Class<?> beanType) {
+			// In order to solve the following problems, spring will scan
+			// the @RequestMapping annotation class by default and inject
+			// it into MapperRegistry, which will cause conflicts with the
+			// dynamically generated $FeignProxyController class.
+			if (hasAnnotation(beanType, FeignClient.class)) {
+				return isFeignProxyBean(beanName);
+			}
+			return false;
+		}
+
+		@Override
+		protected void detectHandlerMethods(Object handler) {
+			if (handler instanceof String) { // beanName
+				if (isFeignProxyBean((String) handler)) {
+					super.detectHandlerMethods(handler);
+				}
+			}
+		}
+
 	}
 
 }

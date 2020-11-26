@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.junit.Test;
 
 import com.github.pagehelper.Page;
+import com.wl4g.components.core.bean.model.PageModel;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
