@@ -41,6 +41,9 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
+import static org.springframework.boot.web.error.ErrorAttributeOptions.of;
+import static org.springframework.boot.web.error.ErrorAttributeOptions.Include.*;
 
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.view.Freemarkers;
@@ -260,6 +263,16 @@ public abstract class ErrorConfigurer implements InitializingBean {
 		}
 
 		return errmsg.toString();
+	}
+
+	/**
+	 * Obtain error attribute options.
+	 * 
+	 * @param isStacktrace
+	 * @return
+	 */
+	public static ErrorAttributeOptions obtainErrorAttributeOptions(boolean isStacktrace) {
+		return isStacktrace ? of(STACK_TRACE, MESSAGE, BINDING_ERRORS, EXCEPTION) : of(MESSAGE, BINDING_ERRORS, EXCEPTION);
 	}
 
 	/**

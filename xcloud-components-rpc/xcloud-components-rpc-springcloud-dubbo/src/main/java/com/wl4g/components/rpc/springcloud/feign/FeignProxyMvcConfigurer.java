@@ -52,14 +52,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.wl4g.components.core.framework.HierarchyParameterNameDiscoverer;
 
 /**
- * {@link FeignProxyMvcConfiguration}
+ * {@link FeignProxyMvcConfigurer}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2019-11-20
  * @sine v1.0
  * @see Thannks refer: https://gitee.com/leecho/spring-cloud-feign-proxy
  */
-public class FeignProxyMvcConfiguration implements InitializingBean {
+public class FeignProxyMvcConfigurer implements InitializingBean {
 
 	@Autowired
 	private RequestMappingHandlerAdapter adapter;

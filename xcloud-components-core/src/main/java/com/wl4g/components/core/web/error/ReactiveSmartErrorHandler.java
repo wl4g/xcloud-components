@@ -49,6 +49,7 @@ import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
+import static com.wl4g.components.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
 
 import reactor.core.publisher.Mono;
 
@@ -60,6 +61,7 @@ import reactor.core.publisher.Mono;
  * @sine v1.0.0
  * @see https://blog.csdn.net/keets1992/article/details/85077874
  */
+// @ErrorController
 // @ControllerAdvice
 public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler implements InitializingBean {
 
@@ -86,7 +88,7 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 	@Override
 	protected Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
 		boolean _stacktrace = isStackTrace(request);
-		Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
+		Map<String, Object> model = super.getErrorAttributes(request, obtainErrorAttributeOptions(_stacktrace));
 		if (_stacktrace) {
 			log.error("Origin Errors - {}", model);
 		}

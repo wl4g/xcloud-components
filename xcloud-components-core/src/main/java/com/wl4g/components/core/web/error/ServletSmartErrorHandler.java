@@ -15,11 +15,6 @@
  */
 package com.wl4g.components.core.web.error;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -41,12 +36,13 @@ import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.common.web.WebUtils2.checkRequestErrorStacktrace;
 import static com.wl4g.components.common.web.WebUtils2.write;
 import static com.wl4g.components.common.web.WebUtils2.writeJson;
-import static com.wl4g.components.core.web.error.ServletSmartErrorHandler.ServletErrorController;
+import static com.wl4g.components.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
 
 import com.wl4g.components.common.jvm.JvmRuntimeKit;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.components.common.web.rest.RespBase;
+import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorController;
 import com.wl4g.components.core.config.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
 
@@ -57,7 +53,7 @@ import com.wl4g.components.core.web.error.ErrorConfigurer.RenderingErrorHandler;
  * @version v1.0 2019年1月10日
  * @since
  */
-@ServletErrorController
+@ErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class ServletSmartErrorHandler extends AbstractErrorController {
@@ -143,7 +139,7 @@ public class ServletSmartErrorHandler extends AbstractErrorController {
 	 */
 	private Map<String, Object> getErrorAttributes(HttpServletRequest request, Throwable th) {
 		boolean _stacktrace = isStackTrace(request);
-		Map<String, Object> model = super.getErrorAttributes(request, _stacktrace);
+		Map<String, Object> model = super.getErrorAttributes(request, obtainErrorAttributeOptions(_stacktrace));
 		if (_stacktrace) {
 			log.error("Origin Errors - {}", model);
 		}
@@ -166,19 +162,6 @@ public class ServletSmartErrorHandler extends AbstractErrorController {
 			return true;
 		}
 		return checkRequestErrorStacktrace(request);
-	}
-
-	/**
-	 * {@link ServletErrorController}
-	 *
-	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
-	 * @version v1.0 2020-09-09
-	 * @since
-	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.TYPE })
-	@Documented
-	public static @interface ServletErrorController {
 	}
 
 	private static final String DEFAULT_ERROR_PATH = "/error";
