@@ -130,7 +130,7 @@ public class FeignProxyInvocationHandler implements ProxyInvocation {
 	private final Object obtainBestCandidateTargetBean() {
 		Collection<?> candidateBeans = safeMap(applicationContext.getBeansOfType(targetInterfaceType)).values();
 		if (CollectionUtils2.isEmpty(candidateBeans)) {
-			throw new BeanNotFeignProxyTargetException(targetInterfaceType);
+			throw new NoFeignProxyTargetBeanException(targetInterfaceType);
 		}
 
 		// Filtering candidate beans
@@ -143,12 +143,12 @@ public class FeignProxyInvocationHandler implements ProxyInvocation {
 			return best;
 		} else {
 			if (bestCandidates.size() > 1) {
-				throw new BeanNotFeignProxyTargetException(
+				throw new NoFeignProxyTargetBeanException(
 						format("Ambiguous feign proxy target multiple beans of interface type '%s', all candidate beans: {}",
 								targetInterfaceType, candidateBeans),
 						targetInterfaceType);
 			}
-			throw new BeanNotFeignProxyTargetException(
+			throw new NoFeignProxyTargetBeanException(
 					format("No best target bean of interface type '%s' was obtain for the feign proxy. candidate beans: {}",
 							targetInterfaceType, candidateBeans),
 					targetInterfaceType);

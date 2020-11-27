@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.mapping.reactive;
+package com.wl4g.components.core.web.method;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -29,7 +29,7 @@ import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
 
-import com.wl4g.components.core.web.mapping.AbstractHandlerMappingSupport.PathUtils;
+import com.wl4g.components.core.web.method.AbstractHandlerMappingSupport.PathUtils;
 
 import javax.annotation.Nullable;
 
@@ -41,6 +41,7 @@ import javax.annotation.Nullable;
  * @sine v1.0.0
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
+ * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
  */
 public class ReactivePrefixHandlerMapping extends RequestMappingHandlerMapping {
 

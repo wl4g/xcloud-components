@@ -22,7 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.wl4g.components.core.web.mapping.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.web.method.AbstractHandlerMappingSupport;
 
 import java.util.Properties;
 

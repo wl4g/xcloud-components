@@ -56,7 +56,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wl4g.components.core.framework.HierarchyParameterNameDiscoverer;
 import com.wl4g.components.core.web.mapping.SmartHandlerMapping;
-import static com.wl4g.components.rpc.springcloud.feign.FeignProxyMvcConfigurer.FeignProxyHandlerMapping.ORDER_VALUE;
+
+import static com.wl4g.components.rpc.springcloud.feign.FeignProxyMvcConfigurer2.FeignProxyRequestHandlerMapping.ORDER_VALUE;
 
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean;
 
@@ -68,7 +69,7 @@ import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignPr
  * @sine v1.0
  * @see Thannks refer: https://gitee.com/leecho/spring-cloud-feign-proxy
  */
-public class FeignProxyMvcConfigurer implements InitializingBean {
+public class FeignProxyMvcConfigurer2 implements InitializingBean {
 
 	@Autowired
 	private RequestMappingHandlerAdapter adapter;
@@ -77,8 +78,8 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 	private ConfigurableBeanFactory beanFactory;
 
 	@Bean
-	public FeignProxyHandlerMapping feignProxyHandlerMapping() {
-		return new FeignProxyHandlerMapping();
+	public FeignProxyRequestHandlerMapping feignProxyHandlerMapping() {
+		return new FeignProxyRequestHandlerMapping();
 	}
 
 	@Override
@@ -205,7 +206,7 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 	}
 
 	/**
-	 * {@link FeignProxyHandlerMapping}
+	 * {@link FeignProxyRequestHandlerMapping}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-11-26
@@ -213,7 +214,14 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 	 * @see
 	 */
 	@Order(ORDER_VALUE)
-	public static class FeignProxyHandlerMapping extends RequestMappingHandlerMapping implements SmartHandlerMapping {
+	public static class FeignProxyRequestHandlerMapping extends RequestMappingHandlerMapping implements SmartHandlerMapping {
+
+		@Override
+		public void afterPropertiesSet() {
+			System.out.println(11);
+			System.out.println(11);
+			System.out.println(11);
+		}
 
 		@Override
 		public boolean isSupport(String beanName, Class<?> beanType) {
@@ -230,9 +238,7 @@ public class FeignProxyMvcConfigurer implements InitializingBean {
 		@Override
 		protected void detectHandlerMethods(Object handler) {
 			if (handler instanceof String) { // beanName
-				if (isFeignProxyBean((String) handler)) {
-					super.detectHandlerMethods(handler);
-				}
+				super.detectHandlerMethods(handler);
 			}
 		}
 

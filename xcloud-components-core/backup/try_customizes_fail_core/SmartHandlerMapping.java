@@ -48,10 +48,14 @@ public interface SmartHandlerMapping {
 	 */
 	default void doDetectHandlerMethods(Object handler) {
 		if (servletRequestHandlerMappingClass.isInstance(this)) {
-			makeAccessible(servletDetectHandlerMethods);
+			if (!servletDetectHandlerMethods.isAccessible()) {
+				makeAccessible(servletDetectHandlerMethods);
+			}
 			invokeMethod(servletDetectHandlerMethods, this, handler);
 		} else if (reactiveRequestHandlerMappingClass.isInstance(this)) {
-			makeAccessible(servletDetectHandlerMethods);
+			if (!reactiveDetectHandlerMethods.isAccessible()) {
+				makeAccessible(reactiveDetectHandlerMethods);
+			}
 			invokeMethod(reactiveDetectHandlerMethods, this, handler);
 		} else {
 			throw new IllegalStateException(format("The request handler mapping  must inherit '%s' or '%s'",
