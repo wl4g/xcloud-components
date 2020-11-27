@@ -18,7 +18,7 @@ package com.wl4g.components.rpc.springcloud.feign.annotation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Import;
 
-import com.wl4g.components.rpc.springcloud.feign.web.FeignProxyServletMvcConfigurer;
+import com.wl4g.components.rpc.springcloud.feign.FeignServletMvcAutoConfiguration;
 
 import java.lang.annotation.*;
 
@@ -40,7 +40,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ FeignProviderProxiesRegistrar.class, FeignProxyServletMvcConfigurer.class })
+@Import({ FeignProviderProxiesRegistrar.class, FeignServletMvcAutoConfiguration.class })
 public @interface EnableFeignProviderProxies {
 
 	/**

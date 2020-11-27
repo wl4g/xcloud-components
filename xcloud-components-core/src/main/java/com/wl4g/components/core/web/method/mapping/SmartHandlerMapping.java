@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.mapping;
+package com.wl4g.components.core.web.method.mapping;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;

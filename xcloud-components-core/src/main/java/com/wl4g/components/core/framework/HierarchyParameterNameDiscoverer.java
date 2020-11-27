@@ -88,6 +88,7 @@ public class HierarchyParameterNameDiscoverer extends DefaultParameterNameDiscov
 		Class<?> clazz = method.getDeclaringClass();
 		do {
 			classes.add(clazz);
+			classes.addAll(safeArrayToList(clazz.getInterfaces()));
 			clazz = clazz.getSuperclass();
 		} while (nonNull(clazz) && clazz != Object.class);
 
