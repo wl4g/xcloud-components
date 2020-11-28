@@ -165,7 +165,6 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 				registeredMappings.put(mapping, handlerMethod);
 				super.registerMapping(mapping, handler, method);
 			} else {
-				logger.warn("");
 				logger.warn(format(
 						"Skipped ambiguous mapping. Cannot bean '%s' method '%s' to '%s': There is already '%s' bean method '%s' mapped.",
 						handlerMethod.getBean(), handlerMethod, mapping, existingHandlerMethod.getBean(), existingHandlerMethod));
@@ -186,6 +185,10 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
 
 		private volatile DelegateServletHandlerMapping delegate;
+
+		public ServletHandlerMappingSupport() {
+			setOrder(0); // By default order
+		}
 
 		@Override
 		public final void afterPropertiesSet() {
