@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.rpc.springcloud.feign;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -27,5 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @see
  */
 @RestController
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public interface FeignProxyController {
 }

@@ -40,6 +40,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
 
 import com.wl4g.components.common.collection.CollectionUtils2;
 
@@ -104,7 +105,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		}
 
 		@Override
-		protected void processCandidateBean(String beanName) {
+		protected final void processCandidateBean(String beanName) {
 			if (CollectionUtils2.isEmpty(handlerMappings)) {
 				if (!print) {
 					print = true;
@@ -133,7 +134,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 					if (mapping.supports(beanName, beanType)) {
 						supported = true;
 						logger.info(
-								format("The bean: [%s] is being delegated to the best request mapping handler registration: [%s]",
+								format("The bean: '%s' is being delegated to the best request mapping handler registration: '%s'",
 										beanName, mapping));
 						mapping.processCandidateBean(beanName);
 					}
@@ -159,21 +160,46 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 */
 		@Override
 		public void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			HandlerMethod handlerMethod = createHandlerMethod(handler, method);
-			HandlerMethod existingHandlerMethod = registeredMappings.get(mapping);
-			if (isNull(existingHandlerMethod) || existingHandlerMethod.equals(handlerMethod)) {
-				registeredMappings.put(mapping, handlerMethod);
-				super.registerMapping(mapping, handler, method);
-			} else {
-				logger.warn(format(
-						"Skipped ambiguous mapping. Cannot bean '%s' method '%s' to '%s': There is already '%s' bean method '%s' mapped.",
-						handlerMethod.getBean(), handlerMethod, mapping, existingHandlerMethod.getBean(), existingHandlerMethod));
-			}
+			smartOverrideRegisterMapping(mapping, handler, method);
 		}
 
 		@Override
 		public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
 			registerMapping(mapping, handler, method);
+		}
+
+		private final void smartOverrideRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
+			HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
+			HandlerMethod oldHandlerMethod = registeredMappings.get(mapping);
+
+			// Compare the order of the old and new mapping objects to
+			// determine whether to perform the logic to override or preserve
+			// the old mapping.
+			Object newObj = getApplicationContext().getBean((String) newHandlerMethod.getBean());
+			Object oldObj = !isNull(oldHandlerMethod) ? getApplicationContext().getBean((String) oldHandlerMethod.getBean())
+					: new Object();
+			final boolean isOverridable = INSTANCE.compare(newObj, oldObj) < 0;
+
+			if (isOverridable) {
+				if (!isNull(oldHandlerMethod) && !oldHandlerMethod.equals(newHandlerMethod)) {
+					// re-register
+					super.unregisterMapping(mapping);
+					logger.warn(format(
+							"Override register mapping. Newer bean '%s' method '%s' to '%s': There is already '%s' older bean method '%s' mapped.",
+							newHandlerMethod.getBean(), newHandlerMethod, mapping, oldHandlerMethod.getBean(), oldHandlerMethod));
+				}
+				super.registerMapping(mapping, handler, method);
+				registeredMappings.put(mapping, newHandlerMethod);
+			} else {
+				if ((isNull(oldHandlerMethod) || oldHandlerMethod.equals(newHandlerMethod))) {
+					super.registerMapping(mapping, handler, method);
+					registeredMappings.put(mapping, newHandlerMethod);
+				} else {
+					logger.warn(format(
+							"Skipped ambiguous mapping. Cannot bean '%s' method '%s' to '%s': There is already '%s' bean method '%s' mapped.",
+							newHandlerMethod.getBean(), newHandlerMethod, mapping, oldHandlerMethod.getBean(), oldHandlerMethod));
+				}
+			}
 		}
 
 	}
