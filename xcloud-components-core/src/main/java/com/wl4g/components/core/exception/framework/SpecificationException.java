@@ -16,9 +16,8 @@
 package com.wl4g.components.core.exception.framework;
 
 import com.wl4g.components.common.web.rest.ServiceUnavailableException;
-import com.wl4g.components.core.exception.DevOpsException;
 
-public class SpecificationException extends DevOpsException implements ServiceUnavailableException {
+public class SpecificationException extends RuntimeException implements ServiceUnavailableException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

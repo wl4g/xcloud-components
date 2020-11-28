@@ -15,9 +15,7 @@
  */
 package com.wl4g.components.core.exception.compoents;
 
-import com.wl4g.components.core.exception.DevOpsException;
-
-public class ComponentsException extends DevOpsException {
+public class ComponentsException extends RuntimeException {
 
 	private static final long serialVersionUID = -2057648817357770642L;
 

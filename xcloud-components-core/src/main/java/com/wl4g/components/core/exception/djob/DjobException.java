@@ -15,9 +15,7 @@
  */
 package com.wl4g.components.core.exception.djob;
 
-import com.wl4g.components.core.exception.DevOpsException;
-
-public class DjobException extends DevOpsException {
+public class DjobException extends RuntimeException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

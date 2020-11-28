@@ -15,9 +15,7 @@
  */
 package com.wl4g.components.core.exception.support;
 
-import com.wl4g.components.core.exception.DevOpsException;
-
-public class NoSuchProcessException extends DevOpsException {
+public class NoSuchProcessException extends RuntimeException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

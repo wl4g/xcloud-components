@@ -15,9 +15,7 @@
  */
 package com.wl4g.components.core.framework.operator;
 
-import com.wl4g.components.core.exception.DevOpsException;
-
-public class NoSuchOperatorException extends DevOpsException {
+public class NoSuchOperatorException extends RuntimeException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

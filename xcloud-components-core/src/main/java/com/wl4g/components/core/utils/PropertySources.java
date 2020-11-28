@@ -148,7 +148,7 @@ public abstract class PropertySources {
 					result.put(String.valueOf(k), v);
 				});
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IllegalArgumentException(e);
 			}
 			return result;
 		}
