@@ -160,6 +160,11 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			if (isNull(existingHandlerMethod) || existingHandlerMethod.equals(handlerMethod)) {
 				registeredMappings.put(mapping, handlerMethod);
 				super.registerMapping(mapping, handler, method);
+			} else {
+				logger.warn("");
+				logger.warn(format(
+						"Skipped ambiguous mapping. Cannot bean '%s' method '%s' to '%s': There is already '%s' bean method '%s' mapped.",
+						handlerMethod.getBean(), handlerMethod, mapping, existingHandlerMethod.getBean(), existingHandlerMethod));
 			}
 		}
 
