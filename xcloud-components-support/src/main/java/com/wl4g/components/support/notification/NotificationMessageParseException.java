@@ -15,9 +15,7 @@
  */
 package com.wl4g.components.support.notification;
 
-import com.wl4g.components.core.exception.DevOpsException;
-
-public class NotificationMessageParseException extends DevOpsException {
+public class NotificationMessageParseException extends RuntimeException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**
