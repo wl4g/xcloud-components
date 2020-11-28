@@ -39,15 +39,15 @@ public abstract class AbstractVersionRequestCondition {
 		isTrue(v.minor() >= 0, () -> format("Invalid @ApiVersion must minor >= 0, actual: %s", v.minor()));
 		isTrue(v.revision() >= 0, () -> format("Invalid @ApiVersion must revision >= 0, actual: %s", v.revision()));
 
-		StringBuffer merge = new StringBuffer();
-		merge.append(v.major());
-		merge.append(v.minor());
-		merge.append(v.revision());
+		StringBuffer combine = new StringBuffer();
+		combine.append(v.major());
+		combine.append(v.minor());
+		combine.append(v.revision());
 		// Valid when the extended version number is greater than or equal to 0
 		if (v.extension() >= 0) {
-			merge.append(v.extension());
+			combine.append(v.extension());
 		}
-		return Integer.parseInt(merge.toString());
+		return Integer.parseInt(combine.toString());
 	}
 
 }

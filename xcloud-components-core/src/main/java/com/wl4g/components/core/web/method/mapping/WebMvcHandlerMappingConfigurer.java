@@ -16,9 +16,10 @@
 package com.wl4g.components.core.web.method.mapping;
 
 import static com.wl4g.components.common.collection.Collections2.safeList;
-import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,10 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.wl4g.components.common.collection.CollectionUtils2;
-import com.wl4g.components.common.log.SmartLogger;
 
 /**
  * Global web servlet mvc {@link RequestMapping} unique configuration.
@@ -45,38 +46,39 @@ import com.wl4g.components.common.log.SmartLogger;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
-public class GlobalServletHandlerMappingAutoConfiguration implements WebMvcRegistrations {
+public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return globalDelegateRequestMappingHandlerMapping();
+		return delegateServletRequestHandlerMapping();
 	}
 
 	@Bean
-	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-	public DelegateRequestMappingHandlerMapping globalDelegateRequestMappingHandlerMapping() {
-		return new DelegateRequestMappingHandlerMapping();
+	public DelegateServletHandlerMapping delegateServletRequestHandlerMapping() {
+		return new DelegateServletHandlerMapping();
 	}
 
 	/**
-	 * {@link DelegateRequestMappingHandlerMapping}
+	 * {@link DelegateServletHandlerMapping}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-11-26
 	 * @sine v1.0
 	 * @see
 	 */
-	static class DelegateRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
-
-		protected final SmartLogger log = getLogger(getClass());
+	public static class DelegateServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		@Autowired(required = false)
-		protected List<SmartHandlerMapping> handlerMappings;
+		protected List<ServletHandlerMappingSupport> handlerMappings;
 
 		private boolean print = false;
 
-		public DelegateRequestMappingHandlerMapping() {
-			setOrder(HIGHEST_PRECEDENCE + 10);
+		/**
+		 * Notes: Must take precedence, otherwise invalid. refer:
+		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
+		 */
+		public DelegateServletHandlerMapping() {
+			setOrder(HIGHEST_PRECEDENCE);
 		}
 
 		@Override
@@ -84,10 +86,10 @@ public class GlobalServletHandlerMappingAutoConfiguration implements WebMvcRegis
 			if (CollectionUtils2.isEmpty(handlerMappings)) {
 				if (!print) {
 					print = true;
-					log.warn(
+					logger.warn(
 							"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
 				}
-				// Fallback request handler mapping.
+				// Fallback, using default handler mapping.
 				super.processCandidateBean(beanName);
 				return;
 			}
@@ -98,26 +100,66 @@ public class GlobalServletHandlerMappingAutoConfiguration implements WebMvcRegis
 			} catch (Throwable ex) {
 				// An unresolvable bean type, probably from a lazy bean - let's
 				// ignore it.
-				log.trace("Could not resolve type for bean '" + beanName + "'", ex);
+				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 
 			if (nonNull(beanType) && isHandler(beanType)) {
-				boolean matched = false;
-				for (SmartHandlerMapping mapping : safeList(handlerMappings)) {
+				for (ServletHandlerMappingSupport mapping : safeList(handlerMappings)) {
 					// Invoke best matchs handler.
-					if (mapping.isSupport(beanName, beanType)) {
-						matched = true;
-						log.info("Delegating best request handler mapping for: {}", mapping);
-						mapping.doDetectHandlerMethods(beanName);
-						break;
+					if (mapping.supports(beanName, beanType)) {
+						logger.info(format("Delegating best request handler mapping for: %s", mapping));
+						mapping.processCandidateBean(beanName);
 					}
-				}
-				if (!matched && !print) {
-					print = true;
-					log.warn("No suitable request mapping processor was found. all handler mappings: {}", handlerMappings);
 				}
 			}
 
+		}
+
+		@Override
+		public final void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
+			super.registerHandlerMethod(handler, method, mapping);
+		}
+
+	}
+
+	/**
+	 * To support handler mapping registered to delegates, refer:
+	 * {@link ServletHandlerMappingRegistry}
+	 */
+	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
+
+		@Autowired
+		private DelegateServletHandlerMapping delegate;
+
+		public ServletHandlerMappingSupport() {
+			setOrder(0); // By default order
+		}
+
+		/**
+		 * Check if the current the supports registration bean handler mapping.
+		 * 
+		 * @param beanName
+		 * @param beanType
+		 * @return
+		 */
+		protected abstract boolean supports(String beanName, Class<?> beanType);
+
+		// [final] override not allowed.
+		@Override
+		public final void processCandidateBean(String beanName) {
+			super.processCandidateBean(beanName);
+		}
+
+		// [final] override not allowed.
+		@Override
+		public final void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
+			delegate.registerMapping(mapping, handler, method);
+		}
+
+		// [final] override not allowed.
+		@Override
+		protected final void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
+			delegate.registerHandlerMethod(handler, method, mapping);
 		}
 
 	}

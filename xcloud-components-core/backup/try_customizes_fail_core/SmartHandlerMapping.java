@@ -20,22 +20,24 @@ import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Method;
 
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 import static com.wl4g.components.common.lang.ClassUtils2.resolveClassNameOrNull;
 import static com.wl4g.components.common.reflect.ReflectionUtils2.makeAccessible;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
- * {@link SmartHandlerMapping}
+ * {@link DelegateHandlerMappingSupport}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020-09-12
  * @sine v1.0.0
  * @see
  */
-public interface SmartHandlerMapping {
+public interface DelegateHandlerMappingSupport {
 
-	boolean isSupport(String beanName, Class<?> beanType);
+	boolean supports(String beanName, Class<?> beanType);
 
 	/**
 	 * Refer: </br>
