@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
-import com.wl4g.components.core.exception.support.TimeoutDestroyProcessException;
+import com.wl4g.components.support.cli.TimeoutDestroyProcessException;
 import com.wl4g.components.support.cli.destroy.DestroySignal;
 import com.wl4g.components.support.cli.destroy.DestroySignalMessage;
 import com.wl4g.components.support.cli.process.DestroableProcess;

@@ -15,15 +15,18 @@
  */
 package com.wl4g.components.core.exception.framework;
 
-public class ArgumentsSpecificationException extends SpecificationException {
-	static final long serialVersionUID = -7034833390711766939L;
+import com.wl4g.components.common.web.rest.ServiceUnavailableException;
+import com.wl4g.components.core.exception.ComponentsException;
+
+public class NormativeException extends ComponentsException implements ServiceUnavailableException {
+	static final long serialVersionUID = -7034833390745766939L;
 
 	/**
 	 * Constructs a new runtime exception with {@code null} as its detail
 	 * message. The cause is not initialized, and may subsequently be
 	 * initialized by a call to {@link #initCause}.
 	 */
-	public ArgumentsSpecificationException() {
+	public NormativeException() {
 		super();
 	}
 
@@ -36,7 +39,7 @@ public class ArgumentsSpecificationException extends SpecificationException {
 	 *            the detail message. The detail message is saved for later
 	 *            retrieval by the {@link #getMessage()} method.
 	 */
-	public ArgumentsSpecificationException(String message) {
+	public NormativeException(String message) {
 		super(message);
 	}
 
@@ -57,7 +60,7 @@ public class ArgumentsSpecificationException extends SpecificationException {
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public ArgumentsSpecificationException(String message, Throwable cause) {
+	public NormativeException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -75,7 +78,7 @@ public class ArgumentsSpecificationException extends SpecificationException {
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public ArgumentsSpecificationException(Throwable cause) {
+	public NormativeException(Throwable cause) {
 		super(cause);
 	}
 

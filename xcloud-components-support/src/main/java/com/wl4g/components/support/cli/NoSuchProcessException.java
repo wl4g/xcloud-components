@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.exception.support;
+package com.wl4g.components.support.cli;
 
 public class NoSuchProcessException extends RuntimeException {
 	static final long serialVersionUID = -7034833390745766939L;

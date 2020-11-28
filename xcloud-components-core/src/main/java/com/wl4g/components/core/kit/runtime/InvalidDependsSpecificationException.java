@@ -13,18 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.exception.compoents;
+package com.wl4g.components.core.kit.runtime;
 
-public class WebJarsComponentsException extends ComponentsException {
+import com.wl4g.components.core.exception.framework.NormativeException;
 
-	private static final long serialVersionUID = -2057648817357770642L;
+/**
+ * Invalid dependency version exception.
+ * 
+ * 
+ * @author Wangl.sir <983708408@qq.com>
+ * @version v1.0
+ * @date 2018年4月11日
+ * @since
+ */
+public class InvalidDependsSpecificationException extends NormativeException {
+	static final long serialVersionUID = -7034833390745766939L;
 
 	/**
 	 * Constructs a new runtime exception with {@code null} as its detail
 	 * message. The cause is not initialized, and may subsequently be
 	 * initialized by a call to {@link #initCause}.
 	 */
-	public WebJarsComponentsException() {
+	public InvalidDependsSpecificationException() {
 		super();
 	}
 
@@ -37,7 +47,7 @@ public class WebJarsComponentsException extends ComponentsException {
 	 *            the detail message. The detail message is saved for later
 	 *            retrieval by the {@link #getMessage()} method.
 	 */
-	public WebJarsComponentsException(String message) {
+	public InvalidDependsSpecificationException(String message) {
 		super(message);
 	}
 
@@ -58,7 +68,7 @@ public class WebJarsComponentsException extends ComponentsException {
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public WebJarsComponentsException(String message, Throwable cause) {
+	public InvalidDependsSpecificationException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -76,7 +86,7 @@ public class WebJarsComponentsException extends ComponentsException {
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public WebJarsComponentsException(Throwable cause) {
+	public InvalidDependsSpecificationException(Throwable cause) {
 		super(cause);
 	}
 

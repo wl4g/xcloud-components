@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.util.Assert;
 
-import com.wl4g.components.core.exception.support.NoSuchProcessException;
+import com.wl4g.components.support.cli.NoSuchProcessException;
 import com.wl4g.components.support.cli.process.DestroableProcess;
 
 /**

@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.exception.framework.ArgumentsSpecificationException;
+import com.wl4g.components.core.exception.framework.ParametersNormativeException;
 
 import java.util.Set;
 
@@ -85,10 +85,10 @@ import redis.clients.util.Slowlog;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterCommands, JedisClusterScriptingCommands,
-		BasicCommands, BinaryJedisClusterCommands, MultiKeyBinaryJedisClusterCommands, JedisClusterBinaryScriptingCommands,
-		MultiKeyCommands, AdvancedJedisCommands, ScriptingCommands, ClusterCommands, SentinelCommands, BinaryJedisCommands,
-		MultiKeyBinaryCommands, AdvancedBinaryJedisCommands, BinaryScriptingCommands, Closeable {
+public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterCommands, JedisClusterScriptingCommands, BasicCommands,
+		BinaryJedisClusterCommands, MultiKeyBinaryJedisClusterCommands, JedisClusterBinaryScriptingCommands, MultiKeyCommands,
+		AdvancedJedisCommands, ScriptingCommands, ClusterCommands, SentinelCommands, BinaryJedisCommands, MultiKeyBinaryCommands,
+		AdvancedBinaryJedisCommands, BinaryScriptingCommands, Closeable {
 
 	default Map<String, JedisPool> getClusterNodes() {
 		throw new UnsupportedOperationException();
@@ -2376,9 +2376,9 @@ public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterComman
 		 * Check input argument names specification.
 		 * 
 		 * @param keys
-		 * @throws ArgumentsSpecificationException
+		 * @throws ParameterNormativeException
 		 */
-		public static void checkArgumentsSpecification(final List<?> keys) throws ArgumentsSpecificationException {
+		public static void checkArgumentsSpecification(final List<?> keys) throws ParametersNormativeException {
 			notNullOf(keys, "jedis operation key");
 			for (Object key : keys) {
 				char[] _key = null;
@@ -2405,7 +2405,7 @@ public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterComman
 							log.warn(warning);
 							return;
 						} else {
-							throw new ArgumentsSpecificationException(warning);
+							throw new ParametersNormativeException(warning);
 						}
 					}
 				}

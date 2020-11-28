@@ -16,9 +16,9 @@
 package com.wl4g.components.support.cli;
 
 import com.google.common.annotations.Beta;
-import com.wl4g.components.core.exception.support.IllegalProcessStateException;
-import com.wl4g.components.core.exception.support.NoSuchProcessException;
-import com.wl4g.components.core.exception.support.TimeoutDestroyProcessException;
+import com.wl4g.components.support.cli.IllegalProcessStateException;
+import com.wl4g.components.support.cli.NoSuchProcessException;
+import com.wl4g.components.support.cli.TimeoutDestroyProcessException;
 import com.wl4g.components.support.cli.command.DestroableCommand;
 import com.wl4g.components.support.cli.destroy.DestroySignal;
 

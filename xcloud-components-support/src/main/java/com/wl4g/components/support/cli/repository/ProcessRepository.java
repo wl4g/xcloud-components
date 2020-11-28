@@ -18,7 +18,7 @@ package com.wl4g.components.support.cli.repository;
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
-import com.wl4g.components.core.exception.support.NoSuchProcessException;
+import com.wl4g.components.support.cli.NoSuchProcessException;
 import com.wl4g.components.support.cli.process.DestroableProcess;
 
 /**

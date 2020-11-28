@@ -21,8 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
 
-import com.wl4g.components.core.exception.framework.InvalidDependsSpecificationException;
-
 /**
  * Dependencies jars checker.
  * 

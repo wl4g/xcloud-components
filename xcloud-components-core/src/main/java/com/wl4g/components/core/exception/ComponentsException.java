@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.exception.framework;
+package com.wl4g.components.core.exception;
 
-public class NamedSpecificationException extends SpecificationException {
-	static final long serialVersionUID = -7034833390711766939L;
+public class ComponentsException extends RuntimeException {
+
+	private static final long serialVersionUID = -2057648817357770642L;
 
 	/**
 	 * Constructs a new runtime exception with {@code null} as its detail
 	 * message. The cause is not initialized, and may subsequently be
 	 * initialized by a call to {@link #initCause}.
 	 */
-	public NamedSpecificationException() {
+	public ComponentsException() {
 		super();
 	}
 
@@ -36,7 +37,7 @@ public class NamedSpecificationException extends SpecificationException {
 	 *            the detail message. The detail message is saved for later
 	 *            retrieval by the {@link #getMessage()} method.
 	 */
-	public NamedSpecificationException(String message) {
+	public ComponentsException(String message) {
 		super(message);
 	}
 
@@ -57,7 +58,7 @@ public class NamedSpecificationException extends SpecificationException {
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public NamedSpecificationException(String message, Throwable cause) {
+	public ComponentsException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -75,7 +76,7 @@ public class NamedSpecificationException extends SpecificationException {
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public NamedSpecificationException(Throwable cause) {
+	public ComponentsException(Throwable cause) {
 		super(cause);
 	}
 

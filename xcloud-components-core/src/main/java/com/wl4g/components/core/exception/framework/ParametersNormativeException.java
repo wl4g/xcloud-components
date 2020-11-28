@@ -15,24 +15,18 @@
  */
 package com.wl4g.components.core.exception.framework;
 
-/**
- * Invalid dependency version exception.
- * 
- * 
- * @author Wangl.sir <983708408@qq.com>
- * @version v1.0
- * @date 2018年4月11日
- * @since
- */
-public class InvalidDependsSpecificationException extends SpecificationException {
-	static final long serialVersionUID = -7034833390745766939L;
+import com.wl4g.components.common.web.rest.ServiceUnavailableException;
+import com.wl4g.components.core.exception.ComponentsException;
+
+public class ParametersNormativeException extends ComponentsException implements ServiceUnavailableException {
+	static final long serialVersionUID = -7034833390711766939L;
 
 	/**
 	 * Constructs a new runtime exception with {@code null} as its detail
 	 * message. The cause is not initialized, and may subsequently be
 	 * initialized by a call to {@link #initCause}.
 	 */
-	public InvalidDependsSpecificationException() {
+	public ParametersNormativeException() {
 		super();
 	}
 
@@ -45,7 +39,7 @@ public class InvalidDependsSpecificationException extends SpecificationException
 	 *            the detail message. The detail message is saved for later
 	 *            retrieval by the {@link #getMessage()} method.
 	 */
-	public InvalidDependsSpecificationException(String message) {
+	public ParametersNormativeException(String message) {
 		super(message);
 	}
 
@@ -66,7 +60,7 @@ public class InvalidDependsSpecificationException extends SpecificationException
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public InvalidDependsSpecificationException(String message, Throwable cause) {
+	public ParametersNormativeException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -84,7 +78,7 @@ public class InvalidDependsSpecificationException extends SpecificationException
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public InvalidDependsSpecificationException(Throwable cause) {
+	public ParametersNormativeException(Throwable cause) {
 		super(cause);
 	}
 

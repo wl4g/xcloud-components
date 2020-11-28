@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.exception.framework.ArgumentsSpecificationException;
+import com.wl4g.components.core.exception.framework.ParametersNormativeException;
 
 import redis.clients.jedis.BinaryJedisCluster;
 import redis.clients.jedis.BinaryJedisPubSub;
@@ -4123,9 +4123,9 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	 * Check input argument names specification.
 	 * 
 	 * @param keys
-	 * @throws ArgumentsSpecificationException
+	 * @throws ParametersNormativeException
 	 */
-	protected void checkArgumentsSpecification(final byte[]... keys) throws ArgumentsSpecificationException {
+	protected void checkArgumentsSpecification(final byte[]... keys) throws ParametersNormativeException {
 		if (safeMode) {
 			RedisProtoUtil.checkArgumentsSpecification(asList(keys));
 		}
@@ -4135,9 +4135,9 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	 * Check input argument names specification.
 	 * 
 	 * @param keys
-	 * @throws ArgumentsSpecificationException
+	 * @throws ParametersNormativeException
 	 */
-	protected void checkArgumentsSpecification(final String... keys) throws ArgumentsSpecificationException {
+	protected void checkArgumentsSpecification(final String... keys) throws ParametersNormativeException {
 		if (safeMode) {
 			RedisProtoUtil.checkArgumentsSpecification(asList(keys));
 		}
