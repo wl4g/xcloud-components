@@ -43,7 +43,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import com.wl4g.components.common.collection.CollectionUtils2;
 
 /**
- * Global web servlet mvc {@link RequestMapping} unique configuration.
+ * Global web MVC {@link RequestMapping} unique configuration.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-27
@@ -71,7 +71,8 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	}
 
 	/**
-	 * {@link DelegateServletHandlerMapping}
+	 * Global web MVC delegate handler mapping. (supports multi customization
+	 * {@link RequestMappingHandlerMapping}) instances.
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-11-26
