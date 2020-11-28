@@ -139,7 +139,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 				if (!supported) {
 					if (!print) {
 						print = true;
-						logger.warn(format("No suitable request mapping processor was found. all handler mappings: %s",
+						logger.info(format("No suitable request mapping processor was found. all handler mappings: %s",
 								handlerMappings));
 					}
 					super.processCandidateBean(beanName);
