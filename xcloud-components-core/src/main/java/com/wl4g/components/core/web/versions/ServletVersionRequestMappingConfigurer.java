@@ -29,6 +29,7 @@ import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.google.common.annotations.Beta;
+import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -78,7 +79,12 @@ public class ServletVersionRequestMappingConfigurer implements WebMvcRegistratio
 	 * @sine v1.0
 	 * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
 	 */
-	static class VersionServletRequestHandlerMapping extends RequestMappingHandlerMapping {
+	static class VersionServletRequestHandlerMapping extends ServletHandlerMappingSupport {
+
+		@Override
+		protected boolean supports(String beanName, Class<?> beanType) {
+			return false;// TODO
+		}
 
 		@Override
 		protected RequestCondition<ServletVersionCondition> getCustomTypeCondition(Class<?> handlerType) {

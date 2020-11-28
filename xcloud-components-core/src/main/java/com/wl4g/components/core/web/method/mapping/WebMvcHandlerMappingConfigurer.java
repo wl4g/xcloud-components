@@ -37,13 +37,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.wl4g.components.common.collection.CollectionUtils2;
 
 /**
- * Global web MVC {@link RequestMapping} unique configuration.
+ * Global web MVC {@link RequestMapping} unique handler mapping. (supports multi
+ * customization {@link RequestMappingHandlerMapping}) instances. </br>
+ * </br>
+ * Notes: The usage scenarios and instructions of this global delegation request
+ * mapping registration program are as follows: </br>
+ * The purpose {@link ServletHandlerMappingSupport} is to use custom global
+ * delegation to uniformly register the mapping. Because when an interface
+ * annotated with {@link RequestMapping} has multiple subclass instances, spring
+ * will automatically register the mapping of two subclass instances by default,
+ * which will lead to the exception of registration conflict. For related source
+ * code analysis, please refer to:
+ * {@link AbstractHandlerMethodMapping#isHandler()}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-27
@@ -70,15 +82,6 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		return new DelegateServletHandlerMapping();
 	}
 
-	/**
-	 * Global web MVC delegate handler mapping. (supports multi customization
-	 * {@link RequestMappingHandlerMapping}) instances.
-	 * 
-	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
-	 * @version v1.0 2020-11-26
-	 * @sine v1.0
-	 * @see
-	 */
 	public static class DelegateServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
@@ -177,8 +180,8 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	}
 
 	/**
-	 * To support handler mapping registered to delegates, refer:
-	 * {@link ServletHandlerMappingRegistry}
+	 * In order to enable global delegate of {@link RequestMapping} registration
+	 * program supporteds.
 	 */
 	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
 

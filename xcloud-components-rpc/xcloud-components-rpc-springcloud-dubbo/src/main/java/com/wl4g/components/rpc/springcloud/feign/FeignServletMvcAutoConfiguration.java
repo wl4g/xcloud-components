@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -49,6 +50,7 @@ import org.springframework.web.method.annotation.RequestHeaderMethodArgumentReso
 import org.springframework.web.method.annotation.RequestParamMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.annotation.PathVariableMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestAttributeMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -215,7 +217,15 @@ public class FeignServletMvcAutoConfiguration implements InitializingBean {
 	}
 
 	/**
-	 * {@link FeignServletHandlerMapping}
+	 * Notes: The purpose of inheriting {@link ServletHandlerMappingSupport} is
+	 * to use custom global delegation to uniformly register the mapping.
+	 * Because when an interface annotated with {@link RequestMapping} has
+	 * multiple subclass instances, spring will automatically register the
+	 * mapping of two subclass instances by default, which will lead to the
+	 * exception of registration conflict. </br>
+	 * </br>
+	 * For related source code analysis, please refer to:
+	 * {@link AbstractHandlerMethodMapping#isHandler()}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-11-26
