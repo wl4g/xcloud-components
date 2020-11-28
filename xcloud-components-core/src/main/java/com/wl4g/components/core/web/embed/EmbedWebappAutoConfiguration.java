@@ -22,7 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.wl4g.components.core.web.method.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.web.method.PrefixHandlerMappingSupport;
 
 import java.util.Properties;
 
@@ -34,7 +34,7 @@ import java.util.Properties;
  * @since
  */
 @Configuration
-public class EmbedWebappAutoConfiguration extends AbstractHandlerMappingSupport {
+public class EmbedWebappAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean(BEAN_DEFAULT_PROPERTIES)
 	@ConfigurationProperties(prefix = KEY_EMBEDDED_WEBAPP_BASE)

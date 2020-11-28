@@ -40,7 +40,7 @@ import com.wl4g.components.common.lang.ClassUtils2;
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ReactiveRestApiConfiguration}
  * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
  */
-public abstract class AbstractHandlerMappingSupport implements ApplicationContextAware {
+public abstract class PrefixHandlerMappingSupport implements ApplicationContextAware {
 
 	/**
 	 * {@link ApplicationContext}

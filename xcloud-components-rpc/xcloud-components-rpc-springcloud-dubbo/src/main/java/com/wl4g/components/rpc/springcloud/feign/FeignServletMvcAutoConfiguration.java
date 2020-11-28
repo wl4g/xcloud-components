@@ -210,7 +210,6 @@ public class FeignServletMvcAutoConfiguration implements InitializingBean {
 	//
 
 	@Bean
-	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 	public FeignServletHandlerMapping feignServletHandlerMapping() {
 		return new FeignServletHandlerMapping();
 	}
@@ -224,10 +223,6 @@ public class FeignServletMvcAutoConfiguration implements InitializingBean {
 	 * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
 	 */
 	static class FeignServletHandlerMapping extends ServletHandlerMappingSupport {
-
-		public FeignServletHandlerMapping() {
-			setOrder(HIGHEST_PRECEDENCE + 10);
-		}
 
 		@Override
 		public boolean supports(String beanName, Class<?> beanType) {

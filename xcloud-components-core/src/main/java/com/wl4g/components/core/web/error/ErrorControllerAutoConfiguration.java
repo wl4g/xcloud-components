@@ -48,7 +48,7 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
 
-import com.wl4g.components.core.web.method.AbstractHandlerMappingSupport;
+import com.wl4g.components.core.web.method.PrefixHandlerMappingSupport;
 
 /**
  * Global error controller handler auto configuration.
@@ -59,7 +59,7 @@ import com.wl4g.components.core.web.method.AbstractHandlerMappingSupport;
  */
 @Configuration
 @ConditionalOnProperty(value = KEY_PROPERTY_PREFIX + ".enable", matchIfMissing = true)
-public class ErrorControllerAutoConfiguration extends AbstractHandlerMappingSupport {
+public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean
 	@ConfigurationProperties(prefix = KEY_PROPERTY_PREFIX)

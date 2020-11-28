@@ -17,19 +17,26 @@ package com.wl4g.components.core.web.method.mapping;
 
 import static com.wl4g.components.common.collection.Collections2.safeList;
 import static java.lang.String.format;
+import static java.util.Collections.synchronizedMap;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -48,13 +55,18 @@ import com.wl4g.components.common.collection.CollectionUtils2;
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
+	/**
+	 * Directly new create instance, spring is automatically injected into the
+	 * container later. refer:
+	 * {@link org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
+	 * {@link org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport#requestMappingHandlerMapping()}
+	 * </br>
+	 * </br>
+	 * Notes: if using @ bean here will result in two instances in the ioc
+	 * container.
+	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return delegateServletRequestHandlerMapping();
-	}
-
-	@Bean
-	public DelegateServletHandlerMapping delegateServletRequestHandlerMapping() {
 		return new DelegateServletHandlerMapping();
 	}
 
@@ -68,8 +80,14 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	 */
 	public static class DelegateServletHandlerMapping extends RequestMappingHandlerMapping {
 
+		/**
+		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
+		 */
+		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(16));
+
+		@Nullable
 		@Autowired(required = false)
-		protected List<ServletHandlerMappingSupport> handlerMappings;
+		private List<ServletHandlerMappingSupport> handlerMappings;
 
 		private boolean print = false;
 
@@ -78,7 +96,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
 		public DelegateServletHandlerMapping() {
-			setOrder(HIGHEST_PRECEDENCE);
+			setOrder(HIGHEST_PRECEDENCE); // By default order
 		}
 
 		@Override
@@ -89,7 +107,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 					logger.warn(
 							"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
 				}
-				// Fallback, using default handler mapping.
+				// Use default handler mapping.
 				super.processCandidateBean(beanName);
 				return;
 			}
@@ -104,20 +122,50 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			}
 
 			if (nonNull(beanType) && isHandler(beanType)) {
+				// a. Ensure the external handler mapping is performed first.
+				boolean supported = false;
 				for (ServletHandlerMappingSupport mapping : safeList(handlerMappings)) {
 					// Invoke best matchs handler.
 					if (mapping.supports(beanName, beanType)) {
-						logger.info(format("Delegating best request handler mapping for: %s", mapping));
+						supported = true;
+						logger.info(
+								format("The bean: [%s] is being delegated to the best request mapping handler registration: [%s]",
+										beanName, mapping));
 						mapping.processCandidateBean(beanName);
 					}
+				}
+
+				// b. Fallback, using default handler mapping.
+				if (!supported) {
+					if (!print) {
+						print = true;
+						logger.warn(format("No suitable request mapping processor was found. all handler mappings: %s",
+								handlerMappings));
+					}
+					super.processCandidateBean(beanName);
 				}
 			}
 
 		}
 
+		/**
+		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#register()}
+		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#validateMethodMapping()}
+		 * {@link org.springframework.web.method.HandlerMethod#equals()}
+		 */
 		@Override
-		public final void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-			super.registerHandlerMethod(handler, method, mapping);
+		public void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
+			HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+			HandlerMethod existingHandlerMethod = registeredMappings.get(mapping);
+			if (isNull(existingHandlerMethod) || existingHandlerMethod.equals(handlerMethod)) {
+				registeredMappings.put(mapping, handlerMethod);
+				super.registerMapping(mapping, handler, method);
+			}
+		}
+
+		@Override
+		public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
+			registerMapping(mapping, handler, method);
 		}
 
 	}
@@ -128,11 +176,12 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	 */
 	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
 
-		@Autowired
-		private DelegateServletHandlerMapping delegate;
+		private volatile DelegateServletHandlerMapping delegate;
 
-		public ServletHandlerMappingSupport() {
-			setOrder(0); // By default order
+		@Override
+		public final void afterPropertiesSet() {
+			// Must ignore, To prevent spring from automatically calling when
+			// initializing the container, resulting in duplicate registration.
 		}
 
 		/**
@@ -153,13 +202,36 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		// [final] override not allowed.
 		@Override
 		public final void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			delegate.registerMapping(mapping, handler, method);
+			getDelegate().registerMapping(mapping, handler, method);
 		}
 
 		// [final] override not allowed.
 		@Override
 		protected final void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-			delegate.registerHandlerMethod(handler, method, mapping);
+			getDelegate().registerHandlerMethod(handler, method, mapping);
+		}
+
+		/**
+		 * The method of lazy loading must be used to obtain the delegate object
+		 * here, because the subclass of this class may be created externally
+		 * by @ bean earlier than the delegate instance created by
+		 * {@link WebMvcConfigurationSupport#requestMappingHandlerMapping()}
+		 * 
+		 * @return
+		 */
+		private final DelegateServletHandlerMapping getDelegate() {
+			if (isNull(delegate)) {
+				synchronized (this) {
+					if (isNull(delegate)) {
+						this.delegate = getApplicationContext().getBean(DelegateServletHandlerMapping.class);
+						// Must init.
+						if (isNull(this.delegate.getApplicationContext())) {
+							this.delegate.setApplicationContext(getApplicationContext());
+						}
+					}
+				}
+			}
+			return this.delegate;
 		}
 
 	}

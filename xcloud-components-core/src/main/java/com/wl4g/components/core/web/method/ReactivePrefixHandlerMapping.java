@@ -29,7 +29,7 @@ import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
 
-import com.wl4g.components.core.web.method.AbstractHandlerMappingSupport.PathUtils;
+import com.wl4g.components.core.web.method.PrefixHandlerMappingSupport.PathUtils;
 
 import javax.annotation.Nullable;
 
