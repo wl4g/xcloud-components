@@ -17,6 +17,7 @@ package com.wl4g.components.core.web.versions;
 
 import static java.util.Objects.isNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -26,7 +27,8 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 
-import com.google.common.annotations.Beta;
+import com.wl4g.components.core.web.versions.annotation.ApiVersion;
+import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -54,38 +56,42 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(WebFluxConfigurer.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Beta
 public class ReactiveVersionRequestMappingConfigurer {
 
 	@Bean
-	public RequestMappingHandlerMapping apiMultiVersionReactiveRequestMappingHandlerMapping() {
-		return new VersionReactiveRequestHandlerMapping();
+	public RequestMappingHandlerMapping reactiveVersionRequestMappingHandlerMapping() {
+		return new ReactiveVersionRequestHandlerMapping();
 	}
 
 	/**
-	 * {@link VersionReactiveRequestHandlerMapping}
+	 * {@link ReactiveVersionRequestHandlerMapping}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-11-26
 	 * @sine v1.0
 	 * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
 	 */
-	static class VersionReactiveRequestHandlerMapping extends RequestMappingHandlerMapping {
+	static class ReactiveVersionRequestHandlerMapping extends RequestMappingHandlerMapping {
+
+		public ReactiveVersionRequestHandlerMapping() {
+			setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
+		}
 
 		@Override
 		protected RequestCondition<ReactiveVersionCondition> getCustomTypeCondition(Class<?> handlerType) {
-			ApiVersion apiVersion = findAnnotation(handlerType, ApiVersion.class);
-			return createCondition(apiVersion);
+			return createCondition(handlerType);
 		}
 
 		@Override
 		protected RequestCondition<ReactiveVersionCondition> getCustomMethodCondition(Method method) {
-			ApiVersion apiVersion = findAnnotation(method, ApiVersion.class);
-			return createCondition(apiVersion);
+			return createCondition(method);
 		}
 
-		private RequestCondition<ReactiveVersionCondition> createCondition(ApiVersion apiVersion) {
-			return isNull(apiVersion) ? null : new ReactiveVersionCondition(apiVersion);
+		private RequestCondition<ReactiveVersionCondition> createCondition(AnnotatedElement annotatedElement) {
+			MultiApiVersion multiApiVersion = findAnnotation(annotatedElement, MultiApiVersion.class);
+			ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
+			return (isNull(apiVersion) && isNull(multiApiVersion)) ? null
+					: new ReactiveVersionCondition(multiApiVersion, apiVersion);
 		}
 
 	}

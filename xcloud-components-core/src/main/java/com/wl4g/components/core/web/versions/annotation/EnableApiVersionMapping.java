@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.versions;
+package com.wl4g.components.core.web.versions.annotation;
 
 import org.springframework.context.annotation.Import;
+
+import com.wl4g.components.core.web.versions.ReactiveVersionRequestMappingConfigurer;
+import com.wl4g.components.core.web.versions.ServletVersionRequestMappingConfigurer;
 
 import java.lang.annotation.*;
 
@@ -33,5 +36,7 @@ import java.lang.annotation.*;
 @Documented
 @Import({ ServletVersionRequestMappingConfigurer.class, ReactiveVersionRequestMappingConfigurer.class })
 public @interface EnableApiVersionMapping {
+
+	String[] versionParams() default { "api-version", "api_version", "_v" };
 
 }

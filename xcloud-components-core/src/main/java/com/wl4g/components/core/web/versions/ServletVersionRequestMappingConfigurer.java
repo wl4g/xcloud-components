@@ -17,22 +17,25 @@ package com.wl4g.components.core.web.versions;
 
 import static java.util.Objects.isNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.google.common.annotations.Beta;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
+import com.wl4g.components.core.web.versions.annotation.ApiVersion;
+import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 /**
@@ -57,49 +60,47 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Beta
-public class ServletVersionRequestMappingConfigurer implements WebMvcRegistrations {
+public class ServletVersionRequestMappingConfigurer {
 
-	@Override
-	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return apiMultiVersionServletRequestHandlerMapping();
-	}
-
-	@Order(Ordered.HIGHEST_PRECEDENCE)
 	@Bean
-	public VersionServletRequestHandlerMapping apiMultiVersionServletRequestHandlerMapping() {
-		return new VersionServletRequestHandlerMapping();
+	public ServletVersionRequestHandlerMapping servletVersionRequestHandlerMapping() {
+		return new ServletVersionRequestHandlerMapping();
 	}
 
 	/**
-	 * {@link VersionServletRequestHandlerMapping}
+	 * {@link ServletVersionRequestHandlerMapping}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-11-26
 	 * @sine v1.0
 	 * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
 	 */
-	static class VersionServletRequestHandlerMapping extends ServletHandlerMappingSupport {
+	static class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSupport {
+
+		public ServletVersionRequestHandlerMapping() {
+			setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
+		}
 
 		@Override
 		protected boolean supports(String beanName, Class<?> beanType) {
-			return false;// TODO
+			return hasAnnotation(beanType, ApiVersion.class) || hasAnnotation(beanType, MultiApiVersion.class);
 		}
 
 		@Override
 		protected RequestCondition<ServletVersionCondition> getCustomTypeCondition(Class<?> handlerType) {
-			ApiVersion apiVersion = findAnnotation(handlerType, ApiVersion.class);
-			return createCondition(apiVersion);
+			return createCondition(handlerType);
 		}
 
 		@Override
 		protected RequestCondition<ServletVersionCondition> getCustomMethodCondition(Method method) {
-			ApiVersion apiVersion = findAnnotation(method, ApiVersion.class);
-			return createCondition(apiVersion);
+			return createCondition(method);
 		}
 
-		private RequestCondition<ServletVersionCondition> createCondition(ApiVersion apiVersion) {
-			return isNull(apiVersion) ? null : new ServletVersionCondition(apiVersion);
+		private RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
+			MultiApiVersion multiApiVersion = findAnnotation(annotatedElement, MultiApiVersion.class);
+			ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
+			return (isNull(apiVersion) && isNull(multiApiVersion)) ? null
+					: new ServletVersionCondition(multiApiVersion, apiVersion);
 		}
 
 	}

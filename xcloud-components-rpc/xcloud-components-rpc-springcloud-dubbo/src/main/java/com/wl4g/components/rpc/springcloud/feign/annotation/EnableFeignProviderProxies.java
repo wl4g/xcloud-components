@@ -37,9 +37,10 @@ import java.lang.annotation.*;
  * @see Implementation simulated of refer:
  *      {@link org.springframework.cloud.openfeign.EnableFeignClients}
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Inherited
 @Import({ FeignProviderProxiesRegistrar.class, FeignServletMvcAutoConfiguration.class })
 public @interface EnableFeignProviderProxies {
 

@@ -80,10 +80,13 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new DelegateServletHandlerMapping();
+		return new SmartServletHandlerMapping();
 	}
 
-	public static class DelegateServletHandlerMapping extends RequestMappingHandlerMapping {
+	/**
+	 * Smart delegate MVC/servlet request handler mapping.
+	 */
+	public static class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
 		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
@@ -100,7 +103,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public DelegateServletHandlerMapping() {
+		public SmartServletHandlerMapping() {
 			setOrder(HIGHEST_PRECEDENCE); // By default order
 		}
 
@@ -160,7 +163,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 */
 		@Override
 		public void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			smartOverrideRegisterMapping(mapping, handler, method);
+			doSmartOverrideRegisterMapping(mapping, handler, method);
 		}
 
 		@Override
@@ -168,7 +171,17 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			registerMapping(mapping, handler, method);
 		}
 
-		private final void smartOverrideRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
+		/**
+		 * Smart overridable registration request handler mapping
+		 * 
+		 * @param mapping
+		 *            Request mapping information wrapper.
+		 * @param handler
+		 *            Actual request mapping handler (beanName).
+		 * @param method
+		 *            Actual request mapping handler method.
+		 */
+		private final void doSmartOverrideRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
 			HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
 			HandlerMethod oldHandlerMethod = registeredMappings.get(mapping);
 
@@ -210,7 +223,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	 */
 	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
 
-		private volatile DelegateServletHandlerMapping delegate;
+		private volatile SmartServletHandlerMapping delegate;
 
 		public ServletHandlerMappingSupport() {
 			setOrder(0); // By default order
@@ -257,11 +270,11 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * 
 		 * @return
 		 */
-		private final DelegateServletHandlerMapping getDelegate() {
+		private final SmartServletHandlerMapping getDelegate() {
 			if (isNull(delegate)) {
 				synchronized (this) {
 					if (isNull(delegate)) {
-						this.delegate = getApplicationContext().getBean(DelegateServletHandlerMapping.class);
+						this.delegate = getApplicationContext().getBean(SmartServletHandlerMapping.class);
 						// Must init.
 						if (isNull(this.delegate.getApplicationContext())) {
 							this.delegate.setApplicationContext(getApplicationContext());

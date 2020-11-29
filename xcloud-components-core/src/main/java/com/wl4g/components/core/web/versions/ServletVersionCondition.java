@@ -17,9 +17,10 @@ package com.wl4g.components.core.web.versions;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static com.wl4g.components.common.lang.Assert2.notNullOf;
-
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
+
+import com.wl4g.components.core.web.versions.annotation.ApiVersion;
+import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
 
 /**
  * Servlet mvc API versions number rules condition.
@@ -29,46 +30,40 @@ import org.springframework.web.servlet.mvc.condition.RequestCondition;
  * @sine v1.0
  * @see
  */
-public class ServletVersionCondition extends AbstractVersionRequestCondition implements RequestCondition<ServletVersionCondition> {
+public class ServletVersionCondition extends AbstractVersionRequestCondition
+		implements RequestCondition<ServletVersionCondition> {
 
-	private final ApiVersion apiVersion;
-	private final int combineVersion;
-
-	public ServletVersionCondition(ApiVersion apiVersion) {
-		this.apiVersion = notNullOf(apiVersion, "apiVersion");
-		this.combineVersion = parseApiVersion(apiVersion);
+	public ServletVersionCondition(MultiApiVersion multiApiVersion, ApiVersion apiVersion) {
+		super(multiApiVersion, apiVersion);
 	}
 
 	@Override
 	public ServletVersionCondition combine(ServletVersionCondition other) {
-		// 采用最后定义优先原则，则方法上的定义覆盖类上面的定义
-		return new ServletVersionCondition(other.getApiVersion());
+		// Use the nearest definition priority principle, that is, the
+		// definition on the method covers the definition above the type.
+		return new ServletVersionCondition(other.getMultiApiVersion(), other.getApiVersion());
 	}
 
 	@Override
 	public ServletVersionCondition getMatchingCondition(HttpServletRequest request) {
-		String ver = request.getHeader("Api-Version");
-		// 因为请求头里面传来的是小数，所以需要乘以10
-		int version = (int) (Double.valueOf(ver) * 10);
-		// 如果请求的版本号大于等于配置版本号， 则满足
-		if (version >= this.combineVersion) {
-			return this;
-		}
+		//TODO
+		
+//		String ver = request.getHeader("Api-Version");
+//		// 因为请求头里面传来的是小数，所以需要乘以10
+//		int version = (int) (Double.valueOf(ver) * 10);
+//		// 如果请求的版本号大于等于配置版本号， 则满足
+//		if (version >= this.combineVersion) {
+//			return this;
+//		}
 		return null;
 	}
 
 	@Override
 	public int compareTo(ServletVersionCondition other, HttpServletRequest request) {
+		//TODO
+		
 		// Matchs the latest version number first.
 		return other.getCombineVersion() - this.combineVersion;
-	}
-
-	public ApiVersion getApiVersion() {
-		return apiVersion;
-	}
-
-	public int getCombineVersion() {
-		return combineVersion;
 	}
 
 }

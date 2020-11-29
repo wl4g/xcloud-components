@@ -15,10 +15,11 @@
  */
 package com.wl4g.components.core.web.versions;
 
-import static com.wl4g.components.common.lang.Assert2.notNullOf;
-
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.server.ServerWebExchange;
+
+import com.wl4g.components.core.web.versions.annotation.ApiVersion;
+import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
 
 /**
  * Reactive API versions number rules condition.
@@ -31,44 +32,26 @@ import org.springframework.web.server.ServerWebExchange;
 public class ReactiveVersionCondition extends AbstractVersionRequestCondition
 		implements RequestCondition<ReactiveVersionCondition> {
 
-	private final ApiVersion apiVersion;
-	private final int combineVersion;
-
-	public ReactiveVersionCondition(ApiVersion apiVersion) {
-		this.apiVersion = notNullOf(apiVersion, "apiVersion");
-		this.combineVersion = parseApiVersion(apiVersion);
+	public ReactiveVersionCondition(MultiApiVersion multiApiVersion, ApiVersion apiVersion) {
+		super(multiApiVersion, apiVersion);
 	}
 
 	@Override
 	public ReactiveVersionCondition combine(ReactiveVersionCondition other) {
-		// 采用最后定义优先原则，则方法上的定义覆盖类上面的定义
-		return new ReactiveVersionCondition(other.getApiVersion());
-	}
-
-	@Override
-	public ReactiveVersionCondition getMatchingCondition(ServerWebExchange request) {
-		String ver = request.getRequest().getHeaders().getFirst("Api-Version");
-		// 因为请求头里面传来的是小数，所以需要乘以10
-		int version = (int) (Double.valueOf(ver) * 10);
-		// 如果请求的版本号大于等于配置版本号， 则满足
-		if (version >= this.combineVersion) {
-			return this;
-		}
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public int compareTo(ReactiveVersionCondition other, ServerWebExchange request) {
-		// Matchs the latest version number first.
-		return other.getCombineVersion() - this.combineVersion;
+	public ReactiveVersionCondition getMatchingCondition(ServerWebExchange exchange) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	public ApiVersion getApiVersion() {
-		return apiVersion;
-	}
-
-	public int getCombineVersion() {
-		return combineVersion;
+	@Override
+	public int compareTo(ReactiveVersionCondition other, ServerWebExchange exchange) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

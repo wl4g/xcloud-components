@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.wl4g.components.core.web.versions;
+package com.wl4g.components.core.web.versions.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -23,7 +23,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Multiple versions annotation and control for API.
+ * Version annotation and control for API.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-27
@@ -34,23 +34,47 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface ApiVersions {
+public @interface ApiVersion {
 
 	/**
-	 * Client platform type name. for example: (Android/iOS/iPad/WebPC/
-	 * NativePC/WechatMp/WechatApplet/BaiduApplet/AliApplet/...) </br>
+	 * API version numbers string, equivalent to:
+	 * {@link #major()}.{@link #minor()}.{@link #revision()}.{@link #extension()}
 	 * 
-	 * Notes: Optional, when empty, the matching request ignores this condition.
+	 * <p>
+	 * for example: {major}.{minor}.{revision}.{extension} => 1.0.2.10 </br>
+	 * </p>
 	 * 
 	 * @return
 	 */
-	String[] clientType() default "";
+	String value() default "";
 
 	/**
-	 * {@link ApiVersion}
+	 * The major version number of the API. (Greater than or equal to 0)
 	 * 
 	 * @return
 	 */
-	ApiVersion[] value();
+	int major();
+
+	/**
+	 * The minor version number of the API. (Greater than or equal to 0)
+	 * 
+	 * @return
+	 */
+	int minor();
+
+	/**
+	 * The revision version number of the API. (Greater than or equal to 0)
+	 * 
+	 * @return
+	 */
+	int revision();
+
+	/**
+	 * The extension version number of the API. (Optional, The extended version
+	 * number is ignored when it is less than 0)
+	 * 
+	 * @return
+	 */
+	int extension() default -1;
 
 }

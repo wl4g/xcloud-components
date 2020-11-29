@@ -16,7 +16,13 @@
 package com.wl4g.components.core.web.versions;
 
 import static com.wl4g.components.common.lang.Assert2.isTrue;
+import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
+
+import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.core.web.versions.annotation.ApiVersion;
+import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
 
 /**
  * {@link AbstractVersionRequestCondition}
@@ -28,13 +34,42 @@ import static java.lang.String.format;
  */
 public abstract class AbstractVersionRequestCondition {
 
+	protected final SmartLogger log = getLogger(getClass());
+
+	protected final MultiApiVersion multiApiVersion;
+	protected final ApiVersion apiVersion;
+
+	protected final Integer combineVersion;
+
+	public AbstractVersionRequestCondition(MultiApiVersion multiApiVersion, ApiVersion apiVersion) {
+		this.multiApiVersion = multiApiVersion;
+		this.apiVersion = apiVersion;
+		if (isNull(multiApiVersion) && isNull(apiVersion)) {
+			throw new IllegalStateException(format("Annotations %s and %s should not be empty at the same time.",
+					MultiApiVersion.class.getSimpleName(), ApiVersion.class.getSimpleName()));
+		}
+		this.combineVersion = parseApiVersionValue(apiVersion);
+	}
+
+	protected MultiApiVersion getMultiApiVersion() {
+		return multiApiVersion;
+	}
+
+	protected ApiVersion getApiVersion() {
+		return apiVersion;
+	}
+
+	protected int getCombineVersion() {
+		return combineVersion;
+	}
+
 	/**
 	 * Parse API multi versions to int number.
 	 * 
 	 * @param v
 	 * @return
 	 */
-	protected int parseApiVersion(ApiVersion v) {
+	public static int parseApiVersionValue(ApiVersion v) {
 		isTrue(v.major() >= 0, () -> format("Invalid @ApiVersion must major >= 0, actual: %s", v.major()));
 		isTrue(v.minor() >= 0, () -> format("Invalid @ApiVersion must minor >= 0, actual: %s", v.minor()));
 		isTrue(v.revision() >= 0, () -> format("Invalid @ApiVersion must revision >= 0, actual: %s", v.revision()));
