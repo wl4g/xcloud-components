@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.model;
+package com.wl4g.components.core.bean.model;
 
 import static java.lang.System.out;
 

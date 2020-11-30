@@ -16,13 +16,25 @@
 package com.wl4g.components.core.utils.context;
 
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Objects.isNull;
+
+import javax.annotation.Nullable;
 
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.web.reactive.context.ConfigurableReactiveWebEnvironment;
+import org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.ConfigurableWebEnvironment;
+import org.springframework.web.context.WebApplicationContext;
 
+import com.wl4g.components.common.lang.ClassUtils2;
 import com.wl4g.components.common.log.SmartLogger;
 
 /**
@@ -38,10 +50,9 @@ import com.wl4g.components.common.log.SmartLogger;
  */
 @Component("globalSpringApplicationContextHolder")
 @Lazy(false)
-@Deprecated
 public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
 
-	final private static SmartLogger log = getLogger(SpringContextHolder.class);
+	private static final SmartLogger log = getLogger(SpringContextHolder.class);
 
 	private static ApplicationContext _actx;
 
@@ -111,5 +122,55 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 			throw new IllegalStateException("applicaitonContext未注入,请在springmvc-servlet.xml中定义SpringContextHolder");
 		}
 	}
+
+	/**
+	 * {@link org.springframework.boot.autoconfigure.condition.OnWebApplicationCondition#isServletWebApplication}
+	 * 
+	 * @return
+	 */
+	public static boolean isServletWebApplication(@Nullable ClassLoader classLoader,
+			@Nullable ConfigurableListableBeanFactory beanFactory, @Nullable Environment environment,
+			@Nullable ResourceLoader resourceLoader) {
+
+		if (!ClassUtils2.isPresent(SERVLET_WEB_APPLICATION_CLASS, classLoader)) {
+			return false;
+		}
+		if (!isNull(beanFactory)) {
+			String[] scopes = beanFactory.getRegisteredScopeNames();
+			if (ObjectUtils.containsElement(scopes, "session")) {
+				return true;
+			}
+		}
+		if (!isNull(environment) && (environment instanceof ConfigurableWebEnvironment)) {
+			return true;
+		}
+		if (!isNull(resourceLoader) && (resourceLoader instanceof WebApplicationContext)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * {@link org.springframework.boot.autoconfigure.condition.OnWebApplicationCondition#isReactiveWebApplication}
+	 * 
+	 * @return
+	 */
+	public static boolean isReactiveWebApplication(@Nullable ClassLoader classLoader, @Nullable Environment environment,
+			@Nullable ResourceLoader resourceLoader) {
+
+		if (!ClassUtils2.isPresent(REACTIVE_WEB_APPLICATION_CLASS, classLoader)) {
+			return false;
+		}
+		if (!isNull(environment) && (environment instanceof ConfigurableReactiveWebEnvironment)) {
+			return true;
+		}
+		if (!isNull(resourceLoader) && (resourceLoader instanceof ReactiveWebApplicationContext)) {
+			return true;
+		}
+		return false;
+	}
+
+	private static final String SERVLET_WEB_APPLICATION_CLASS = "org.springframework.web.context.support.GenericWebApplicationContext";
+	private static final String REACTIVE_WEB_APPLICATION_CLASS = "org.springframework.web.reactive.HandlerResult";
 
 }

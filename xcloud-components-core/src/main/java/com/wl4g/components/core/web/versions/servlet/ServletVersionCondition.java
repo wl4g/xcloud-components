@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.versions;
+package com.wl4g.components.core.web.versions.servlet;
+
+import java.util.Comparator;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
+import com.wl4g.components.core.web.versions.VersionConditionSupport;
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 /**
  * Servlet mvc API versions number rules condition.
@@ -30,40 +33,37 @@ import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
  * @sine v1.0
  * @see
  */
-public class ServletVersionCondition extends AbstractVersionRequestCondition
-		implements RequestCondition<ServletVersionCondition> {
+public class ServletVersionCondition extends VersionConditionSupport implements RequestCondition<ServletVersionCondition> {
 
-	public ServletVersionCondition(MultiApiVersion multiApiVersion, ApiVersion apiVersion) {
-		super(multiApiVersion, apiVersion);
+	public ServletVersionCondition(ApiVersionGroup apiVersionGroup, ApiVersion apiVersion, Comparator<String> versionComparator) {
+		super(apiVersionGroup, apiVersion, versionComparator);
 	}
 
 	@Override
 	public ServletVersionCondition combine(ServletVersionCondition other) {
 		// Use the nearest definition priority principle, that is, the
 		// definition on the method covers the definition above the type.
-		return new ServletVersionCondition(other.getMultiApiVersion(), other.getApiVersion());
+		return new ServletVersionCondition(other.getApiVersionGroup(), other.getApiVersion(), versionComparator);
 	}
 
 	@Override
 	public ServletVersionCondition getMatchingCondition(HttpServletRequest request) {
-		//TODO
-		
-//		String ver = request.getHeader("Api-Version");
-//		// 因为请求头里面传来的是小数，所以需要乘以10
-//		int version = (int) (Double.valueOf(ver) * 10);
-//		// 如果请求的版本号大于等于配置版本号， 则满足
-//		if (version >= this.combineVersion) {
-//			return this;
-//		}
+		// TODO
+
+		// String ver = request.getHeader("Api-Version");
+		// // 因为请求头里面传来的是小数，所以需要乘以10
+		// int version = (int) (Double.valueOf(ver) * 10);
+		// // 如果请求的版本号大于等于配置版本号， 则满足
+		// if (version >= this.combineVersion) {
+		// return this;
+		// }
 		return null;
 	}
 
 	@Override
 	public int compareTo(ServletVersionCondition other, HttpServletRequest request) {
-		//TODO
-		
 		// Matchs the latest version number first.
-		return other.getCombineVersion() - this.combineVersion;
+		return versionComparator.compare(other.getApiVersion().value(), getApiVersion().value());
 	}
 
 }

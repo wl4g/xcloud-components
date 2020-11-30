@@ -28,10 +28,9 @@ import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 /**
@@ -55,8 +54,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(WebFluxConfigurer.class)
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class ReactiveVersionRequestMappingConfigurer {
+public class ReactiveVersionRequestMappingAutoConfiguration {
 
 	@Bean
 	public RequestMappingHandlerMapping reactiveVersionRequestMappingHandlerMapping() {
@@ -88,10 +86,10 @@ public class ReactiveVersionRequestMappingConfigurer {
 		}
 
 		private RequestCondition<ReactiveVersionCondition> createCondition(AnnotatedElement annotatedElement) {
-			MultiApiVersion multiApiVersion = findAnnotation(annotatedElement, MultiApiVersion.class);
+			ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
 			ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
-			return (isNull(apiVersion) && isNull(multiApiVersion)) ? null
-					: new ReactiveVersionCondition(multiApiVersion, apiVersion);
+			return (isNull(apiVersion) && isNull(apiVersionGroup)) ? null
+					: new ReactiveVersionCondition(apiVersionGroup, apiVersion, null); // TODO
 		}
 
 	}

@@ -17,10 +17,10 @@ package com.wl4g.components.core.web.versions.annotation;
 
 import org.springframework.context.annotation.Import;
 
-import com.wl4g.components.core.web.versions.ReactiveVersionRequestMappingConfigurer;
-import com.wl4g.components.core.web.versions.ServletVersionRequestMappingConfigurer;
+import com.wl4g.components.core.web.versions.AsciiVersionComparator;
 
 import java.lang.annotation.*;
+import java.util.Comparator;
 
 /**
  * When enabled, the API multi version request control mapping processor is
@@ -34,9 +34,22 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ ServletVersionRequestMappingConfigurer.class, ReactiveVersionRequestMappingConfigurer.class })
+@Import({ ApiVersionMappingRegistrar.class })
 public @interface EnableApiVersionMapping {
 
-	String[] versionParams() default { "api-version", "api_version", "_v" };
+	/**
+	 * Request parameter name for multi version mappings.
+	 * 
+	 * @return
+	 */
+	String[] parameterNames() default { "api-version", "api_version", "_v" };
+
+	/**
+	 * Version number size comparator for multi version automatic mapping. (bean
+	 * type)
+	 * 
+	 * @return
+	 */
+	Class<? extends Comparator<String>> comparator() default AsciiVersionComparator.class;
 
 }

@@ -34,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface MultiApiVersion {
+public @interface ApiVersionGroup {
 
 	/**
 	 * Client platform type name. for example: (Android/iOS/iPad/WebPC/

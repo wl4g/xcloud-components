@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.components.core.web.versions;
+package com.wl4g.components.core.web.versions.reactive;
+
+import java.util.Comparator;
 
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.server.ServerWebExchange;
 
+import com.wl4g.components.core.web.versions.VersionConditionSupport;
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+
+//
+// TODO
+//
 
 /**
  * Reactive API versions number rules condition.
@@ -29,11 +36,10 @@ import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
  * @sine v1.0
  * @see
  */
-public class ReactiveVersionCondition extends AbstractVersionRequestCondition
-		implements RequestCondition<ReactiveVersionCondition> {
+public class ReactiveVersionCondition extends VersionConditionSupport implements RequestCondition<ReactiveVersionCondition> {
 
-	public ReactiveVersionCondition(MultiApiVersion multiApiVersion, ApiVersion apiVersion) {
-		super(multiApiVersion, apiVersion);
+	public ReactiveVersionCondition(ApiVersionGroup apiVersionGroup, ApiVersion apiVersion, Comparator<String> versionComparator) {
+		super(apiVersionGroup, apiVersion, versionComparator);
 	}
 
 	@Override

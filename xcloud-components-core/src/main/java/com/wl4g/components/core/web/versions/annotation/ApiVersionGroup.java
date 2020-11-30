@@ -23,7 +23,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Version annotation and control for API.
+ * Multiple versions annotation and control for API.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-27
@@ -34,18 +34,23 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface ApiVersion {
+public @interface ApiVersionGroup {
 
 	/**
-	 * API version numbers string, equivalent to:
-	 * {@link #major()}.{@link #minor()}.{@link #revision()}.{@link #extension()}
+	 * Client platform type name. for example: (Android/iOS/iPad/WebPC/
+	 * NativePC/WechatMp/WechatApplet/BaiduApplet/AliApplet/...) </br>
 	 * 
-	 * <p>
-	 * for example: {major}.{minor}.{revision}.{extension} => 1.0.2.10b </br>
-	 * </p>
+	 * Notes: Optional, when empty, the matching request ignores this condition.
 	 * 
 	 * @return
 	 */
-	String value();
+	String[] clientType();
+
+	/**
+	 * {@link ApiVersion}
+	 * 
+	 * @return
+	 */
+	ApiVersion[] value();
 
 }

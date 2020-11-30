@@ -34,6 +34,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -226,7 +227,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		private volatile SmartServletHandlerMapping delegate;
 
 		public ServletHandlerMappingSupport() {
-			setOrder(0); // By default order
+			setOrder(Ordered.HIGHEST_PRECEDENCE + 10); // By default order
 		}
 
 		@Override

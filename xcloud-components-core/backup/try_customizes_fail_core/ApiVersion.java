@@ -41,11 +41,40 @@ public @interface ApiVersion {
 	 * {@link #major()}.{@link #minor()}.{@link #revision()}.{@link #extension()}
 	 * 
 	 * <p>
-	 * for example: {major}.{minor}.{revision}.{extension} => 1.0.2.10b </br>
+	 * for example: {major}.{minor}.{revision}.{extension} => 1.0.2.10 </br>
 	 * </p>
 	 * 
 	 * @return
 	 */
-	String value();
+	String value() default "";
+
+	/**
+	 * The major version number of the API. (Greater than or equal to 0)
+	 * 
+	 * @return
+	 */
+	int major();
+
+	/**
+	 * The minor version number of the API. (Greater than or equal to 0)
+	 * 
+	 * @return
+	 */
+	int minor();
+
+	/**
+	 * The revision version number of the API. (Greater than or equal to 0)
+	 * 
+	 * @return
+	 */
+	int revision();
+
+	/**
+	 * The extension version number of the API. (Optional, The extended version
+	 * number is ignored when it is less than 0)
+	 * 
+	 * @return
+	 */
+	int extension() default -1;
 
 }

@@ -15,10 +15,14 @@
  */
 package com.wl4g.components.core.web.versions;
 
+import static com.wl4g.components.common.lang.Assert2.isTrue;
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.Set;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -28,14 +32,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.MultiApiVersion;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
 
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
+import static org.springframework.core.annotation.AnnotatedElementUtils.findAllMergedAnnotations;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 /**
@@ -59,8 +64,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class ServletVersionRequestMappingConfigurer {
+public class ServletVersionRequestMappingAutoConfiguration {
 
 	@Bean
 	public ServletVersionRequestHandlerMapping servletVersionRequestHandlerMapping() {
@@ -83,7 +87,7 @@ public class ServletVersionRequestMappingConfigurer {
 
 		@Override
 		protected boolean supports(String beanName, Class<?> beanType) {
-			return hasAnnotation(beanType, ApiVersion.class) || hasAnnotation(beanType, MultiApiVersion.class);
+			return hasAnnotation(beanType, ApiVersion.class) || hasAnnotation(beanType, ApiVersionGroup.class);
 		}
 
 		@Override
@@ -97,10 +101,22 @@ public class ServletVersionRequestMappingConfigurer {
 		}
 
 		private RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
-			MultiApiVersion multiApiVersion = findAnnotation(annotatedElement, MultiApiVersion.class);
+			ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
 			ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
-			return (isNull(apiVersion) && isNull(multiApiVersion)) ? null
-					: new ServletVersionCondition(multiApiVersion, apiVersion);
+			return (isNull(apiVersion) && isNull(apiVersionGroup)) ? null
+					: new ServletVersionCondition(apiVersionGroup, apiVersion, getApiVersionComparator());
+		}
+
+		private Comparator<String> getApiVersionComparator() {
+			for (String beanName : asList(getApplicationContext().getBeanDefinitionNames())) {
+				Class<?> beanType = getApplicationContext().getType(beanName);
+				Set<EnableApiVersionMapping> annos = findAllMergedAnnotations(beanType, EnableApiVersionMapping.class);
+				if (!CollectionUtils2.isEmpty(annos)) {
+					isTrue(annos.size() == 1, "");
+					 annos.iterator().next();
+				}
+			}
+			return null;
 		}
 
 	}
