@@ -29,30 +29,30 @@ import org.junit.Test;
  * @sine v1.0
  * @see
  */
-public class AsciiVersionComparatorTests {
+public class SimpleVersionComparatorTests {
 
 	@Test
 	public void versionComparateCase1() {
-		System.out.println(AsciiVersionComparator.INSTANCE.compare("1.10.1.2", "1.10.1.3"));
-		System.out.println(AsciiVersionComparator.INSTANCE.compare("1_10_1_b", "1_10_1_a"));
-		System.out.println(AsciiVersionComparator.INSTANCE.compare("1:10:1b", "1:10:1a"));
-		System.out.println(AsciiVersionComparator.INSTANCE.compare("1/10/1b", "1/10/1a"));
-		System.out.println(AsciiVersionComparator.INSTANCE.compare("1;10;1;2a", "1;10;1;2b"));
-		System.out.println(AsciiVersionComparator.INSTANCE.compare("1;10;1;2a", "1;10;1;2a"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("1.10.1.2", "1.10.1.3"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("1_10_1_b", "1_10_1_a"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("1:10:1b", "1:10:1a"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("1/10/1b", "1/10/1a"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("1;10;1;2a", "1;10;1;2b"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("1;10;1;2a", "1;10;1;2a"));
 	}
 
 	// Negative example:
 	@Test(expected = IllegalArgumentException.class)
 	public void versionSyntaxOfErrorCase2() {
 		Pattern pattern = Pattern.compile("[-_./;:]");
-		System.out.println(asList(AsciiVersionComparator.validSyntaxVersion(pattern, "1.10.1.2b.1")));
+		System.out.println(asList(SimpleVersionComparator.validSyntaxVersion(pattern, "1.10.1.2b.1")));
 	}
 
 	// Positive example:
 	@Test(expected = IllegalArgumentException.class)
 	public void versionSyntaxOfSuccessCase2() {
 		Pattern pattern = Pattern.compile("[-_./;:]");
-		System.out.println(asList(AsciiVersionComparator.validSyntaxVersion(pattern, "1.10.1.2a")));
+		System.out.println(asList(SimpleVersionComparator.validSyntaxVersion(pattern, "1.10.1.2a")));
 	}
 
 }

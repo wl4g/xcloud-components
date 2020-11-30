@@ -44,7 +44,7 @@ public @interface ApiVersionGroup {
 	 * 
 	 * @return
 	 */
-	String[] clientType();
+	String[] clients();
 
 	/**
 	 * {@link ApiVersion}

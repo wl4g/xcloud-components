@@ -31,7 +31,7 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-27
  * @sine v1.0
- * @see
+ * @see https://blog.csdn.net/sinat_29508581/article/details/89392831
  */
 public class ServletVersionCondition extends VersionConditionSupport implements RequestCondition<ServletVersionCondition> {
 

@@ -50,6 +50,7 @@ import java.util.Properties;
  * @version v1.0 2020-11-17
  * @sine v1.0
  * @see https://www.jianshu.com/p/0a72bb1f6a21
+ * @see https://cloud.tencent.com/developer/article/1170370
  */
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }),
 		@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class,

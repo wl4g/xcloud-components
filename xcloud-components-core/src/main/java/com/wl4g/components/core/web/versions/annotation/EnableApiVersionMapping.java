@@ -17,7 +17,7 @@ package com.wl4g.components.core.web.versions.annotation;
 
 import org.springframework.context.annotation.Import;
 
-import com.wl4g.components.core.web.versions.AsciiVersionComparator;
+import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 
 import java.lang.annotation.*;
 import java.util.Comparator;
@@ -38,11 +38,18 @@ import java.util.Comparator;
 public @interface EnableApiVersionMapping {
 
 	/**
-	 * Request parameter name for multi version mappings.
+	 * Request parameter name for api version mappings.
 	 * 
 	 * @return
 	 */
-	String[] parameterNames() default { "api-version", "api_version", "_v" };
+	String[] versionParams() default { "version", "apiVersion", "_v" };
+
+	/**
+	 * Request parameter name for api versions group mappings.
+	 * 
+	 * @return
+	 */
+	String[] groupParams() default { "clientType", "platform" };
 
 	/**
 	 * Version number size comparator for multi version automatic mapping. (bean
@@ -50,6 +57,21 @@ public @interface EnableApiVersionMapping {
 	 * 
 	 * @return
 	 */
-	Class<? extends Comparator<String>> comparator() default AsciiVersionComparator.class;
+	Class<? extends Comparator<String>> versionComparator() default SimpleVersionComparator.class;
+
+	/**
+	 * Refer: {@link #groupParams()}
+	 */
+	public static final String VERSION_PARAMS = "versionParams";
+
+	/**
+	 * Refer: {@link #versionParams()}
+	 */
+	public static final String GROUP_PARAMS = "groupParams";
+
+	/**
+	 * Refer: {@link #comparator()}
+	 */
+	public static final String VERSION_COMPARATOR = "versionComparator";
 
 }

@@ -13,20 +13,24 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * API version comparator with ASCII.
+ * Simple API version comparator with ASCII.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-30
  * @sine v1.0
  */
-public class AsciiVersionComparator implements Comparator<String> {
+public class SimpleVersionComparator implements Comparator<String> {
 
 	// Default version comparator instance.
-	public static final AsciiVersionComparator INSTANCE = new AsciiVersionComparator("[-_./;:]");
+	public static final SimpleVersionComparator INSTANCE = new SimpleVersionComparator();
 
 	protected final Pattern versionPattern;
 
-	public AsciiVersionComparator(@NotBlank String versionRegex) {
+	public SimpleVersionComparator() {
+		this(DEFAULT_VERSION_REGEX);
+	}
+
+	public SimpleVersionComparator(@NotBlank String versionRegex) {
 		this.versionPattern = Pattern.compile(hasTextOf(versionRegex, "versionRegex"));
 	}
 
@@ -72,5 +76,7 @@ public class AsciiVersionComparator implements Comparator<String> {
 						version, versionRegex));
 		return verParts;
 	}
+
+	public static final String DEFAULT_VERSION_REGEX = "[-_./;:]";
 
 }

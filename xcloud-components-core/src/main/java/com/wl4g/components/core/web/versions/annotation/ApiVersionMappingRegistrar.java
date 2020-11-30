@@ -18,8 +18,9 @@ package com.wl4g.components.core.web.versions.annotation;
 import static java.util.Objects.isNull;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
 
-import java.util.Comparator;
-
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -40,6 +41,10 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.web.versions.reactive.ReactiveVersionRequestHandlerMapping;
 import com.wl4g.components.core.web.versions.servlet.ServletVersionRequestHandlerMapping;
 
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_PARAMS;
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.GROUP_PARAMS;
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_COMPARATOR;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.core.utils.context.SpringContextHolder.isReactiveWebApplication;
 
@@ -51,21 +56,28 @@ import static com.wl4g.components.core.utils.context.SpringContextHolder.isReact
  * @sine v1.0
  * @see
  */
-public class ApiVersionMappingRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+public class ApiVersionMappingRegistrar
+		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
 
 	protected final SmartLogger log = getLogger(getClass());
 
 	private ResourceLoader resourceLoader;
 	private Environment environment;
+	private BeanFactory beanFactory;
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
+		this.resourceLoader = notNullOf(resourceLoader, "resourceLoader");
 	}
 
 	@Override
 	public void setEnvironment(Environment environment) {
-		this.environment = environment;
+		this.environment = notNullOf(environment, "environment");
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = notNullOf(beanFactory, "beanFactory");
 	}
 
 	@Override
@@ -73,34 +85,48 @@ public class ApiVersionMappingRegistrar implements ImportBeanDefinitionRegistrar
 		AnnotationAttributes annoAttrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableApiVersionMapping.class.getName()));
 		if (!isNull(annoAttrs)) {
+			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
+
+			// Register version comparator.
+			registerVersionComparator(annoAttrs, registry, beanNameGenerator);
+
+			// Register rqeust handler mapping.
 			if (isReactiveWebApplication(getClass().getClassLoader(), environment, resourceLoader)) {
-				registerRequestMapping(annoAttrs, registry, ReactiveVersionRequestHandlerMapping.class);
+				registerRequestHandlerMapping(annoAttrs, registry, ReactiveVersionRequestHandlerMapping.class, beanNameGenerator);
 			} else {
-				registerRequestMapping(annoAttrs, registry, ServletVersionRequestHandlerMapping.class);
+				registerRequestHandlerMapping(annoAttrs, registry, ServletVersionRequestHandlerMapping.class, beanNameGenerator);
 			}
 		}
+
 	}
 
-	protected void registerRequestMapping(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry, Class<?> beanClass) {
+	protected void registerRequestHandlerMapping(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry,
+			Class<?> beanClass, BeanNameGenerator beanNameGenerator) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
-		builder.addPropertyValue("parameterNames", resolveVersionParameterNames(annoAttrs, registry));
-		builder.addPropertyValue("versionComparatorClass", resolveVersionComparatorClass(annoAttrs, registry));
+		builder.addPropertyValue(VERSION_PARAMS, resolveVersionParameterNames(annoAttrs, registry));
+		builder.addPropertyValue(GROUP_PARAMS, resolveVersionGroupParameterNames(annoAttrs, registry));
+		builder.addPropertyValue(VERSION_COMPARATOR, beanFactory.getBean(annoAttrs.getClass(VERSION_COMPARATOR)));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
-
-		BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 		String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
+		registry.registerBeanDefinition(beanName, beanDefinition);
+	}
 
+	protected void registerVersionComparator(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry,
+			BeanNameGenerator beanNameGenerator) {
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(annoAttrs.getClass(VERSION_COMPARATOR));
+		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
+
+		String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
 		registry.registerBeanDefinition(beanName, beanDefinition);
 	}
 
 	private String[] resolveVersionParameterNames(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return annoAttrs.getStringArray("parameterNames");
+		return annoAttrs.getStringArray(VERSION_PARAMS);
 	}
 
-	private Class<? extends Comparator<String>> resolveVersionComparatorClass(AnnotationAttributes annoAttrs,
-			BeanDefinitionRegistry registry) {
-		return annoAttrs.getClass("comparator");
+	private String[] resolveVersionGroupParameterNames(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
+		return annoAttrs.getStringArray(GROUP_PARAMS);
 	}
 
 	/**

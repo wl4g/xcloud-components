@@ -51,28 +51,39 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
  */
 public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSupport {
 
-	private String[] parameterNames;
-	private Class<? extends Comparator<String>> versionComparatorClass;
+	private String[] versionParams;
+	private String[] groupParams;
+	private Comparator<String> versionComparator;
 
 	public ServletVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
-	protected String[] getParameterNames() {
-		return parameterNames;
+	public String[] getVersionParams() {
+		return versionParams;
 	}
 
-	protected void setParameterNames(String[] parameterNames) {
-		this.parameterNames = parameterNames;
+	public void setVersionParams(String[] versionParams) {
+		this.versionParams = versionParams;
 	}
 
-	protected Class<? extends Comparator<String>> getVersionComparatorClass() {
-		return versionComparatorClass;
+	public String[] getGroupParams() {
+		return groupParams;
 	}
 
-	protected void setVersionComparatorClass(Class<? extends Comparator<String>> versionComparatorClass) {
-		this.versionComparatorClass = versionComparatorClass;
+	public void setGroupParams(String[] groupParams) {
+		this.groupParams = groupParams;
 	}
+
+	public Comparator<String> getVersionComparator() {
+		return versionComparator;
+	}
+
+	public void setVersionComparator(Comparator<String> versionComparator) {
+		this.versionComparator = versionComparator;
+	}
+
+	// --- Request mapping condition. ---
 
 	@Override
 	protected boolean supports(String beanName, Class<?> beanType) {
@@ -94,10 +105,6 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
 		return (isNull(apiVersion) && isNull(apiVersionGroup)) ? null
 				: new ServletVersionCondition(apiVersionGroup, apiVersion, getVersionComparator());
-	}
-
-	private Comparator<String> getVersionComparator() {
-		return getApplicationContext().getBean(getVersionComparatorClass());
 	}
 
 }
