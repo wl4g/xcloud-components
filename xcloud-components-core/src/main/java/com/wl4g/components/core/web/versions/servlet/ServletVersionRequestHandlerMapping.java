@@ -17,6 +17,7 @@ package com.wl4g.components.core.web.versions.servlet;
 
 import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.isTrue;
+import static com.wl4g.components.common.lang.Assert2.state;
 import static java.util.Collections.synchronizedList;
 import static java.util.Objects.isNull;
 
@@ -138,11 +139,13 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	protected void checkVersionValid(AnnotatedElement element, ApiVersionGroup apiVersionGroup, ApiVersion apiVersion) {
 		// Check uniqueness. (version + requestPath + requestMethod)
 		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
-		CheckMappingWrapper wrapper = new CheckMappingWrapper(requestMapping, apiVersionGroup, apiVersion);
+		state(!isNull(requestMapping), "Shouldn't be here");
 
+		CheckMappingWrapper wrapper = new CheckMappingWrapper(requestMapping, apiVersionGroup, apiVersion);
 		isTrue(!checkingMapping.contains(wrapper), AmbiguousApiVersionMappingException.class,
 				"Ambiguous version API mapping, please ensure that the combination of version and requestPath and requestMethod is unique");
-		checkingMapping.add(wrapper);
+
+		this.checkingMapping.add(wrapper);
 	}
 
 	private final List<CheckMappingWrapper> checkingMapping = synchronizedList(new LinkedList<>());
@@ -152,9 +155,9 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	 */
 	class CheckMappingWrapper {
 
-		private List<RequestMethod> methods;
-		private List<String> path;
-		private String version;
+		private final List<RequestMethod> methods;
+		private final List<String> path;
+		private final String version;
 
 		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionGroup apiVersionGroup, ApiVersion apiVersion) {
 			this.methods = safeArrayToList(requestMapping.method());
