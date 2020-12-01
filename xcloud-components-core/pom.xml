@@ -90,11 +90,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.javassist</groupId> -->
-		<!-- <artifactId>javassist</artifactId> -->
-		<!-- <scope>provided</scope> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
@@ -197,6 +192,11 @@
 			<artifactId>spring-webflux</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.javassist</groupId> -->
+		<!-- <artifactId>javassist</artifactId> -->
+		<!-- <scope>provided</scope> -->
+		<!-- </dependency> -->
 		<!-- Protobuf -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
@@ -208,16 +208,28 @@
 			<artifactId>swagger-annotations</artifactId>
 		</dependency>
 		<!-- Tests -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
 		<!-- Usually used with xcloud-components-data. -->
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://spring.io/guides/gs/testing-web/ -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<build>

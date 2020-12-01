@@ -152,7 +152,7 @@
 		<!-- NLP (pinyin) -->
 		<belerweb.pinyin4j.version>2.5.1</belerweb.pinyin4j.version>
 		<!-- Testing's. -->
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
