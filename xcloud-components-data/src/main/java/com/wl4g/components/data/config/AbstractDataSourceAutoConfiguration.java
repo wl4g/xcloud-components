@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -66,7 +67,7 @@ public abstract class AbstractDataSourceAutoConfiguration {
 	 */
 	protected SqlSessionFactoryBean createSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
 			List<Interceptor> interceptors) throws Exception {
-		// Define path matcher resolver.
+		// Class path matcher resolver.
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
 		// Build SqlSessionFactory
@@ -74,8 +75,12 @@ public abstract class AbstractDataSourceAutoConfiguration {
 		factory.setDataSource(dataSource);
 		factory.setTypeAliases(getTypeAliases(resolver, config));
 		factory.setConfigLocation(new ClassPathResource(config.getConfigLocation()));
-		factory.setPlugins(interceptors.toArray(new Interceptor[0]));
 		factory.setMapperLocations(getDaoMappers(resolver, config));
+
+		// Plugin interceptors sorting.
+		AnnotationAwareOrderComparator.sort(interceptors);
+		factory.setPlugins(interceptors.toArray(new Interceptor[0]));
+
 		return factory;
 	}
 

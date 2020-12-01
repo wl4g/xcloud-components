@@ -18,6 +18,9 @@ package com.wl4g.components.core.web.versions.annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import org.springframework.stereotype.Indexed;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.RetentionPolicy;
@@ -34,6 +37,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@Indexed
 public @interface ApiVersionGroup {
 
 	/**

@@ -23,6 +23,8 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.bean.BaseBean;
@@ -55,6 +57,7 @@ import java.util.Properties;
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }),
 		@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class,
 				ResultHandler.class }) })
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
 public class GenericBeanMapperInterceptor implements Interceptor {
 
 	protected final SmartLogger log = getLogger(getClass());
