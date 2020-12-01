@@ -15,15 +15,16 @@
  */
 package com.wl4g.components.core.web.versions;
 
+import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.Comparator;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.web.versions.annotation.ApiVersion;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 /**
@@ -35,29 +36,56 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
  * @see
  */
 public abstract class VersionConditionSupport {
+
 	protected final SmartLogger log = getLogger(getClass());
 
-	protected final ApiVersionGroup apiVersionGroup;
-	protected final ApiVersion apiVersion;
-	protected final Comparator<String> versionComparator;
+	private final ApiVersionGroup apiVersionGroup;
+	private final Comparator<String> versionComparator;
 
-	public VersionConditionSupport(ApiVersionGroup apiVersionGroup, ApiVersion apiVersion, Comparator<String> versionComparator) {
-		this.apiVersionGroup = apiVersionGroup;
-		this.apiVersion = apiVersion;
+	// Request obtain versions info parameters.
+	private final String[] versionParams;
+	private final String[] groupParams;
+
+	public VersionConditionSupport(ApiVersionGroup apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
+			String[] groupParams) {
+		this.apiVersionGroup = notNullOf(apiVersionGroup, "apiVersionGroup");
 		this.versionComparator = notNullOf(versionComparator, "versionComparator");
-		// Validation versions
-		if (isNull(apiVersionGroup) && isNull(apiVersion)) {
-			throw new IllegalStateException(format("Annotations %s and %s should not be null at the same time.",
-					ApiVersionGroup.class.getSimpleName(), ApiVersion.class.getSimpleName()));
-		}
+		this.versionParams = safeArrayToList(versionParams).toArray(new String[0]);
+		this.groupParams = safeArrayToList(groupParams).toArray(new String[0]);
 	}
 
-	protected ApiVersionGroup getApiVersionGroup() {
+	/**
+	 * Gets request parameter value.
+	 * 
+	 * @param request
+	 * @param names
+	 * @return
+	 */
+	protected String getRequestParameter(HttpServletRequest request, String[] names) {
+		for (String name : names) {
+			String value = request.getParameter(name);
+			value = isBlank(value) ? request.getHeader(name) : value;
+			if (!isBlank(value)) {
+				return value;
+			}
+		}
+		return null;
+	}
+
+	public ApiVersionGroup getApiVersionGroup() {
 		return apiVersionGroup;
 	}
 
-	protected ApiVersion getApiVersion() {
-		return apiVersion;
+	public Comparator<String> getVersionComparator() {
+		return versionComparator;
+	}
+
+	public String[] getVersionParams() {
+		return versionParams;
+	}
+
+	public String[] getGroupParams() {
+		return groupParams;
 	}
 
 }

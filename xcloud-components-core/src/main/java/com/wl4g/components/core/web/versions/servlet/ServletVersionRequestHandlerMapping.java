@@ -20,6 +20,7 @@ import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.lang.Assert2.state;
 import static java.util.Collections.synchronizedList;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -118,15 +119,14 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		return createCondition(method);
 	}
 
-	protected RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
+	private final RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
 		ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
-		ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
 
 		// Check version properties valid.
-		checkVersionValid(annotatedElement, apiVersionGroup, apiVersion);
+		checkVersionValid(annotatedElement, apiVersionGroup);
 
-		return (isNull(apiVersion) && isNull(apiVersionGroup)) ? null
-				: new ServletVersionCondition(apiVersionGroup, apiVersion, getVersionComparator());
+		return isNull(apiVersionGroup) ? null
+				: new ServletVersionCondition(apiVersionGroup, getVersionComparator(), getVersionParams(), getGroupParams());
 	}
 
 	/**
@@ -136,12 +136,12 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	 * @param apiVersionGroup
 	 * @param apiVersion
 	 */
-	protected void checkVersionValid(AnnotatedElement element, ApiVersionGroup apiVersionGroup, ApiVersion apiVersion) {
+	protected void checkVersionValid(AnnotatedElement element, ApiVersionGroup apiVersionGroup) {
 		// Check uniqueness. (version + requestPath + requestMethod)
 		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
 		state(!isNull(requestMapping), "Shouldn't be here");
 
-		CheckMappingWrapper wrapper = new CheckMappingWrapper(requestMapping, apiVersionGroup, apiVersion);
+		CheckMappingWrapper wrapper = new CheckMappingWrapper(requestMapping, apiVersionGroup);
 		isTrue(!checkingMapping.contains(wrapper), AmbiguousApiVersionMappingException.class,
 				"Ambiguous version API mapping, please ensure that the combination of version and requestPath and requestMethod is unique");
 
@@ -157,13 +157,13 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 
 		private final List<RequestMethod> methods;
 		private final List<String> path;
-		private final String version;
+		private final List<String> version;
 
-		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionGroup apiVersionGroup, ApiVersion apiVersion) {
+		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionGroup apiVersionGroup) {
 			this.methods = safeArrayToList(requestMapping.method());
 			List<String> paths = safeArrayToList(requestMapping.path());
 			this.path = CollectionUtils2.isEmpty(paths) ? safeArrayToList(requestMapping.value()) : paths;
-			this.version = apiVersion.value();
+			this.version = safeArrayToList(apiVersionGroup.value()).stream().map(v -> v.value()).collect(toList());
 		}
 
 		@Override

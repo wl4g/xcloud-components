@@ -23,12 +23,10 @@ import java.util.Comparator;
 
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
-
-import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
-
 import org.springframework.core.Ordered;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
+
+import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 //
 // TODO
@@ -99,9 +97,8 @@ public class ReactiveVersionRequestHandlerMapping extends RequestMappingHandlerM
 
 	private RequestCondition<ReactiveVersionCondition> createCondition(AnnotatedElement annotatedElement) {
 		ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
-		ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
-		return (isNull(apiVersion) && isNull(apiVersionGroup)) ? null
-				: new ReactiveVersionCondition(apiVersionGroup, apiVersion, getVersionComparator());
+		return isNull(apiVersionGroup) ? null
+				: new ReactiveVersionCondition(apiVersionGroup, getVersionComparator(), versionParams, groupParams);
 	}
 
 }

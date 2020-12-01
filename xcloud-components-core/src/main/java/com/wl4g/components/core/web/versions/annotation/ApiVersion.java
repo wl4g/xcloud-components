@@ -33,12 +33,22 @@ import java.lang.annotation.RetentionPolicy;
  * @sine v1.0
  * @see
  */
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
 @Indexed
 public @interface ApiVersion {
+
+	/**
+	 * Client platform type name. for example: (Android/iOS/iPad/WebPC/
+	 * NativePC/WechatMp/WechatApplet/BaiduApplet/AliApplet/...) </br>
+	 * 
+	 * Notes: Optional, when empty, the matching request ignores this condition.
+	 * 
+	 * @return
+	 */
+	String[] clients() default {};
 
 	/**
 	 * API version numbers string, equivalent to:

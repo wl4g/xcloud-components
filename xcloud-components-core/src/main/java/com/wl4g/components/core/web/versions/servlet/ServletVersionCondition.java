@@ -15,14 +15,12 @@
  */
 package com.wl4g.components.core.web.versions.servlet;
 
-import java.util.Comparator;
-
+import java.util.Comparator; 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
 import com.wl4g.components.core.web.versions.VersionConditionSupport;
-import com.wl4g.components.core.web.versions.annotation.ApiVersion;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 /**
@@ -35,15 +33,17 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
  */
 public class ServletVersionCondition extends VersionConditionSupport implements RequestCondition<ServletVersionCondition> {
 
-	public ServletVersionCondition(ApiVersionGroup apiVersionGroup, ApiVersion apiVersion, Comparator<String> versionComparator) {
-		super(apiVersionGroup, apiVersion, versionComparator);
+	public ServletVersionCondition(ApiVersionGroup apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
+			String[] groupParams) {
+		super(apiVersionGroup, versionComparator, versionParams, groupParams);
 	}
 
 	@Override
 	public ServletVersionCondition combine(ServletVersionCondition other) {
 		// Use the nearest definition priority principle, that is, the
 		// definition on the method covers the definition above the type.
-		return new ServletVersionCondition(other.getApiVersionGroup(), other.getApiVersion(), versionComparator);
+		return new ServletVersionCondition(other.getApiVersionGroup(), getVersionComparator(), other.getVersionParams(),
+				other.getGroupParams());
 	}
 
 	@Override
@@ -63,7 +63,12 @@ public class ServletVersionCondition extends VersionConditionSupport implements 
 	@Override
 	public int compareTo(ServletVersionCondition other, HttpServletRequest request) {
 		// Matchs the latest version number first.
-		return versionComparator.compare(other.getApiVersion().value(), getApiVersion().value());
+
+		String version = getRequestParameter(request, getVersionParams());
+		String versionGroup = getRequestParameter(request, getGroupParams());
+
+		// return getVersionComparator().compare(other.getApiVersionGroup().value(), getApiVersionGroup().value());
+		return 0;
 	}
 
 }
