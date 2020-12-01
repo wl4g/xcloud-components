@@ -15,19 +15,30 @@
  */
 package com.wl4g.components.core.web.versions.servlet;
 
+import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.components.common.lang.Assert2.isTrue;
+import static java.util.Collections.synchronizedList;
 import static java.util.Objects.isNull;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
+import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
+import com.wl4g.components.core.web.versions.AmbiguousApiVersionMappingException;
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.core.Ordered;
+
+import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
@@ -83,7 +94,13 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		this.versionComparator = versionComparator;
 	}
 
-	// --- Request mapping condition. ---
+	@Override
+	public void afterPropertiesSet() {
+		// Clear useless mapping
+		this.checkingMapping.clear();
+	}
+
+	// --- Request mapping conditions. ---
 
 	@Override
 	protected boolean supports(String beanName, Class<?> beanType) {
@@ -100,11 +117,96 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		return createCondition(method);
 	}
 
-	private RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
+	protected RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
 		ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
 		ApiVersion apiVersion = findAnnotation(annotatedElement, ApiVersion.class);
+
+		// Check version properties valid.
+		checkVersionValid(annotatedElement, apiVersionGroup, apiVersion);
+
 		return (isNull(apiVersion) && isNull(apiVersionGroup)) ? null
 				: new ServletVersionCondition(apiVersionGroup, apiVersion, getVersionComparator());
+	}
+
+	/**
+	 * Check API version configuration properties whether valid.
+	 * 
+	 * @param element
+	 * @param apiVersionGroup
+	 * @param apiVersion
+	 */
+	protected void checkVersionValid(AnnotatedElement element, ApiVersionGroup apiVersionGroup, ApiVersion apiVersion) {
+		// Check uniqueness. (version + requestPath + requestMethod)
+		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
+		CheckMappingWrapper wrapper = new CheckMappingWrapper(requestMapping, apiVersionGroup, apiVersion);
+
+		isTrue(!checkingMapping.contains(wrapper), AmbiguousApiVersionMappingException.class,
+				"Ambiguous version API mapping, please ensure that the combination of version and requestPath and requestMethod is unique");
+		checkingMapping.add(wrapper);
+	}
+
+	private final List<CheckMappingWrapper> checkingMapping = synchronizedList(new LinkedList<>());
+
+	/**
+	 * Used to check if the mapping is unique wrapper.
+	 */
+	class CheckMappingWrapper {
+
+		private List<RequestMethod> methods;
+		private List<String> path;
+		private String version;
+
+		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionGroup apiVersionGroup, ApiVersion apiVersion) {
+			this.methods = safeArrayToList(requestMapping.method());
+			List<String> paths = safeArrayToList(requestMapping.path());
+			this.path = CollectionUtils2.isEmpty(paths) ? safeArrayToList(requestMapping.value()) : paths;
+			this.version = apiVersion.value();
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((methods == null) ? 0 : methods.hashCode());
+			result = prime * result + ((path == null) ? 0 : path.hashCode());
+			result = prime * result + ((version == null) ? 0 : version.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CheckMappingWrapper other = (CheckMappingWrapper) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (methods == null) {
+				if (other.methods != null)
+					return false;
+			} else if (!methods.equals(other.methods))
+				return false;
+			if (path == null) {
+				if (other.path != null)
+					return false;
+			} else if (!path.equals(other.path))
+				return false;
+			if (version == null) {
+				if (other.version != null)
+					return false;
+			} else if (!version.equals(other.version))
+				return false;
+			return true;
+		}
+
+		private ServletVersionRequestHandlerMapping getOuterType() {
+			return ServletVersionRequestHandlerMapping.this;
+		}
+
 	}
 
 }

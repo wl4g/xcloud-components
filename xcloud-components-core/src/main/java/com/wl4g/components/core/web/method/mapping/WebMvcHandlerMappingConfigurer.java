@@ -15,7 +15,9 @@
  */
 package com.wl4g.components.core.web.method.mapping;
 
+import com.wl4g.components.common.collection.CollectionUtils2;
 import static com.wl4g.components.common.collection.Collections2.safeList;
+
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
@@ -42,8 +44,6 @@ import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
-
-import com.wl4g.components.common.collection.CollectionUtils2;
 
 /**
  * Global web MVC {@link RequestMapping} unique handler mapping. (supports multi
@@ -88,12 +88,12 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	/**
 	 * Smart delegate MVC/servlet request handler mapping.
 	 */
-	public static class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
+	public final static class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
 		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
 		 */
-		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(16));
+		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(32));
 
 		@Nullable
 		@Autowired(required = false)
@@ -110,7 +110,14 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		}
 
 		@Override
-		protected final void processCandidateBean(String beanName) {
+		public void afterPropertiesSet() {
+			super.afterPropertiesSet();
+			// Clear useless mappings.
+			this.registeredMappings.clear();
+		}
+
+		@Override
+		protected void processCandidateBean(String beanName) {
 			if (CollectionUtils2.isEmpty(handlerMappings)) {
 				if (!print) {
 					print = true;
@@ -168,6 +175,9 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			doSmartOverrideRegisterMapping(mapping, handler, method);
 		}
 
+		/**
+		 * {@link #registerMapping(RequestMappingInfo, Object, Method)}
+		 */
 		@Override
 		public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
 			registerMapping(mapping, handler, method);
@@ -183,7 +193,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * @param method
 		 *            Actual request mapping handler method.
 		 */
-		private final void doSmartOverrideRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
+		private void doSmartOverrideRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
 			HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
 			HandlerMethod oldHandlerMethod = registeredMappings.get(mapping);
 
@@ -232,7 +242,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		}
 
 		@Override
-		public final void afterPropertiesSet() {
+		public void afterPropertiesSet() {
 			// Must ignore, To prevent spring from automatically calling when
 			// initializing the container, resulting in duplicate registration.
 		}
