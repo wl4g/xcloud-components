@@ -18,6 +18,7 @@ package com.wl4g.components.rpc.springcloud.feign;
 import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -235,13 +236,13 @@ public class FeignServletMvcAutoConfiguration implements InitializingBean {
 	static class FeignServletHandlerMapping extends ServletHandlerMappingSupport {
 
 		@Override
-		public boolean supports(String beanName, Class<?> beanType) {
+		protected boolean supports(Object handler, Class<?> handlerType, Method method) {
 			// In order to solve the following problems, spring will scan
 			// the @RequestMapping annotation class by default and inject
 			// it into MapperRegistry, which will cause conflicts with the
 			// dynamically generated $FeignProxyController class.
-			if (hasAnnotation(beanType, FeignClient.class)) {
-				return isFeignProxyBean(beanName);
+			if (hasAnnotation(handlerType, FeignClient.class)) {
+				return isFeignProxyBean((String) handler); // beanName
 			}
 			return false;
 		}

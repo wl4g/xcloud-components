@@ -21,22 +21,27 @@ import static com.wl4g.components.common.collection.Collections2.safeList;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -88,7 +93,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	/**
 	 * Smart delegate MVC/servlet request handler mapping.
 	 */
-	public final static class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
+	static final class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
 		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
@@ -112,12 +117,59 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		@Override
 		public void afterPropertiesSet() {
 			super.afterPropertiesSet();
+
 			// Clear useless mappings.
 			this.registeredMappings.clear();
 		}
 
 		@Override
-		protected void processCandidateBean(String beanName) {
+		protected void detectHandlerMethods(Object handler) {
+			Class<?> handlerType = (handler instanceof String ? obtainApplicationContext().getType((String) handler)
+					: handler.getClass());
+
+			if (handlerType != null) {
+				Class<?> userType = ClassUtils.getUserClass(handlerType);
+				Map<Method, RequestMappingInfo> methods = MethodIntrospector.selectMethods(userType,
+						(MethodIntrospector.MetadataLookup<RequestMappingInfo>) method -> {
+							try {
+								return getMappingForMethod(handler, method, userType);
+							} catch (Throwable ex) {
+								throw new IllegalStateException(
+										"Invalid mapping on handler class [" + userType.getName() + "]: " + method, ex);
+							}
+						});
+				if (logger.isTraceEnabled()) {
+					logger.trace(formatMappings(userType, methods));
+				}
+
+				methods.forEach((method, mapping) -> {
+					Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+					registerHandlerMethod(handler, invocableMethod, mapping);
+				});
+			}
+		}
+
+		private String formatMappings(Class<?> userType, Map<Method, RequestMappingInfo> methods) {
+			String formattedType = Arrays.stream(ClassUtils.getPackageName(userType).split("\\.")).map(p -> p.substring(0, 1))
+					.collect(Collectors.joining(".", "", "." + userType.getSimpleName()));
+			Function<Method, String> methodFormatter = method -> Arrays.stream(method.getParameterTypes())
+					.map(Class::getSimpleName).collect(Collectors.joining(",", "(", ")"));
+			return methods.entrySet().stream().map(e -> {
+				Method method = e.getKey();
+				return e.getValue() + ": " + method.getName() + methodFormatter.apply(method);
+			}).collect(Collectors.joining("\n\t", "\n\t" + formattedType + ":" + "\n\t", ""));
+		}
+
+		/**
+		 * Overrided from {@link #getMappingForMethod(Method, Class)}, Only to
+		 * add the first parameter 'handler'
+		 * 
+		 * @param handler
+		 * @param method
+		 * @param handlerType
+		 * @return
+		 */
+		private RequestMappingInfo getMappingForMethod(Object handler, Method method, Class<?> handlerType) {
 			if (CollectionUtils2.isEmpty(handlerMappings)) {
 				if (!print) {
 					print = true;
@@ -125,44 +177,25 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 							"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
 				}
 				// Use default handler mapping.
-				super.processCandidateBean(beanName);
-				return;
+				return super.getMappingForMethod(method, handlerType);
 			}
 
-			Class<?> beanType = null;
-			try {
-				beanType = obtainApplicationContext().getType(beanName);
-			} catch (Throwable ex) {
-				// An unresolvable bean type, probably from a lazy bean - let's
-				// ignore it.
-				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
-			}
-
-			if (nonNull(beanType) && isHandler(beanType)) {
-				// a. Ensure the external handler mapping is performed first.
-				boolean supported = false;
-				for (ServletHandlerMappingSupport mapping : safeList(handlerMappings)) {
-					// Invoke best matchs handler.
-					if (mapping.supports(beanName, beanType)) {
-						supported = true;
-						logger.info(
-								format("The bean: '%s' is being delegated to the best request mapping handler registration: '%s'",
-										beanName, mapping));
-						mapping.processCandidateBean(beanName);
-					}
-				}
-
-				// b. Fallback, using default handler mapping.
-				if (!supported) {
-					if (!print) {
-						print = true;
-						logger.info(format("No suitable request mapping processor was found. all handler mappings: %s",
-								handlerMappings));
-					}
-					super.processCandidateBean(beanName);
+			// a. Ensure the external handler mapping is performed first.
+			for (ServletHandlerMappingSupport hm : safeList(handlerMappings)) {
+				// Use supported custom handler mapping.
+				if (hm.supports(handler, handlerType, method)) {
+					logger.info(format("The method: '%s' is delegated to the request mapping handler registration: '%s'", method,
+							hm));
+					return hm.getMappingForMethod(method, handlerType);
 				}
 			}
 
+			// b. Fallback, using default handler mapping.
+			if (!print) {
+				print = true;
+				logger.info(format("No suitable request handler mapping was found. all handlerMappings: %s", handlerMappings));
+			}
+			return super.getMappingForMethod(method, handlerType);
 		}
 
 		/**
@@ -172,7 +205,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 */
 		@Override
 		public void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			doSmartOverrideRegisterMapping(mapping, handler, method);
+			doRegisterMapping(mapping, handler, method);
 		}
 
 		/**
@@ -180,7 +213,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 */
 		@Override
 		public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-			registerMapping(mapping, handler, method);
+			doRegisterMapping(mapping, handler, method);
 		}
 
 		/**
@@ -193,7 +226,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * @param method
 		 *            Actual request mapping handler method.
 		 */
-		private void doSmartOverrideRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
+		void doRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
 			HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
 			HandlerMethod oldHandlerMethod = registeredMappings.get(mapping);
 
@@ -248,30 +281,30 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		}
 
 		/**
-		 * Check if the current the supports registration bean handler mapping.
+		 * Check if the current the supports registration bean handler method
+		 * mapping.
 		 * 
-		 * @param beanName
-		 * @param beanType
+		 * @param method
+		 * @param handlerType
 		 * @return
 		 */
-		protected abstract boolean supports(String beanName, Class<?> beanType);
+		protected abstract boolean supports(Object handler, Class<?> handlerType, Method method);
 
-		// [final] override not allowed.
 		@Override
-		public final void processCandidateBean(String beanName) {
-			super.processCandidateBean(beanName);
+		public RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+			return super.getMappingForMethod(method, handlerType);
 		}
 
-		// [final] override not allowed.
+		// [final] override must not allowed.
 		@Override
 		public final void registerMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			getDelegate().registerMapping(mapping, handler, method);
+			getDelegate().doRegisterMapping(mapping, handler, method);
 		}
 
-		// [final] override not allowed.
+		// [final] override must not allowed.
 		@Override
-		protected final void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-			getDelegate().registerHandlerMethod(handler, method, mapping);
+		public final void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
+			getDelegate().doRegisterMapping(mapping, handler, method);
 		}
 
 		/**

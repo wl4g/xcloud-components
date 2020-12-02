@@ -66,6 +66,7 @@ public class ServletVersionCondition extends VersionConditionSupport implements 
 
 		String version = getRequestParameter(request, getVersionParams());
 		String versionGroup = getRequestParameter(request, getGroupParams());
+		System.out.println(version);
 
 		// return getVersionComparator().compare(other.getApiVersionGroup().value(), getApiVersionGroup().value());
 		return 1;

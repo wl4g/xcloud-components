@@ -18,6 +18,7 @@ package com.wl4g.components.core.web.versions.servlet;
 import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.isTrue;
 import static com.wl4g.components.common.lang.Assert2.state;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
@@ -31,7 +32,6 @@ import java.util.List;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.components.core.web.versions.AmbiguousApiVersionMappingException;
-import com.wl4g.components.core.web.versions.annotation.ApiVersion;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -105,8 +105,8 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	// --- Request mapping conditions. ---
 
 	@Override
-	protected boolean supports(String beanName, Class<?> beanType) {
-		return hasAnnotation(beanType, ApiVersion.class) || hasAnnotation(beanType, ApiVersionGroup.class);
+	protected boolean supports(Object handler, Class<?> handlerType, Method method) {
+		return hasAnnotation(method, ApiVersionGroup.class);
 	}
 
 	@Override
@@ -141,11 +141,14 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
 		state(!isNull(requestMapping), "Shouldn't be here");
 
-		CheckMappingWrapper wrapper = new CheckMappingWrapper(requestMapping, apiVersionGroup);
-		isTrue(!checkingMapping.contains(wrapper), AmbiguousApiVersionMappingException.class,
-				"Ambiguous version API mapping, please ensure that the combination of version and requestPath and requestMethod is unique");
+		if (element instanceof Method) {
+			CheckMappingWrapper cm = new CheckMappingWrapper(requestMapping, apiVersionGroup);
+			isTrue(!checkingMapping.contains(cm), AmbiguousApiVersionMappingException.class,
+					"Ambiguous version API mapping, please ensure that the combind of version and requestPath and requestMethod is unique. - %s",
+					cm);
+			this.checkingMapping.add(cm);
+		}
 
-		this.checkingMapping.add(wrapper);
 	}
 
 	private final List<CheckMappingWrapper> checkingMapping = synchronizedList(new LinkedList<>());
@@ -163,7 +166,8 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 			this.methods = safeArrayToList(requestMapping.method());
 			List<String> paths = safeArrayToList(requestMapping.path());
 			this.path = CollectionUtils2.isEmpty(paths) ? safeArrayToList(requestMapping.value()) : paths;
-			this.version = safeArrayToList(apiVersionGroup.value()).stream().map(v -> v.value()).collect(toList());
+			this.version = isNull(apiVersionGroup) ? emptyList()
+					: safeArrayToList(apiVersionGroup.value()).stream().map(v -> v.value()).collect(toList());
 		}
 
 		@Override
@@ -208,6 +212,11 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 
 		private ServletVersionRequestHandlerMapping getOuterType() {
 			return ServletVersionRequestHandlerMapping.this;
+		}
+
+		@Override
+		public String toString() {
+			return "[methods=" + methods + ", path=" + path + ", version=" + version + "]";
 		}
 
 	}

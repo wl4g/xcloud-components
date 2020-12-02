@@ -15,6 +15,8 @@
  */
 package com.wl4g.components.core.web.versions;
 
+import static java.lang.System.out;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,35 +40,52 @@ import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
 @SpringBootApplication(scanBasePackageClasses = { WebMvcHandlerMappingConfigurer.class })
 public class ApiVersionControllerTests {
 
-	public static void main(String[] args) {
+	/**
+	 * <pre>
+	 * Version info parameter alias name includes: eg: '_v' or 'version' or 'apiVersion';
+	 * 
+	 * Client info parameter alias name includes, eg: 'platform' or 'clientType'
+	 * 
+	 * refer to {@link EnableApiVersionMapping}
+	 * </pre>
+	 * 
+	 * @throws InterruptedException
+	 */
+	public static void main(String[] args) throws InterruptedException {
 		SpringApplication.run(ApiVersionControllerTests.class, args);
 
-		System.out.println("----------- Testing ------------");
-		testRequest("http://localhost:8080/api-test/userinfo?version=1.0.10.2a&platform=iOS");
-		testRequest("http://localhost:8080/api-test/userinfo?version=1.0.10.2b&platform=iOS");
+		// new Thread(() -> multiVersionApiCase1()).start();
+		// Thread.sleep(60_000L);
+		// System.exit(0);
 
-		System.exit(0);
+		multiVersionApiCase1();
 	}
 
-	static void testRequest(String url) {
-		String result = new RestTemplate().getForObject(url, String.class);
-		System.out.println("result: " + result);
+	static void multiVersionApiCase1() {
+		System.out.println("----------- Testing ------------");
+
+		RestTemplate rest = new RestTemplate();
+		String baseUri = "http://localhost:8080/api-test/userinfo";
+
+		out.println("result: " + rest.getForObject(baseUri + "?_v=1.0.10.2a&platform=iOS&device1=aa123", String.class));
+		out.println("result: " + rest.getForObject(baseUri + "?_v=2.0.10.2b&platform=iOS&device2=bb321", String.class));
+		out.println("result: " + rest.getForObject(baseUri + "?_v=2.0.10.2b&platform=Android&device2=cc235", String.class));
 	}
 
 	@RestController
 	@RequestMapping("/api-test/")
 	public static class TestApiVersionController {
 
-		@ApiVersionGroup(@ApiVersion(clients = { "iOS" }, value = "1.0.10.2a"))
+		@ApiVersionGroup(@ApiVersion(clients = { "iOS", "wechatmp" }, value = "1.0.10.2a"))
 		@RequestMapping("userinfo")
-		public String userinfoV1_0_10_2a() {
-			return "My name is jack (V1_0_10_2a)";
+		public String userinfoV1_0_10_2a(String device1) {
+			return "I am the api, version: V1_0_10_2a - device1=" + device1;
 		}
 
-		@ApiVersionGroup(@ApiVersion(clients = { "iOS" }, value = "1.0.10.2b"))
+		@ApiVersionGroup(@ApiVersion(clients = { "iOS", "Android" }, value = "2.0.10.2b"))
 		@RequestMapping("userinfo")
-		public String userinfoV1_0_10_2b() {
-			return "My name is jack (V1_0_10_2b)";
+		public String userinfoV2_0_10_2b(String device2) {
+			return "I am the api, version: V2_0_10_2b - device2=" + device2;
 		}
 
 	}
