@@ -17,8 +17,6 @@ package com.wl4g.components.core.web.versions;
 
 import static java.util.Arrays.asList;
 
-import java.util.regex.Pattern;
-
 import org.junit.Test;
 
 /**
@@ -39,20 +37,22 @@ public class SimpleVersionComparatorTests {
 		System.out.println(SimpleVersionComparator.INSTANCE.compare("1/10/1b", "1/10/1a"));
 		System.out.println(SimpleVersionComparator.INSTANCE.compare("1;10;1;2a", "1;10;1;2b"));
 		System.out.println(SimpleVersionComparator.INSTANCE.compare("1;10;1;2a", "1;10;1;2a"));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare(null, null));
+		System.out.println(SimpleVersionComparator.INSTANCE.compare("a", null));
 	}
 
 	// Negative example:
-	@Test(expected = IllegalArgumentException.class)
+	@Test /* (expected = IllegalArgumentException.class) */
 	public void versionSyntaxOfErrorCase2() {
-		Pattern pattern = Pattern.compile("[-_./;:]");
-		System.out.println(asList(SimpleVersionComparator.checkSyntaxVersion(pattern, "1.10.1.2b.1")));
+		SimpleVersionComparator sc = new SimpleVersionComparator("[-_./;:]");
+		System.out.println(asList(sc.resolveApiVersion("1.10.1.2b.1")));
 	}
 
 	// Positive example:
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void versionSyntaxOfSuccessCase2() {
-		Pattern pattern = Pattern.compile("[-_./;:]");
-		System.out.println(asList(SimpleVersionComparator.checkSyntaxVersion(pattern, "1.10.1.2a")));
+		SimpleVersionComparator sc = new SimpleVersionComparator("[-_./;:]");
+		System.out.println(asList(sc.resolveApiVersion("1.10.1.2a")));
 	}
 
 }

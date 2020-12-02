@@ -99,7 +99,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	@Override
 	public void afterPropertiesSet() {
 		// Clear useless mapping
-		this.checkingMapping.clear();
+		this.CHECKING_MAPPING.clear();
 	}
 
 	// --- Request mapping conditions. ---
@@ -144,20 +144,18 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		// refer:org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.getMappingForMethod()
 		if (element instanceof Method) {
 			CheckMappingWrapper cm = new CheckMappingWrapper(requestMapping, apiVersionGroup);
-			isTrue(!checkingMapping.contains(cm), AmbiguousApiVersionMappingException.class,
+			isTrue(!CHECKING_MAPPING.contains(cm), AmbiguousApiVersionMappingException.class,
 					"Ambiguous version API mapping, please ensure that the combind of version and requestPath and requestMethod is unique. - %s",
 					cm);
-			this.checkingMapping.add(cm);
+			this.CHECKING_MAPPING.add(cm);
 
-			// Check version number syntax.
+			// Check version syntax.
 			for (String ver : cm.versions) {
-				getVersionComparator().checkSyntaxVersion(ver);
+				getVersionComparator().resolveApiVersionParts(ver, true);
 			}
 		}
 
 	}
-
-	private final List<CheckMappingWrapper> checkingMapping = synchronizedList(new LinkedList<>());
 
 	/**
 	 * Used to check if the mapping is unique wrapper.
@@ -226,5 +224,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		}
 
 	}
+
+	private final List<CheckMappingWrapper> CHECKING_MAPPING = synchronizedList(new LinkedList<>());
 
 }
