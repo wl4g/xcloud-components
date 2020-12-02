@@ -25,13 +25,13 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.components.core.web.versions.AmbiguousApiVersionMappingException;
+import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,7 +66,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 
 	private String[] versionParams;
 	private String[] groupParams;
-	private Comparator<String> versionComparator;
+	private SimpleVersionComparator versionComparator;
 
 	public ServletVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
@@ -88,11 +88,11 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		this.groupParams = groupParams;
 	}
 
-	public Comparator<String> getVersionComparator() {
+	public SimpleVersionComparator getVersionComparator() {
 		return versionComparator;
 	}
 
-	public void setVersionComparator(Comparator<String> versionComparator) {
+	public void setVersionComparator(SimpleVersionComparator versionComparator) {
 		this.versionComparator = versionComparator;
 	}
 
@@ -130,23 +130,29 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	}
 
 	/**
-	 * Check API version configuration properties whether valid.
+	 * Check API version mapping uniqueness.
 	 * 
 	 * @param element
 	 * @param apiVersionGroup
 	 * @param apiVersion
 	 */
 	protected void checkVersionValid(AnnotatedElement element, ApiVersionGroup apiVersionGroup) {
-		// Check uniqueness. (version + requestPath + requestMethod)
 		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
 		state(!isNull(requestMapping), "Shouldn't be here");
 
+		// Since it will be executed twice, it is necessary to judge.
+		// refer:org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.getMappingForMethod()
 		if (element instanceof Method) {
 			CheckMappingWrapper cm = new CheckMappingWrapper(requestMapping, apiVersionGroup);
 			isTrue(!checkingMapping.contains(cm), AmbiguousApiVersionMappingException.class,
 					"Ambiguous version API mapping, please ensure that the combind of version and requestPath and requestMethod is unique. - %s",
 					cm);
 			this.checkingMapping.add(cm);
+
+			// Check version number syntax.
+			for (String ver : cm.versions) {
+				getVersionComparator().checkSyntaxVersion(ver);
+			}
 		}
 
 	}
@@ -159,14 +165,14 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	class CheckMappingWrapper {
 
 		private final List<RequestMethod> methods;
-		private final List<String> path;
-		private final List<String> version;
+		private final List<String> paths;
+		private final List<String> versions;
 
 		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionGroup apiVersionGroup) {
 			this.methods = safeArrayToList(requestMapping.method());
 			List<String> paths = safeArrayToList(requestMapping.path());
-			this.path = CollectionUtils2.isEmpty(paths) ? safeArrayToList(requestMapping.value()) : paths;
-			this.version = isNull(apiVersionGroup) ? emptyList()
+			this.paths = CollectionUtils2.isEmpty(paths) ? safeArrayToList(requestMapping.value()) : paths;
+			this.versions = isNull(apiVersionGroup) ? emptyList()
 					: safeArrayToList(apiVersionGroup.value()).stream().map(v -> v.value()).collect(toList());
 		}
 
@@ -176,8 +182,8 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 			int result = 1;
 			result = prime * result + getOuterType().hashCode();
 			result = prime * result + ((methods == null) ? 0 : methods.hashCode());
-			result = prime * result + ((path == null) ? 0 : path.hashCode());
-			result = prime * result + ((version == null) ? 0 : version.hashCode());
+			result = prime * result + ((paths == null) ? 0 : paths.hashCode());
+			result = prime * result + ((versions == null) ? 0 : versions.hashCode());
 			return result;
 		}
 
@@ -197,15 +203,15 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 					return false;
 			} else if (!methods.equals(other.methods))
 				return false;
-			if (path == null) {
-				if (other.path != null)
+			if (paths == null) {
+				if (other.paths != null)
 					return false;
-			} else if (!path.equals(other.path))
+			} else if (!paths.equals(other.paths))
 				return false;
-			if (version == null) {
-				if (other.version != null)
+			if (versions == null) {
+				if (other.versions != null)
 					return false;
-			} else if (!version.equals(other.version))
+			} else if (!versions.equals(other.versions))
 				return false;
 			return true;
 		}
@@ -216,7 +222,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 
 		@Override
 		public String toString() {
-			return "[methods=" + methods + ", path=" + path + ", version=" + version + "]";
+			return "[methods=" + methods + ", path=" + paths + ", version=" + versions + "]";
 		}
 
 	}

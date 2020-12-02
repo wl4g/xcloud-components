@@ -45,14 +45,14 @@ public class SimpleVersionComparatorTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void versionSyntaxOfErrorCase2() {
 		Pattern pattern = Pattern.compile("[-_./;:]");
-		System.out.println(asList(SimpleVersionComparator.validSyntaxVersion(pattern, "1.10.1.2b.1")));
+		System.out.println(asList(SimpleVersionComparator.checkSyntaxVersion(pattern, "1.10.1.2b.1")));
 	}
 
 	// Positive example:
 	@Test(expected = IllegalArgumentException.class)
 	public void versionSyntaxOfSuccessCase2() {
 		Pattern pattern = Pattern.compile("[-_./;:]");
-		System.out.println(asList(SimpleVersionComparator.validSyntaxVersion(pattern, "1.10.1.2a")));
+		System.out.println(asList(SimpleVersionComparator.checkSyntaxVersion(pattern, "1.10.1.2a")));
 	}
 
 }

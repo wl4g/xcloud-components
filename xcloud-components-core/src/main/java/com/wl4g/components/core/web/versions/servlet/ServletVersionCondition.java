@@ -15,12 +15,15 @@
  */
 package com.wl4g.components.core.web.versions.servlet;
 
-import java.util.Comparator; 
+import static com.wl4g.components.common.lang.StringUtils2.eqIgnCase;
+
+import java.util.Comparator;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
 import com.wl4g.components.core.web.versions.VersionConditionSupport;
+import com.wl4g.components.core.web.versions.annotation.ApiVersion;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
 
 /**
@@ -48,28 +51,24 @@ public class ServletVersionCondition extends VersionConditionSupport implements 
 
 	@Override
 	public ServletVersionCondition getMatchingCondition(HttpServletRequest request) {
-		// TODO
-
-		// String ver = request.getHeader("Api-Version");
-		// // 因为请求头里面传来的是小数，所以需要乘以10
-		// int version = (int) (Double.valueOf(ver) * 10);
-		// // 如果请求的版本号大于等于配置版本号， 则满足
-		// if (version >= this.combineVersion) {
-		// return this;
-		// }
-		return null;
+		return this;
 	}
 
 	@Override
 	public int compareTo(ServletVersionCondition other, HttpServletRequest request) {
 		// Matchs the latest version number first.
+		String versionReq = getRequestParameter(request, getVersionParams());
+		String versionGroupReq = getRequestParameter(request, getGroupParams());
+		log.debug("Comparing rqeuest version: {}, group: {}", versionReq, versionGroupReq);
 
-		String version = getRequestParameter(request, getVersionParams());
-		String versionGroup = getRequestParameter(request, getGroupParams());
-		System.out.println(version);
+		// TODO
+		for (ApiVersion ver : getApiVersionGroup().value()) {
+			if (eqIgnCase(ver, versionReq)) {
+				return getVersionComparator().compare(versionReq, "1");
+			}
+		}
 
-		// return getVersionComparator().compare(other.getApiVersionGroup().value(), getApiVersionGroup().value());
-		return 1;
+		return getVersionComparator().compare(versionReq, "1");
 	}
 
 }

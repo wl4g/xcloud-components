@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Import;
 import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 
 import java.lang.annotation.*;
-import java.util.Comparator;
 
 /**
  * When enabled, the API multi version request control mapping processor is
@@ -57,7 +56,7 @@ public @interface EnableApiVersionMapping {
 	 * 
 	 * @return
 	 */
-	Class<? extends Comparator<String>> versionComparator() default SimpleVersionComparator.class;
+	Class<? extends SimpleVersionComparator> versionComparator() default SimpleVersionComparator.class;
 
 	/**
 	 * Refer: {@link #groupParams()}
