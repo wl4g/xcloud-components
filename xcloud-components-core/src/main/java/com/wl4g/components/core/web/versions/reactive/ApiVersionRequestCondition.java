@@ -17,12 +17,11 @@ package com.wl4g.components.core.web.versions.reactive;
 
 import java.util.Comparator;
 
-import org.springframework.core.env.Environment;
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.wl4g.components.core.web.versions.VersionConditionSupport;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
 
 //
 // TODO
@@ -38,9 +37,9 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
  */
 public class ApiVersionRequestCondition extends VersionConditionSupport implements RequestCondition<ApiVersionRequestCondition> {
 
-	public ApiVersionRequestCondition(Environment environment, ApiVersionMapping versionMapping,
-			Comparator<String> versionComparator, String[] versionParams, String[] groupParams) {
-		super(environment, versionMapping, versionComparator, versionParams, groupParams);
+	public ApiVersionRequestCondition(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
+			String[] versionParams, String[] groupParams) {
+		super(versionMappingWrapper, versionComparator, versionParams, groupParams);
 	}
 
 	@Override

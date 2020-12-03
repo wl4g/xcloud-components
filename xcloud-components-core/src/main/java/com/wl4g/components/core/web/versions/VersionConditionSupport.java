@@ -18,20 +18,14 @@ package com.wl4g.components.core.web.versions;
 import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
-import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.core.env.Environment;
-
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
 
 /**
  * {@link VersionConditionSupport}
@@ -45,15 +39,7 @@ public abstract class VersionConditionSupport {
 
 	protected final SmartLogger log = getLogger(getClass());
 
-	private final Environment environment;
-
-	/**
-	 * Whether to be case sensitive when matching request parameters.
-	 */
-	private final boolean sensitive;
-	private final ApiVersionMapping apiVersionMapping;
-	private final List<ApiVersionMappingWrapper> apiVersionMappingWrappers;
-
+	private final ApiVersionMappingWrapper versionMappingWrapper;
 	// Request api versions comparator.
 	private final SimpleVersionComparator versionComparator;
 
@@ -66,35 +52,18 @@ public abstract class VersionConditionSupport {
 	 */
 	private final List<String> matchedCandidateVersions;
 
-	public VersionConditionSupport(Environment environment, ApiVersionMapping versionMapping,
-			Comparator<String> versionComparator, String[] versionParams, String[] groupParams) {
-		this(environment, versionMapping, versionComparator, versionParams, groupParams, null);
+	public VersionConditionSupport(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
+			String[] versionParams, String[] groupParams) {
+		this(versionMappingWrapper, versionComparator, versionParams, groupParams, null);
 	}
 
-	public VersionConditionSupport(Environment environment, ApiVersionMapping versionMapping,
-			Comparator<String> versionComparator, String[] versionParams, String[] groupParams,
-			List<String> matchedCandidateVersions) {
-		this.environment = notNullOf(environment, "environment");
-		this.apiVersionMapping = notNullOf(versionMapping, "versionMapping");
-		this.apiVersionMappingWrappers = resolveMappingProperties(environment, versionMapping);
-		this.sensitive = versionMapping.sensitive();
+	public VersionConditionSupport(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
+			String[] versionParams, String[] groupParams, List<String> matchedCandidateVersions) {
+		this.versionMappingWrapper = notNullOf(versionMappingWrapper, "versionMappingWrapper");
 		this.versionComparator = notNullOf(versionComparator, "versionComparator");
 		this.versionParams = safeArrayToList(versionParams).toArray(new String[0]);
 		this.groupParams = safeArrayToList(groupParams).toArray(new String[0]);
 		this.matchedCandidateVersions = matchedCandidateVersions;
-	}
-
-	private List<ApiVersionMappingWrapper> resolveMappingProperties(Environment environment, ApiVersionMapping versionMapping) {
-		List<ApiVersionMappingWrapper> wrappers = new ArrayList<>();
-		for (ApiVersion ver : safeArrayToList(versionMapping.value())) {
-			if ((nonNull(ver) && !isBlank(ver.value()))) {
-				String[] groups = safeArrayToList(ver.groups()).stream().filter(g -> !isBlank(g))
-						.map(g -> environment.resolveRequiredPlaceholders(g)).toArray(String[]::new);
-				wrappers.add(new ApiVersionMappingWrapper(groups, environment.resolveRequiredPlaceholders(ver.value())));
-			}
-		}
-
-		return wrappers;
 	}
 
 	/**
@@ -115,20 +84,8 @@ public abstract class VersionConditionSupport {
 		return null;
 	}
 
-	public Environment getEnvironment() {
-		return environment;
-	}
-
-	public boolean getSensitive() {
-		return sensitive;
-	}
-
-	public ApiVersionMapping getApiVersionMapping() {
-		return apiVersionMapping;
-	}
-
-	public List<ApiVersionMappingWrapper> getApiVersionMappingWrappers() {
-		return apiVersionMappingWrappers;
+	public ApiVersionMappingWrapper getApiVersionMappingWrapper() {
+		return versionMappingWrapper;
 	}
 
 	public SimpleVersionComparator getVersionComparator() {
@@ -145,36 +102,6 @@ public abstract class VersionConditionSupport {
 
 	public List<String> getMatchedCandidateVersions() {
 		return matchedCandidateVersions;
-	}
-
-	/**
-	 * {@link ApiVersionMapping} annotation metadata wrapper.
-	 */
-	public static class ApiVersionMappingWrapper {
-
-		/**
-		 * Resolved placeholders value of {@link ApiVersion#groups()}
-		 */
-		private final String[] groups;
-
-		/**
-		 * Resolved placeholders value of {@link ApiVersion#value()}
-		 */
-		private final String value;
-
-		public ApiVersionMappingWrapper(String[] groups, String value) {
-			this.groups = groups;
-			this.value = value;
-		}
-
-		public String[] getGroups() {
-			return groups;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
 	}
 
 }

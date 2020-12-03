@@ -27,6 +27,7 @@ import org.springframework.core.Ordered;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
 
 //
 // TODO
@@ -96,9 +97,10 @@ public class ApiVersionRequestHandlerMapping extends RequestMappingHandlerMappin
 	}
 
 	private RequestCondition<ApiVersionRequestCondition> createCondition(AnnotatedElement annotatedElement) {
-		ApiVersionMapping apiVersionMapping = findAnnotation(annotatedElement, ApiVersionMapping.class);
-		return isNull(apiVersionMapping) ? null
-				: new ApiVersionRequestCondition(getApplicationContext().getEnvironment(), apiVersionMapping,
+		ApiVersionMapping versionMapping = findAnnotation(annotatedElement, ApiVersionMapping.class);
+		return isNull(versionMapping) ? null
+				: new ApiVersionRequestCondition(
+						ApiVersionMappingWrapper.build(getApplicationContext().getEnvironment(), versionMapping),
 						getVersionComparator(), versionParams, groupParams);
 	}
 
