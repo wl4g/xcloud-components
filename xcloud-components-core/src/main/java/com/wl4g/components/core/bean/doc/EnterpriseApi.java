@@ -18,11 +18,16 @@
 
 package com.wl4g.components.core.bean.doc;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.wl4g.components.common.serialize.JacksonUtils;
 import com.wl4g.components.core.bean.BaseBean;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.File;
+import java.util.Map;
 
 /**
  * {@link EnterpriseApi}
@@ -38,10 +43,12 @@ import lombok.Setter;
 public class EnterpriseApi extends BaseBean {
     private static final long serialVersionUID = 346724899682630400L;
 
+    private String name;
+
     /**
      * 
      */
-    private Long versionId;
+    private String apiVersion;
 
     /**
      * 
@@ -52,6 +59,8 @@ public class EnterpriseApi extends BaseBean {
      * http,tcp
      */
     private String protocolType;
+
+    private String tags;
 
     /**
      * 请求响应消息结构定义
@@ -71,8 +80,8 @@ public class EnterpriseApi extends BaseBean {
     public EnterpriseApi() {
     }
 
-    public EnterpriseApi withVersionId(Long versionId) {
-        setVersionId(versionId);
+    public EnterpriseApi withVersionId(String apiVersion) {
+        setApiVersion(apiVersion);
         return this;
     }
 
@@ -99,5 +108,12 @@ public class EnterpriseApi extends BaseBean {
     public EnterpriseApi withOrganizationCode(String organizationCode) {
         setOrganizationCode(organizationCode);
         return this;
+    }
+
+    public static void main(String[] args){
+        Map<String, Object> stringObjectMap =  JacksonUtils.parseJSON(new File("/Users/vjay/testjson"), new TypeReference<Map<String, Object>>() {
+        });
+        System.out.println(stringObjectMap);
+
     }
 }

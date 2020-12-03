@@ -19,11 +19,12 @@
 package com.wl4g.components.core.bean.doc;
 
 import com.wl4g.components.core.bean.BaseBean;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * {@link EnterpriseProject}
@@ -54,6 +55,8 @@ public class EnterpriseProject extends BaseBean {
      * 可见性：1公开，2私有(team_id)
      */
     private String visibility;
+
+    private String name;
 
     /**
      * 
