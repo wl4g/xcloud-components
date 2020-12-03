@@ -49,13 +49,13 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
  * @see <a href=
  *      "https://blog.csdn.net/chuantian3080/article/details/100873706">Case3</a>
  */
-public class ReactiveVersionRequestHandlerMapping extends RequestMappingHandlerMapping {
+public class ApiVersionRequestHandlerMapping extends RequestMappingHandlerMapping {
 
 	private String[] versionParams;
 	private String[] groupParams;
 	private Comparator<String> versionComparator;
 
-	public ReactiveVersionRequestHandlerMapping() {
+	public ApiVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
@@ -86,19 +86,19 @@ public class ReactiveVersionRequestHandlerMapping extends RequestMappingHandlerM
 	// --- Request mapping condition. ---
 
 	@Override
-	protected RequestCondition<ReactiveVersionCondition> getCustomTypeCondition(Class<?> handlerType) {
+	protected RequestCondition<ApiVersionRequestCondition> getCustomTypeCondition(Class<?> handlerType) {
 		return createCondition(handlerType);
 	}
 
 	@Override
-	protected RequestCondition<ReactiveVersionCondition> getCustomMethodCondition(Method method) {
+	protected RequestCondition<ApiVersionRequestCondition> getCustomMethodCondition(Method method) {
 		return createCondition(method);
 	}
 
-	private RequestCondition<ReactiveVersionCondition> createCondition(AnnotatedElement annotatedElement) {
+	private RequestCondition<ApiVersionRequestCondition> createCondition(AnnotatedElement annotatedElement) {
 		ApiVersionMapping apiVersionGroup = findAnnotation(annotatedElement, ApiVersionMapping.class);
 		return isNull(apiVersionGroup) ? null
-				: new ReactiveVersionCondition(apiVersionGroup, getVersionComparator(), versionParams, groupParams);
+				: new ApiVersionRequestCondition(apiVersionGroup, getVersionComparator(), versionParams, groupParams);
 	}
 
 }

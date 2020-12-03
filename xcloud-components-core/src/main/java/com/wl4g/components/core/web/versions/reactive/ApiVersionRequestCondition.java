@@ -17,6 +17,7 @@ package com.wl4g.components.core.web.versions.reactive;
 
 import java.util.Comparator;
 
+import org.springframework.core.env.Environment;
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -35,27 +36,27 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
  * @sine v1.0
  * @see
  */
-public class ReactiveVersionCondition extends VersionConditionSupport implements RequestCondition<ReactiveVersionCondition> {
+public class ApiVersionRequestCondition extends VersionConditionSupport implements RequestCondition<ApiVersionRequestCondition> {
 
-	public ReactiveVersionCondition(ApiVersionMapping apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
-			String[] groupParams) {
-		super(apiVersionGroup, versionComparator, versionParams, groupParams);
+	public ApiVersionRequestCondition(Environment environment, ApiVersionMapping versionMapping,
+			Comparator<String> versionComparator, String[] versionParams, String[] groupParams) {
+		super(environment, versionMapping, versionComparator, versionParams, groupParams);
 	}
 
 	@Override
-	public ReactiveVersionCondition combine(ReactiveVersionCondition other) {
+	public ApiVersionRequestCondition combine(ApiVersionRequestCondition other) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ReactiveVersionCondition getMatchingCondition(ServerWebExchange exchange) {
+	public ApiVersionRequestCondition getMatchingCondition(ServerWebExchange exchange) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public int compareTo(ReactiveVersionCondition other, ServerWebExchange exchange) {
+	public int compareTo(ApiVersionRequestCondition other, ServerWebExchange exchange) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

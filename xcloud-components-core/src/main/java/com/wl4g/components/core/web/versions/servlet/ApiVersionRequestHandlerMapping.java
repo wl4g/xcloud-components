@@ -62,13 +62,13 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
  *      "https://blog.csdn.net/chuantian3080/article/details/100873706">Case3</a>
  * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
  */
-public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSupport {
+public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSupport {
 
 	private String[] versionParams;
 	private String[] groupParams;
 	private SimpleVersionComparator versionComparator;
 
-	public ServletVersionRequestHandlerMapping() {
+	public ApiVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
@@ -99,7 +99,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	@Override
 	public void afterPropertiesSet() {
 		// Clear useless mapping
-		this.CHECKING_MAPPING.clear();
+		this.checkingMappings.clear();
 	}
 
 	// --- Request mapping conditions. ---
@@ -110,44 +110,44 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	}
 
 	@Override
-	protected RequestCondition<ServletVersionCondition> getCustomTypeCondition(Class<?> handlerType) {
+	protected RequestCondition<ApiVersionRequestCondition> getCustomTypeCondition(Class<?> handlerType) {
 		return createCondition(handlerType);
 	}
 
 	@Override
-	protected RequestCondition<ServletVersionCondition> getCustomMethodCondition(Method method) {
+	protected RequestCondition<ApiVersionRequestCondition> getCustomMethodCondition(Method method) {
 		return createCondition(method);
 	}
 
-	private final RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
-		ApiVersionMapping apiVersionGroup = findAnnotation(annotatedElement, ApiVersionMapping.class);
+	private final RequestCondition<ApiVersionRequestCondition> createCondition(AnnotatedElement element) {
+		ApiVersionMapping versionMapping = findAnnotation(element, ApiVersionMapping.class);
 
 		// Check version properties valid.
-		checkVersionValid(annotatedElement, apiVersionGroup);
+		checkVersionValid(element, versionMapping);
 
-		return isNull(apiVersionGroup) ? null
-				: new ServletVersionCondition(apiVersionGroup, getVersionComparator(), getVersionParams(), getGroupParams());
+		return isNull(versionMapping) ? null
+				: new ApiVersionRequestCondition(getApplicationContext().getEnvironment(), versionMapping, getVersionComparator(),
+						getVersionParams(), getGroupParams());
 	}
 
 	/**
 	 * Check API version mapping uniqueness.
 	 * 
 	 * @param element
-	 * @param apiVersionGroup
-	 * @param apiVersion
+	 * @param versionMapping
 	 */
-	protected void checkVersionValid(AnnotatedElement element, ApiVersionMapping apiVersionGroup) {
+	protected void checkVersionValid(AnnotatedElement element, ApiVersionMapping versionMapping) {
 		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
 		state(!isNull(requestMapping), "Shouldn't be here");
 
 		// Since it will be executed twice, it is necessary to judge.
 		// refer:org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping.getMappingForMethod()
 		if (element instanceof Method) {
-			CheckMappingWrapper cm = new CheckMappingWrapper(requestMapping, apiVersionGroup);
-			isTrue(!CHECKING_MAPPING.contains(cm), AmbiguousApiVersionMappingException.class,
+			CheckMappingWrapper cm = new CheckMappingWrapper(requestMapping, versionMapping);
+			isTrue(!checkingMappings.contains(cm), AmbiguousApiVersionMappingException.class,
 					"Ambiguous version API mapping, please ensure that the combind of version and requestPath and requestMethod is unique. - %s",
 					cm);
-			this.CHECKING_MAPPING.add(cm);
+			this.checkingMappings.add(cm);
 
 			// Check version syntax.
 			for (String ver : cm.versions) {
@@ -214,8 +214,8 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 			return true;
 		}
 
-		private ServletVersionRequestHandlerMapping getOuterType() {
-			return ServletVersionRequestHandlerMapping.this;
+		private ApiVersionRequestHandlerMapping getOuterType() {
+			return ApiVersionRequestHandlerMapping.this;
 		}
 
 		@Override
@@ -225,6 +225,6 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 
 	}
 
-	private final List<CheckMappingWrapper> CHECKING_MAPPING = synchronizedList(new LinkedList<>());
+	private final List<CheckMappingWrapper> checkingMappings = synchronizedList(new LinkedList<>());
 
 }

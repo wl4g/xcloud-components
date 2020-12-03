@@ -16,6 +16,7 @@
 package com.wl4g.components.core.web.versions.annotation;
 
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
 
 import org.springframework.beans.BeansException;
@@ -38,12 +39,12 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.web.versions.reactive.ReactiveVersionRequestHandlerMapping;
-import com.wl4g.components.core.web.versions.servlet.ServletVersionRequestHandlerMapping;
+import com.wl4g.components.core.web.versions.reactive.ApiVersionRequestHandlerMapping;
 
 import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_PARAMS;
 import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.GROUP_PARAMS;
 import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_COMPARATOR;
+import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.components.core.utils.context.SpringContextHolder.isReactiveWebApplication;
@@ -92,9 +93,10 @@ public class ApiVersionMappingRegistrar
 
 			// Register rqeust handler mapping.
 			if (isReactiveWebApplication(getClass().getClassLoader(), environment, resourceLoader)) {
-				registerRequestHandlerMapping(annoAttrs, registry, ReactiveVersionRequestHandlerMapping.class, beanNameGenerator);
+				registerRequestHandlerMapping(annoAttrs, registry, ApiVersionRequestHandlerMapping.class, beanNameGenerator);
 			} else {
-				registerRequestHandlerMapping(annoAttrs, registry, ServletVersionRequestHandlerMapping.class, beanNameGenerator);
+				registerRequestHandlerMapping(annoAttrs, registry,
+						com.wl4g.components.core.web.versions.servlet.ApiVersionRequestHandlerMapping.class, beanNameGenerator);
 			}
 		}
 
@@ -122,11 +124,13 @@ public class ApiVersionMappingRegistrar
 	}
 
 	private String[] resolveVersionParameterNames(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return annoAttrs.getStringArray(VERSION_PARAMS);
+		return safeArrayToList(annoAttrs.getStringArray(VERSION_PARAMS)).stream().filter(v -> !isBlank(v))
+				.map(v -> environment.resolveRequiredPlaceholders(v)).toArray(String[]::new);
 	}
 
 	private String[] resolveVersionGroupParameterNames(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return annoAttrs.getStringArray(GROUP_PARAMS);
+		return safeArrayToList(annoAttrs.getStringArray(GROUP_PARAMS)).stream().filter(g -> !isBlank(g))
+				.map(g -> environment.resolveRequiredPlaceholders(g)).toArray(String[]::new);
 	}
 
 	/**

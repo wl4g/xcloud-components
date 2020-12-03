@@ -41,23 +41,28 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ApiVersion {
 
 	/**
-	 * Custom client group or platform type name. </br>
+	 * Custom client groups (Usually the user client type). </br>
 	 * </br>
-	 * for example: (Android/iOS/iPad/WebPC/
-	 * NativePC/WechatMp/WechatApplet/BaiduApplet/AliApplet/...) </br>
+	 * <b>for example:</b> { "Android", "iOS", "iPad", "WebPC", "NativePC",
+	 * "WechatMp", "WechatApplet", "BaiduApplet", "AliApplet",
+	 * "${myconfig.apiVersion.myMobileType}" } </br>
 	 * </br>
+	 * 
 	 * Notes: Optional, when empty, the matching request ignores this condition.
 	 * 
 	 * @return
 	 */
-	String[] clientGroups() default {};
+	String[] groups() default {};
 
 	/**
 	 * Custom API version number string, format refer to:
 	 * {@link #major()}.{@link #minor()}.{@link #revision()}.{@link #extension()}
 	 * 
 	 * <p>
-	 * for example: {major}.{minor}.{revision}.{extension} => 1.0.2.10b </br>
+	 * format: {major}.{minor}.{revision}.{extension} </br>
+	 * </br>
+	 * for example1: 1.0.2.10b </br>
+	 * for example2: ${myconfig.apiVersion.module1.version20201212}
 	 * </p>
 	 * 
 	 * @return

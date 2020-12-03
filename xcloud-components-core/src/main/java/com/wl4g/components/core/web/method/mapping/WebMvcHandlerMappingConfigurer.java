@@ -31,6 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,8 @@ import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -278,6 +281,17 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		public void afterPropertiesSet() {
 			// Must ignore, To prevent spring from automatically calling when
 			// initializing the container, resulting in duplicate registration.
+		}
+
+		/**
+		 * It can be ignored. The purpose is to reduce unnecessary execution and
+		 * improve the speed when {@link DispatcherServlet#getHandler()} looks
+		 * for mapping. (because spring will automatically add all instances of
+		 * {@link HandlerMapping} interface to the candidate list for searching)
+		 */
+		@Override
+		protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+			return null;
 		}
 
 		/**

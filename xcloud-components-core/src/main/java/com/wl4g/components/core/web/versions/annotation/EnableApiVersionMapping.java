@@ -37,14 +37,18 @@ import java.lang.annotation.*;
 public @interface EnableApiVersionMapping {
 
 	/**
-	 * Request parameter name for api version mappings.
+	 * Request parameter name for api version mappings. </br>
+	 * </br>
+	 * for example: {"platform", "${myconfig.apiVersion.myVersionParamName}"}
 	 * 
 	 * @return
 	 */
 	String[] versionParams() default { "version", "apiVersion", "_v" };
 
 	/**
-	 * Request parameter name for api versions group mappings.
+	 * Request parameter name for api versions group mappings. </br>
+	 * </br>
+	 * for example: {"platform", "${myconfig.apiVersion.myGroupParamName}"}
 	 * 
 	 * @return
 	 */
