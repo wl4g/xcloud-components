@@ -26,7 +26,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Multiple versions annotation and control for API.
+ * Multiple API versions annotation mapping.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-27
@@ -38,7 +38,14 @@ import java.lang.annotation.RetentionPolicy;
 @Documented
 @Inherited
 @Indexed
-public @interface ApiVersionGroup {
+public @interface ApiVersionMapping {
+
+	/**
+	 * Whether to be case sensitive when matching request parameters.
+	 * 
+	 * @return
+	 */
+	boolean sensitive() default false;
 
 	/**
 	 * {@link ApiVersion}

@@ -32,7 +32,7 @@ import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.components.core.web.versions.AmbiguousApiVersionMappingException;
 import com.wl4g.components.core.web.versions.SimpleVersionComparator;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -106,7 +106,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 
 	@Override
 	protected boolean supports(Object handler, Class<?> handlerType, Method method) {
-		return hasAnnotation(method, ApiVersionGroup.class);
+		return hasAnnotation(method, ApiVersionMapping.class);
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	}
 
 	private final RequestCondition<ServletVersionCondition> createCondition(AnnotatedElement annotatedElement) {
-		ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
+		ApiVersionMapping apiVersionGroup = findAnnotation(annotatedElement, ApiVersionMapping.class);
 
 		// Check version properties valid.
 		checkVersionValid(annotatedElement, apiVersionGroup);
@@ -136,7 +136,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 	 * @param apiVersionGroup
 	 * @param apiVersion
 	 */
-	protected void checkVersionValid(AnnotatedElement element, ApiVersionGroup apiVersionGroup) {
+	protected void checkVersionValid(AnnotatedElement element, ApiVersionMapping apiVersionGroup) {
 		RequestMapping requestMapping = findMergedAnnotation(element, RequestMapping.class);
 		state(!isNull(requestMapping), "Shouldn't be here");
 
@@ -166,7 +166,7 @@ public class ServletVersionRequestHandlerMapping extends ServletHandlerMappingSu
 		private final List<String> paths;
 		private final List<String> versions;
 
-		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionGroup apiVersionGroup) {
+		public CheckMappingWrapper(RequestMapping requestMapping, ApiVersionMapping apiVersionGroup) {
 			this.methods = safeArrayToList(requestMapping.method());
 			List<String> paths = safeArrayToList(requestMapping.path());
 			this.paths = CollectionUtils2.isEmpty(paths) ? safeArrayToList(requestMapping.value()) : paths;

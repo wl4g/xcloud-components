@@ -25,7 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer;
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
 
 /**
@@ -76,13 +76,13 @@ public class ApiVersionControllerTests {
 	@RequestMapping("/api-test/")
 	public static class TestApiVersionController {
 
-		@ApiVersionGroup(@ApiVersion(clients = { "iOS", "wechatmp" }, value = "1.0.10.2a"))
+		@ApiVersionMapping(@ApiVersion(clientGroups = { "iOS", "wechatmp" }, value = "1.0.10.2a"))
 		@RequestMapping("userinfo")
 		public String userinfoV1_0_10_2a(String device1) {
 			return "I am the api, version: V1_0_10_2a - device1=" + device1;
 		}
 
-		@ApiVersionGroup(@ApiVersion(clients = { "iOS", "Android" }, value = "2.0.10.2b"))
+		@ApiVersionMapping(@ApiVersion(clientGroups = { "iOS", "Android" }, value = "2.0.10.2b"))
 		@RequestMapping("userinfo")
 		public String userinfoV2_0_10_2b(String device2) {
 			return "I am the api, version: V2_0_10_2b - device2=" + device2;

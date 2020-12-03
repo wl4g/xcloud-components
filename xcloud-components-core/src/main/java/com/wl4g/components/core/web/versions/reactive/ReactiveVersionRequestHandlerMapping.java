@@ -26,7 +26,7 @@ import org.springframework.web.reactive.result.method.annotation.RequestMappingH
 import org.springframework.core.Ordered;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
-import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 
 //
 // TODO
@@ -96,7 +96,7 @@ public class ReactiveVersionRequestHandlerMapping extends RequestMappingHandlerM
 	}
 
 	private RequestCondition<ReactiveVersionCondition> createCondition(AnnotatedElement annotatedElement) {
-		ApiVersionGroup apiVersionGroup = findAnnotation(annotatedElement, ApiVersionGroup.class);
+		ApiVersionMapping apiVersionGroup = findAnnotation(annotatedElement, ApiVersionMapping.class);
 		return isNull(apiVersionGroup) ? null
 				: new ReactiveVersionCondition(apiVersionGroup, getVersionComparator(), versionParams, groupParams);
 	}

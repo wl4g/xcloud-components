@@ -21,7 +21,7 @@ import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.wl4g.components.core.web.versions.VersionConditionSupport;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 
 //
 // TODO
@@ -37,7 +37,7 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
  */
 public class ReactiveVersionCondition extends VersionConditionSupport implements RequestCondition<ReactiveVersionCondition> {
 
-	public ReactiveVersionCondition(ApiVersionGroup apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
+	public ReactiveVersionCondition(ApiVersionMapping apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
 			String[] groupParams) {
 		super(apiVersionGroup, versionComparator, versionParams, groupParams);
 	}

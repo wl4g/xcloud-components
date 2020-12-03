@@ -45,14 +45,14 @@ public class SimpleVersionComparatorTests {
 	@Test /* (expected = IllegalArgumentException.class) */
 	public void versionSyntaxOfErrorCase2() {
 		SimpleVersionComparator sc = new SimpleVersionComparator("[-_./;:]");
-		System.out.println(asList(sc.resolveApiVersion("1.10.1.2b.1")));
+		System.out.println(asList(sc.resolveApiVersionParts("1.10.1.2b.1", true)));
 	}
 
 	// Positive example:
 	@Test
 	public void versionSyntaxOfSuccessCase2() {
 		SimpleVersionComparator sc = new SimpleVersionComparator("[-_./;:]");
-		System.out.println(asList(sc.resolveApiVersion("1.10.1.2a")));
+		System.out.println(asList(sc.resolveApiVersionParts("1.10.1.2a", true)));
 	}
 
 }

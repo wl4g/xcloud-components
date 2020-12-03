@@ -25,7 +25,7 @@ import java.util.Comparator;
 import javax.servlet.http.HttpServletRequest;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.web.versions.annotation.ApiVersionGroup;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 
 /**
  * {@link VersionConditionSupport}
@@ -39,16 +39,16 @@ public abstract class VersionConditionSupport {
 
 	protected final SmartLogger log = getLogger(getClass());
 
-	private final ApiVersionGroup apiVersionGroup;
+	private final ApiVersionMapping apiVersionMapping;
 	private final Comparator<String> versionComparator;
 
 	// Request obtain versions info parameters.
 	private final String[] versionParams;
 	private final String[] groupParams;
 
-	public VersionConditionSupport(ApiVersionGroup apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
+	public VersionConditionSupport(ApiVersionMapping apiVersionGroup, Comparator<String> versionComparator, String[] versionParams,
 			String[] groupParams) {
-		this.apiVersionGroup = notNullOf(apiVersionGroup, "apiVersionGroup");
+		this.apiVersionMapping = notNullOf(apiVersionGroup, "apiVersionGroup");
 		this.versionComparator = notNullOf(versionComparator, "versionComparator");
 		this.versionParams = safeArrayToList(versionParams).toArray(new String[0]);
 		this.groupParams = safeArrayToList(groupParams).toArray(new String[0]);
@@ -72,8 +72,8 @@ public abstract class VersionConditionSupport {
 		return null;
 	}
 
-	public ApiVersionGroup getApiVersionGroup() {
-		return apiVersionGroup;
+	public ApiVersionMapping getApiVersionMapping() {
+		return apiVersionMapping;
 	}
 
 	public Comparator<String> getVersionComparator() {
