@@ -96,9 +96,10 @@ public class ApiVersionRequestHandlerMapping extends RequestMappingHandlerMappin
 	}
 
 	private RequestCondition<ApiVersionRequestCondition> createCondition(AnnotatedElement annotatedElement) {
-		ApiVersionMapping apiVersionGroup = findAnnotation(annotatedElement, ApiVersionMapping.class);
-		return isNull(apiVersionGroup) ? null
-				: new ApiVersionRequestCondition(apiVersionGroup, getVersionComparator(), versionParams, groupParams);
+		ApiVersionMapping apiVersionMapping = findAnnotation(annotatedElement, ApiVersionMapping.class);
+		return isNull(apiVersionMapping) ? null
+				: new ApiVersionRequestCondition(getApplicationContext().getEnvironment(), apiVersionMapping,
+						getVersionComparator(), versionParams, groupParams);
 	}
 
 }
