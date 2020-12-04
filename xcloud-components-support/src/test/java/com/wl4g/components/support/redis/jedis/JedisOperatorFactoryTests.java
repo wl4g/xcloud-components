@@ -38,14 +38,14 @@ public class JedisOperatorFactoryTests {
 	@Test
 	public void checkKeyFormatTest1() {
 		System.out.println("-----11-----");
-		RedisProtoUtil.checkArgumentsSpecification(asList("safecloud_support_appinfo_admin"));
+		RedisProtoUtil.checkArguments(asList("safecloud_support_appinfo_admin"));
 
 		System.out.println("-----22-----");
-		RedisProtoUtil.checkArgumentsSpecification(asList("3342701404111872&&800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+		RedisProtoUtil.checkArguments(asList("3342701404111872&&800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
 
 		try {
 			System.out.println("-----33-----");
-			RedisProtoUtil.checkArgumentsSpecification(asList("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+			RedisProtoUtil.checkArguments(asList("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

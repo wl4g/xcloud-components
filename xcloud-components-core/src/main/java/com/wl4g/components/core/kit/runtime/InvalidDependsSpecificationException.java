@@ -15,7 +15,7 @@
  */
 package com.wl4g.components.core.kit.runtime;
 
-import com.wl4g.components.core.exception.framework.NormativeException;
+import com.wl4g.components.core.exception.framework.NamedCanonicalException;
 
 /**
  * Invalid dependency version exception.
@@ -26,7 +26,7 @@ import com.wl4g.components.core.exception.framework.NormativeException;
  * @date 2018年4月11日
  * @since
  */
-public class InvalidDependsSpecificationException extends NormativeException {
+public class InvalidDependsSpecificationException extends NamedCanonicalException {
 	static final long serialVersionUID = -7034833390745766939L;
 
 	/**

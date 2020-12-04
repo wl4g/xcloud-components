@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.exception.framework.ParametersNormativeException;
+import com.wl4g.components.core.exception.framework.ParameterCanonicalException;
 
 import java.util.Set;
 
@@ -2378,7 +2378,7 @@ public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterComman
 		 * @param keys
 		 * @throws ParameterNormativeException
 		 */
-		public static void checkArgumentsSpecification(final List<?> keys) throws ParametersNormativeException {
+		public static void checkArguments(final List<?> keys) throws ParameterCanonicalException {
 			notNullOf(keys, "jedis operation key");
 			for (Object key : keys) {
 				char[] _key = null;
@@ -2405,7 +2405,7 @@ public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterComman
 							log.warn(warning);
 							return;
 						} else {
-							throw new ParametersNormativeException(warning);
+							throw new ParameterCanonicalException(warning);
 						}
 					}
 				}
@@ -2434,7 +2434,7 @@ public interface JedisOperator extends JedisCommands, MultiKeyJedisClusterComman
 			if (isBlank(key)) {
 				return key;
 			}
-			checkArgumentsSpecification(singletonList(safeChar));
+			checkArguments(singletonList(safeChar));
 
 			// The check exclusion key contains special characters such
 			// as '-', '$', ' ' etc and so on.

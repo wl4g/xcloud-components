@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.wl4g.components.common.log.SmartLogger;
-import com.wl4g.components.core.exception.framework.ParametersNormativeException;
+import com.wl4g.components.core.exception.framework.ParameterCanonicalException;
 
 import redis.clients.jedis.BinaryJedisCluster;
 import redis.clients.jedis.BinaryJedisPubSub;
@@ -100,7 +100,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String set(final String key, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -111,7 +111,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String set(final String key, final String value, final String nxxx, final String expx, final long time) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -122,7 +122,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String get(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -133,7 +133,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean exists(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -144,7 +144,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long exists(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -155,7 +155,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long persist(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -166,7 +166,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String type(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -177,7 +177,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long expire(final String key, final int seconds) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -188,7 +188,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pexpire(final String key, final long milliseconds) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -199,7 +199,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long expireAt(final String key, final long unixTime) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -210,7 +210,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pexpireAt(final String key, final long millisecondsTimestamp) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -221,7 +221,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long ttl(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -232,7 +232,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pttl(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -243,7 +243,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean setbit(final String key, final long offset, final boolean value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -254,7 +254,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean setbit(final String key, final long offset, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -265,7 +265,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean getbit(final String key, final long offset) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -276,7 +276,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long setrange(final String key, final long offset, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -287,7 +287,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String getrange(final String key, final long startOffset, final long endOffset) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -298,7 +298,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String getSet(final String key, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -309,7 +309,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long setnx(final String key, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -320,7 +320,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String setex(final String key, final int seconds, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -331,7 +331,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String psetex(final String key, final long milliseconds, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -342,7 +342,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long decrBy(final String key, final long integer) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -353,7 +353,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long decr(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -364,7 +364,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long incrBy(final String key, final long integer) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -375,7 +375,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double incrByFloat(final String key, final double value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -386,7 +386,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long incr(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -397,7 +397,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long append(final String key, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -408,7 +408,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String substr(final String key, final int start, final int end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -419,7 +419,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hset(final String key, final String field, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -430,7 +430,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String hget(final String key, final String field) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -441,7 +441,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hsetnx(final String key, final String field, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -452,7 +452,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String hmset(final String key, final Map<String, String> hash) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -463,7 +463,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> hmget(final String key, final String... fields) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -474,7 +474,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hincrBy(final String key, final String field, final long value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -485,7 +485,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double hincrByFloat(final String key, final String field, final double value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -496,7 +496,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean hexists(final String key, final String field) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -507,7 +507,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hdel(final String key, final String... field) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -518,7 +518,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hlen(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -529,7 +529,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> hkeys(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -540,7 +540,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> hvals(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -551,7 +551,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Map<String, String> hgetAll(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Map<String, String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Map<String, String> doExecute(Jedis connection) {
@@ -562,7 +562,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long rpush(final String key, final String... string) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -573,7 +573,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long lpush(final String key, final String... string) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -584,7 +584,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long llen(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -595,7 +595,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> lrange(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -606,7 +606,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String ltrim(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -617,7 +617,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String lindex(final String key, final long index) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -628,7 +628,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String lset(final String key, final long index, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -639,7 +639,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long lrem(final String key, final long count, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -650,7 +650,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String lpop(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -661,7 +661,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String rpop(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -672,7 +672,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sadd(final String key, final String... member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -683,7 +683,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> smembers(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -694,7 +694,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long srem(final String key, final String... member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -705,7 +705,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String spop(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -716,7 +716,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> spop(final String key, final long count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -727,7 +727,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long scard(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -738,7 +738,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean sismember(final String key, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -749,7 +749,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String srandmember(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -760,7 +760,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> srandmember(final String key, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -771,7 +771,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long strlen(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -782,7 +782,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final String key, final double score, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -793,7 +793,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -804,7 +804,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final String key, final Map<String, Double> scoreMembers) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -815,7 +815,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -826,7 +826,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrange(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -837,7 +837,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zrem(final String key, final String... member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -848,7 +848,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double zincrby(final String key, final double score, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -859,7 +859,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double zincrby(final String key, final double score, final String member, final ZIncrByParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -870,7 +870,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zrank(final String key, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -881,7 +881,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zrevrank(final String key, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -892,7 +892,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrange(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -903,7 +903,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrangeWithScores(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -914,7 +914,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrevrangeWithScores(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -925,7 +925,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zcard(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -936,7 +936,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double zscore(final String key, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -947,7 +947,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> sort(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -958,7 +958,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> sort(final String key, final SortingParams sortingParameters) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -969,7 +969,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zcount(final String key, final double min, final double max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -980,7 +980,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zcount(final String key, final String min, final String max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -991,7 +991,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final double min, final double max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1002,7 +1002,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final String min, final String max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1013,7 +1013,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1024,7 +1024,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1035,7 +1035,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1046,7 +1046,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final String min, final String max, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1057,7 +1057,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1068,7 +1068,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1079,7 +1079,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1091,7 +1091,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1102,7 +1102,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final String max, final String min, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1113,7 +1113,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1124,7 +1124,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1136,7 +1136,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1148,7 +1148,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1160,7 +1160,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -1171,7 +1171,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByRank(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1182,7 +1182,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByScore(final String key, final double start, final double end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1193,7 +1193,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByScore(final String key, final String start, final String end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1204,7 +1204,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zlexcount(final String key, final String min, final String max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1215,7 +1215,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrangeByLex(final String key, final String min, final String max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1226,7 +1226,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrangeByLex(final String key, final String min, final String max, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1237,7 +1237,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrangeByLex(final String key, final String max, final String min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1248,7 +1248,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> zrevrangeByLex(final String key, final String max, final String min, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1259,7 +1259,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByLex(final String key, final String min, final String max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1270,7 +1270,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long linsert(final String key, final LIST_POSITION where, final String pivot, final String value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1281,7 +1281,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long lpushx(final String key, final String... string) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1292,7 +1292,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long rpushx(final String key, final String... string) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1303,7 +1303,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long del(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1325,7 +1325,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitcount(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1336,7 +1336,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitcount(final String key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1368,7 +1368,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitpos(final String key, final boolean value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1379,7 +1379,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitpos(final String key, final boolean value, final BitPosParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1390,7 +1390,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Entry<String, String>> hscan(final String key, final String cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
@@ -1401,7 +1401,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Entry<String, String>> hscan(final String key, final String cursor, final ScanParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
@@ -1412,7 +1412,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<String> sscan(final String key, final String cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<String> doExecute(Jedis connection) {
@@ -1423,7 +1423,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<String> sscan(final String key, final String cursor, final ScanParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<String> doExecute(Jedis connection) {
@@ -1434,7 +1434,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Tuple> zscan(final String key, final String cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Tuple> doExecute(Jedis connection) {
@@ -1445,7 +1445,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Tuple> zscan(final String key, final String cursor, final ScanParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Tuple> doExecute(Jedis connection) {
@@ -1456,7 +1456,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pfadd(final String key, final String... elements) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1467,7 +1467,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public long pfcount(final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1478,7 +1478,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> blpop(final int timeout, final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -1489,7 +1489,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> brpop(final int timeout, final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -1500,7 +1500,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long del(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1511,7 +1511,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> blpop(final int timeout, final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -1523,7 +1523,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> brpop(final int timeout, final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -1534,7 +1534,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> mget(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -1577,8 +1577,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String rename(final String oldkey, final String newkey) {
-		checkArgumentsSpecification(oldkey);
-		checkArgumentsSpecification(newkey);
+		checkArguments(oldkey);
+		checkArguments(newkey);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -1589,8 +1589,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long renamenx(final String oldkey, final String newkey) {
-		checkArgumentsSpecification(oldkey);
-		checkArgumentsSpecification(newkey);
+		checkArguments(oldkey);
+		checkArguments(newkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1601,8 +1601,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String rpoplpush(final String srckey, final String dstkey) {
-		checkArgumentsSpecification(srckey);
-		checkArgumentsSpecification(dstkey);
+		checkArguments(srckey);
+		checkArguments(dstkey);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -1613,7 +1613,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> sdiff(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1624,8 +1624,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sdiffstore(final String dstkey, final String... keys) {
-		checkArgumentsSpecification(dstkey);
-		checkArgumentsSpecification(keys);
+		checkArguments(dstkey);
+		checkArguments(keys);
 		String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1638,7 +1638,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> sinter(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1649,8 +1649,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sinterstore(final String dstkey, final String... keys) {
-		checkArgumentsSpecification(dstkey);
-		checkArgumentsSpecification(keys);
+		checkArguments(dstkey);
+		checkArguments(keys);
 		String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1663,7 +1663,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long smove(final String srckey, final String dstkey, final String member) {
-		checkArgumentsSpecification(srckey, dstkey);
+		checkArguments(srckey, dstkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1674,7 +1674,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sort(final String key, final SortingParams sortingParameters, final String dstkey) {
-		checkArgumentsSpecification(key, dstkey);
+		checkArguments(key, dstkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1685,7 +1685,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sort(final String key, final String dstkey) {
-		checkArgumentsSpecification(key, dstkey);
+		checkArguments(key, dstkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1696,7 +1696,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<String> sunion(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<String> doExecute(Jedis connection) {
@@ -1707,8 +1707,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sunionstore(final String dstkey, final String... keys) {
-		checkArgumentsSpecification(dstkey);
-		checkArgumentsSpecification(keys);
+		checkArguments(dstkey);
+		checkArguments(keys);
 		String[] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1721,7 +1721,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zinterstore(final String dstkey, final String... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		String[] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1734,7 +1734,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zinterstore(final String dstkey, final ZParams params, final String... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1747,7 +1747,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zunionstore(final String dstkey, final String... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1760,7 +1760,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zunionstore(final String dstkey, final ZParams params, final String... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1773,7 +1773,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String brpoplpush(final String source, final String destination, final int timeout) {
-		checkArgumentsSpecification(source, destination);
+		checkArguments(source, destination);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -1816,8 +1816,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitop(final BitOP op, final String destKey, final String... srcKeys) {
-		checkArgumentsSpecification(destKey);
-		checkArgumentsSpecification(srcKeys);
+		checkArguments(destKey);
+		checkArguments(srcKeys);
 		String[] mergedKeys = KeyMergeUtil.merge(destKey, srcKeys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -1830,8 +1830,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String pfmerge(final String destkey, final String... sourcekeys) {
-		checkArgumentsSpecification(destkey);
-		checkArgumentsSpecification(sourcekeys);
+		checkArguments(destkey);
+		checkArguments(sourcekeys);
 		String[] mergedKeys = KeyMergeUtil.merge(destkey, sourcekeys);
 
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
@@ -1844,7 +1844,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public long pfcount(final String... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -1865,7 +1865,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object eval(final String script, final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -1876,7 +1876,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object eval(final String script, final List<String> keys, final List<String> args) {
-		RedisProtoUtil.checkArgumentsSpecification(keys);
+		RedisProtoUtil.checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -1897,7 +1897,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object evalsha(final String sha1, final List<String> keys, final List<String> args) {
-		RedisProtoUtil.checkArgumentsSpecification(keys);
+		RedisProtoUtil.checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -1908,7 +1908,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object evalsha(final String script, final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -1919,7 +1919,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean scriptExists(final String sha1, final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -1930,7 +1930,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<Boolean> scriptExists(final String key, final String... sha1) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<Boolean>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<Boolean> doExecute(Jedis connection) {
@@ -1941,7 +1941,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String scriptLoad(final String script, final String key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -1962,7 +1962,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Deprecated
 	@Override
 	public String set(String key, String value, String nxxx) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return setnx(key, value) == 1 ? "OK" : null;
 	}
 
@@ -2001,7 +2001,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Deprecated
 	@Override
 	public Long move(final String key, final int dbIndex) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2020,7 +2020,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Deprecated
 	@Override
 	public ScanResult<Entry<String, String>> hscan(final String key, final int cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
@@ -2039,7 +2039,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Deprecated
 	@Override
 	public ScanResult<String> sscan(final String key, final int cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<String> doExecute(Jedis connection) {
@@ -2058,7 +2058,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Deprecated
 	@Override
 	public ScanResult<Tuple> zscan(final String key, final int cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Tuple> doExecute(Jedis connection) {
@@ -2069,7 +2069,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long geoadd(final String key, final double longitude, final double latitude, final String member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2080,7 +2080,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long geoadd(final String key, final Map<String, GeoCoordinate> memberCoordinateMap) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2091,7 +2091,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double geodist(final String key, final String member1, final String member2) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -2102,7 +2102,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double geodist(final String key, final String member1, final String member2, final GeoUnit unit) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -2113,7 +2113,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<String> geohash(final String key, final String... members) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<String> doExecute(Jedis connection) {
@@ -2124,7 +2124,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<GeoCoordinate> geopos(final String key, final String... members) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoCoordinate>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoCoordinate> doExecute(Jedis connection) {
@@ -2136,7 +2136,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadius(final String key, final double longitude, final double latitude, final double radius,
 			final GeoUnit unit) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -2148,7 +2148,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadius(final String key, final double longitude, final double latitude, final double radius,
 			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -2160,7 +2160,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadiusByMember(final String key, final String member, final double radius,
 			final GeoUnit unit) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -2172,7 +2172,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadiusByMember(final String key, final String member, final double radius,
 			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -2183,7 +2183,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<Long> bitfield(final String key, final String... arguments) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<Long>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<Long> doExecute(Jedis connection) {
@@ -2196,7 +2196,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String set(final byte[] key, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2207,7 +2207,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String set(final byte[] key, final byte[] value, final byte[] nxxx, final byte[] expx, final long time) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2218,7 +2218,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] get(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2229,7 +2229,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean exists(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -2240,7 +2240,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long exists(final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2251,7 +2251,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long persist(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2262,7 +2262,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String type(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2273,7 +2273,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long expire(final byte[] key, final int seconds) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2284,7 +2284,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pexpire(final byte[] key, final long milliseconds) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2295,7 +2295,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long expireAt(final byte[] key, final long unixTime) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2306,7 +2306,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pexpireAt(final byte[] key, final long millisecondsTimestamp) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2317,7 +2317,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long ttl(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2328,7 +2328,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean setbit(final byte[] key, final long offset, final boolean value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -2339,7 +2339,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean setbit(final byte[] key, final long offset, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -2350,7 +2350,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean getbit(final byte[] key, final long offset) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -2361,7 +2361,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long setrange(final byte[] key, final long offset, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2372,7 +2372,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] getrange(final byte[] key, final long startOffset, final long endOffset) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2383,7 +2383,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] getSet(final byte[] key, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2394,7 +2394,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long setnx(final byte[] key, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2405,7 +2405,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String setex(final byte[] key, final int seconds, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2416,7 +2416,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long decrBy(final byte[] key, final long integer) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2427,7 +2427,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long decr(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2438,7 +2438,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long incrBy(final byte[] key, final long integer) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2449,7 +2449,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double incrByFloat(final byte[] key, final double value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -2460,7 +2460,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long incr(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2471,7 +2471,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long append(final byte[] key, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2482,7 +2482,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] substr(final byte[] key, final int start, final int end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2493,7 +2493,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hset(final byte[] key, final byte[] field, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2504,7 +2504,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] hget(final byte[] key, final byte[] field) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2515,7 +2515,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hsetnx(final byte[] key, final byte[] field, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2526,7 +2526,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String hmset(final byte[] key, final Map<byte[], byte[]> hash) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2537,7 +2537,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> hmget(final byte[] key, final byte[]... fields) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -2548,7 +2548,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hincrBy(final byte[] key, final byte[] field, final long value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2569,7 +2569,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean hexists(final byte[] key, final byte[] field) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -2580,7 +2580,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hdel(final byte[] key, final byte[]... field) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2591,7 +2591,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long hlen(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2602,7 +2602,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> hkeys(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -2613,7 +2613,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Collection<byte[]> hvals(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Collection<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Collection<byte[]> doExecute(Jedis connection) {
@@ -2624,7 +2624,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Map<byte[], byte[]> hgetAll(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Map<byte[], byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Map<byte[], byte[]> doExecute(Jedis connection) {
@@ -2635,7 +2635,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long rpush(final byte[] key, final byte[]... args) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2646,7 +2646,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long lpush(final byte[] key, final byte[]... args) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2657,7 +2657,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long llen(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2668,7 +2668,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> lrange(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -2679,7 +2679,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String ltrim(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2690,7 +2690,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] lindex(final byte[] key, final long index) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2701,7 +2701,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String lset(final byte[] key, final long index, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -2712,7 +2712,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long lrem(final byte[] key, final long count, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2723,7 +2723,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] lpop(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2734,7 +2734,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] rpop(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2745,7 +2745,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sadd(final byte[] key, final byte[]... member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2756,7 +2756,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> smembers(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -2767,7 +2767,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long srem(final byte[] key, final byte[]... member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2778,7 +2778,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] spop(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2789,7 +2789,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> spop(final byte[] key, final long count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -2800,7 +2800,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long scard(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2811,7 +2811,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Boolean sismember(final byte[] key, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
 			@Override
 			public Boolean doExecute(Jedis connection) {
@@ -2822,7 +2822,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] srandmember(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -2833,7 +2833,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long strlen(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2844,7 +2844,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final byte[] key, final double score, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2855,7 +2855,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2866,7 +2866,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final byte[] key, final double score, final byte[] member, final ZAddParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2877,7 +2877,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers, final ZAddParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2888,7 +2888,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrange(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -2899,7 +2899,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zrem(final byte[] key, final byte[]... member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2910,7 +2910,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double zincrby(final byte[] key, final double score, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -2921,7 +2921,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double zincrby(final byte[] key, final double score, final byte[] member, final ZIncrByParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -2932,7 +2932,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zrank(final byte[] key, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2943,7 +2943,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zrevrank(final byte[] key, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2954,7 +2954,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrange(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -2965,7 +2965,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrangeWithScores(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -2976,7 +2976,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrevrangeWithScores(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -2987,7 +2987,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zcard(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -2998,7 +2998,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double zscore(final byte[] key, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -3009,7 +3009,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> sort(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -3020,7 +3020,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> sort(final byte[] key, final SortingParams sortingParameters) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -3031,7 +3031,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zcount(final byte[] key, final double min, final double max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3042,7 +3042,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zcount(final byte[] key, final byte[] min, final byte[] max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3053,7 +3053,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3064,7 +3064,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3075,7 +3075,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3086,7 +3086,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3097,7 +3097,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3108,7 +3108,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3119,7 +3119,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3130,7 +3130,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3141,7 +3141,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3153,7 +3153,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3164,7 +3164,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3175,7 +3175,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3186,7 +3186,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3198,7 +3198,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3210,7 +3210,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3222,7 +3222,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min, final int offset,
 			final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<Tuple> doExecute(Jedis connection) {
@@ -3233,7 +3233,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByRank(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3244,7 +3244,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByScore(final byte[] key, final double start, final double end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3255,7 +3255,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByScore(final byte[] key, final byte[] start, final byte[] end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3266,7 +3266,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long linsert(final byte[] key, final Client.LIST_POSITION where, final byte[] pivot, final byte[] value) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3277,7 +3277,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long lpushx(final byte[] key, final byte[]... arg) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3288,7 +3288,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long rpushx(final byte[] key, final byte[]... arg) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3299,7 +3299,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long del(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3321,7 +3321,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitcount(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3332,7 +3332,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitcount(final byte[] key, final long start, final long end) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3343,7 +3343,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pfadd(final byte[] key, final byte[]... elements) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3354,7 +3354,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public long pfcount(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3365,7 +3365,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> srandmember(final byte[] key, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -3376,7 +3376,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zlexcount(final byte[] key, final byte[] min, final byte[] max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3387,7 +3387,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3398,7 +3398,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3409,7 +3409,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3420,7 +3420,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min, final int offset, final int count) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3431,7 +3431,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zremrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3462,7 +3462,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object eval(final byte[] script, final List<byte[]> keys, final List<byte[]> args) {
-		RedisProtoUtil.checkArgumentsSpecification(keys);
+		RedisProtoUtil.checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -3473,7 +3473,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object eval(final byte[] script, byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -3484,7 +3484,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Object evalsha(final byte[] script, byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
 			@Override
 			public Object doExecute(Jedis connection) {
@@ -3525,7 +3525,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] scriptLoad(final byte[] script, final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -3536,7 +3536,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String scriptFlush(final byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -3547,7 +3547,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String scriptKill(byte[] key) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -3558,7 +3558,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long del(final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3569,7 +3569,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> blpop(final int timeout, final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -3580,7 +3580,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> brpop(final int timeout, final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -3633,7 +3633,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String rename(final byte[] oldkey, final byte[] newkey) {
-		checkArgumentsSpecification(oldkey, newkey);
+		checkArguments(oldkey, newkey);
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
 			@Override
 			public String doExecute(Jedis connection) {
@@ -3644,7 +3644,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long renamenx(final byte[] oldkey, final byte[] newkey) {
-		checkArgumentsSpecification(oldkey, newkey);
+		checkArguments(oldkey, newkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3655,7 +3655,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] rpoplpush(final byte[] srckey, final byte[] dstkey) {
-		checkArgumentsSpecification(srckey, dstkey);
+		checkArguments(srckey, dstkey);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -3666,7 +3666,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> sdiff(final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3677,8 +3677,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sdiffstore(final byte[] dstkey, final byte[]... keys) {
-		checkArgumentsSpecification(dstkey);
-		checkArgumentsSpecification(keys);
+		checkArguments(dstkey);
+		checkArguments(keys);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3701,8 +3701,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sinterstore(final byte[] dstkey, final byte[]... keys) {
-		checkArgumentsSpecification(dstkey);
-		checkArgumentsSpecification(keys);
+		checkArguments(dstkey);
+		checkArguments(keys);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3715,7 +3715,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
-		checkArgumentsSpecification(srckey, dstkey);
+		checkArguments(srckey, dstkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3726,7 +3726,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
-		checkArgumentsSpecification(key, dstkey);
+		checkArguments(key, dstkey);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3737,7 +3737,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sort(final byte[] key, final byte[] dstkey) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3748,7 +3748,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Set<byte[]> sunion(final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public Set<byte[]> doExecute(Jedis connection) {
@@ -3759,8 +3759,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long sunionstore(final byte[] dstkey, final byte[]... keys) {
-		checkArgumentsSpecification(dstkey);
-		checkArgumentsSpecification(keys);
+		checkArguments(dstkey);
+		checkArguments(keys);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3773,7 +3773,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zinterstore(final byte[] dstkey, final byte[]... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3786,7 +3786,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zinterstore(final byte[] dstkey, final ZParams params, final byte[]... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3799,7 +3799,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zunionstore(final byte[] dstkey, final byte[]... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3812,7 +3812,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long zunionstore(final byte[] dstkey, final ZParams params, final byte[]... sets) {
-		checkArgumentsSpecification(dstkey);
+		checkArguments(dstkey);
 		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3825,7 +3825,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public byte[] brpoplpush(final byte[] source, final byte[] destination, final int timeout) {
-		checkArgumentsSpecification(source);
+		checkArguments(source);
 		return new EnhancedJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
 			@Override
 			public byte[] doExecute(Jedis connection) {
@@ -3836,7 +3836,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long publish(final byte[] channel, final byte[] message) {
-		checkArgumentsSpecification(channel);
+		checkArguments(channel);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3869,8 +3869,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long bitop(final BitOP op, final byte[] destKey, final byte[]... srcKeys) {
-		checkArgumentsSpecification(destKey);
-		checkArgumentsSpecification(srcKeys);
+		checkArguments(destKey);
+		checkArguments(srcKeys);
 		byte[][] wholeKeys = KeyMergeUtil.merge(destKey, srcKeys);
 
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
@@ -3883,8 +3883,8 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public String pfmerge(final byte[] destkey, final byte[]... sourcekeys) {
-		checkArgumentsSpecification(destkey);
-		checkArgumentsSpecification(sourcekeys);
+		checkArguments(destkey);
+		checkArguments(sourcekeys);
 		byte[][] wholeKeys = KeyMergeUtil.merge(destkey, sourcekeys);
 
 		return new EnhancedJedisClusterCommand<String>(connectionHandler, maxAttempts) {
@@ -3897,7 +3897,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long pfcount(final byte[]... keys) {
-		checkArgumentsSpecification(keys);
+		checkArguments(keys);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3908,7 +3908,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long geoadd(final byte[] key, final double longitude, final double latitude, final byte[] member) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3919,7 +3919,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Long geoadd(final byte[] key, final Map<byte[], GeoCoordinate> memberCoordinateMap) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
 			@Override
 			public Long doExecute(Jedis connection) {
@@ -3930,7 +3930,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double geodist(final byte[] key, final byte[] member1, final byte[] member2) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -3941,7 +3941,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public Double geodist(final byte[] key, final byte[] member1, final byte[] member2, final GeoUnit unit) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
 			@Override
 			public Double doExecute(Jedis connection) {
@@ -3952,7 +3952,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> geohash(final byte[] key, final byte[]... members) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<byte[]> doExecute(Jedis connection) {
@@ -3963,7 +3963,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<GeoCoordinate> geopos(final byte[] key, final byte[]... members) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoCoordinate>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoCoordinate> doExecute(Jedis connection) {
@@ -3975,7 +3975,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadius(final byte[] key, final double longitude, final double latitude, final double radius,
 			final GeoUnit unit) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -3987,7 +3987,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadius(final byte[] key, final double longitude, final double latitude, final double radius,
 			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -3999,7 +3999,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadiusByMember(final byte[] key, final byte[] member, final double radius,
 			final GeoUnit unit) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -4011,7 +4011,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	@Override
 	public List<GeoRadiusResponse> georadiusByMember(final byte[] key, final byte[] member, final double radius,
 			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
 			@Override
 			public List<GeoRadiusResponse> doExecute(Jedis connection) {
@@ -4043,7 +4043,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Map.Entry<byte[], byte[]>> hscan(final byte[] key, final byte[] cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Map.Entry<byte[], byte[]>>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Map.Entry<byte[], byte[]>> doExecute(Jedis connection) {
@@ -4054,7 +4054,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Map.Entry<byte[], byte[]>> hscan(final byte[] key, final byte[] cursor, final ScanParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Map.Entry<byte[], byte[]>>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Map.Entry<byte[], byte[]>> doExecute(Jedis connection) {
@@ -4065,7 +4065,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<byte[]> sscan(final byte[] key, final byte[] cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<byte[]> doExecute(Jedis connection) {
@@ -4076,7 +4076,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<byte[]> sscan(final byte[] key, final byte[] cursor, final ScanParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<byte[]> doExecute(Jedis connection) {
@@ -4087,7 +4087,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Tuple> zscan(final byte[] key, final byte[] cursor) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Tuple> doExecute(Jedis connection) {
@@ -4098,7 +4098,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public ScanResult<Tuple> zscan(final byte[] key, final byte[] cursor, final ScanParams params) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 		return new EnhancedJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
 			@Override
 			public ScanResult<Tuple> doExecute(Jedis connection) {
@@ -4109,7 +4109,7 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 
 	@Override
 	public List<byte[]> bitfield(final byte[] key, final byte[]... arguments) {
-		checkArgumentsSpecification(key);
+		checkArguments(key);
 
 		return new EnhancedJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
 			@Override
@@ -4123,11 +4123,11 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	 * Check input argument names specification.
 	 * 
 	 * @param keys
-	 * @throws ParametersNormativeException
+	 * @throws ParameterCanonicalException
 	 */
-	protected void checkArgumentsSpecification(final byte[]... keys) throws ParametersNormativeException {
+	protected void checkArguments(final byte[]... keys) throws ParameterCanonicalException {
 		if (safeMode) {
-			RedisProtoUtil.checkArgumentsSpecification(asList(keys));
+			RedisProtoUtil.checkArguments(asList(keys));
 		}
 	}
 
@@ -4135,11 +4135,11 @@ public class EnhancedJedisCluster extends JedisCluster implements JedisOperator 
 	 * Check input argument names specification.
 	 * 
 	 * @param keys
-	 * @throws ParametersNormativeException
+	 * @throws ParameterCanonicalException
 	 */
-	protected void checkArgumentsSpecification(final String... keys) throws ParametersNormativeException {
+	protected void checkArguments(final String... keys) throws ParameterCanonicalException {
 		if (safeMode) {
-			RedisProtoUtil.checkArgumentsSpecification(asList(keys));
+			RedisProtoUtil.checkArguments(asList(keys));
 		}
 	}
 

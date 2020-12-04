@@ -18,7 +18,7 @@ package com.wl4g.components.core.exception.framework;
 import com.wl4g.components.common.web.rest.ServiceUnavailableException;
 import com.wl4g.components.core.exception.ComponentsException;
 
-public class ParametersNormativeException extends ComponentsException implements ServiceUnavailableException {
+public class ParameterCanonicalException extends ComponentsException implements ServiceUnavailableException {
 	static final long serialVersionUID = -7034833390711766939L;
 
 	/**
@@ -26,7 +26,7 @@ public class ParametersNormativeException extends ComponentsException implements
 	 * message. The cause is not initialized, and may subsequently be
 	 * initialized by a call to {@link #initCause}.
 	 */
-	public ParametersNormativeException() {
+	public ParameterCanonicalException() {
 		super();
 	}
 
@@ -39,7 +39,7 @@ public class ParametersNormativeException extends ComponentsException implements
 	 *            the detail message. The detail message is saved for later
 	 *            retrieval by the {@link #getMessage()} method.
 	 */
-	public ParametersNormativeException(String message) {
+	public ParameterCanonicalException(String message) {
 		super(message);
 	}
 
@@ -60,7 +60,7 @@ public class ParametersNormativeException extends ComponentsException implements
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public ParametersNormativeException(String message, Throwable cause) {
+	public ParameterCanonicalException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -78,7 +78,7 @@ public class ParametersNormativeException extends ComponentsException implements
 	 *            unknown.)
 	 * @since 1.4
 	 */
-	public ParametersNormativeException(Throwable cause) {
+	public ParameterCanonicalException(Throwable cause) {
 		super(cause);
 	}
 
