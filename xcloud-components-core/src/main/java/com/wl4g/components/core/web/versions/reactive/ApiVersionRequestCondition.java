@@ -15,8 +15,6 @@
  */
 package com.wl4g.components.core.web.versions.reactive;
 
-import java.util.Comparator;
-
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -37,9 +35,8 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper
  */
 public class ApiVersionRequestCondition extends VersionConditionSupport implements RequestCondition<ApiVersionRequestCondition> {
 
-	public ApiVersionRequestCondition(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
-			String[] versionParams, String[] groupParams) {
-		super(versionMappingWrapper, versionComparator, versionParams, groupParams);
+	public ApiVersionRequestCondition(ApiVersionMappingWrapper mapping) {
+		super(mapping);
 	}
 
 	@Override

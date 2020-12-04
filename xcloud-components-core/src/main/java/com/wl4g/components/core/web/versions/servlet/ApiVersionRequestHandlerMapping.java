@@ -31,9 +31,9 @@ import java.util.List;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.components.core.web.versions.AmbiguousApiVersionMappingException;
-import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingWrapper;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,36 +65,18 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
  */
 public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSupport {
 
-	private String[] versionParams;
-	private String[] groupParams;
-	private SimpleVersionComparator versionComparator;
+	private EnableApiVersionMappingWrapper versionConfig;
 
 	public ApiVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
-	public String[] getVersionParams() {
-		return versionParams;
+	public EnableApiVersionMappingWrapper getVersionConfig() {
+		return versionConfig;
 	}
 
-	public void setVersionParams(String[] versionParams) {
-		this.versionParams = versionParams;
-	}
-
-	public String[] getGroupParams() {
-		return groupParams;
-	}
-
-	public void setGroupParams(String[] groupParams) {
-		this.groupParams = groupParams;
-	}
-
-	public SimpleVersionComparator getVersionComparator() {
-		return versionComparator;
-	}
-
-	public void setVersionComparator(SimpleVersionComparator versionComparator) {
-		this.versionComparator = versionComparator;
+	public void setVersionConfig(EnableApiVersionMappingWrapper versionConfig) {
+		this.versionConfig = versionConfig;
 	}
 
 	@Override
@@ -128,8 +110,7 @@ public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSuppor
 
 		return isNull(versionMapping) ? null
 				: new ApiVersionRequestCondition(
-						ApiVersionMappingWrapper.build(getApplicationContext().getEnvironment(), versionMapping),
-						getVersionComparator(), getVersionParams(), getGroupParams());
+						ApiVersionMappingWrapper.wrap(getApplicationContext().getEnvironment(), versionConfig, versionMapping));
 	}
 
 	/**
@@ -153,7 +134,7 @@ public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSuppor
 
 			// Check version syntax.
 			for (String ver : cm.versions) {
-				getVersionComparator().resolveApiVersionParts(ver, true);
+				versionConfig.getVersionComparator().resolveApiVersionParts(ver, true);
 			}
 		}
 

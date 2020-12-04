@@ -37,6 +37,13 @@ import java.lang.annotation.*;
 public @interface EnableApiVersionMapping {
 
 	/**
+	 * Whether to be case sensitive when matching request parameters.
+	 * 
+	 * @return
+	 */
+	boolean sensitiveParams() default false;
+
+	/**
 	 * Request parameter name for api version mappings. </br>
 	 * </br>
 	 * for example: {"platform", "${myconfig.apiVersion.myVersionParamName}"}
@@ -63,12 +70,17 @@ public @interface EnableApiVersionMapping {
 	Class<? extends SimpleVersionComparator> versionComparator() default SimpleVersionComparator.class;
 
 	/**
-	 * Refer: {@link #groupParams()}
+	 * Refer: {@link #sensitiveParams()}
+	 */
+	public static final String SENSITIVE_PARAMS = "sensitiveParams";
+
+	/**
+	 * Refer: {@link #versionParams()}
 	 */
 	public static final String VERSION_PARAMS = "versionParams";
 
 	/**
-	 * Refer: {@link #versionParams()}
+	 * Refer: {@link #groupParams()}
 	 */
 	public static final String GROUP_PARAMS = "groupParams";
 

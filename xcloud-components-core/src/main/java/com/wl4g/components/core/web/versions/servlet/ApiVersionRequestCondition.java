@@ -18,7 +18,6 @@ package com.wl4g.components.core.web.versions.servlet;
 import static com.wl4g.components.common.lang.StringUtils2.eqIgnCase;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -42,22 +41,19 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper
  */
 public class ApiVersionRequestCondition extends VersionConditionSupport implements RequestCondition<ApiVersionRequestCondition> {
 
-	public ApiVersionRequestCondition(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
-			String[] versionParams, String[] groupParams) {
-		super(versionMappingWrapper, versionComparator, versionParams, groupParams);
+	public ApiVersionRequestCondition(ApiVersionMappingWrapper mapping) {
+		super(mapping);
 	}
 
-	public ApiVersionRequestCondition(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
-			String[] versionParams, String[] groupParams, List<String> matchedCandidateVersions) {
-		super(versionMappingWrapper, versionComparator, versionParams, groupParams, matchedCandidateVersions);
+	public ApiVersionRequestCondition(ApiVersionMappingWrapper mapping, List<String> matchedCandidateVersions) {
+		super(mapping, matchedCandidateVersions);
 	}
 
 	@Override
 	public ApiVersionRequestCondition combine(ApiVersionRequestCondition other) {
 		// Use the nearest definition priority principle, that is, the
 		// definition on the method covers the definition above the type.
-		return new ApiVersionRequestCondition(other.getApiVersionMappingWrapper(), getVersionComparator(),
-				other.getVersionParams(), other.getGroupParams());
+		return new ApiVersionRequestCondition(other.getVersionMapping());
 	}
 
 	/**
@@ -73,17 +69,17 @@ public class ApiVersionRequestCondition extends VersionConditionSupport implemen
 	 */
 	@Override
 	public ApiVersionRequestCondition getMatchingCondition(HttpServletRequest request) {
-		String requestVer = findRequestParameter(request, getVersionParams());
-		String requestVerGroup = findRequestParameter(request, getGroupParams());
+		String requestVer = findRequestParameter(request, getVersionConfig().getVersionParams());
+		String requestVerGroup = findRequestParameter(request, getVersionConfig().getGroupParams());
 		log.debug("Comparing rqeuest version: {}, group: {}", requestVer, requestVerGroup);
 
 		List<String> candidateVersions = new ArrayList<>(4);
-		for (ApiVersionWrapper wrap : getApiVersionMappingWrapper().getApiVersions()) {
+		for (ApiVersionWrapper wrap : getVersionMapping().getApiVersions()) {
 			for (String group : wrap.getGroups()) {
 				// First match API version group.
 				if (getEqualer().apply(group, requestVerGroup)) {
 					// Match compatible candidate versions.
-					if (getVersionComparator().compare(requestVer, wrap.getValue()) >= 0) {
+					if (getVersionConfig().getVersionComparator().compare(requestVer, wrap.getValue()) >= 0) {
 						candidateVersions.add(wrap.getValue());
 					}
 				}
@@ -91,8 +87,7 @@ public class ApiVersionRequestCondition extends VersionConditionSupport implemen
 		}
 
 		if (!CollectionUtils2.isEmpty(candidateVersions)) {
-			return new ApiVersionRequestCondition(getApiVersionMappingWrapper(), getVersionComparator(), getVersionParams(),
-					getGroupParams(), candidateVersions);
+			return new ApiVersionRequestCondition(getVersionMapping(), candidateVersions);
 		}
 
 		// No matched to must return null
@@ -120,11 +115,12 @@ public class ApiVersionRequestCondition extends VersionConditionSupport implemen
 		if (CollectionUtils2.isEmpty(getMatchedCandidateVersions())) {
 			return 1;
 		}
-		return getVersionComparator().compare(getMatchedCandidateVersions().get(0), other.getMatchedCandidateVersions().get(0));
+		return getVersionConfig().getVersionComparator().compare(getMatchedCandidateVersions().get(0),
+				other.getMatchedCandidateVersions().get(0));
 	}
 
 	private BiFunction<String, String, Boolean> getEqualer() {
-		return getApiVersionMappingWrapper().isSensitive() ? sensitiveFunc : unsensitiveFunc;
+		return getVersionConfig().isSensitiveParams() ? sensitiveFunc : unsensitiveFunc;
 	}
 
 	private static final BiFunction<String, String, Boolean> sensitiveFunc = (o1, o2) -> StringUtils2.equals(o1, o2);

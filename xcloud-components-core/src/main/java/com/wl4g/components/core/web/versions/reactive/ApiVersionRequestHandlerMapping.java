@@ -19,7 +19,6 @@ import static java.util.Objects.isNull;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.Comparator;
 
 import org.springframework.web.reactive.result.condition.RequestCondition;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
@@ -28,6 +27,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingWrapper;
 
 //
 // TODO
@@ -52,36 +52,18 @@ import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper
  */
 public class ApiVersionRequestHandlerMapping extends RequestMappingHandlerMapping {
 
-	private String[] versionParams;
-	private String[] groupParams;
-	private Comparator<String> versionComparator;
+	private EnableApiVersionMappingWrapper versionConfig;
 
 	public ApiVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
-	public String[] getVersionParams() {
-		return versionParams;
+	public EnableApiVersionMappingWrapper getVersionConfig() {
+		return versionConfig;
 	}
 
-	public void setVersionParams(String[] versionParams) {
-		this.versionParams = versionParams;
-	}
-
-	public String[] getGroupParams() {
-		return groupParams;
-	}
-
-	public void setGroupParams(String[] groupParams) {
-		this.groupParams = groupParams;
-	}
-
-	public Comparator<String> getVersionComparator() {
-		return versionComparator;
-	}
-
-	public void setVersionComparator(Comparator<String> versionComparator) {
-		this.versionComparator = versionComparator;
+	public void setVersionConfig(EnableApiVersionMappingWrapper versionConfig) {
+		this.versionConfig = versionConfig;
 	}
 
 	// --- Request mapping condition. ---
@@ -99,9 +81,8 @@ public class ApiVersionRequestHandlerMapping extends RequestMappingHandlerMappin
 	private RequestCondition<ApiVersionRequestCondition> createCondition(AnnotatedElement annotatedElement) {
 		ApiVersionMapping versionMapping = findAnnotation(annotatedElement, ApiVersionMapping.class);
 		return isNull(versionMapping) ? null
-				: new ApiVersionRequestCondition(
-						ApiVersionMappingWrapper.build(getApplicationContext().getEnvironment(), versionMapping),
-						getVersionComparator(), versionParams, groupParams);
+				: new ApiVersionRequestCondition(ApiVersionMappingWrapper.wrap(getApplicationContext().getEnvironment(),
+						getVersionConfig(), versionMapping));
 	}
 
 }

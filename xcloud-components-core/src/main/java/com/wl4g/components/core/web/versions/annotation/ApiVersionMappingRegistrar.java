@@ -39,8 +39,10 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 import com.wl4g.components.core.web.versions.reactive.ApiVersionRequestHandlerMapping;
 
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.SENSITIVE_PARAMS;
 import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_PARAMS;
 import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.GROUP_PARAMS;
 import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_COMPARATOR;
@@ -105,9 +107,13 @@ public class ApiVersionMappingRegistrar
 	protected void registerRequestHandlerMapping(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry,
 			Class<?> beanClass, BeanNameGenerator beanNameGenerator) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
-		builder.addPropertyValue(VERSION_PARAMS, resolveVersionParameterNames(annoAttrs, registry));
-		builder.addPropertyValue(GROUP_PARAMS, resolveVersionGroupParameterNames(annoAttrs, registry));
-		builder.addPropertyValue(VERSION_COMPARATOR, beanFactory.getBean(annoAttrs.getClass(VERSION_COMPARATOR)));
+
+		String[] versionParams = resolveVersionParameterNames(annoAttrs, registry);
+		String[] groupParams = resolveVersionGroupParameterNames(annoAttrs, registry);
+		SimpleVersionComparator versionComparator = beanFactory.getBean(annoAttrs.getClass(VERSION_COMPARATOR));
+
+		builder.addPropertyValue(VERSION_CONFIG, new EnableApiVersionMappingWrapper(annoAttrs.getBoolean(SENSITIVE_PARAMS),
+				versionParams, groupParams, versionComparator));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
 		String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
@@ -161,5 +167,13 @@ public class ApiVersionMappingRegistrar
 		}
 		return beanNameGenerator;
 	}
+
+	/**
+	 * Refer:
+	 * {@link com.wl4g.components.core.web.versions.servlet.ApiVersionRequestHandlerMapping#versionConfig}
+	 * </br>
+	 * Refer: {@link ApiVersionRequestHandlerMapping#versionConfig}
+	 */
+	public static final String VERSION_CONFIG = "versionConfig";
 
 }

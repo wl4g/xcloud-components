@@ -41,13 +41,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ApiVersionMapping {
 
 	/**
-	 * Whether to be case sensitive when matching request parameters.
-	 * 
-	 * @return
-	 */
-	boolean sensitive() default false;
-
-	/**
 	 * {@link ApiVersion}
 	 * 
 	 * @return

@@ -15,17 +15,18 @@
  */
 package com.wl4g.components.core.web.versions;
 
-import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.util.Comparator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.wl4g.components.common.log.SmartLogger;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingWrapper;
 
 /**
  * {@link VersionConditionSupport}
@@ -39,30 +40,23 @@ public abstract class VersionConditionSupport {
 
 	protected final SmartLogger log = getLogger(getClass());
 
-	private final ApiVersionMappingWrapper versionMappingWrapper;
-	// Request api versions comparator.
-	private final SimpleVersionComparator versionComparator;
-
-	// Extract version info parameters.
-	private final String[] versionParams;
-	private final String[] groupParams;
+	/**
+	 * API version mapping wrapper, attributes from {@link ApiVersionMapping}
+	 * and {@link EnableApiVersionMapping}
+	 */
+	private final ApiVersionMappingWrapper versionMapping;
 
 	/**
 	 * {@link org.springframework.web.servlet.mvc.method.RequestMappingInfo#getMatchingCondition(HttpServletRequest)}
 	 */
 	private final List<String> matchedCandidateVersions;
 
-	public VersionConditionSupport(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
-			String[] versionParams, String[] groupParams) {
-		this(versionMappingWrapper, versionComparator, versionParams, groupParams, null);
+	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping) {
+		this(versionMapping, null);
 	}
 
-	public VersionConditionSupport(ApiVersionMappingWrapper versionMappingWrapper, Comparator<String> versionComparator,
-			String[] versionParams, String[] groupParams, List<String> matchedCandidateVersions) {
-		this.versionMappingWrapper = notNullOf(versionMappingWrapper, "versionMappingWrapper");
-		this.versionComparator = notNullOf(versionComparator, "versionComparator");
-		this.versionParams = safeArrayToList(versionParams).toArray(new String[0]);
-		this.groupParams = safeArrayToList(groupParams).toArray(new String[0]);
+	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping, List<String> matchedCandidateVersions) {
+		this.versionMapping = notNullOf(versionMapping, "versionMapping");
 		this.matchedCandidateVersions = matchedCandidateVersions;
 	}
 
@@ -84,24 +78,16 @@ public abstract class VersionConditionSupport {
 		return null;
 	}
 
-	public ApiVersionMappingWrapper getApiVersionMappingWrapper() {
-		return versionMappingWrapper;
-	}
-
-	public SimpleVersionComparator getVersionComparator() {
-		return versionComparator;
-	}
-
-	public String[] getVersionParams() {
-		return versionParams;
-	}
-
-	public String[] getGroupParams() {
-		return groupParams;
+	public ApiVersionMappingWrapper getVersionMapping() {
+		return versionMapping;
 	}
 
 	public List<String> getMatchedCandidateVersions() {
 		return matchedCandidateVersions;
+	}
+
+	protected EnableApiVersionMappingWrapper getVersionConfig() {
+		return versionMapping.getVersionConfig();
 	}
 
 }

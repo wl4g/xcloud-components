@@ -34,16 +34,16 @@ import org.springframework.core.env.Environment;
  */
 public class ApiVersionMappingWrapper {
 
-	private final boolean sensitive;
+	private final EnableApiVersionMappingWrapper versionConfig;
 	private final List<ApiVersionWrapper> apiVersions;
 
-	public ApiVersionMappingWrapper(boolean sensitive, List<ApiVersionWrapper> apiVersions) {
-		this.sensitive = sensitive;
+	public ApiVersionMappingWrapper(EnableApiVersionMappingWrapper versionConfig, List<ApiVersionWrapper> apiVersions) {
+		this.versionConfig = versionConfig;
 		this.apiVersions = apiVersions;
 	}
 
-	public boolean isSensitive() {
-		return sensitive;
+	public EnableApiVersionMappingWrapper getVersionConfig() {
+		return versionConfig;
 	}
 
 	public List<ApiVersionWrapper> getApiVersions() {
@@ -80,10 +80,19 @@ public class ApiVersionMappingWrapper {
 
 	}
 
-	public static ApiVersionMappingWrapper build(Environment environment, ApiVersionMapping versionMapping) {
+	/**
+	 * Building wrap {@link ApiVersionMappingWrapper} instance.
+	 * 
+	 * @param environment
+	 * @param sensitive
+	 * @param mapping
+	 * @return
+	 */
+	public static ApiVersionMappingWrapper wrap(Environment environment, EnableApiVersionMappingWrapper versionConfig,
+			ApiVersionMapping mapping) {
 		List<ApiVersionWrapper> apiVersions = new ArrayList<>();
 
-		for (ApiVersion ver : safeArrayToList(versionMapping.value())) {
+		for (ApiVersion ver : safeArrayToList(mapping.value())) {
 			if ((nonNull(ver) && !isBlank(ver.value()))) {
 				String[] groups = safeArrayToList(ver.groups()).stream().filter(g -> !isBlank(g))
 						.map(g -> environment.resolveRequiredPlaceholders(g)).toArray(String[]::new);
@@ -91,7 +100,8 @@ public class ApiVersionMappingWrapper {
 				apiVersions.add(new ApiVersionWrapper(groups, environment.resolveRequiredPlaceholders(ver.value())));
 			}
 		}
-		return new ApiVersionMappingWrapper(versionMapping.sensitive(), apiVersions);
+
+		return new ApiVersionMappingWrapper(versionConfig, apiVersions);
 	}
 
 }

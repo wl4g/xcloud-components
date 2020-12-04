@@ -37,9 +37,17 @@ import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
  * @sine v1.0
  * @see https://spring.io/guides/gs/testing-web/
  */
-@EnableApiVersionMapping(groupParams= {"aaa","${spring.application.name}"})
-@SpringBootApplication(scanBasePackageClasses = { WebMvcHandlerMappingConfigurer.class })
+@EnableApiVersionMapping
+@SpringBootApplication(scanBasePackageClasses = WebMvcHandlerMappingConfigurer.class)
 public class ApiVersionControllerTests {
+
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(ApiVersionControllerTests.class, args);
+
+		checkApiVersionsMatchsCase1();
+
+		System.exit(0);
+	}
 
 	/**
 	 * <pre>
@@ -49,27 +57,19 @@ public class ApiVersionControllerTests {
 	 * 
 	 * refer to {@link EnableApiVersionMapping}
 	 * </pre>
-	 * 
-	 * @throws InterruptedException
 	 */
-	public static void main(String[] args) throws Exception {
-		SpringApplication.run(ApiVersionControllerTests.class, args);
-
-		apiVersionsMatchsCase1();
-
-		System.exit(0);
-	}
-
-	static void apiVersionsMatchsCase1() {
+	private static void checkApiVersionsMatchsCase1() {
 		System.out.println("----------- Testing ------------");
 
 		RestTemplate rest = new RestTemplate();
 		String url = "http://localhost:8080/api-test/userinfo?_v=%s&platform=%s&%s=%s";
 
-		out.println("result: " + rest.getForObject(format(url, "2.0.10.2a", "iOS", "token", "abc321"), String.class));
-		out.println("result: " + rest.getForObject(format(url, "2.0.10.2a", "iOS", "token", "defg123"), String.class));
-		out.println("result: " + rest.getForObject(format(url, "2.0.10.2b", "Android", "token", "hijk235"), String.class));
-		out.println("result: " + rest.getForObject(format(url, "", "", "token", "opqr123"), String.class));
+		out.println(">> " + rest.getForObject(format(url, "2.0.10.2a", "iOS", "token", "abcd111"), String.class));
+		out.println(">> " + rest.getForObject(format(url, "2.0.10.2a", "iOS", "token", "abcd222"), String.class));
+		out.println(">> " + rest.getForObject(format(url, "2.0.10.3a", "WebPC", "token", "abcd333"), String.class));
+		out.println(">> " + rest.getForObject(format(url, "2.0.10.2a", "WebPC", "token", "abcd444"), String.class));
+		out.println(">> " + rest.getForObject(format(url, "2.0.10.2b", "Android", "token", "abcd555"), String.class));
+		out.println(">> " + rest.getForObject(format(url, "", "", "token", "abcd666"), String.class));
 
 	}
 
@@ -77,21 +77,22 @@ public class ApiVersionControllerTests {
 	@RequestMapping("/api-test/")
 	public static class TestApiVersionController {
 
-		@ApiVersionMapping(@ApiVersion(groups = { "iOS", "wechatmp" }, value = "1.0.10.2a"))
+		@ApiVersionMapping({ @ApiVersion(groups = { "iOS", "wechatmp" }, value = "1.0.10.2a"),
+				@ApiVersion(groups = { "WebPC", "NativePC" }, value = "1.0.10.3a") })
 		@RequestMapping("userinfo")
-		public String userinfoV1_0_10_2a(String token) {
+		public String getUserInfoV1_0_10_2a(String token) {
 			return "I'am API, version is 'V1_0_10_2a' - token=" + token;
 		}
 
 		@ApiVersionMapping(@ApiVersion(groups = { "iOS", "Android" }, value = "2.0.10.2b"))
 		@RequestMapping("userinfo")
-		public String userinfoV2_0_10_2b(String token) {
+		public String getUserInfoV2_0_10_2b(String token) {
 			return "I'am API, version is 'V2_0_10_2b' - token=" + token;
 		}
 
 		// Default api
 		@RequestMapping("userinfo")
-		public String userinfo(String token) {
+		public String getUserInfo(String token) {
 			return "I'am API, version is default - token=" + token;
 		}
 
