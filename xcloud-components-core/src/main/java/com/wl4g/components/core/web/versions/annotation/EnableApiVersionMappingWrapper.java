@@ -27,6 +27,9 @@ import com.wl4g.components.core.web.versions.SimpleVersionComparator;
  */
 public class EnableApiVersionMappingWrapper {
 
+	/**
+	 * {@link EnableApiVersionMapping#sensitiveParams()}
+	 */
 	private final boolean sensitiveParams;
 
 	/**

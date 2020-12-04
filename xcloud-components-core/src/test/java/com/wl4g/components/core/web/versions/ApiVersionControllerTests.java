@@ -64,12 +64,16 @@ public class ApiVersionControllerTests {
 		RestTemplate rest = new RestTemplate();
 		String url = "http://localhost:8080/api-test/userinfo?_v=%s&platform=%s&%s=%s";
 
-		out.println(">> " + rest.getForObject(format(url, "2.0.10.2a", "iOS", "token", "abcd111"), String.class));
-		out.println(">> " + rest.getForObject(format(url, "2.0.10.2a", "iOS", "token", "abcd222"), String.class));
-		out.println(">> " + rest.getForObject(format(url, "2.0.10.3a", "WebPC", "token", "abcd333"), String.class));
-		out.println(">> " + rest.getForObject(format(url, "2.0.10.2a", "WebPC", "token", "abcd444"), String.class));
-		out.println(">> " + rest.getForObject(format(url, "2.0.10.2b", "Android", "token", "abcd555"), String.class));
-		out.println(">> " + rest.getForObject(format(url, "", "", "token", "abcd666"), String.class));
+		// Positive example:
+		out.println(">> " + rest.getForObject(format(url, "1.0.10.3a", "wechatmp", "token", "abcd333"), String.class));// V1
+		out.println(">> " + rest.getForObject(format(url, "1.0.10.2a", "iOS", "token", "abcd111"), String.class));// V1
+		out.println(">> " + rest.getForObject(format(url, "1.0.10.2b", "Android", "token", "abcd555"), String.class));// V2
+		out.println(">> " + rest.getForObject(format(url, "1.0", "", "token", "abcd666"), String.class));// default
+		out.println(">> " + rest.getForObject(format(url, "", "", "token", "abcd666"), String.class));// default
+
+		// Negative example:
+		out.println(">> " + rest.getForObject(format(url, "1.0.10.3a", "iOS", "token", "abcd222"), String.class));// V1
+		out.println(">> " + rest.getForObject(format(url, "1.0.10.2b", "iOS", "token", "abcd555"), String.class));// V1
 
 	}
 
@@ -78,19 +82,20 @@ public class ApiVersionControllerTests {
 	public static class TestApiVersionController {
 
 		@ApiVersionMapping({ @ApiVersion(groups = { "iOS", "wechatmp" }, value = "1.0.10.2a"),
-				@ApiVersion(groups = { "WebPC", "NativePC" }, value = "1.0.10.3a") })
+				@ApiVersion(groups = { "WebPC", "wechatmp" }, value = "1.0.10.3a") })
 		@RequestMapping("userinfo")
-		public String getUserInfoV1_0_10_2a(String token) {
-			return "I'am API, version is 'V1_0_10_2a' - token=" + token;
+		public String getUserInfo20200901(String token) {
+			return "I'am API, version is V1 - token=" + token;
 		}
 
-		@ApiVersionMapping(@ApiVersion(groups = { "iOS", "Android" }, value = "2.0.10.2b"))
+		@ApiVersionMapping({ @ApiVersion(groups = { "NativePC", "Android" }, value = "1.0.10.2b"),
+				@ApiVersion(groups = { "iOS" }, value = "1.0.10.1a") })
 		@RequestMapping("userinfo")
-		public String getUserInfoV2_0_10_2b(String token) {
-			return "I'am API, version is 'V2_0_10_2b' - token=" + token;
+		public String getUserInfo202010905(String token) {
+			return "I'am API, version is V2 - token=" + token;
 		}
 
-		// Default api
+		// Default mapping (Low priority)
 		@RequestMapping("userinfo")
 		public String getUserInfo(String token) {
 			return "I'am API, version is default - token=" + token;

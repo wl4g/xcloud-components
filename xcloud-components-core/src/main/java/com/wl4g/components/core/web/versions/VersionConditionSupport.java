@@ -20,6 +20,8 @@ import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 import com.wl4g.components.common.log.SmartLogger;
@@ -49,15 +51,15 @@ public abstract class VersionConditionSupport {
 	/**
 	 * {@link org.springframework.web.servlet.mvc.method.RequestMappingInfo#getMatchingCondition(HttpServletRequest)}
 	 */
-	private final List<String> matchedCandidateVersions;
+	private final List<String> matchingCandidateVersions;
 
 	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping) {
 		this(versionMapping, null);
 	}
 
-	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping, List<String> matchedCandidateVersions) {
+	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping, @Nullable List<String> matchingCandidateVersions) {
 		this.versionMapping = notNullOf(versionMapping, "versionMapping");
-		this.matchedCandidateVersions = matchedCandidateVersions;
+		this.matchingCandidateVersions = matchingCandidateVersions;
 	}
 
 	/**
@@ -82,8 +84,8 @@ public abstract class VersionConditionSupport {
 		return versionMapping;
 	}
 
-	public List<String> getMatchedCandidateVersions() {
-		return matchedCandidateVersions;
+	public List<String> getMatchingCandidateVersions() {
+		return matchingCandidateVersions;
 	}
 
 	protected EnableApiVersionMappingWrapper getVersionConfig() {

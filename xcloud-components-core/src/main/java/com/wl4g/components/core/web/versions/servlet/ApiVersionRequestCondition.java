@@ -18,6 +18,7 @@ package com.wl4g.components.core.web.versions.servlet;
 import static com.wl4g.components.common.lang.StringUtils2.eqIgnCase;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -73,21 +74,26 @@ public class ApiVersionRequestCondition extends VersionConditionSupport implemen
 		String requestVerGroup = findRequestParameter(request, getVersionConfig().getGroupParams());
 		log.debug("Comparing rqeuest version: {}, group: {}", requestVer, requestVerGroup);
 
-		List<String> candidateVersions = new ArrayList<>(4);
+		// 获取满足以下条件的所有候选版本号:
+		// 1: 首先满足客户端分组(group);
+		// 2: 其次要满足小于等于请求版本号(向下兼容);
+		List<String> matchingCandidateVersions = new ArrayList<>(getVersionMapping().getApiVersions().size());
 		for (ApiVersionWrapper wrap : getVersionMapping().getApiVersions()) {
 			for (String group : wrap.getGroups()) {
 				// First match API version group.
 				if (getEqualer().apply(group, requestVerGroup)) {
-					// Match compatible candidate versions.
+					// Downward compatible:
+					// If the request version is greater than or equal
+					// to the configuration version number, then satisfied.
 					if (getVersionConfig().getVersionComparator().compare(requestVer, wrap.getValue()) >= 0) {
-						candidateVersions.add(wrap.getValue());
+						matchingCandidateVersions.add(wrap.getValue());
 					}
 				}
 			}
 		}
 
-		if (!CollectionUtils2.isEmpty(candidateVersions)) {
-			return new ApiVersionRequestCondition(getVersionMapping(), candidateVersions);
+		if (!CollectionUtils2.isEmpty(matchingCandidateVersions)) {
+			return new ApiVersionRequestCondition(getVersionMapping(), matchingCandidateVersions);
 		}
 
 		// No matched to must return null
@@ -102,21 +108,37 @@ public class ApiVersionRequestCondition extends VersionConditionSupport implemen
 	 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping#lookupHandlerMethod()}
 	 * and
 	 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping#addMatchingMappings()}
+	 * 
+	 * @see {@link org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.compareTo#compareTo()}
 	 */
 	@Override
 	public int compareTo(ApiVersionRequestCondition other, HttpServletRequest request) {
-		if (CollectionUtils2.isEmpty(other.getMatchedCandidateVersions())
-				&& CollectionUtils2.isEmpty(getMatchedCandidateVersions())) {
+		if (CollectionUtils2.isEmpty(other.getMatchingCandidateVersions())
+				&& CollectionUtils2.isEmpty(getMatchingCandidateVersions())) {
 			return 0;
 		}
-		if (CollectionUtils2.isEmpty(other.getMatchedCandidateVersions())) {
-			return -1;
-		}
-		if (CollectionUtils2.isEmpty(getMatchedCandidateVersions())) {
+		if (CollectionUtils2.isEmpty(getMatchingCandidateVersions())) {
 			return 1;
 		}
-		return getVersionConfig().getVersionComparator().compare(getMatchedCandidateVersions().get(0),
-				other.getMatchedCandidateVersions().get(0));
+		if (CollectionUtils2.isEmpty(other.getMatchingCandidateVersions())) {
+			return -1;
+		}
+
+		// [Refer]:org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.compareTo#compareTo()
+		Iterator<String> it = getMatchingCandidateVersions().iterator();
+		Iterator<String> itOther = other.getMatchingCandidateVersions().iterator();
+		while (it.hasNext() && itOther.hasNext()) {
+			int result = getVersionConfig().getVersionComparator().compare(itOther.next(), it.next());
+			if (result != 0) {
+				return result;
+			}
+		}
+		if (it.hasNext()) {
+			return -1;
+		} else if (itOther.hasNext()) {
+			return 1;
+		}
+		return 0;
 	}
 
 	private BiFunction<String, String, Boolean> getEqualer() {
