@@ -50,6 +50,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.io.Resources;
@@ -461,20 +463,20 @@ public abstract class ResourceUtils2 {
 	 * Gets resource string with class path
 	 * 
 	 * @param loadByClass
-	 * @param name
+	 * @param resourceName
 	 * @return
 	 */
-	public static String getResourceString(Class<?> loadByClass, String name) {
-		if (isBlank(name)) {
+	public static String getResourceString(@Nullable Class<?> loadByClass, @Nullable String resourceName) {
+		if (isBlank(resourceName)) {
 			return null;
 		}
 		URL url = null;
 		if (nonNull(loadByClass)) { // Find by class
 			String basePath = loadByClass.getName();
 			basePath = basePath.substring(0, basePath.lastIndexOf(".")).replace(".", "/");
-			url = getResource(basePath + "/" + name);
+			url = getResource(basePath + "/" + resourceName);
 		} else { // Fallback
-			url = getResource(name);
+			url = getResource(resourceName);
 		}
 		try {
 			return nonNull(url) ? Resources.toString(url, UTF_8) : null;

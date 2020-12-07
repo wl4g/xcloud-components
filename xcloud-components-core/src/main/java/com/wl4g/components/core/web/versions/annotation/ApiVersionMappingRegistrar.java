@@ -110,7 +110,8 @@ public class ApiVersionMappingRegistrar
 
 		String[] versionParams = resolveVersionParameterNames(annoAttrs, registry);
 		String[] groupParams = resolveVersionGroupParameterNames(annoAttrs, registry);
-		SimpleVersionComparator versionComparator = beanFactory.getBean(annoAttrs.getClass(VERSION_COMPARATOR));
+		SimpleVersionComparator versionComparator = (SimpleVersionComparator) beanFactory
+				.getBean(annoAttrs.getClass(VERSION_COMPARATOR));
 
 		builder.addPropertyValue(VERSION_CONFIG, new EnableApiVersionMappingWrapper(annoAttrs.getBoolean(SENSITIVE_PARAMS),
 				versionParams, groupParams, versionComparator));
