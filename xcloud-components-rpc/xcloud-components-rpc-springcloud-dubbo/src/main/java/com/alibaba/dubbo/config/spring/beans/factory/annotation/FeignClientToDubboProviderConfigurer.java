@@ -76,7 +76,7 @@ import static com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.BEAN_FEIG
  * @see {@link com.alibaba.dubbo.config.spring.ReferenceBean}
  */
 @Order(BEAN_FEIGNDUBBO_ORDER)
-public class FeignClientDubboProviderConfigurer
+public class FeignClientToDubboProviderConfigurer
 		implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ResourceLoaderAware, BeanClassLoaderAware {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -87,15 +87,15 @@ public class FeignClientDubboProviderConfigurer
 	private ClassLoader classLoader;
 	private Service defaultService;
 
-	public FeignClientDubboProviderConfigurer(String... packagesToScan) {
+	public FeignClientToDubboProviderConfigurer(String... packagesToScan) {
 		this(asList(packagesToScan));
 	}
 
-	public FeignClientDubboProviderConfigurer(Collection<String> packagesToScan) {
+	public FeignClientToDubboProviderConfigurer(Collection<String> packagesToScan) {
 		this(new LinkedHashSet<String>(packagesToScan));
 	}
 
-	public FeignClientDubboProviderConfigurer(Set<String> packagesToScan) {
+	public FeignClientToDubboProviderConfigurer(Set<String> packagesToScan) {
 		this.packagesToScan = packagesToScan;
 		// Generate {@code @Service} default configuration instance.
 		@Service

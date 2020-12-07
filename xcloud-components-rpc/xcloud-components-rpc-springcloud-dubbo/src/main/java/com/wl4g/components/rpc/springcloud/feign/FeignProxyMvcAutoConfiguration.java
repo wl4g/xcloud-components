@@ -73,7 +73,7 @@ import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigure
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
-public class FeignServletMvcAutoConfiguration implements InitializingBean {
+public class FeignProxyMvcAutoConfiguration implements InitializingBean {
 
 	@Autowired
 	private RequestMappingHandlerAdapter adapter;
@@ -213,8 +213,8 @@ public class FeignServletMvcAutoConfiguration implements InitializingBean {
 	//
 
 	@Bean
-	public FeignServletHandlerMapping feignServletHandlerMapping() {
-		return new FeignServletHandlerMapping();
+	public FeignProxyRequestHandlerMapping feignProxyRequestHandlerMapping() {
+		return new FeignProxyRequestHandlerMapping();
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class FeignServletMvcAutoConfiguration implements InitializingBean {
 	 * @sine v1.0
 	 * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
 	 */
-	static class FeignServletHandlerMapping extends ServletHandlerMappingSupport {
+	static class FeignProxyRequestHandlerMapping extends ServletHandlerMappingSupport {
 
 		@Override
 		protected boolean supports(Object handler, Class<?> handlerType, Method method) {

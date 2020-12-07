@@ -162,7 +162,7 @@ public class FeignProviderProxiesConfigurer
 	 * Register feign client rest proxy bean with {@link FeignProxyController}
 	 * </br>
 	 * [Note]: Bean definition className must be a proxy class, refer to:
-	 * {@link com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientDubboProviderConfigurer#resolveServiceInterfaceClass()}
+	 * {@link com.alibaba.dubbo.config.spring.beans.factory.annotation.FeignClientToDubboProviderConfigurer#resolveServiceInterfaceClass()}
 	 * {@link com.wl4g.components.rpc.springcloud.util.FeignDubboUtils.isFeignProxyBean()}
 	 * 
 	 * @param registry

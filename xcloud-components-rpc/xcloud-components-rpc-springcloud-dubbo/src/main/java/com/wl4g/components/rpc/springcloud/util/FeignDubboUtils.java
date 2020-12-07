@@ -93,7 +93,7 @@ public abstract class FeignDubboUtils {
 
 	/**
 	 * {@link FeignProviderProxiesConfigurer} must be executed after
-	 * {@link FeignClientDubboProviderConfigurer}, because the
+	 * {@link FeignClientToDubboProviderConfigurer}, because the
 	 * {@link RestController} proxy class needs to be created first, On the
 	 * contrary, because the latter creates a Dubbo {@link ServiceBean} instance
 	 * of the service interface, it is not possible to confirm that the correct
