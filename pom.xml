@@ -98,7 +98,8 @@
 		<!-- Logging's. -->
 		<slf4j-api.version>1.7.25</slf4j-api.version>
 		<!-- Runtime's -->
-		<swagger.version>1.5.20</swagger.version>
+		<swagger.version>1.6.2</swagger.version>
+		<swagger-v3.version>2.1.6</swagger-v3.version>
 		<jna.version>5.5.0</jna.version>
 		<!-- Generic tool's. -->
 		<guava.version>20.0</guava.version>
@@ -258,6 +259,11 @@
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-annotations</artifactId>
 				<version>${swagger.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-annotations</artifactId>
+				<version>${swagger-v3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
