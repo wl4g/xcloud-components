@@ -72,13 +72,12 @@ import io.netty.handler.codec.http.HttpMethod;
  * @see ResponseErrorHandler
  */
 public class RestClient {
+	protected final Log log = LogFactory.getLog(getClass());
 
-	final protected Log log = LogFactory.getLog(getClass());
-
-	final private ClientHttpRequestFactory requestFactory;
-	final private List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(4);
-	final private ResponseProcessor<HttpHeaders> headersExtractor = new ResponseHeadersProcessor();
-	final private List<HttpMessageParser<?>> messageParsers = new ArrayList<>(4);
+	private final ClientHttpRequestFactory requestFactory;
+	private final List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(4);
+	private final ResponseProcessor<HttpHeaders> headersExtractor = new ResponseHeadersProcessor();
+	private final List<HttpMessageParser<?>> messageParsers = new ArrayList<>(4);
 	private ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
 	private UriTemplateHandler uriTemplateHandler;
 
@@ -160,12 +159,8 @@ public class RestClient {
 
 	/**
 	 * Set the request interceptors that this accessor should use.
-	 * <p>
-	 * The interceptors will get immediately sorted according to their
-	 * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
 	 * 
 	 * @see #getRequestFactory()
-	 * @see AnnotationAwareOrderComparator
 	 */
 	public RestClient setInterceptors(List<ClientHttpRequestInterceptor> interceptors) {
 		// Take getInterceptors() List as-is when passed in here
@@ -178,11 +173,6 @@ public class RestClient {
 
 	/**
 	 * Get the request interceptors that this accessor uses.
-	 * <p>
-	 * The returned {@link List} is active and may be modified. Note, however,
-	 * that the interceptors will not be resorted according to their
-	 * {@linkplain AnnotationAwareOrderComparator#sort(List) order} before the
-	 * {@link ClientHttpRequestFactory} is built.
 	 */
 	public List<ClientHttpRequestInterceptor> getInterceptors() {
 		return this.interceptors;
@@ -432,18 +422,18 @@ public class RestClient {
 	 * Retrieve a representation by doing a GET on the URL . The response (if
 	 * any) is converted and returned.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param responseType
 	 *            the type of the return value
 	 * @return the converted object
 	 */
 	@Nullable
-	public <T> T getForObject(URI url, Class<T> responseType) throws RestClientException {
+	public <T> T getForObject(URI uri, Class<T> responseType) throws RestClientException {
 		RequestProcessor requestProcessor = acceptHeaderRequestProcessor(responseType);
 		HttpMessageParserExtractor<T> responseExtractor = new HttpMessageParserExtractor<>(responseType, getMessageParsers(),
 				log);
-		return execute(url, GET, requestProcessor, responseExtractor);
+		return execute(uri, GET, requestProcessor, responseExtractor);
 	}
 
 	/**
@@ -497,17 +487,17 @@ public class RestClient {
 	 * Retrieve a representation by doing a GET on the URL . The response is
 	 * converted and stored in an {@link HttpResponseEntity}.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param responseType
 	 *            the type of the return value
 	 * @return the converted object
 	 * @since 3.0.2
 	 */
-	public <T> HttpResponseEntity<T> getForEntity(URI url, Class<T> responseType) throws RestClientException {
+	public <T> HttpResponseEntity<T> getForEntity(URI uri, Class<T> responseType) throws RestClientException {
 		RequestProcessor requestProcessor = acceptHeaderRequestProcessor(responseType);
 		ResponseProcessor<HttpResponseEntity<T>> responseExtractor = responseEntityProcessor(responseType);
-		return nonNull(execute(url, GET, requestProcessor, responseExtractor));
+		return nonNull(execute(uri, GET, requestProcessor, responseExtractor));
 	}
 
 	// POST
@@ -580,7 +570,7 @@ public class RestClient {
 	 * The {@code request} parameter can be a {@link HttpEntity} in order to add
 	 * additional HTTP headers to the request.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param request
 	 *            the Object to be POSTed (may be {@code null})
@@ -590,10 +580,10 @@ public class RestClient {
 	 * @see HttpEntity
 	 */
 	@Nullable
-	public <T> T postForObject(URI url, @Nullable Object request, Class<T> responseType) throws RestClientException {
+	public <T> T postForObject(URI uri, @Nullable Object request, Class<T> responseType) throws RestClientException {
 		RequestProcessor requestProcessor = requestEntityProcessor(request, responseType);
 		HttpMessageParserExtractor<T> responseExtractor = new HttpMessageParserExtractor<>(responseType, getMessageParsers());
-		return execute(url, POST, requestProcessor, responseExtractor);
+		return execute(uri, POST, requestProcessor, responseExtractor);
 	}
 
 	/**
@@ -657,7 +647,7 @@ public class RestClient {
 	 * The {@code request} parameter can be a {@link HttpEntity} in order to add
 	 * additional HTTP headers to the request.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param request
 	 *            the Object to be POSTed (may be {@code null})
@@ -665,12 +655,12 @@ public class RestClient {
 	 * @since 3.0.2
 	 * @see HttpEntity
 	 */
-	public <T> HttpResponseEntity<T> postForEntity(URI url, @Nullable Object request, Class<T> responseType)
+	public <T> HttpResponseEntity<T> postForEntity(URI uri, @Nullable Object request, Class<T> responseType)
 			throws RestClientException {
 
 		RequestProcessor requestProcessor = requestEntityProcessor(request, responseType);
 		ResponseProcessor<HttpResponseEntity<T>> responseExtractor = responseEntityProcessor(responseType);
-		return nonNull(execute(url, POST, requestProcessor, responseExtractor));
+		return nonNull(execute(uri, POST, requestProcessor, responseExtractor));
 	}
 
 	// PUT
@@ -726,15 +716,15 @@ public class RestClient {
 	 * The {@code request} parameter can be a {@link HttpEntity} in order to add
 	 * additional HTTP headers to the request.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param request
 	 *            the Object to be PUT (may be {@code null})
 	 * @see HttpEntity
 	 */
-	public void put(URI url, @Nullable Object request) throws RestClientException {
+	public void put(URI uri, @Nullable Object request) throws RestClientException {
 		RequestProcessor requestProcessor = requestEntityProcessor(request);
-		execute(url, PUT, requestProcessor, null);
+		execute(uri, PUT, requestProcessor, null);
 	}
 
 	// DELETE
@@ -771,11 +761,11 @@ public class RestClient {
 	/**
 	 * Delete the resources at the specified URL.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 */
-	public void delete(URI url) throws RestClientException {
-		execute(url, DELETE, null, null);
+	public void delete(URI uri) throws RestClientException {
+		execute(uri, DELETE, null, null);
 	}
 
 	// exchange
@@ -845,7 +835,7 @@ public class RestClient {
 	 * request entity to the request, and returns the response as
 	 * {@link HttpResponseEntity}.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param method
 	 *            the HTTP method (GET, POST, etc)
@@ -857,12 +847,12 @@ public class RestClient {
 	 * @return the response as entity
 	 * @since 3.0.2
 	 */
-	public <T> HttpResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+	public <T> HttpResponseEntity<T> exchange(URI uri, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
 			Class<T> responseType) throws RestClientException {
 
 		RequestProcessor requestProcessor = requestEntityProcessor(requestEntity, responseType);
 		ResponseProcessor<HttpResponseEntity<T>> responseExtractor = responseEntityProcessor(responseType);
-		return nonNull(execute(url, method, requestProcessor, responseExtractor));
+		return nonNull(execute(uri, method, requestProcessor, responseExtractor));
 	}
 
 	/**
@@ -947,7 +937,7 @@ public class RestClient {
 	 * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;http://example.com&quot;, GET, null, myBean);
 	 * </pre>
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the URL
 	 * @param method
 	 *            the HTTP method (GET, POST, etc)
@@ -959,13 +949,13 @@ public class RestClient {
 	 * @return the response as entity
 	 * @since 3.2
 	 */
-	public <T> HttpResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+	public <T> HttpResponseEntity<T> exchange(URI uri, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
 			ParameterizedTypeReference<T> responseType) throws RestClientException {
 
 		Type type = responseType.getType();
 		RequestProcessor requestProcessor = requestEntityProcessor(requestEntity, type);
 		ResponseProcessor<HttpResponseEntity<T>> responseExtractor = responseEntityProcessor(type);
-		return nonNull(execute(url, method, requestProcessor, responseExtractor));
+		return nonNull(execute(uri, method, requestProcessor, responseExtractor));
 	}
 
 	/**
@@ -1079,10 +1069,10 @@ public class RestClient {
 	 * </ul>
 	 */
 	@Nullable
-	public <T> T execute(URI url, HttpMethod method, @Nullable RequestProcessor requestProcessor,
+	public <T> T execute(URI uri, HttpMethod method, @Nullable RequestProcessor requestProcessor,
 			@Nullable ResponseProcessor<T> responseExtractor) throws RestClientException {
 
-		return doExecute(url, method, requestProcessor, responseExtractor);
+		return doExecute(uri, method, requestProcessor, responseExtractor);
 	}
 
 	/**
@@ -1092,7 +1082,7 @@ public class RestClient {
 	 * {@link RequestProcessor}; the response with the
 	 * {@link ResponseProcessor}.
 	 * 
-	 * @param url
+	 * @param uri
 	 *            the fully-expanded URL to connect to
 	 * @param method
 	 *            the HTTP method to execute (GET, POST, etc.)
@@ -1104,24 +1094,24 @@ public class RestClient {
 	 * @return an arbitrary object, as returned by the {@link ResponseProcessor}
 	 */
 	@Nullable
-	protected <T> T doExecute(URI url, @Nullable HttpMethod method, @Nullable RequestProcessor requestProcessor,
+	protected <T> T doExecute(URI uri, @Nullable HttpMethod method, @Nullable RequestProcessor requestProcessor,
 			@Nullable ResponseProcessor<T> responseProcessor) throws RestClientException {
 
-		notNull(url, "URI is required");
+		notNull(uri, "URI is required");
 		notNull(method, "HttpMethod is required");
 		ClientHttpResponse response = null;
 		try {
-			ClientHttpRequest request = createRequest(url, method,
+			ClientHttpRequest request = createRequest(uri, method,
 					Objects.nonNull(requestProcessor) ? requestProcessor.getRequestHeaders() : null);
 			if (Objects.nonNull(requestProcessor)) {
 				requestProcessor.doWithRequest(request);
 			}
 			response = request.execute();
-			handleResponse(url, method, response);
+			handleResponse(uri, method, response);
 			return (Objects.nonNull(responseProcessor) ? responseProcessor.extractData(response) : null);
 		} catch (IOException ex) {
-			String resource = url.toString();
-			String query = url.getRawQuery();
+			String resource = uri.toString();
+			String query = uri.getRawQuery();
 			resource = (Objects.nonNull(query) ? resource.substring(0, resource.indexOf('?')) : resource);
 			throw new ResourceAccessException(
 					"I/O error on " + method.name() + " request for \"" + resource + "\": " + ex.getMessage(), ex);
@@ -1178,7 +1168,7 @@ public class RestClient {
 
 		@Override
 		public HttpHeaders getRequestHeaders() {
-			throw new UnsupportedOperationException();
+			return null;
 		}
 
 		@Override
@@ -1261,7 +1251,8 @@ public class RestClient {
 			} else {
 				Class<?> requestBodyClass = requestBody.getClass();
 				Type requestBodyType = (requestEntity instanceof HttpRequestEntity
-						? ((HttpRequestEntity<?>) requestEntity).getType() : requestBodyClass);
+						? ((HttpRequestEntity<?>) requestEntity).getType()
+						: requestBodyClass);
 				HttpHeaders httpHeaders = httpRequest.getHeaders();
 				HttpHeaders requestHeaders = requestEntity.getHeaders();
 				HttpMediaType requestContentType = requestHeaders.getContentType();

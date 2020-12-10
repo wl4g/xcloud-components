@@ -22,26 +22,40 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.alibaba.dubbo.rpc.Filter;
+import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
+import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
+import com.alibaba.dubbo.rpc.RpcException;
 import com.wl4g.components.common.web.WebUtils2;
 
 // TODO
 
 /**
- * {@link AttachmentRequestInterceptor}
+ * {@link AttachmentConsumerFIlter}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-07
  * @sine v1.0
  * @see https://blog.csdn.net/qq_38377774/article/details/108204661
+ * @see https://www.jianshu.com/p/089778701921
+ * @see https://github.com/apache/dubbo/issues/1533
  */
-public class AttachmentRequestInterceptor implements HandlerInterceptor {
+public class AttachmentConsumerFIlter implements /* HandlerInterceptor, */ Filter {
+
+	// @Override
+	// public boolean preHandle(HttpServletRequest request, HttpServletResponse
+	// response, Object handler) throws Exception {
+	// Map<String, String> params = WebUtils2.extractParamesOfFirst(request);
+	// RpcContext.getContext().setAttachments(params);
+	// return true;
+	// }
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		Map<String, String> params = WebUtils2.extractParamesOfFirst(request);
-		RpcContext.getContext().setAttachments(params);
-		return true;
+	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+		invocation.getAttachments().put("AccessJnl", "asfdadf");
+		return invoker.invoke(invocation);
 	}
 
 }
