@@ -250,7 +250,7 @@ public abstract class ReflectionUtils2 {
 	}
 
 	/**
-	 * Set the field represented by the supplied {@link Field field object} on
+	 * Sets the field represented by the supplied {@link Field field object} on
 	 * the specified {@link Object target object} to the specified
 	 * {@code value}. In accordance with {@link Field#set(Object, Object)}
 	 * semantics, the new value is automatically unwrapped if the underlying
@@ -267,7 +267,33 @@ public abstract class ReflectionUtils2 {
 	 *            the value to set (may be {@code null})
 	 */
 	public static void setField(Field field, Object target, Object value) {
+		setField(field, target, value, false);
+	}
+
+	/**
+	 * Sets the field represented by the supplied {@link Field field object} on
+	 * the specified {@link Object target object} to the specified
+	 * {@code value}. In accordance with {@link Field#set(Object, Object)}
+	 * semantics, the new value is automatically unwrapped if the underlying
+	 * field has a primitive type.
+	 * <p>
+	 * Thrown exceptions are handled via a call to
+	 * {@link #handleReflectionException(Exception)}.
+	 * 
+	 * @param field
+	 *            the field to set
+	 * @param target
+	 *            the target object on which to set the field
+	 * @param value
+	 *            the value to set (may be {@code null})
+	 * @param forceAccessible
+	 *            force accessible
+	 */
+	public static void setField(Field field, Object target, Object value, boolean forceAccessible) {
 		try {
+			if (forceAccessible && !field.isAccessible()) {
+				makeAccessible(field);
+			}
 			field.set(target, value);
 		} catch (IllegalAccessException ex) {
 			handleReflectionException(ex);
