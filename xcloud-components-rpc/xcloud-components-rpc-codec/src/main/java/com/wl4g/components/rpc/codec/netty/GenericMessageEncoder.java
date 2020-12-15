@@ -20,6 +20,7 @@
 package com.wl4g.components.rpc.codec.netty;
 
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.components.common.serialize.JacksonUtils.toJSONString;
 
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.rpc.codec.protocol.ProtocolWriter;
@@ -40,10 +41,26 @@ public class GenericMessageEncoder extends MessageToByteEncoder<ProtocolWriter> 
 
 	protected final SmartLogger log = getLogger(getClass());
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void encode(ChannelHandlerContext ctx, ProtocolWriter msg, ByteBuf out) throws Exception {
-		// TODO Auto-generated method stub
+		log.debug("Begin encoding output message... - {}", () -> toJSONString(msg));
 
+		try {
+			// Output bytebuf to channel
+			msg.writeByteBufEncode(out);
+			log.debug("Code complete, write to network buffer");
+
+			// http://www.oschina.net/question/1247524_250701
+			out.retain();
+
+			ctx.writeAndFlush(out);
+		} catch (Exception e) {
+			log.error("Encode error", e);
+		}
+
+		// Invoke other encodes
+		// ctx.fireChannelRead(out);
 	}
 
 }
