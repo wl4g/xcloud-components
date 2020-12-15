@@ -22,6 +22,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.core.env.Environment;
 
 /**
@@ -34,10 +36,13 @@ import org.springframework.core.env.Environment;
  */
 public class ApiVersionMappingWrapper {
 
+	@NotNull
 	private final ApiVersionManagementWrapper versionConfig;
+	@NotNull
 	private final List<ApiVersionWrapper> apiVersions;
 
-	public ApiVersionMappingWrapper(ApiVersionManagementWrapper versionConfig, List<ApiVersionWrapper> apiVersions) {
+	public ApiVersionMappingWrapper(@NotNull ApiVersionManagementWrapper versionConfig,
+			@NotNull List<ApiVersionWrapper> apiVersions) {
 		this.versionConfig = versionConfig;
 		this.apiVersions = apiVersions;
 	}

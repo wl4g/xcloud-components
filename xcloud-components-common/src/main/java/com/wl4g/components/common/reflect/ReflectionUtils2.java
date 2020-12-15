@@ -317,9 +317,34 @@ public abstract class ReflectionUtils2 {
 	 *            the target object from which to get the field
 	 * @return the field's current value
 	 */
-	public static Object getField(Field field, Object target) {
+	public static <T> T getField(Field field, Object target) {
+		return getField(field, target, false);
+	}
+
+	/**
+	 * Get the field represented by the supplied {@link Field field object} on
+	 * the specified {@link Object target object}. In accordance with
+	 * {@link Field#get(Object)} semantics, the returned value is automatically
+	 * wrapped if the underlying field has a primitive type.
+	 * <p>
+	 * Thrown exceptions are handled via a call to
+	 * {@link #handleReflectionException(Exception)}.
+	 * 
+	 * @param field
+	 *            the field to get
+	 * @param target
+	 *            the target object from which to get the field
+	 * @param forceAccessible
+	 *            force accessible
+	 * @return the field's current value
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T getField(Field field, Object target, boolean forceAccessible) {
 		try {
-			return field.get(target);
+			if (forceAccessible && !field.isAccessible()) {
+				makeAccessible(field);
+			}
+			return (T) field.get(target);
 		} catch (IllegalAccessException ex) {
 			handleReflectionException(ex);
 			throw new IllegalStateException(

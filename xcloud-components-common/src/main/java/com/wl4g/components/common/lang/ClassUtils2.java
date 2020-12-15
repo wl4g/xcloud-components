@@ -15,7 +15,10 @@
  */
 package com.wl4g.components.common.lang;
 
+import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static java.lang.Thread.currentThread;
+import static java.util.Objects.nonNull;
 
 import java.beans.Introspector;
 import java.io.Closeable;
@@ -42,18 +45,20 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import com.wl4g.components.common.collection.ConcurrentReferenceHashMap;
 import com.wl4g.components.common.reflect.ReflectionUtils2;
+import com.wl4g.components.common.reflect.TypeUtils2;
 
 /**
  * Miscellaneous class utility methods. Mainly for internal use within the
  * framework.
  * 
- * @see TypeUtils2
- * @see ReflectionUtils
+ * @see {@link TypeUtils2}
+ * @see {@link ReflectionUtils2}
  */
 public abstract class ClassUtils2 {
 
@@ -1588,6 +1593,56 @@ public abstract class ClassUtils2 {
 			}
 		}
 		return candidates;
+	}
+
+	// --- CUSTOM EXTENSIONS METHOS. ---
+
+	/**
+	 * Used to check whether an instance or class belongs to any of the
+	 * specified classes.
+	 * 
+	 * @param objOrClass
+	 * @param classes
+	 * @return
+	 */
+	public static boolean anyInstanceOf(@NotNull Object objOrClass, @NotNull Class<?>... classes) {
+		notNullOf(objOrClass, "objOrClass");
+		notNullOf(classes, "classes");
+		Class<?> ifIsClass = (objOrClass instanceof Class) ? ((Class<?>) objOrClass) : null;
+		for (Class<?> clazz : safeArrayToList(classes)) {
+			if (nonNull(ifIsClass)) {
+				if (clazz.isAssignableFrom(ifIsClass)) {
+					return true;
+				}
+			} else if (clazz.isInstance(objOrClass)) { // It's not a class
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Used to check whether an instance or class belongs to all of the
+	 * specified classes.
+	 * 
+	 * @param objOrClass
+	 * @param classes
+	 * @return
+	 */
+	public static boolean allInstanceOf(@NotNull Object objOrClass, @NotNull Class<?>... classes) {
+		notNullOf(objOrClass, "objOrClass");
+		notNullOf(classes, "classes");
+		Class<?> ifIsClass = (objOrClass instanceof Class) ? ((Class<?>) objOrClass) : null;
+		for (Class<?> clazz : safeArrayToList(classes)) {
+			if (nonNull(ifIsClass)) {
+				if (!clazz.isAssignableFrom(ifIsClass)) {
+					return false;
+				}
+			} else if (!clazz.isInstance(objOrClass)) { // It's not a class
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

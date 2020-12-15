@@ -46,20 +46,36 @@ public @interface EnableApiVersionManagement {
 	/**
 	 * Request parameter name for api version mappings. </br>
 	 * </br>
-	 * for example: {"platform", "${myconfig.apiVersion.myVersionParamName}"}
+	 * for example: {@linkplain #versionParams}({"_v", "_version",
+	 * "${myconfig.apiVersion.myVersionParamName}"}) </br>
+	 * </br>
+	 * 
+	 * Notes: The parameters are extracted from the request URL parameters
+	 * first. If they are not found, they are extracted from the request header.
+	 * If they are not found, then try to add the prefix <b>"x-"</b> to get them
+	 * from scratch. If they are still not found, it means that they cannot be
+	 * obtained.
 	 * 
 	 * @return
 	 */
-	String[] versionParams() default { "version", "apiVersion", "_v" };
+	String[] versionParams() default { "_v" };
 
 	/**
 	 * Request parameter name for api versions group mappings. </br>
 	 * </br>
-	 * for example: {"platform", "${myconfig.apiVersion.myGroupParamName}"}
+	 * for example: {@linkplain #groupParams}({"clientType", "platform",
+	 * "${myconfig.apiVersion.myGroupParamName}"}) </br>
+	 * </br>
+	 * 
+	 * Notes: The parameters are extracted from the request URL parameters
+	 * first. If they are not found, they are extracted from the request header.
+	 * If they are not found, then try to add the prefix <b>"x-"</b> to get them
+	 * from scratch. If they are still not found, it means that they cannot be
+	 * obtained.
 	 * 
 	 * @return
 	 */
-	String[] groupParams() default { "clientType", "platform" };
+	String[] groupParams() default { "platform" };
 
 	/**
 	 * Version number size comparator for multi version automatic mapping. (bean

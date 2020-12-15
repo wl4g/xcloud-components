@@ -17,12 +17,14 @@ package com.wl4g.components.core.web.versions;
 
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
+import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
@@ -46,18 +48,21 @@ public abstract class VersionConditionSupport {
 	 * API version mapping wrapper, attributes from {@link ApiVersionMapping}
 	 * and {@link EnableApiVersionManagement}
 	 */
+	@NotNull
 	private final ApiVersionMappingWrapper versionMapping;
 
 	/**
 	 * {@link org.springframework.web.servlet.mvc.method.RequestMappingInfo#getMatchingCondition(HttpServletRequest)}
 	 */
+	@Nullable
 	private final List<String> matchingCandidateVersions;
 
-	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping) {
+	public VersionConditionSupport(@NotNull ApiVersionMappingWrapper versionMapping) {
 		this(versionMapping, null);
 	}
 
-	public VersionConditionSupport(ApiVersionMappingWrapper versionMapping, @Nullable List<String> matchingCandidateVersions) {
+	public VersionConditionSupport(@NotNull ApiVersionMappingWrapper versionMapping,
+			@Nullable List<String> matchingCandidateVersions) {
 		this.versionMapping = notNullOf(versionMapping, "versionMapping");
 		this.matchingCandidateVersions = matchingCandidateVersions;
 	}
@@ -72,7 +77,9 @@ public abstract class VersionConditionSupport {
 	protected String findRequestParameter(HttpServletRequest request, String[] names) {
 		for (String name : names) {
 			String value = request.getParameter(name);
-			value = isBlank(value) ? request.getHeader(name) : value;
+			value = (isBlank(value) || equalsAnyIgnoreCase(value, "null", "undefined")) ? request.getHeader(name) : value;
+			// HTTP headers specification, for example: 'X-Version: 2.0.10.1'
+			value = isBlank(value) ? request.getHeader("x-".concat(name)) : value;
 			if (!isBlank(value)) {
 				return value;
 			}
