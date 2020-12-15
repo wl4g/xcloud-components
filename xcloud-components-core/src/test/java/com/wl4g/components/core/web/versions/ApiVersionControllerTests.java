@@ -27,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigurer;
 import com.wl4g.components.core.web.versions.annotation.ApiVersion;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
-import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionManagement;
 
 /**
  * {@link ApiVersionControllerTests}
@@ -37,7 +37,7 @@ import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
  * @sine v1.0
  * @see https://spring.io/guides/gs/testing-web/
  */
-@EnableApiVersionMapping
+@EnableApiVersionManagement
 @SpringBootApplication(scanBasePackageClasses = WebMvcHandlerMappingConfigurer.class)
 public class ApiVersionControllerTests {
 
@@ -55,7 +55,7 @@ public class ApiVersionControllerTests {
 	 * 
 	 * Client info parameter alias name includes, eg: 'platform' or 'clientType'
 	 * 
-	 * refer to {@link EnableApiVersionMapping}
+	 * refer to {@link EnableApiVersionManagement}
 	 * </pre>
 	 */
 	private static void checkApiVersionsMatchsCase1() {

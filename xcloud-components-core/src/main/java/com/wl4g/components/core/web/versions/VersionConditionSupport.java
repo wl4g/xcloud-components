@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
-import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping;
-import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingWrapper;
+import com.wl4g.components.core.web.versions.annotation.EnableApiVersionManagement;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionManagementWrapper;
 
 /**
  * {@link VersionConditionSupport}
@@ -44,7 +44,7 @@ public abstract class VersionConditionSupport {
 
 	/**
 	 * API version mapping wrapper, attributes from {@link ApiVersionMapping}
-	 * and {@link EnableApiVersionMapping}
+	 * and {@link EnableApiVersionManagement}
 	 */
 	private final ApiVersionMappingWrapper versionMapping;
 
@@ -88,7 +88,7 @@ public abstract class VersionConditionSupport {
 		return matchingCandidateVersions;
 	}
 
-	protected EnableApiVersionMappingWrapper getVersionConfig() {
+	protected ApiVersionManagementWrapper getVersionConfig() {
 		return versionMapping.getVersionConfig();
 	}
 

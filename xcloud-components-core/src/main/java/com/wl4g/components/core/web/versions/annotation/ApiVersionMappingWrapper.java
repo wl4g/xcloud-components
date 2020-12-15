@@ -34,15 +34,15 @@ import org.springframework.core.env.Environment;
  */
 public class ApiVersionMappingWrapper {
 
-	private final EnableApiVersionMappingWrapper versionConfig;
+	private final ApiVersionManagementWrapper versionConfig;
 	private final List<ApiVersionWrapper> apiVersions;
 
-	public ApiVersionMappingWrapper(EnableApiVersionMappingWrapper versionConfig, List<ApiVersionWrapper> apiVersions) {
+	public ApiVersionMappingWrapper(ApiVersionManagementWrapper versionConfig, List<ApiVersionWrapper> apiVersions) {
 		this.versionConfig = versionConfig;
 		this.apiVersions = apiVersions;
 	}
 
-	public EnableApiVersionMappingWrapper getVersionConfig() {
+	public ApiVersionManagementWrapper getVersionConfig() {
 		return versionConfig;
 	}
 
@@ -88,7 +88,7 @@ public class ApiVersionMappingWrapper {
 	 * @param mapping
 	 * @return
 	 */
-	public static ApiVersionMappingWrapper wrap(Environment environment, EnableApiVersionMappingWrapper versionConfig,
+	public static ApiVersionMappingWrapper wrap(Environment environment, ApiVersionManagementWrapper versionConfig,
 			ApiVersionMapping mapping) {
 		List<ApiVersionWrapper> apiVersions = new ArrayList<>();
 

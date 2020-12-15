@@ -42,10 +42,10 @@ import com.wl4g.components.common.log.SmartLogger;
 import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 import com.wl4g.components.core.web.versions.reactive.ApiVersionRequestHandlerMapping;
 
-import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.SENSITIVE_PARAMS;
-import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_PARAMS;
-import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.GROUP_PARAMS;
-import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionMapping.VERSION_COMPARATOR;
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionManagement.SENSITIVE_PARAMS;
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionManagement.VERSION_PARAMS;
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionManagement.GROUP_PARAMS;
+import static com.wl4g.components.core.web.versions.annotation.EnableApiVersionManagement.VERSION_COMPARATOR;
 import static com.wl4g.components.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.components.common.lang.Assert2.notNullOf;
 import static com.wl4g.components.common.log.SmartLoggerFactory.getLogger;
@@ -86,7 +86,7 @@ public class ApiVersionMappingRegistrar
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		AnnotationAttributes annoAttrs = AnnotationAttributes
-				.fromMap(metadata.getAnnotationAttributes(EnableApiVersionMapping.class.getName()));
+				.fromMap(metadata.getAnnotationAttributes(EnableApiVersionManagement.class.getName()));
 		if (!isNull(annoAttrs)) {
 			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 
@@ -113,7 +113,7 @@ public class ApiVersionMappingRegistrar
 		SimpleVersionComparator versionComparator = (SimpleVersionComparator) beanFactory
 				.getBean(annoAttrs.getClass(VERSION_COMPARATOR));
 
-		builder.addPropertyValue(VERSION_CONFIG, new EnableApiVersionMappingWrapper(annoAttrs.getBoolean(SENSITIVE_PARAMS),
+		builder.addPropertyValue(VERSION_CONFIG, new ApiVersionManagementWrapper(annoAttrs.getBoolean(SENSITIVE_PARAMS),
 				versionParams, groupParams, versionComparator));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();

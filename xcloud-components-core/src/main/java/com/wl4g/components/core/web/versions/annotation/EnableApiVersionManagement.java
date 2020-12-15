@@ -34,7 +34,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 @Import({ ApiVersionMappingRegistrar.class })
-public @interface EnableApiVersionMapping {
+public @interface EnableApiVersionManagement {
 
 	/**
 	 * Whether to be case sensitive when matching request parameters.

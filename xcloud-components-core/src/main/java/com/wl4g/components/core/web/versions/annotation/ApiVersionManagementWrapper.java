@@ -18,36 +18,36 @@ package com.wl4g.components.core.web.versions.annotation;
 import com.wl4g.components.core.web.versions.SimpleVersionComparator;
 
 /**
- * {@link EnableApiVersionMappingWrapper}
+ * {@link ApiVersionManagementWrapper}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-04
  * @sine v1.0
  * @see
  */
-public class EnableApiVersionMappingWrapper {
+public class ApiVersionManagementWrapper {
 
 	/**
-	 * {@link EnableApiVersionMapping#sensitiveParams()}
+	 * {@link EnableApiVersionManagement#sensitiveParams()}
 	 */
 	private final boolean sensitiveParams;
 
 	/**
-	 * {@link EnableApiVersionMapping#versionParams()}
+	 * {@link EnableApiVersionManagement#versionParams()}
 	 */
 	private final String[] versionParams;
 
 	/**
-	 * {@link EnableApiVersionMapping#groupParams()}
+	 * {@link EnableApiVersionManagement#groupParams()}
 	 */
 	private final String[] groupParams;
 
 	/**
-	 * {@link EnableApiVersionMapping#versionComparator()}
+	 * {@link EnableApiVersionManagement#versionComparator()}
 	 */
 	private final SimpleVersionComparator versionComparator;
 
-	public EnableApiVersionMappingWrapper(boolean sensitiveParams, String[] versionParams, String[] groupParams,
+	public ApiVersionManagementWrapper(boolean sensitiveParams, String[] versionParams, String[] groupParams,
 			SimpleVersionComparator versionComparator) {
 		super();
 		this.sensitiveParams = sensitiveParams;

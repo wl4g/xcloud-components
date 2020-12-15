@@ -27,7 +27,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
-import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingWrapper;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionManagementWrapper;
 
 //
 // TODO
@@ -52,17 +52,17 @@ import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingW
  */
 public class ApiVersionRequestHandlerMapping extends RequestMappingHandlerMapping {
 
-	private EnableApiVersionMappingWrapper versionConfig;
+	private ApiVersionManagementWrapper versionConfig;
 
 	public ApiVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
-	public EnableApiVersionMappingWrapper getVersionConfig() {
+	public ApiVersionManagementWrapper getVersionConfig() {
 		return versionConfig;
 	}
 
-	public void setVersionConfig(EnableApiVersionMappingWrapper versionConfig) {
+	public void setVersionConfig(ApiVersionManagementWrapper versionConfig) {
 		this.versionConfig = versionConfig;
 	}
 

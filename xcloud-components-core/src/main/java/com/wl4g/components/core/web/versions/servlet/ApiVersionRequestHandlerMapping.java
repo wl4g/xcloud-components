@@ -33,7 +33,7 @@ import com.wl4g.components.core.web.method.mapping.WebMvcHandlerMappingConfigure
 import com.wl4g.components.core.web.versions.AmbiguousApiVersionMappingException;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.components.core.web.versions.annotation.ApiVersionMappingWrapper;
-import com.wl4g.components.core.web.versions.annotation.EnableApiVersionMappingWrapper;
+import com.wl4g.components.core.web.versions.annotation.ApiVersionManagementWrapper;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,17 +65,17 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
  */
 public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSupport {
 
-	private EnableApiVersionMappingWrapper versionConfig;
+	private ApiVersionManagementWrapper versionConfig;
 
 	public ApiVersionRequestHandlerMapping() {
 		setOrder(Ordered.HIGHEST_PRECEDENCE + 5);
 	}
 
-	public EnableApiVersionMappingWrapper getVersionConfig() {
+	public ApiVersionManagementWrapper getVersionConfig() {
 		return versionConfig;
 	}
 
-	public void setVersionConfig(EnableApiVersionMappingWrapper versionConfig) {
+	public void setVersionConfig(ApiVersionManagementWrapper versionConfig) {
 		this.versionConfig = versionConfig;
 	}
 
