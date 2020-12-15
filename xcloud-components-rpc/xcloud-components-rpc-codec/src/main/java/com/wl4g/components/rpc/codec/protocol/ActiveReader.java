@@ -17,16 +17,36 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.components.rpc.codec;
+package com.wl4g.components.rpc.codec.protocol;
+
+import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * {@link BytesCodec}
+ * {@link ActiveReader}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-15
  * @sine v1.0
  * @see
  */
-public interface BytesCodec {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ActiveReader extends ProtocolReader {
+	private static final long serialVersionUID = 1324036119833744692L;
+
+	private byte reserved;
+
+	@Override
+	public void readByteBufDecode(ByteBuf in) throws Exception {
+		setReserved(in.readByte());
+	}
 
 }
