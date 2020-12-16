@@ -81,9 +81,7 @@ public class FeignProxyMvcAutoConfiguration implements InitializingBean {
 	@Autowired
 	private ConfigurableBeanFactory beanFactory;
 
-	//
 	// --- Feign request handler method resolver. ---
-	//
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -208,9 +206,7 @@ public class FeignProxyMvcAutoConfiguration implements InitializingBean {
 		return parameter;
 	}
 
-	//
 	// --- Feign request handler mapping. ---
-	//
 
 	@Bean
 	public FeignProxyRequestHandlerMapping feignProxyRequestHandlerMapping() {

@@ -15,6 +15,7 @@
  */
 package com.wl4g.components.core.web.method.mapping;
 
+import com.google.common.base.Predicate;
 import com.wl4g.components.common.collection.CollectionUtils2;
 import static com.wl4g.components.common.collection.Collections2.safeList;
 
@@ -52,6 +53,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 /**
  * Global web MVC {@link RequestMapping} unique handler mapping. (supports multi
@@ -78,6 +80,14 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
+	@Nullable
+	@Autowired(required = false)
+	private CustomRequestMappingHandlerCondition handlerCondition;
+
+	@Nullable
+	@Autowired(required = false)
+	private List<ServletHandlerMappingSupport> handlerMappings;
+
 	/**
 	 * Directly new create instance, spring is automatically injected into the
 	 * container later. refer:
@@ -90,7 +100,16 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartServletHandlerMapping();
+		if (!CollectionUtils2.isEmpty(handlerMappings)) {
+			return new SmartServletHandlerMapping(handlerCondition, handlerMappings);
+		}
+
+		/**
+		 * If there is no custom request mapping that uses any extensions, don't
+		 * need to enable it. refer to
+		 * {@link WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
+		 */
+		return null;
 	}
 
 	/**
@@ -103,9 +122,16 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 */
 		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(32));
 
-		@Nullable
-		@Autowired(required = false)
-		private List<ServletHandlerMappingSupport> handlerMappings;
+		/**
+		 * Conditional predicate used to check whether the bean is a request
+		 * handler.
+		 */
+		private final CustomRequestMappingHandlerCondition handlerCondition;
+
+		/**
+		 * All extensions custom request handler mappings.
+		 */
+		private final List<ServletHandlerMappingSupport> handlerMappings;
 
 		private boolean print = false;
 
@@ -113,16 +139,29 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public SmartServletHandlerMapping() {
-			setOrder(HIGHEST_PRECEDENCE); // By default order
+		public SmartServletHandlerMapping(@Nullable CustomRequestMappingHandlerCondition handlerCondition,
+				@Nullable List<ServletHandlerMappingSupport> handlerMappings) {
+			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
+			this.handlerCondition = isNull(handlerCondition) ? (input -> true) : handlerCondition;
+
+			// The multiple custom handlers to adjust the execution
+			// priority, must sorted.
+			this.handlerMappings = handlerMappings;
+			if (!CollectionUtils2.isEmpty(handlerMappings)) {
+				sort(handlerMappings);
+			}
 		}
 
 		@Override
 		public void afterPropertiesSet() {
 			super.afterPropertiesSet();
-
-			// Clear useless mappings.
+			// Clean useless mappings.
 			this.registeredMappings.clear();
+		}
+
+		@Override
+		protected boolean isHandler(Class<?> beanType) {
+			return handlerCondition.apply(beanType) && super.isHandler(beanType);
 		}
 
 		@Override
@@ -344,6 +383,14 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			return this.delegate;
 		}
 
+	}
+
+	/**
+	 * Conditional predicate used to check whether the bean is a request
+	 * handler.
+	 */
+	@FunctionalInterface
+	public static interface CustomRequestMappingHandlerCondition extends Predicate<Class<?>> {
 	}
 
 }

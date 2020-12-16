@@ -22,6 +22,7 @@ package com.wl4g.components.common.function;
  * @version 2020年1月7日 v1.0.0
  * @see {@link java.util.function.Function}
  */
+@FunctionalInterface
 public interface CallbackFunction<T> {
 
 	/**
