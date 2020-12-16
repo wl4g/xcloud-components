@@ -44,9 +44,13 @@ public @interface ApiVersion {
 	 * Custom client groups definition value (Usually the user client type).
 	 * </br>
 	 * </br>
-	 * <b>for example:</b> { "Android", "iOS", "iPad", "WebPC", "NativePC",
-	 * "WechatMp", "WechatApplet", "BaiduApplet", "AliApplet",
-	 * "${myconfig.apiVersion.myMobileType}" } </br>
+	 * 
+	 * for example:
+	 * 
+	 * <pre>
+	 * {@code @}{@link ApiVersion}({@linkplain #groups}={"Android","iOS","iPad","WebPC","WechatMp","${myconfig.apiVersion.myMobileType}"})
+	 * </pre>
+	 * 
 	 * </br>
 	 * 
 	 * Notes: Optional, when empty, the matching request ignores this condition.
@@ -60,8 +64,20 @@ public @interface ApiVersion {
 	 * </br>
 	 * format refer to: {major}.{minor}.{revision}.{extension} </br>
 	 * </br>
-	 * for example1: 1.0.2.10b </br>
-	 * for example2: ${myconfig.apiVersion.module1.version20201212}
+	 * </br>
+	 * 
+	 * for example1:
+	 * 
+	 * <pre>
+	 * {@code @}{@link ApiVersion}("1.0.2.10b")
+	 * </pre>
+	 * 
+	 * for example2:
+	 * 
+	 * <pre>
+	 * {@code @}{@link ApiVersion}("${myconfig.apiVersion.module1.version20201212}")
+	 * </pre>
+	 * 
 	 * </p>
 	 * 
 	 * @return

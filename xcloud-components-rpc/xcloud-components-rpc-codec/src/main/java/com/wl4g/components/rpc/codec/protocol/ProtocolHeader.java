@@ -44,7 +44,7 @@ public class ProtocolHeader implements Serializable {
 	private static final long serialVersionUID = -5927920320338746177L;
 
 	private int totalLength; // 消息总长度(含消息头及消息体)
-	private int actionId; // 命令或响应类型
+	private int commandId; // 命令或响应类型
 	private int sequenceId; // 消息流水号,顺序累加,步长为1,循环使用（一对请求和应答消息的流水号必须相同）
 
 }

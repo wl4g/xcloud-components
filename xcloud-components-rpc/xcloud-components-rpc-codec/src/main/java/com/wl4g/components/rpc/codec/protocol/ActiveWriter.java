@@ -47,7 +47,7 @@ public class ActiveWriter extends ProtocolWriter {
 	@Override
 	public void writeByteBufEncode(ByteBuf out) throws Exception {
 		out.writeInt(getHeader().getTotalLength());
-		out.writeInt(getHeader().getActionId());
+		out.writeInt(getHeader().getCommandId());
 		out.writeInt(getHeader().getSequenceId());
 	}
 

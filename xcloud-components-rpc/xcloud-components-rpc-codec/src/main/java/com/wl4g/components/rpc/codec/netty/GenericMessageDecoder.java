@@ -48,19 +48,16 @@ public class GenericMessageDecoder extends ByteToMessageDecoder implements Bytes
 		try {
 			ProtocolReader decoded = null;
 			int len = in.readableBytes();
-			log.debug("Decoded total bytes are: {}", len);
+			log.debug("Decoded total bytes: {}", len);
 
 			// Mark the current readindex location
 			in.markReaderIndex();
 
 			// Read message header
 			int totalLength = in.readInt(); // 应答消息总长度字段
-			int actionId = in.readInt(); // 应答命令类型
+			int commandId = in.readInt(); // 应答命令类型
 			int sequenceId = in.readInt(); // 应答消息流水
-			log.debug("Decoded headers:");
-			log.debug("TotalLength:{}", totalLength);
-			log.debug("ActionId:{}", actionId);
-			log.debug("SequenceId:{}", sequenceId);
+			log.debug("Decoded headers. - TotalLength: {}, CommandId: {}, SequenceId: {}", totalLength, commandId, sequenceId);
 
 			if (len < totalLength) {
 				/**
@@ -75,11 +72,11 @@ public class GenericMessageDecoder extends ByteToMessageDecoder implements Bytes
 			}
 
 			// Matchs and decodes protocol message.
-			decoded = parseAndMatchingProtocol(actionId);
+			decoded = dispatchMatchingProtocol(commandId);
 
-			// Sets headers
+			// Sets headers.
 			decoded.getHeader().setTotalLength(totalLength);
-			decoded.getHeader().setActionId(actionId);
+			decoded.getHeader().setCommandId(commandId);
 			decoded.getHeader().setSequenceId(sequenceId);
 
 			// Decode body
@@ -96,12 +93,12 @@ public class GenericMessageDecoder extends ByteToMessageDecoder implements Bytes
 	 * Match and obtain the corresponding response message class instance
 	 * according to ActionID
 	 * 
-	 * @param actionId
+	 * @param commandId
 	 * @return
 	 */
-	private ProtocolReader parseAndMatchingProtocol(int actionId) {
+	private ProtocolReader dispatchMatchingProtocol(int commandId) {
 		ProtocolReader readed = null;
-		switch (actionId) {
+		switch (commandId) {
 		case 0x80000001: // CMPP_CONNECT_RESP
 			readed = new ConnectReader();
 			break;
@@ -111,7 +108,7 @@ public class GenericMessageDecoder extends ByteToMessageDecoder implements Bytes
 			readed = new ActiveReader();
 			break;
 		default:
-			log.warn("Unknown message, actionId: {}", actionId);
+			log.warn("Unknown message, commandId: {}", commandId);
 			break;
 		}
 		return readed;

@@ -216,11 +216,17 @@ public abstract class WebUtils2 {
 	 * @param urlQuery
 	 * @return
 	 */
-	public static Map<String, String> toQueryParams(String urlQuery) {
+	public static Map<String, String> toQueryParams(@Nullable String urlQuery) {
 		Map<String, String> parameters = new LinkedHashMap<>(4);
 		if (isBlank(urlQuery))
 			return parameters;
 		try {
+			// Remove the character to the left of the '?'
+			int separQuestIndex = urlQuery.lastIndexOf("?");
+			if (separQuestIndex > 0) {
+				urlQuery = urlQuery.substring(separQuestIndex + 1);
+			}
+
 			String[] paramPairs = urlQuery.split("&");
 			for (int i = 0; i < paramPairs.length; i++) {
 				String[] parts = trimToEmpty(paramPairs[i]).split("=");
@@ -242,7 +248,7 @@ public abstract class WebUtils2 {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String applyQueryURL(String uri, Map queryParams) {
+	public static String applyQueryURL(@Nullable String uri, @Nullable Map queryParams) {
 		if (CollectionUtils2.isEmpty(queryParams) || isBlank(uri)) {
 			return uri;
 		}
@@ -288,8 +294,8 @@ public abstract class WebUtils2 {
 	 * @param methods
 	 * @throws UnsupportedOperationException
 	 */
-	public static void rejectRequestMethod(boolean allowMode, ServletRequest request, ServletResponse response, String... methods)
-			throws UnsupportedOperationException {
+	public static void rejectRequestMethod(boolean allowMode, @NotNull ServletRequest request, @NotNull ServletResponse response,
+			String... methods) throws UnsupportedOperationException {
 		notNullOf(request, "request");
 		notNullOf(response, "response");
 		if (!isEmptyArray(methods)) {
@@ -323,7 +329,7 @@ public abstract class WebUtils2 {
 	 *            the unparsed matrix variables string
 	 * @return a map with matrix variable names and values (never {@code null})
 	 */
-	public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
+	public static MultiValueMap<String, String> parseMatrixVariables(@Nullable String matrixVariables) {
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
 		if (!isBlank(matrixVariables)) {
 			return result;
@@ -351,7 +357,7 @@ public abstract class WebUtils2 {
 	 * @param params
 	 * @return
 	 */
-	public static String getMultiMapFirstValue(Map<String, List<String>> params, String name) {
+	public static String getMultiMapFirstValue(@Nullable Map<String, List<String>> params, String name) {
 		if (isNull(params)) {
 			return null;
 		}
