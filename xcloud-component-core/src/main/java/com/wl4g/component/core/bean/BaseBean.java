@@ -277,8 +277,12 @@ public abstract class BaseBean implements Serializable {
 		// curPrincipal), err.getMessage());
 		// }
 		// }
+		if(isNull(principal)){
+			return -1L;
+		}else{
+			return Long.parseLong(valueOf(principal));
+		}
 
-		return Long.parseLong(valueOf(principal));
 	}
 
 	/**
