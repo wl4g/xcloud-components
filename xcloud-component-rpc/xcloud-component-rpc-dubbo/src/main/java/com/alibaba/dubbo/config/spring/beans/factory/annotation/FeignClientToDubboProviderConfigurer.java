@@ -60,10 +60,10 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static com.wl4g.components.common.lang.Assert2.hasText;
-import static com.wl4g.components.rpc.core.springcloudfeign.util.FeignProxiesUtils.generateFeignProxyBeanName;
-import static com.wl4g.components.rpc.core.springcloudfeign.util.FeignProxiesUtils.isFeignProxyBean;
-import static com.wl4g.components.rpc.core.springcloudfeign.util.FeignProxiesUtils.FEIGN_DUBBO_ORDER;
+import static com.wl4g.component.common.lang.Assert2.hasText;
+import static com.wl4g.component.rpc.feign.util.FeignProxiesUtils.FEIGN_DUBBO_ORDER;
+import static com.wl4g.component.rpc.feign.util.FeignProxiesUtils.generateFeignProxyBeanName;
+import static com.wl4g.component.rpc.feign.util.FeignProxiesUtils.isFeignProxyBean;
 
 /**
  * {@code @FeignClient} service to dubbo's provider configurer.
@@ -209,8 +209,8 @@ public class FeignClientToDubboProviderConfigurer
 	 * @param registry
 	 * @param scanner
 	 * @param beanNameGenerator
-	 * @see {@link com.wl4g.components.rpc.springcloud.feign.FeignProxyController}
-	 * @see {@link com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesConfigurer#registerFeignProxyBean()}
+	 * @see {@link com.wl4g.component.rpc.springcloud.feign.FeignProxyController}
+	 * @see {@link com.wl4g.component.rpc.springcloud.feign.FeignProviderProxiesConfigurer#registerFeignProxyBean()}
 	 */
 	private void registerServiceBeansWithFeignProxies(BeanDefinitionRegistry registry,
 			DubboClassPathBeanDefinitionScanner scanner, BeanNameGenerator beanNameGenerator) {
@@ -249,7 +249,7 @@ public class FeignClientToDubboProviderConfigurer
 		 * {@link org.springframework.stereotype.Service} instead of
 		 * {@link RestController} is realized {@link ServiceBean#ref} The bean
 		 * of the proxy should be set, see:
-		 * {@link com.wl4g.components.rpc.springcloud.feign.FeignProviderProxiesRegistrar#registerFeignClients()}
+		 * {@link com.wl4g.component.rpc.springcloud.feign.FeignProviderProxiesRegistrar#registerFeignClients()}
 		 */
 		return (definition, registry0) -> {
 			String beanClassName = hasText(definition.getBeanClassName(), "No bean class name set");
