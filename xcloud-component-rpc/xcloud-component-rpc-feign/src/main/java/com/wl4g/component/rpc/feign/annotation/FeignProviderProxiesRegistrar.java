@@ -57,7 +57,7 @@ import java.util.*;
  * @see Implementation simulated of refer:
  *      {@link org.springframework.cloud.openfeign.FeignClientsRegistrar}
  */
-class FeignProviderProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+public class FeignProviderProxiesRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
 
 	private ResourceLoader resourceLoader;
 	private Environment environment;

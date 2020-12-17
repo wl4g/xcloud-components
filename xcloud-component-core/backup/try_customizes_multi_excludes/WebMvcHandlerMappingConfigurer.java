@@ -16,12 +16,14 @@
 package com.wl4g.component.core.web.method.mapping;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.wl4g.component.common.collection.CollectionUtils2;
 
-import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.core.web.method.mapping.WebMvcHandlerMappingConfigurer.CustomExcludeHandlerTypeFilter.NONE_EXCLUDES;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 
@@ -53,8 +55,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
@@ -83,15 +83,12 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
 	@Nullable
-	private String[] scanBasePackages;
+	@Autowired(required = false)
+	private List<CustomExcludeHandlerTypeFilter> excludeFilters;
 
 	@Nullable
 	@Autowired(required = false)
 	private List<ServletHandlerMappingSupport> handlerMappings;
-
-	public void setScanBasePackages(String[] scanBasePackages) {
-		this.scanBasePackages = scanBasePackages;
-	}
 
 	/**
 	 * Directly new create instance, spring is automatically injected into the
@@ -106,8 +103,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
 		if (!CollectionUtils2.isEmpty(handlerMappings)) {
-			return new SmartServletHandlerMapping(beanType -> startsWithAny(getPackageName(beanType), scanBasePackages),
-					handlerMappings);
+			return new SmartServletHandlerMapping(excludeFilters, handlerMappings);
 		}
 
 		/**
@@ -129,10 +125,10 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(32));
 
 		/**
-		 * Include conditionals predicate used to check whether the bean is a
-		 * request handler.
+		 * Merged exclude conditionals predicate used to check whether the bean
+		 * is a request handler.
 		 */
-		private final Predicate<Class<?>> includeFilter;
+		private final Predicate<Class<?>> mergedExcludeHandlerMappingFilters;
 
 		/**
 		 * All extensions custom request handler mappings.
@@ -145,11 +141,12 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public SmartServletHandlerMapping(@Nullable Predicate<Class<?>> includeFilters,
+		public SmartServletHandlerMapping(@Nullable List<CustomExcludeHandlerTypeFilter> excludeFilters,
 				@Nullable List<ServletHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
-			this.includeFilter = isNull(includeFilters) ? (beanType -> true) : includeFilters;
+			this.mergedExcludeHandlerMappingFilters = Predicates
+					.and(CollectionUtils2.isEmpty(excludeFilters) ? NONE_EXCLUDES : excludeFilters);
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -169,7 +166,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
-			return includeFilter.apply(beanType) && super.isHandler(beanType);
+			return !mergedExcludeHandlerMappingFilters.apply(beanType) && super.isHandler(beanType);
 		}
 
 		@Override
@@ -391,6 +388,42 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			return this.delegate;
 		}
 
+	}
+
+	/**
+	 * Conditional predicate used to check whether the bean is a request mapping
+	 * handler type. </br>
+	 * </br>
+	 * Notes: When there are more than one instance of such a condition, the
+	 * logical and is executed, that is, only if all the exclusion conditions
+	 * are true at the same time, it means exclusion. source code refer to
+	 * {@link SmartServletHandlerMapping#isHandler()}
+	 */
+	@FunctionalInterface
+	public static interface CustomExcludeHandlerTypeFilter extends Predicate<Class<?>> {
+		public static final List<CustomExcludeHandlerTypeFilter> NONE_EXCLUDES = singletonList(beanType -> false);
+	}
+
+	/**
+	 * Match the given point annotation with the annotation on the bean's
+	 * declaration class, and exclude if it matches.
+	 */
+	public static class WithExcludeAnnotationClass implements CustomExcludeHandlerTypeFilter {
+		@Override
+		public boolean apply(@org.checkerframework.checker.nullness.qual.Nullable Class<?> input) {
+			return false;
+		}
+	}
+
+	/**
+	 * Match the given point annotation with the annotation on the bean's
+	 * declaration class, and exclude if it matches.
+	 */
+	public static class WithExcludeAnnotation implements CustomExcludeHandlerTypeFilter {
+		@Override
+		public boolean apply(@org.checkerframework.checker.nullness.qual.Nullable Class<?> input) {
+			return false;
+		}
 	}
 
 }

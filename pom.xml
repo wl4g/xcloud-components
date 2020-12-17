@@ -103,7 +103,7 @@
 		<swagger-v3.version>2.1.6</swagger-v3.version>
 		<jna.version>5.5.0</jna.version>
 		<!-- Generic tool's. -->
-		<guava.version>20.0</guava.version>
+		<guava.version>28.1-jre</guava.version>
 		<guava-retrying.version>2.0.0</guava-retrying.version>
 		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-math3.version>3.6.1</commons-math3.version>

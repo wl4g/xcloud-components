@@ -101,6 +101,8 @@ public class FeignProviderProxiesConfigurer
 		this.environment = environment;
 	}
 
+	// --- Feign provider proxies process. ---
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		notNull(this.basePackages, "Property 'basePackage' is required");

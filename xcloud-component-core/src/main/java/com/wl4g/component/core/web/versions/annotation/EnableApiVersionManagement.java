@@ -16,8 +16,13 @@
 package com.wl4g.component.core.web.versions.annotation;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Indexed;
 
+import com.wl4g.component.core.web.method.mapping.annotation.EnableSmartHandlerMapping;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
+
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.*;
 
@@ -30,9 +35,11 @@ import java.lang.annotation.*;
  * @sine v1.0
  * @see
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Retention(RUNTIME)
+@Target({ TYPE })
 @Documented
+@Indexed
+@EnableSmartHandlerMapping
 @Import({ ApiVersionMappingRegistrar.class })
 public @interface EnableApiVersionManagement {
 
