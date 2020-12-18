@@ -31,6 +31,8 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.google.common.base.Predicate;
+
 /**
  * {@link EnableSmartHandlerMappingConfiguration}
  * 
@@ -55,6 +57,7 @@ public @interface EnableSmartHandlerMapping {
 	 * 
 	 * @see {@link com.wl4g.component.core.web.method.mapping.WebMvcHandlerMappingConfigurer.SmartServletHandlerMapping#initHandlerMethods()}
 	 */
+	@AliasFor("value")
 	String[] scanBasePackages() default {};
 
 	/**
@@ -64,6 +67,18 @@ public @interface EnableSmartHandlerMapping {
 	 */
 	@AliasFor("scanBasePackages")
 	String[] value() default {};
+
+	/**
+	 * Include filters, Union with {@link #scanBasePackages()}
+	 * 
+	 * @return
+	 */
+	Class<Predicate<Class<?>>>[] includeFilters() default {};
+
+	/**
+	 * Refer: {@link #scanBasePackages()}
+	 */
+	public static final String INCLUDE_FILTERS = "includeFilters";
 
 	/**
 	 * Refer: {@link #scanBasePackages()}

@@ -108,7 +108,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-dubbo</artifactId>
+				<artifactId>xcloud-component-rpc-feign-dubbo</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>

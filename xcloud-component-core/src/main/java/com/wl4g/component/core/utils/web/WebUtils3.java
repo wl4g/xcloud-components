@@ -30,7 +30,7 @@ import com.wl4g.component.common.web.WebUtils2;
  * @version v1.0 2020年5月21日
  * @since
  */
-public class WebUtils3 extends WebUtils2 {
+public abstract class WebUtils3 extends WebUtils2 {
 
 	/**
 	 * Gets request parameter.
@@ -39,14 +39,13 @@ public class WebUtils3 extends WebUtils2 {
 	 * @return
 	 */
 	public static String getRequestParameter(String name) {
-		ServletRequestAttributes attr = (ServletRequestAttributes) getRequestAttributes();
-		if (nonNull(attr)) {
-			HttpServletRequest request = attr.getRequest();
-			return nonNull(request) ? request.getParameter(name) : null;
-		}
-		return null;
+		HttpServletRequest request = currentServletRequest();
+		return nonNull(request) ? request.getParameter(name) : null;
 	}
 
-	public static void getRequestParameter() {
+	public static HttpServletRequest currentServletRequest() {
+		ServletRequestAttributes attr = (ServletRequestAttributes) getRequestAttributes();
+		return nonNull(attr) ? attr.getRequest() : null;
 	}
+
 }

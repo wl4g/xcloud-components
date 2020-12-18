@@ -32,9 +32,11 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.Locale.*;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 
 import javax.servlet.ServletRequest;
@@ -390,14 +392,14 @@ public abstract class WebUtils2 {
 	}
 
 	/**
-	 * Extract request parameters of first value
+	 * Extract request parameters with first value
 	 * 
 	 * @param request
 	 * @return
 	 */
-	public static Map<String, String> extractParamesOfFirst(ServletRequest request) {
-		return safeMap(request.getParameterMap()).entrySet().stream()
-				.collect(toMap(e -> e.getKey(), e -> isEmptyArray(e.getValue()) ? null : e.getValue()[0]));
+	public static Map<String, String> getFirstParameters(@Nullable ServletRequest request) {
+		return nonNull(request) ? safeMap(request.getParameterMap()).entrySet().stream()
+				.collect(toMap(e -> e.getKey(), e -> isEmptyArray(e.getValue()) ? null : e.getValue()[0])) : emptyMap();
 	}
 
 	/**

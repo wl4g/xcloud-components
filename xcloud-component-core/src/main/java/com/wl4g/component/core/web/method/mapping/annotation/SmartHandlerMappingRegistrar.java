@@ -22,8 +22,9 @@ package com.wl4g.component.core.web.method.mapping.annotation;
 import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.core.utils.context.SpringContextHolder.isReactiveWebApplication;
+import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
 import static com.wl4g.component.core.web.method.mapping.annotation.EnableSmartHandlerMapping.SCAN_BASE_PACKAGE;
+import static com.wl4g.component.core.web.method.mapping.annotation.EnableSmartHandlerMapping.INCLUDE_FILTERS;
 
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -32,6 +33,7 @@ import static org.springframework.context.annotation.AnnotationConfigUtils.CONFI
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -48,7 +50,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
+import com.google.common.base.Predicate;
 import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.common.reflect.ObjectInstantiators;
+import com.wl4g.component.core.web.method.mapping.WebFluxHandlerMappingConfigurer;
 import com.wl4g.component.core.web.method.mapping.WebMvcHandlerMappingConfigurer;
 
 /**
@@ -66,7 +71,6 @@ public class SmartHandlerMappingRegistrar
 
 	private ResourceLoader resourceLoader;
 	private Environment environment;
-	@SuppressWarnings("unused")
 	private BeanFactory beanFactory;
 
 	@Override
@@ -92,11 +96,13 @@ public class SmartHandlerMappingRegistrar
 			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 
 			// Register rqeust handler mapping.
-			if (!isReactiveWebApplication(getClass().getClassLoader(), environment, resourceLoader)) {
+			if (isServletWebApplication(getClass().getClassLoader(), (ConfigurableBeanFactory) beanFactory, environment,
+					resourceLoader)) {
 				registerSmartHandlerMappingConfigurer(annoAttrs, registry, WebMvcHandlerMappingConfigurer.class,
 						beanNameGenerator);
-			} else {
-				// TODO (webflux reactive)
+			} else { // Webflux
+				registerSmartHandlerMappingConfigurer(annoAttrs, registry, WebFluxHandlerMappingConfigurer.class,
+						beanNameGenerator);
 			}
 		}
 
@@ -106,6 +112,7 @@ public class SmartHandlerMappingRegistrar
 			Class<?> beanClass, BeanNameGenerator beanNameGenerator) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
 
+		builder.addPropertyValue("includeFilters", resolveIncludeFilters(annoAttrs, registry));
 		builder.addPropertyValue("scanBasePackages", resolveScanBasePackages(annoAttrs, registry));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
@@ -116,6 +123,12 @@ public class SmartHandlerMappingRegistrar
 	private String[] resolveScanBasePackages(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
 		return safeArrayToList(annoAttrs.getStringArray(SCAN_BASE_PACKAGE)).stream().filter(v -> !isBlank(v))
 				.map(v -> environment.resolveRequiredPlaceholders(v)).toArray(String[]::new);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate<Class<?>>[] resolveIncludeFilters(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
+		return safeArrayToList(annoAttrs.getClassArray(INCLUDE_FILTERS)).stream().map(c -> ObjectInstantiators.newInstance(c))
+				.toArray(Predicate[]::new);
 	}
 
 	/**

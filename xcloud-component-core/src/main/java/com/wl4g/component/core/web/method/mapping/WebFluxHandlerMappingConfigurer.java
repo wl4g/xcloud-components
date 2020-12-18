@@ -1,5 +1,7 @@
 /*
- * Copyright 2017 ~ 2025 the original author or authors. <wanglsir@gmail.com, 983708408@qq.com>
+ * Copyright (C) 2017 ~ 2025 the original author or authors.
+ * <Wanglsir@gmail.com, 983708408@qq.com> Technology CO.LTD.
+ * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,21 +14,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * Reference to website: http://wl4g.com
  */
 package com.wl4g.component.core.web.method.mapping;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.wl4g.component.common.collection.CollectionUtils2;
-
-import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.collection.Collections2.isEmptyArray;
 import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
 import static com.wl4g.component.common.collection.Collections2.safeList;
-
+import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -37,55 +39,45 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxRegistrations;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.reactive.HandlerMapping;
+import org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping;
+import org.springframework.web.reactive.result.method.RequestMappingInfo;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.server.ServerWebExchange;
 
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
-import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
-import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.wl4g.component.common.collection.CollectionUtils2;
+
+import reactor.core.publisher.Mono;
 
 /**
- * Global delegate Web MVC {@link RequestMapping} unique handler mapping.
+ * Global delegate Web Flux {@link RequestMapping} unique handler mapping.
  * instances. (supports multi customization
  * {@link RequestMappingHandlerMapping}) </br>
  * </br>
- * Notes: The usage scenarios and instructions of this global delegation request
- * mapping registration program are as follows: </br>
- * The purpose {@link ServletHandlerMappingSupport} is to use custom global
- * delegation to uniformly register the mapping. Because when an interface
- * annotated with {@link RequestMapping} has multiple subclass instances, spring
- * will automatically register the mapping of two subclass instances by default,
- * which will lead to the exception of registration conflict. For related source
- * code analysis, please refer to:
- * {@link AbstractHandlerMethodMapping#isHandler()}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2020-11-27
+ * @version v1.0 2020-12-18
  * @sine v1.0
- * @see {@link org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
- * @see http://www.kailaisii.com/archives/%E8%87%AA%E5%AE%9A%E4%B9%89RequestMappingHandlerMapping,%E5%86%8D%E4%B9%9F%E4%B8%8D%E7%94%A8%E5%86%99url%E4%BA%86~
+ * @see
  */
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@AutoConfigureAfter(WebMvcAutoConfiguration.class)
-public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+@AutoConfigureAfter(WebFluxAutoConfiguration.class)
+public class WebFluxHandlerMappingConfigurer implements WebFluxRegistrations {
 
 	@Nullable
 	private String[] scanBasePackages;
@@ -96,7 +88,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	@Lazy // Resolving cyclic dependency injection
 	@Nullable
 	@Autowired(required = false)
-	private List<ServletHandlerMappingSupport> handlerMappings;
+	private List<ReactiveHandlerMappingSupport> handlerMappings;
 
 	public void setScanBasePackages(String[] scanBasePackages) {
 		this.scanBasePackages = scanBasePackages;
@@ -108,10 +100,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
 	/**
 	 * Directly new create instance, spring is automatically injected into the
-	 * container later. refer:
-	 * {@link org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
-	 * {@link org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport#requestMappingHandlerMapping()}
-	 * </br>
+	 * container later. </br>
 	 * </br>
 	 * Notes: if using @ bean here will result in two instances in the ioc
 	 * container.
@@ -119,7 +108,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
 		if (!CollectionUtils2.isEmpty(handlerMappings)) {
-			return new SmartServletHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
+			return new SmartReactiveHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
 		}
 
 		/**
@@ -131,12 +120,12 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	}
 
 	/**
-	 * Smart servlet mvc delegate handler mapping.
+	 * Smart webflux delegate handler mapping.
 	 */
-	static final class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
+	static final class SmartReactiveHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
-		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
+		 * {@link org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
 		 */
 		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(32));
 
@@ -149,16 +138,16 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		/**
 		 * All extensions custom request handler mappings.
 		 */
-		private final List<ServletHandlerMappingSupport> handlerMappings;
+		private final List<ReactiveHandlerMappingSupport> handlerMappings;
 
 		private boolean print = false;
 
 		/**
 		 * Notes: Must take precedence, otherwise invalid. refer:
-		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
+		 * {@link org.springframework.web.reactive.DispatcherHandler#initStrategies()}
 		 */
-		public SmartServletHandlerMapping(@Nullable String[] scanBasePackages, @Nullable Predicate<Class<?>>[] includeFilters,
-				@Nullable List<ServletHandlerMappingSupport> handlerMappings) {
+		public SmartReactiveHandlerMapping(@Nullable String[] scanBasePackages, @Nullable Predicate<Class<?>>[] includeFilters,
+				@Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
 			// Merge predicate for scanBasePackages and includeFilters
@@ -248,7 +237,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			}
 
 			// a. Ensure the external handler mapping is performed first.
-			for (ServletHandlerMappingSupport hm : safeList(handlerMappings)) {
+			for (ReactiveHandlerMappingSupport hm : safeList(handlerMappings)) {
 				// Use supported custom handler mapping.
 				if (hm.supports(handler, handlerType, method)) {
 					logger.info(format("The method: '%s' is delegated to the request mapping handler registration: '%s'", method,
@@ -266,8 +255,8 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		}
 
 		/**
-		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#register()}
-		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#validateMethodMapping()}
+		 * {@link AbstractHandlerMethodMapping.MappingRegistry#register()}
+		 * {@link AbstractHandlerMethodMapping.MappingRegistry#validateMethodMapping()}
 		 * {@link org.springframework.web.method.HandlerMethod#equals()}
 		 */
 		@Override
@@ -333,11 +322,11 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	 * In order to enable global delegate of {@link RequestMapping} registration
 	 * program supporteds.
 	 */
-	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
+	public static abstract class ReactiveHandlerMappingSupport extends RequestMappingHandlerMapping {
 
-		private volatile SmartServletHandlerMapping delegate;
+		private volatile SmartReactiveHandlerMapping delegate;
 
-		public ServletHandlerMappingSupport() {
+		public ReactiveHandlerMappingSupport() {
 			setOrder(Ordered.HIGHEST_PRECEDENCE + 10); // By default order
 		}
 
@@ -349,13 +338,15 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 
 		/**
 		 * It can be ignored. The purpose is to reduce unnecessary execution and
-		 * improve the speed when {@link DispatcherServlet#getHandler()} looks
-		 * for mapping. (because spring will automatically add all instances of
-		 * {@link HandlerMapping} interface to the candidate list for searching)
+		 * improve the speed when
+		 * {@link org.springframework.web.reactive.DispatcherHandler#handle(ServerWebExchange)}
+		 * looks for mapping. (because spring will automatically add all
+		 * instances of {@link HandlerMapping} interface to the candidate list
+		 * for searching)
 		 */
 		@Override
-		protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
-			return null;
+		public Mono<HandlerMethod> getHandlerInternal(ServerWebExchange exchange) {
+			return Mono.empty();
 		}
 
 		/**
@@ -393,11 +384,11 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * 
 		 * @return
 		 */
-		private final SmartServletHandlerMapping getDelegate() {
+		private final SmartReactiveHandlerMapping getDelegate() {
 			if (isNull(delegate)) {
 				synchronized (this) {
 					if (isNull(delegate)) {
-						this.delegate = getApplicationContext().getBean(SmartServletHandlerMapping.class);
+						this.delegate = getApplicationContext().getBean(SmartReactiveHandlerMapping.class);
 						// Must init.
 						if (isNull(this.delegate.getApplicationContext())) {
 							this.delegate.setApplicationContext(getApplicationContext());

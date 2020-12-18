@@ -26,11 +26,14 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.EnumerationUtils;
 
 /**
  * Collection2 utility.
@@ -141,6 +144,17 @@ public abstract class Collections2 {
 	 */
 	public static <K, V> Map<K, V> ensureMap(Map<K, V> map, Map<K, V> fallback) {
 		return isEmpty(map) ? fallback : map;
+	}
+
+	/**
+	 * Safe enumeration to list.
+	 * 
+	 * @param enum
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> safeEnumerationToList(Enumeration<T> enumeration) {
+		return isNull(enumeration) ? emptyList() : EnumerationUtils.toList(enumeration);
 	}
 
 	/**

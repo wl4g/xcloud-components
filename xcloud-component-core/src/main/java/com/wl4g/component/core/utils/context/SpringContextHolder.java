@@ -21,7 +21,7 @@ import static java.util.Objects.isNull;
 import javax.annotation.Nullable;
 
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.reactive.context.ConfigurableReactiveWebEnvironment;
 import org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext;
 import org.springframework.context.ApplicationContext;
@@ -129,7 +129,7 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 	 * @return
 	 */
 	public static boolean isServletWebApplication(@Nullable ClassLoader classLoader,
-			@Nullable ConfigurableListableBeanFactory beanFactory, @Nullable Environment environment,
+			@Nullable ConfigurableBeanFactory beanFactory, @Nullable Environment environment,
 			@Nullable ResourceLoader resourceLoader) {
 
 		if (!ClassUtils2.isPresent(SERVLET_WEB_APPLICATION_CLASS, classLoader)) {

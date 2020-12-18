@@ -84,6 +84,8 @@
 		<!-- Spring's. -->
 		<spring-boot.version>2.3.2.RELEASE</spring-boot.version>
 		<spring-cloud.version>Hoxton.SR9</spring-cloud.version>
+		<spring-cloud-alibaba.version>2.2.3.RELEASE</spring-cloud-alibaba.version>
+		<resilience4j-spring-boot2.version>1.6.1</resilience4j-spring-boot2.version>
 		<!-- Javax's. -->
 		<javax-inject.version>1</javax-inject.version>
 		<javax-mail.version>1.4.7</javax-mail.version>
@@ -174,20 +176,24 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- Spring Cloud Alibaba. -->
+			<dependency>
+				<groupId>com.alibaba.cloud</groupId>
+				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
+				<version>${spring-cloud-alibaba.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- Spring Cloud resilience4j. -->
+			<dependency>
+				<groupId>io.github.resilience4j</groupId>
+				<artifactId>resilience4j-spring-boot2</artifactId>
+				<version>${resilience4j-spring-boot2.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-web</artifactId>
 				<version>${spring-boot.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.hibernate</groupId>
-						<artifactId>hibernate-validator</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>javax.validation</groupId>
-						<artifactId>validation-api</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<!-- Javax's. -->
 			<dependency>

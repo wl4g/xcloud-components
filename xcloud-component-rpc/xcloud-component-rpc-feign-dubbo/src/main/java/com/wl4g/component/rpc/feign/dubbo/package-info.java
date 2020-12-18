@@ -13,25 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.common.function;
-
+package com.wl4g.component.rpc.feign.dubbo;
 /**
- * Generic processor of function, compared with
- * {@link java.util.function.Function} and {@link java.util.function.Supplier},
- * support for throwing exception was added.
- * 
- * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2020年1月7日 v1.0.0
+ * The purpose of this module is to enable the project to easily switch between
+ * Spring Cloud Feign and Dubbo to realize the remote call of the underlying
+ * layer.</br>
+ * </br>
+ * Thanks to refer: https://github.com/SpringCloud/spring-cloud-dubbo
  */
-@FunctionalInterface
-public interface ProcessFunction<T, R> {
-
-	/**
-	 * Do processing.
-	 * 
-	 * @param t
-	 * @throws Exception
-	 */
-	R process(T t) throws Exception;
-
-}

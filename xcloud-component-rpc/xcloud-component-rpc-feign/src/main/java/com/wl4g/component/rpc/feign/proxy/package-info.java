@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.common.function;
-
+package com.wl4g.component.rpc.feign.proxy;
 /**
- * Generic processor of function, compared with
- * {@link java.util.function.Function} and {@link java.util.function.Supplier},
- * support for throwing exception was added.
- * 
- * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2020年1月7日 v1.0.0
+ * The purpose of this module is to dynamically add the service API of @
+ * feignclient to the rest controller through AOP (cglib). In this way, the @
+ * restcontroller is not required to be used on the implementation class. It
+ * solves the problem that the same project can not only support multi JVM
+ * process startup in distributed mode, but also can be started by local
+ * debugging single JVM process.</br>
+ * </br>
+ * Thanks to refer: https://gitee.com/leecho/spring-cloud-feign-proxy
  */
-@FunctionalInterface
-public interface ProcessFunction<T, R> {
-
-	/**
-	 * Do processing.
-	 * 
-	 * @param t
-	 * @throws Exception
-	 */
-	R process(T t) throws Exception;
-
-}

@@ -16,11 +16,12 @@
 package com.wl4g.component.common.function;
 
 /**
- * Generic callback of function.
+ * Generic callback of function, compared with
+ * {@link java.util.function.Function} and {@link java.util.function.Supplier},
+ * support for throwing exception was added.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年1月7日 v1.0.0
- * @see {@link java.util.function.Function}
  */
 @FunctionalInterface
 public interface CallbackFunction<T> {

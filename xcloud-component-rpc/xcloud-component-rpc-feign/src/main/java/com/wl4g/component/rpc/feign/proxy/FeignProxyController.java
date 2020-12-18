@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.common.function;
+package com.wl4g.component.rpc.feign.proxy;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Generic processor of function, compared with
- * {@link java.util.function.Function} and {@link java.util.function.Supplier},
- * support for throwing exception was added.
+ * Defining special class as a feign proxy controller.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2020年1月7日 v1.0.0
+ * @author liqiu
+ * @version v1.0 2019-11-20
+ * @sine v1.0
+ * @see
  */
-@FunctionalInterface
-public interface ProcessFunction<T, R> {
-
-	/**
-	 * Do processing.
-	 * 
-	 * @param t
-	 * @throws Exception
-	 */
-	R process(T t) throws Exception;
-
+@RestController
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public interface FeignProxyController {
 }
