@@ -165,7 +165,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			// Merge predicate for scanBasePackages and includeFilters
 			List<Predicate<Class<?>>> includes = new ArrayList<>(safeArrayToList(includeFilters));
 			if (!isEmptyArray(scanBasePackages)) {
-				includes.add(beanType -> startsWithAny(getPackageName(beanType)));
+				includes.add(beanType -> startsWithAny(getPackageName(beanType), scanBasePackages));
 			}
 			this.mergedIncludeFilter = includes.isEmpty() ? (beanType -> true) : Predicates.or(includes);
 
