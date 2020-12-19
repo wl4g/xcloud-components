@@ -60,8 +60,8 @@ import com.wl4g.component.common.jvm.JvmRuntimeKit;
 import com.wl4g.component.common.lang.Assert2;
 import com.wl4g.component.common.lang.StringUtils2;
 
-import static com.wl4g.component.common.collection.Collections2.isEmptyArray;
-import static com.wl4g.component.common.collection.Collections2.safeMap;
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.*;
 import static com.wl4g.component.common.lang.StringUtils2.isDomain;
 import static com.wl4g.component.common.web.UserAgentUtils.*;

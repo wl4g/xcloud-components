@@ -15,7 +15,7 @@
  */
 package com.wl4g.component.core.web.versions.servlet;
 
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.isTrue;
 import static com.wl4g.component.common.lang.Assert2.state;
 import static java.util.Collections.emptyList;
@@ -88,7 +88,7 @@ public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSuppor
 	// --- Request mapping conditions. ---
 
 	@Override
-	protected boolean supports(Object handler, Class<?> handlerType, Method method) {
+	protected boolean supportsHandlerMethod(Object handler, Class<?> handlerType, Method method) {
 		return hasAnnotation(method, ApiVersionMapping.class);
 	}
 

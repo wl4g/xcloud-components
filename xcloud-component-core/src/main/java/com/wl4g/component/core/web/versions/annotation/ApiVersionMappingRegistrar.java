@@ -46,7 +46,7 @@ import static com.wl4g.component.core.web.versions.annotation.EnableApiVersionMa
 import static com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement.VERSION_PARAMS;
 import static com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement.GROUP_PARAMS;
 import static com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement.VERSION_COMPARATOR;
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isReactiveWebApplication;

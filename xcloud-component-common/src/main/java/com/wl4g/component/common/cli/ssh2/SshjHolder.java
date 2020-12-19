@@ -16,7 +16,6 @@
 package com.wl4g.component.common.cli.ssh2;
 
 import com.google.common.annotations.Beta;
-import com.wl4g.component.common.collection.Collections2;
 import com.wl4g.component.common.function.CallbackFunction;
 import com.wl4g.component.common.function.ProcessFunction;
 import com.wl4g.component.common.log.SmartLogger;
@@ -34,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.wl4g.component.common.cli.ssh2.SshjHolder.CommandSessionWrapper;
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
 import static com.wl4g.component.common.io.ByteStreamUtils.readFullyToString;
 import static com.wl4g.component.common.lang.Assert2.hasText;
 import static com.wl4g.component.common.lang.Assert2.notNull;
@@ -216,7 +216,7 @@ public class SshjHolder extends SSH2Holders<CommandSessionWrapper, SCPFileTransf
 			ssh.addHostKeyVerifier(new PromiscuousVerifier());
 			ssh.connect(host);
 
-			if (!Collections2.isEmptyArray(pemPrivateKey)) {
+			if (!isEmptyArray(pemPrivateKey)) {
 				KeyProvider keyProvider = ssh.loadKeys(new String(pemPrivateKey), null, null);
 				ssh.authPublickey(user, keyProvider);
 			} else {

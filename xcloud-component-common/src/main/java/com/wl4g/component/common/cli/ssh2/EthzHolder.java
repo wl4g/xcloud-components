@@ -18,7 +18,6 @@ package com.wl4g.component.common.cli.ssh2;
 import ch.ethz.ssh2.*;
 
 import com.wl4g.component.common.annotation.Stable;
-import com.wl4g.component.common.collection.Collections2;
 import com.wl4g.component.common.function.CallbackFunction;
 import com.wl4g.component.common.function.ProcessFunction;
 import com.wl4g.component.common.log.SmartLogger;
@@ -31,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static ch.ethz.ssh2.ChannelCondition.CLOSED;
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
 import static com.wl4g.component.common.io.ByteStreamUtils.readFullyToString;
 import static com.wl4g.component.common.lang.Assert2.*;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
@@ -251,12 +251,12 @@ public class EthzHolder extends SSH2Holders<Session, SCPClient> {
 		hasText(user, "SSH2 command user can't empty.");
 		// notNull(pemPrivateKey, "SSH2 command pemPrivateKey must not be
 		// null.");
-		isTrueOf(!Collections2.isEmptyArray(pemPrivateKey) || StringUtils.isNotBlank(password), "pemPrivateKey");
+		isTrueOf(!isEmptyArray(pemPrivateKey) || StringUtils.isNotBlank(password), "pemPrivateKey");
 
 		Connection conn = new Connection(host);
 		conn.connect();
 
-		if (!Collections2.isEmptyArray(pemPrivateKey)) {
+		if (!isEmptyArray(pemPrivateKey)) {
 			// Authentication with pub-key.
 			isTrue(conn.authenticateWithPublicKey(user, pemPrivateKey, null), String
 					.format("Failed to SSH2 authenticate with %s@%s privateKey(%s)", user, host, new String(pemPrivateKey)));

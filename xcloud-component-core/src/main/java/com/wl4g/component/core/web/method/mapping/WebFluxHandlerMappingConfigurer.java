@@ -19,9 +19,9 @@
  */
 package com.wl4g.component.core.web.method.mapping;
 
-import static com.wl4g.component.common.collection.Collections2.isEmptyArray;
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
-import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
@@ -31,6 +31,7 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,7 +123,7 @@ public class WebFluxHandlerMappingConfigurer implements WebFluxRegistrations {
 	/**
 	 * Smart webflux delegate handler mapping.
 	 */
-	static final class SmartReactiveHandlerMapping extends RequestMappingHandlerMapping {
+	final class SmartReactiveHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
 		 * {@link org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
@@ -151,7 +152,7 @@ public class WebFluxHandlerMappingConfigurer implements WebFluxRegistrations {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
 			// Merge predicate for scanBasePackages and includeFilters
-			List<Predicate<Class<?>>> includes = safeArrayToList(includeFilters);
+			List<Predicate<Class<?>>> includes = new ArrayList<>(safeArrayToList(includeFilters));
 			if (!isEmptyArray(scanBasePackages)) {
 				includes.add(beanType -> startsWithAny(getPackageName(beanType)));
 			}
@@ -239,7 +240,7 @@ public class WebFluxHandlerMappingConfigurer implements WebFluxRegistrations {
 			// a. Ensure the external handler mapping is performed first.
 			for (ReactiveHandlerMappingSupport hm : safeList(handlerMappings)) {
 				// Use supported custom handler mapping.
-				if (hm.supports(handler, handlerType, method)) {
+				if (hm.supportsHandlerMethod(handler, handlerType, method)) {
 					logger.info(format("The method: '%s' is delegated to the request mapping handler registration: '%s'", method,
 							hm));
 					return hm.getMappingForMethod(method, handlerType);
@@ -357,7 +358,7 @@ public class WebFluxHandlerMappingConfigurer implements WebFluxRegistrations {
 		 * @param handlerType
 		 * @return
 		 */
-		protected abstract boolean supports(Object handler, Class<?> handlerType, Method method);
+		protected abstract boolean supportsHandlerMethod(Object handler, Class<?> handlerType, Method method);
 
 		@Override
 		public RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {

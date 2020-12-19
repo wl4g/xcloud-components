@@ -15,7 +15,7 @@
 */
 package com.wl4g.component.core.web.versions.annotation;
 
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

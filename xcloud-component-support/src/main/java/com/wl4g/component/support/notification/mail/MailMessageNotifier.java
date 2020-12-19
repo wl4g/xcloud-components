@@ -25,7 +25,7 @@ import com.wl4g.component.support.notification.GenericNotifyMessage;
 import java.util.Date;
 import java.util.Properties;
 
-import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;

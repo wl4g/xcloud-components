@@ -19,7 +19,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.wl4g.component.common.collection.CollectionUtils2;
 
-import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.core.web.method.mapping.WebMvcHandlerMappingConfigurer.CustomExcludeHandlerTypeFilter.NONE_EXCLUDES;
 
 import static java.lang.String.format;

@@ -15,7 +15,7 @@
  */
 package com.wl4g.component.data.config;
 
-import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Arrays.asList;
 

@@ -73,7 +73,7 @@ public @interface EnableSmartHandlerMapping {
 	 * 
 	 * @return
 	 */
-	Class<Predicate<Class<?>>>[] includeFilters() default {};
+	Class<? extends Predicate<Class<?>>>[] includeFilters() default {};
 
 	/**
 	 * Refer: {@link #scanBasePackages()}

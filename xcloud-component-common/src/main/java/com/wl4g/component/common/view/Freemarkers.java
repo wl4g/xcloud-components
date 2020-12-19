@@ -15,7 +15,7 @@
  */
 package com.wl4g.component.common.view;
 
-import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.lang.Assert2.notEmptyOf;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;

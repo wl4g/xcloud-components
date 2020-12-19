@@ -17,9 +17,14 @@ package com.wl4g.component.rpc.feign.dubbo.context;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.makeAccessible;
 import static com.wl4g.component.common.web.WebUtils2.getFirstParameters;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletRequest;
+import static java.util.Objects.nonNull;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.alibaba.dubbo.common.Constants;
@@ -31,7 +36,6 @@ import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.utils.expression.SpelExpressions;
 import com.wl4g.component.rpc.feign.context.RpcContextHolder;
 
 /**
@@ -46,8 +50,7 @@ import com.wl4g.component.rpc.feign.context.RpcContextHolder;
  */
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, order = -2000)
 public class AttachmentDubboFilter implements Filter {
-
-	protected final SmartLogger log = getLogger(getClass());
+	private static final SmartLogger log = getLogger(AttachmentDubboFilter.class);
 
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -59,26 +62,31 @@ public class AttachmentDubboFilter implements Filter {
 		Map<String, String> params = getFirstParameters(currentServletRequest());
 		if (!isEmpty(params)) {
 			RpcContext.getContext().getAttachments().putAll(params);
+			// TODO
 			// RpcContextHolder.setContext(new DubboRpcContextHolder());
 		}
 
 		// Sets current IAM principal.(if necessary)
-		try {
-			// Optimize performance by lazy invoke with lambde function
-			RpcContextHolder.getContext().setLambdaAttachment("IAM_PRINCIPAL", () -> {
-				Object iamPrincipal = spelExpr.resolve("#{T(IamSecurityHolder).getPrincipalInfo()}");
-				return iamPrincipal;
-			});
-		} catch (Throwable e2) {
-			log.warn("Cannot get IAM principal info. cause by: {}", e2.getMessage());
+		if (nonNull(GET_PRINCIPALINFO_METHOD)) {
+			// Optimize performance by lazy invoke with lambde function.
+			RpcContextHolder.getContext().setLambdaAttachment("IAM_PRINCIPAL",
+					() -> invokeMethod(GET_PRINCIPALINFO_METHOD, null));
 		}
 
 		return invoker.invoke(invocation);
 	}
 
-	/**
-	 * {@link SpelExpressions}
-	 */
-	public static transient final SpelExpressions spelExpr = SpelExpressions.create();
+	public static final transient Method GET_PRINCIPALINFO_METHOD;
+
+	static {
+		Method getPrincipalMethod = null;
+		try {
+			getPrincipalMethod = findMethod(Class.forName("com.wl4g.iam.core.utils.IamSecurityHolder"), "getPrincipalInfo");
+			makeAccessible(getPrincipalMethod);
+		} catch (ClassNotFoundException e) { // Ignore
+			log.warn("Cannot load IamSecurityHolder.getPrincipalInfo() ", e.getMessage());
+		}
+		GET_PRINCIPALINFO_METHOD = getPrincipalMethod;
+	}
 
 }

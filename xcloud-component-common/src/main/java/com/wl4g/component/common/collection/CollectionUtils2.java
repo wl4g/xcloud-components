@@ -15,12 +15,21 @@
  */
 package com.wl4g.component.common.collection;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Objects.isNull;
+
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -30,6 +39,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.EnumerationUtils;
 
 import javax.annotation.Nullable;
 import com.wl4g.component.common.collection.multimap.MultiValueMap;
@@ -45,6 +55,10 @@ import com.wl4g.component.common.lang.ObjectUtils2;
  * @since
  */
 public abstract class CollectionUtils2 extends CollectionUtils {
+
+	// ----------------------------------------------
+	// --- Spring collection util methods. ---
+	// ----------------------------------------------
 
 	/**
 	 * Return {@code true} if the supplied Map is {@code null} or empty.
@@ -505,6 +519,176 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 		public String toString() {
 			return this.map.toString();
 		}
+	}
+
+	// ----------------------------------------------
+	// --- Customization extensions util methods. ---
+	// ----------------------------------------------
+
+	/**
+	 * Is empty array.
+	 * 
+	 * @param collection
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> boolean isEmptyArray(T... array) {
+		return isNull(array) || array.length <= 0;
+	}
+
+	/**
+	 * Safe collection list.
+	 * 
+	 * @param collection
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] safeArray(Class<T> componentType, T... array) {
+		return isNull(array) ? (T[]) Array.newInstance(componentType, 0) : array;
+	}
+
+	/**
+	 * Ensure that the default is at least an ArrayList instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static <T> List<T> safeArrayToList(T[] array) {
+		return isNull(array) ? emptyList() : asList(array);
+	}
+
+	/**
+	 * Safe enumeration to list.
+	 * 
+	 * @param enum
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> safeEnumerationToList(Enumeration<T> enumeration) {
+		return isNull(enumeration) ? emptyList() : EnumerationUtils.toList(enumeration);
+	}
+
+	/**
+	 * Safe collection list.
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static <T> List<T> safeList(List<T> list) {
+		return isEmpty(list) ? emptyList() : list;
+	}
+
+	/**
+	 * Safe array to list.
+	 * 
+	 * @param array
+	 * @return
+	 */
+	public static <T> List<T> safeToList(Class<T> componentType, T[] array) {
+		return Arrays.asList(safeArray(componentType, array));
+	}
+
+	/**
+	 * Safe collection set.
+	 * 
+	 * @param set
+	 * @return
+	 */
+	public static <T> Set<T> safeSet(Set<T> set) {
+		return isEmpty(set) ? emptySet() : set;
+	}
+
+	/**
+	 * Safe collection map.
+	 * 
+	 * @param map
+	 * @return
+	 */
+	public static <K, V> Map<K, V> safeMap(Map<K, V> map) {
+		return CollectionUtils2.isEmpty(map) ? emptyMap() : map;
+	}
+
+	/**
+	 * Ensure that the default is at least an ArrayList instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static <T> List<T> ensureList(List<T> list) {
+		return isEmpty(list) ? new ArrayList<T>() : list;
+	}
+
+	/**
+	 * Ensure that the default is at least an fallback list instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param list
+	 * @param fallback
+	 * @return
+	 */
+	public static <T> List<T> ensureList(List<T> list, List<T> fallback) {
+		return isEmpty(list) ? fallback : list;
+	}
+
+	/**
+	 * Ensure that the default is at least an HashSet instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param set
+	 * @return
+	 */
+	public static <T> Set<T> ensureSet(Set<T> set) {
+		return isEmpty(set) ? new HashSet<T>() : set;
+	}
+
+	/**
+	 * Ensure that the default is at least an fallback set instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param set
+	 * @param fallback
+	 * @return
+	 */
+	public static <T> Set<T> ensureSet(Set<T> set, Set<T> fallback) {
+		return isEmpty(set) ? fallback : set;
+	}
+
+	/**
+	 * Ensure that the default is at least an HashMap instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param map
+	 * @return
+	 */
+	public static <K, V> Map<K, V> ensureMap(Map<K, V> map) {
+		return isEmpty(map) ? new HashMap<>() : map;
+	}
+
+	/**
+	 * Ensure that the default is at least an fallback map instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param map
+	 * @param fallback
+	 * @return
+	 */
+	public static <K, V> Map<K, V> ensureMap(Map<K, V> map, Map<K, V> fallback) {
+		return isEmpty(map) ? fallback : map;
+	}
+
+	/**
+	 * Remove duplicate collection elements.
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static <T> Collection<T> disDupCollection(Collection<T> list) {
+		Set<T> disDupSet = new HashSet<>(list);
+		list.clear();
+		list.addAll(disDupSet);
+		return list;
 	}
 
 }

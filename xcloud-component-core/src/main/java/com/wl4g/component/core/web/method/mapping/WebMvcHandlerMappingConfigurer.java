@@ -20,15 +20,16 @@ import com.google.common.base.Predicates;
 import com.wl4g.component.common.collection.CollectionUtils2;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
-import static com.wl4g.component.common.collection.Collections2.isEmptyArray;
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
-import static com.wl4g.component.common.collection.Collections2.safeList;
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -133,7 +134,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 	/**
 	 * Smart servlet mvc delegate handler mapping.
 	 */
-	static final class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
+	final class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
 		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
@@ -162,7 +163,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
 			// Merge predicate for scanBasePackages and includeFilters
-			List<Predicate<Class<?>>> includes = safeArrayToList(includeFilters);
+			List<Predicate<Class<?>>> includes = new ArrayList<>(safeArrayToList(includeFilters));
 			if (!isEmptyArray(scanBasePackages)) {
 				includes.add(beanType -> startsWithAny(getPackageName(beanType)));
 			}
@@ -237,20 +238,10 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * @return
 		 */
 		private RequestMappingInfo getMappingForMethod(Object handler, Method method, Class<?> handlerType) {
-			if (CollectionUtils2.isEmpty(handlerMappings)) {
-				if (!print) {
-					print = true;
-					logger.warn(
-							"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
-				}
-				// Use default handler mapping.
-				return super.getMappingForMethod(method, handlerType);
-			}
-
 			// a. Ensure the external handler mapping is performed first.
 			for (ServletHandlerMappingSupport hm : safeList(handlerMappings)) {
 				// Use supported custom handler mapping.
-				if (hm.supports(handler, handlerType, method)) {
+				if (hm.supportsHandlerMethod(handler, handlerType, method)) {
 					logger.info(format("The method: '%s' is delegated to the request mapping handler registration: '%s'", method,
 							hm));
 					return hm.getMappingForMethod(method, handlerType);
@@ -260,7 +251,9 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 			// b. Fallback, using default handler mapping.
 			if (!print) {
 				print = true;
-				logger.info(format("No suitable request handler mapping was found. all handlerMappings: %s", handlerMappings));
+				logger.info(format(
+						"No suitable request handler mapping was found, fallback using spring default handler mapping, all handlerMappings: %s",
+						handlerMappings));
 			}
 			return super.getMappingForMethod(method, handlerType);
 		}
@@ -366,7 +359,7 @@ public class WebMvcHandlerMappingConfigurer implements WebMvcRegistrations {
 		 * @param handlerType
 		 * @return
 		 */
-		protected abstract boolean supports(Object handler, Class<?> handlerType, Method method);
+		protected abstract boolean supportsHandlerMethod(Object handler, Class<?> handlerType, Method method);
 
 		@Override
 		public RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {

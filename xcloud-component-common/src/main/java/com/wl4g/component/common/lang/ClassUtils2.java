@@ -15,7 +15,7 @@
  */
 package com.wl4g.component.common.lang;
 
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static java.lang.Thread.currentThread;
 import static java.util.Objects.nonNull;

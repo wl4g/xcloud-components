@@ -231,7 +231,7 @@ public class FeignProxyMvcAutoConfiguration implements InitializingBean {
 	static class FeignProxyRequestHandlerMapping extends ServletHandlerMappingSupport {
 
 		@Override
-		protected boolean supports(Object handler, Class<?> handlerType, Method method) {
+		protected boolean supportsHandlerMethod(Object handler, Class<?> handlerType, Method method) {
 			// In order to solve the following problems, spring will scan
 			// the @RequestMapping annotation class by default and inject
 			// it into MapperRegistry, which will cause conflicts with the

@@ -19,8 +19,8 @@
 // */
 //package com.wl4g.component.rpc.feign.context;
 //
-//import static com.wl4g.component.common.collection.Collections2.safeEnumerationToList;
-//import static com.wl4g.component.common.collection.Collections2.safeMap;
+//import static com.wl4g.component.common.collection.CollectionUtils2.safeEnumerationToList;
+//import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 //import static com.wl4g.component.common.lang.Assert2.notNullOf;
 //import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 //import static java.lang.String.valueOf;

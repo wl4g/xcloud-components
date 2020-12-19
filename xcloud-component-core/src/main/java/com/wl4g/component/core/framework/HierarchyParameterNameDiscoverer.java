@@ -15,8 +15,8 @@
  */
 package com.wl4g.component.core.framework;
 
-import static com.wl4g.component.common.collection.Collections2.isEmptyArray;
-import static com.wl4g.component.common.collection.Collections2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Method;
