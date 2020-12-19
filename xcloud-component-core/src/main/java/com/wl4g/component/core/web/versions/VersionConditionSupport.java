@@ -17,8 +17,6 @@ package com.wl4g.component.core.web.versions;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.List;
 
@@ -65,26 +63,6 @@ public abstract class VersionConditionSupport {
 			@Nullable List<String> matchingCandidateVersions) {
 		this.versionMapping = notNullOf(versionMapping, "versionMapping");
 		this.matchingCandidateVersions = matchingCandidateVersions;
-	}
-
-	/**
-	 * Gets request parameter value.
-	 * 
-	 * @param request
-	 * @param names
-	 * @return
-	 */
-	protected String findRequestParameter(HttpServletRequest request, String[] names) {
-		for (String name : names) {
-			String value = request.getParameter(name);
-			value = (isBlank(value) || equalsAnyIgnoreCase(value, "null", "undefined")) ? request.getHeader(name) : value;
-			// HTTP headers specification, for example: 'X-Version: 2.0.10.1'
-			value = isBlank(value) ? request.getHeader("x-".concat(name)) : value;
-			if (!isBlank(value)) {
-				return value;
-			}
-		}
-		return null;
 	}
 
 	public ApiVersionMappingWrapper getVersionMapping() {

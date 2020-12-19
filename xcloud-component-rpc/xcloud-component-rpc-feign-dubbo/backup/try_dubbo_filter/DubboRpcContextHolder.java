@@ -19,13 +19,8 @@
  */
 package com.wl4g.component.rpc.feign.dubbo.context;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration;
 import com.alibaba.dubbo.rpc.RpcContext;
-import com.wl4g.component.rpc.feign.context.RpcContextHolder;
+import com.wl4g.component.rpc.feign.context.RpcContextRegistry;
 
 /**
  * {@link DubboRpcContextHolder}
@@ -35,7 +30,7 @@ import com.wl4g.component.rpc.feign.context.RpcContextHolder;
  * @sine v1.0
  * @see
  */
-class DubboRpcContextHolder extends RpcContextHolder {
+class DubboRpcContextHolder extends RpcContextRegistry {
 
 	@Override
 	public String getAttachment(String key) {
@@ -58,17 +53,23 @@ class DubboRpcContextHolder extends RpcContextHolder {
 	}
 
 	@Override
-	protected RpcContextHolder current() {
-		return this;
+	public int getRemotePort() {
+		return RpcContext.getContext().getRemotePort();
 	}
 
-	@Configuration
-	@ConditionalOnClass(DubboAutoConfiguration.class)
-	static class DubboRpcContextHolderAutoConfiguration {
-		@Bean
-		public RpcContextHolder dubboRpcContextHolder() {
-			return new DubboRpcContextHolder();
-		}
+	@Override
+	public String getRemoteHost() {
+		return RpcContext.getContext().getRemoteHost();
+	}
+
+	@Override
+	public int getLocalPort() {
+		return RpcContext.getContext().getLocalPort();
+	}
+
+	@Override
+	public String getLocalHost() {
+		return RpcContext.getContext().getLocalHost();
 	}
 
 }

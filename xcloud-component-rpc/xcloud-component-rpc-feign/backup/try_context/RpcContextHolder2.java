@@ -25,12 +25,13 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
+import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-//import static java.util.Collections.synchronizedMap;
-//import java.util.HashMap;
-//import java.util.function.Supplier;
+
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotBlank;
@@ -50,12 +51,11 @@ import com.wl4g.component.core.utils.context.SpringContextHolder;
  */
 public abstract class RpcContextHolder {
 
+	private static final ThreadLocal<Map<String, Supplier<Object>>> lambdaAttachments = ThreadLocal
+			.withInitial(() -> synchronizedMap(new HashMap<>()));
+
 	/** Singleton holder instance */
 	private static volatile RpcContextHolder holder;
-
-	// private static final ThreadLocal<Map<String, Supplier<Object>>>
-	// lambdaAttachments = ThreadLocal
-	// .withInitial(() -> synchronizedMap(new HashMap<>()));
 
 	/**
 	 * Obtain singleton instance of {@link RpcContextHolder}
@@ -66,19 +66,12 @@ public abstract class RpcContextHolder {
 		if (nonNull(holder)) {
 			synchronized (RpcContextHolder.class) {
 				if (nonNull(holder)) {
-					return (holder = SpringContextHolder.getBean(RpcContextHolder.class)).current();
+					return (holder = SpringContextHolder.getBean(RpcContextHolder.class));
 				}
 			}
 		}
 		return holder;
 	}
-
-	/**
-	 * Gets or create current this instance.
-	 * 
-	 * @return
-	 */
-	protected abstract RpcContextHolder current();
 
 	/**
 	 * Gets attribute from original Rpc context. {@link #set(String, Object)}
@@ -121,15 +114,14 @@ public abstract class RpcContextHolder {
 		}
 	}
 
-	// @SuppressWarnings("unchecked")
-	// public <T> T getLambdaAttachment(@NotBlank String key) {
-	// return (T) lambdaAttachments.get().get(key);
-	// }
-	//
-	// public void setLambdaAttachment(@NotBlank String key, @NotNull
-	// Supplier<Object> lambdaGetter) {
-	// lambdaAttachments.get().put(key, lambdaGetter);
-	// }
+	@SuppressWarnings("unchecked")
+	public <T> T getLambdaAttachment(@NotBlank String key) {
+		return (T) lambdaAttachments.get().get(key);
+	}
+
+	public void setLambdaAttachment(@NotBlank String key, @NotNull Supplier<Object> lambdaGetter) {
+		lambdaAttachments.get().put(key, lambdaGetter);
+	}
 
 	/**
 	 * Gets attachment from current rpc context.
@@ -185,5 +177,4 @@ public abstract class RpcContextHolder {
 	}
 
 	private static final ConvertUtilsBean defaultConverter = new ConvertUtilsBean();
-
 }

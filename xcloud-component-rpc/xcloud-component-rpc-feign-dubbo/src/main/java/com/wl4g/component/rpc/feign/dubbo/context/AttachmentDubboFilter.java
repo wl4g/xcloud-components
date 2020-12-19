@@ -33,7 +33,6 @@ import com.alibaba.dubbo.rpc.Filter;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.rpc.feign.context.RpcContextHolder;
@@ -57,20 +56,19 @@ public class AttachmentDubboFilter implements Filter {
 		// Sets current request parameters.
 		/*
 		 * Note: Here it is possible to retry the execution several times, the
-		 * second execution of currentServletRequest will return null.
+		 * second execution of currentServletRequest() will return null.
 		 */
 		Map<String, String> params = getFirstParameters(currentServletRequest());
 		if (!isEmpty(params)) {
-			RpcContext.getContext().getAttachments().putAll(params);
-			// TODO
-			// RpcContextHolder.setContext(new DubboRpcContextHolder());
+			RpcContextHolder.get().setAttachments(params);
 		}
 
 		// Sets current IAM principal.(if necessary)
 		if (nonNull(GET_PRINCIPALINFO_METHOD)) {
-			// Optimize performance by lazy invoke with lambde function.
-			RpcContextHolder.getContext().setLambdaAttachment("IAM_PRINCIPAL",
-					() -> invokeMethod(GET_PRINCIPALINFO_METHOD, null));
+			// // Optimize performance by lazy invoke with lambde function.
+			// RpcContextHolder.get().setLambdaAttachment("IAM_PRINCIPAL", () ->
+			// invokeMethod(GET_PRINCIPALINFO_METHOD, null));
+			RpcContextHolder.get().set("IAM_PRINCIPAL", invokeMethod(GET_PRINCIPALINFO_METHOD, null));
 		}
 
 		return invoker.invoke(invocation);

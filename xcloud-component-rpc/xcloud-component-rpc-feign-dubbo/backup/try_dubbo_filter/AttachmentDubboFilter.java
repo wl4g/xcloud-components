@@ -16,21 +16,16 @@
 package com.wl4g.component.rpc.feign.dubbo.context;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.makeAccessible;
 import static com.wl4g.component.common.web.WebUtils2.getFirstParameters;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletRequest;
+import static java.util.Objects.nonNull;
 
+import java.lang.reflect.Method;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.extension.Activate;
@@ -40,6 +35,8 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
+import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.rpc.feign.context.RpcContextRegistry;
 
 /**
  * {@link AttachmentDubboFilter}
@@ -53,6 +50,7 @@ import com.alibaba.dubbo.rpc.RpcException;
  */
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, order = -2000)
 public class AttachmentDubboFilter implements Filter {
+	private static final SmartLogger log = getLogger(AttachmentDubboFilter.class);
 
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -62,35 +60,33 @@ public class AttachmentDubboFilter implements Filter {
 		 * second execution of currentServletRequest will return null.
 		 */
 		Map<String, String> params = getFirstParameters(currentServletRequest());
-		if (isEmpty(params)) {
+		if (!isEmpty(params)) {
 			RpcContext.getContext().getAttachments().putAll(params);
+			// TODO
+			// RpcContextHolder.setContext(new DubboRpcContextHolder());
 		}
+
+		// Sets current IAM principal.(if necessary)
+		if (nonNull(GET_PRINCIPALINFO_METHOD)) {
+			// Optimize performance by lazy invoke with lambde function.
+			RpcContextRegistry.getContext().setLambdaAttachment("IAM_PRINCIPAL",
+					() -> invokeMethod(GET_PRINCIPALINFO_METHOD, null));
+		}
+
 		return invoker.invoke(invocation);
 	}
 
-	// @Configuration
-	// @ConditionalOnWebApplication(type = Type.SERVLET)
-	// static class AttachmentInterceptorConfigurer implements WebMvcConfigurer
-	// {
-	// @Bean
-	// public AttachmentRequestInterceptor attachmentRequestInterceptor() {
-	// return new AttachmentRequestInterceptor();
-	// }
-	//
-	// @Override
-	// public void addInterceptors(InterceptorRegistry registry) {
-	// registry.addInterceptor(attachmentRequestInterceptor()).addPathPatterns("/**");
-	// }
-	// }
-	//
-	// static class AttachmentRequestInterceptor implements HandlerInterceptor {
-	// @Override
-	// public boolean preHandle(HttpServletRequest request, HttpServletResponse
-	// response, Object handler) throws Exception {
-	// Map<String, String> params = WebUtils2.extractParamesOfFirst(request);
-	// RpcContext.getContext().getAttachments().putAll(params);
-	// return true;
-	// }
-	// }
+	public static final transient Method GET_PRINCIPALINFO_METHOD;
+
+	static {
+		Method getPrincipalMethod = null;
+		try {
+			getPrincipalMethod = findMethod(Class.forName("com.wl4g.iam.core.utils.IamSecurityHolder"), "getPrincipalInfo");
+			makeAccessible(getPrincipalMethod);
+		} catch (ClassNotFoundException e) { // Ignore
+			log.warn("Cannot load IamSecurityHolder.getPrincipalInfo() ", e.getMessage());
+		}
+		GET_PRINCIPALINFO_METHOD = getPrincipalMethod;
+	}
 
 }

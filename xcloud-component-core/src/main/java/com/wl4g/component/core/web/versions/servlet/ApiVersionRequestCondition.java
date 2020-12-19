@@ -16,6 +16,8 @@
 package com.wl4g.component.core.web.versions.servlet;
 
 import static com.wl4g.component.common.lang.StringUtils2.eqIgnCase;
+import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -139,6 +141,26 @@ public class ApiVersionRequestCondition extends VersionConditionSupport implemen
 			return 1;
 		}
 		return 0;
+	}
+
+	/**
+	 * Gets servlet request parameter value.
+	 * 
+	 * @param request
+	 * @param names
+	 * @return
+	 */
+	protected String findRequestParameter(HttpServletRequest request, String[] names) {
+		for (String name : names) {
+			String value = request.getParameter(name);
+			value = (isBlank(value) || equalsAnyIgnoreCase(value, "null", "undefined")) ? request.getHeader(name) : value;
+			// HTTP headers specification, for example: 'X-Version: 2.0.10.1'
+			value = isBlank(value) ? request.getHeader("x-".concat(name)) : value;
+			if (!isBlank(value)) {
+				return value;
+			}
+		}
+		return null;
 	}
 
 	private BiFunction<String, String, Boolean> getEqualer() {
