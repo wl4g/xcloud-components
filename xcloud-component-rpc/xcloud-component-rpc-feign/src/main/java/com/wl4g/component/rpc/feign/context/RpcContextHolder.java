@@ -26,7 +26,6 @@ import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 //import static java.util.Collections.synchronizedMap;
 //import java.util.HashMap;
 //import java.util.function.Supplier;
@@ -63,9 +62,9 @@ public abstract class RpcContextHolder {
 	 * @return
 	 */
 	public static final RpcContextHolder get() {
-		if (nonNull(holder)) {
+		if (isNull(holder)) {
 			synchronized (RpcContextHolder.class) {
-				if (nonNull(holder)) {
+				if (isNull(holder)) {
 					return (holder = SpringContextHolder.getBean(RpcContextHolder.class)).current();
 				}
 			}
