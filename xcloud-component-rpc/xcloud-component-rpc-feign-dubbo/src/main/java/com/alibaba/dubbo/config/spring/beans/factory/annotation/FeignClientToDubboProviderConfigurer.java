@@ -61,9 +61,9 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static com.wl4g.component.common.lang.Assert2.hasText;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.FEIGN_DUBBO_ORDER;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.generateFeignProxyBeanName;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.isFeignProxyBean;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.FEIGN_DUBBO_ORDER;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.generateFeignProxyBeanName;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.isFeignProxyBean;
 
 /**
  * {@code @FeignClient} service to dubbo's provider configurer.

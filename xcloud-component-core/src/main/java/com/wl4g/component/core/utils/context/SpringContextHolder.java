@@ -18,6 +18,8 @@ package com.wl4g.component.core.utils.context;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.isNull;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import org.springframework.beans.factory.DisposableBean;
@@ -80,7 +82,7 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 	}
 
 	/**
-	 * Get the ApplicationContext stored in a static variable.
+	 * Gets the ApplicationContext stored in a static variable.
 	 */
 	public static ApplicationContext getApplicationContext() {
 		assertContextInjected();
@@ -88,7 +90,7 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 	}
 
 	/**
-	 * Get the bean from the static variable applicationContext, automatically
+	 * Gets the bean from the static variable applicationContext, automatically
 	 * transform to the type of the assigned object.
 	 */
 	@SuppressWarnings("unchecked")
@@ -98,12 +100,21 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 	}
 
 	/**
-	 * Get the bean from the static variable applicationContext, automatically
+	 * Gets the bean from the static variable applicationContext, automatically
 	 * transform to the type of the assigned object.
 	 */
 	public static <T> T getBean(Class<T> requiredType) {
 		assertContextInjected();
 		return (T) _actx.getBean(requiredType);
+	}
+
+	/**
+	 * Gets the beans from the static variable applicationContext, automatically
+	 * transform to the type of the assigned object.
+	 */
+	public static <T> Map<String, T> getBeans(Class<T> requiredType) {
+		assertContextInjected();
+		return _actx.getBeansOfType(requiredType);
 	}
 
 	/**

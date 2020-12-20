@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.dubbo.context;
+package com.wl4g.component.rpc.feign.dubbo.context.filter;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
@@ -38,7 +38,7 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.rpc.feign.context.RpcContextHolder;
 
 /**
- * {@link AttachmentDubboFilter}
+ * {@link ConsumerContextFilter}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-07
@@ -47,9 +47,9 @@ import com.wl4g.component.rpc.feign.context.RpcContextHolder;
  * @see https://www.jianshu.com/p/089778701921
  * @see https://github.com/apache/dubbo/issues/1533
  */
-@Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, order = -2000)
-public class AttachmentDubboFilter implements Filter {
-	private static final SmartLogger log = getLogger(AttachmentDubboFilter.class);
+@Activate(group = Constants.CONSUMER, order = -2000)
+public class ConsumerContextFilter implements Filter {
+	private static final SmartLogger log = getLogger(ConsumerContextFilter.class);
 
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -65,9 +65,6 @@ public class AttachmentDubboFilter implements Filter {
 
 		// Sets current IAM principal.(if necessary)
 		if (nonNull(GET_PRINCIPALINFO_METHOD)) {
-			// // Optimize performance by lazy invoke with lambde function.
-			// RpcContextHolder.get().setLambdaAttachment("IAM_PRINCIPAL", () ->
-			// invokeMethod(GET_PRINCIPALINFO_METHOD, null));
 			RpcContextHolder.get().set("IAM_PRINCIPAL", invokeMethod(GET_PRINCIPALINFO_METHOD, null));
 		}
 

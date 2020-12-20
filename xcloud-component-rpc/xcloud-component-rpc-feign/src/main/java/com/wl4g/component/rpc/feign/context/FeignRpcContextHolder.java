@@ -50,6 +50,11 @@ public class FeignRpcContextHolder extends RpcContextHolder {
 	}
 
 	@Override
+	public Map<String, String> getAttachments() {
+		return attachments;
+	}
+
+	@Override
 	public void setAttachment(String key, String value) {
 		attachments.put(key, value);
 	}

@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.isFeignProxyBean;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.isFeignProxyBean;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;

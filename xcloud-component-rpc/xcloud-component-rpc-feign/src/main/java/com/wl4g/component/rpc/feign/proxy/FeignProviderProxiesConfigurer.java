@@ -41,9 +41,9 @@ import static org.springframework.util.ClassUtils.CGLIB_CLASS_SEPARATOR;
 
 import static com.wl4g.component.common.lang.Assert2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.FEIGN_PROXY_ORDER;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.generateFeignProxyBeanName;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.FEIGN_PROXY_ORDER;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.generateFeignProxyBeanName;
 
 /**
  * The scanning injection is realized with reference to

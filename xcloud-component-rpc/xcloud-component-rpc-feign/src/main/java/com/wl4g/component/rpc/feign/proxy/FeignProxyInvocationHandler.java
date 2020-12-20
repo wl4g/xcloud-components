@@ -26,8 +26,8 @@ import com.wl4g.component.core.framework.aop.ProxyInvocation;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.typeofDubboServiceBean;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxiesUtils.typeofMapperProxy;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.typeofDubboServiceBean;
+import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.typeofMapperProxy;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

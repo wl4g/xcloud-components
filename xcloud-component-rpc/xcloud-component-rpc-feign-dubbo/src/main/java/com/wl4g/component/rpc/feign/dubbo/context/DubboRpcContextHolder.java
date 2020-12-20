@@ -19,6 +19,8 @@
  */
 package com.wl4g.component.rpc.feign.dubbo.context;
 
+import java.util.Map;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +42,11 @@ class DubboRpcContextHolder extends RpcContextHolder {
 	@Override
 	public String getAttachment(String key) {
 		return RpcContext.getContext().getAttachment(key);
+	}
+
+	@Override
+	public Map<String, String> getAttachments() {
+		return RpcContext.getContext().getAttachments();
 	}
 
 	@Override

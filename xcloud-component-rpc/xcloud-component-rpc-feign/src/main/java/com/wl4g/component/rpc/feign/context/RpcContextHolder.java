@@ -25,19 +25,19 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
-import static java.util.Objects.isNull;
-//import static java.util.Collections.synchronizedMap;
-//import java.util.HashMap;
-//import java.util.function.Supplier;
-import java.util.Map;
+import com.wl4g.component.core.utils.context.SpringContextHolder;
 
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.ConvertUtilsBean;
-
-import com.wl4g.component.core.utils.context.SpringContextHolder;
 
 /**
  * {@link RpcContextHolder}
@@ -52,10 +52,6 @@ public abstract class RpcContextHolder {
 	/** Singleton holder instance */
 	private static volatile RpcContextHolder holder;
 
-	// private static final ThreadLocal<Map<String, Supplier<Object>>>
-	// lambdaAttachments = ThreadLocal
-	// .withInitial(() -> synchronizedMap(new HashMap<>()));
-
 	/**
 	 * Obtain singleton instance of {@link RpcContextHolder}
 	 * 
@@ -65,7 +61,7 @@ public abstract class RpcContextHolder {
 		if (isNull(holder)) {
 			synchronized (RpcContextHolder.class) {
 				if (isNull(holder)) {
-					return (holder = SpringContextHolder.getBean(RpcContextHolder.class)).current();
+					return (holder = getAvailableHolder().current());
 				}
 			}
 		}
@@ -120,22 +116,19 @@ public abstract class RpcContextHolder {
 		}
 	}
 
-	// @SuppressWarnings("unchecked")
-	// public <T> T getLambdaAttachment(@NotBlank String key) {
-	// return (T) lambdaAttachments.get().get(key);
-	// }
-	//
-	// public void setLambdaAttachment(@NotBlank String key, @NotNull
-	// Supplier<Object> lambdaGetter) {
-	// lambdaAttachments.get().put(key, lambdaGetter);
-	// }
-
 	/**
 	 * Gets attachment from current rpc context.
 	 * 
 	 * @return
 	 */
 	public abstract String getAttachment(String key);
+
+	/**
+	 * Gets all attachments from current rpc context.
+	 * 
+	 * @return
+	 */
+	public abstract Map<String, String> getAttachments();
 
 	/**
 	 * Sets attachment to current rpc context.
@@ -146,7 +139,7 @@ public abstract class RpcContextHolder {
 	public abstract void setAttachment(String key, String value);
 
 	/**
-	 * Sets attachments to current rpc context.
+	 * Sets all attachments to current rpc context.
 	 * 
 	 * @param key
 	 * @param value
@@ -181,6 +174,27 @@ public abstract class RpcContextHolder {
 
 	public String getLocalHost() {
 		return get("localHost", String.class);
+	}
+
+	/**
+	 * Obtain available candidate {@link RpcContextHolder} singleton instance.
+	 * 
+	 * @return
+	 */
+	private static final RpcContextHolder getAvailableHolder() {
+		List<RpcContextHolder> candidateHolders = safeMap(SpringContextHolder.getBeans(RpcContextHolder.class)).values().stream()
+				.collect(toList());
+
+		// Check holders must have only one valid.
+		if (candidateHolders.isEmpty()) {
+			throw new Error(format("Error, shouldn't be here, No found %s instance.", RpcContextHolder.class.getSimpleName()));
+		} else if (candidateHolders.size() > 1) {
+			throw new IllegalStateException(format(
+					"Found multiple %s instances, multiple RPC frameworks coexistence (e.g. feign/dubbo/motan) are not supported. Please check the conflicting framework dependencies.",
+					RpcContextHolder.class.getSimpleName()));
+		} else {
+			return candidateHolders.get(0);
+		}
 	}
 
 	private static final ConvertUtilsBean defaultConverter = new ConvertUtilsBean();

@@ -26,14 +26,14 @@ import com.wl4g.component.common.lang.ClassUtils2;
 import com.wl4g.component.core.utils.AopUtils2;
 
 /**
- * {@link FeignProxiesUtils}
+ * {@link FeignProxyUtil}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-23
  * @sine v1.0
  * @see
  */
-public final class FeignProxiesUtils {
+public final class FeignProxyUtil {
 
 	/**
 	 * Check whether the feign provider proxed bean name.
