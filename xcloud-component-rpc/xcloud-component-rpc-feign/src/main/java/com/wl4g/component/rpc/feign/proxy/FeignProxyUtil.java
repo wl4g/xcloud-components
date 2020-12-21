@@ -88,13 +88,13 @@ public final class FeignProxyUtil {
 	/**
 	 * Mybatis mapper proxy class.
 	 */
-	public static final Class<?> mapperProxyClass = ClassUtils2.resolveClassNameOrNull("org.apache.ibatis.binding.MapperProxy");
+	public static final Class<?> mapperProxyClass = ClassUtils2.resolveClassNameNullable("org.apache.ibatis.binding.MapperProxy");
 
 	/**
 	 * Dubbo {@link com.alibaba.dubbo.config.spring.ServiceBean} class.
 	 */
 	public static final Class<?> dubboServiceBeanClass = ClassUtils2
-			.resolveClassNameOrNull("com.alibaba.dubbo.config.spring.ServiceBean");
+			.resolveClassNameNullable("com.alibaba.dubbo.config.spring.ServiceBean");
 
 	/**
 	 * Feign proxy controller bean name suffix.

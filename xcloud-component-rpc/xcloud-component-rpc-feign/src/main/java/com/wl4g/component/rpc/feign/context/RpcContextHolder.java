@@ -61,11 +61,11 @@ public abstract class RpcContextHolder {
 		if (isNull(holder)) {
 			synchronized (RpcContextHolder.class) {
 				if (isNull(holder)) {
-					return (holder = getAvailableHolder().current());
+					holder = initObtainAvailableHolderImpl();
 				}
 			}
 		}
-		return holder;
+		return holder.current();
 	}
 
 	/**
@@ -87,9 +87,11 @@ public abstract class RpcContextHolder {
 		hasTextOf(key, "attachmentKey");
 		notNullOf(valueType, "attachmentValueType");
 		Object value = getAttachment(key);
-		if (value instanceof String) {
+		if (isNull(value)) {
+			return null;
+		} else if (String.class.isAssignableFrom(valueType)) {
 			return (T) value;
-		} else if (isSimpleType(value.getClass())) {
+		} else if (isSimpleType(valueType)) {
 			return (T) defaultConverter.convert(value, valueType);
 		} else { // Other object
 			return parseJSON((String) value, valueType);
@@ -177,11 +179,12 @@ public abstract class RpcContextHolder {
 	}
 
 	/**
-	 * Obtain available candidate {@link RpcContextHolder} singleton instance.
+	 * Initilization obtain available candidate implements
+	 * {@link RpcContextHolder} singleton instance.
 	 * 
 	 * @return
 	 */
-	private static final RpcContextHolder getAvailableHolder() {
+	private static final RpcContextHolder initObtainAvailableHolderImpl() {
 		List<RpcContextHolder> candidateHolders = safeMap(SpringContextHolder.getBeans(RpcContextHolder.class)).values().stream()
 				.collect(toList());
 

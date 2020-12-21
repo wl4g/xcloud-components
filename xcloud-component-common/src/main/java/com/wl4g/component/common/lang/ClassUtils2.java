@@ -354,10 +354,10 @@ public abstract class ClassUtils2 {
 	 * @return
 	 * @throws IllegalStateException
 	 */
-	public static Class<?> resolveClassNameOrNull(String className, @Nullable ClassLoader classLoader)
+	public static Class<?> resolveClassNameNullable(@NotNull String className, @Nullable ClassLoader classLoader)
 			throws IllegalStateException {
 		try {
-			return resolveClassName(className, classLoader);
+			return resolveClassName(notNullOf(className, "className"), classLoader);
 		} catch (RuntimeException ex) {
 			return null;
 		}
@@ -370,8 +370,8 @@ public abstract class ClassUtils2 {
 	 * @return
 	 * @throws IllegalStateException
 	 */
-	public static Class<?> resolveClassNameOrNull(String className) throws IllegalStateException {
-		return resolveClassNameOrNull(className, currentThread().getContextClassLoader());
+	public static Class<?> resolveClassNameNullable(@NotNull String className) throws IllegalStateException {
+		return resolveClassNameNullable(className, currentThread().getContextClassLoader());
 	}
 
 	/**
@@ -393,9 +393,9 @@ public abstract class ClassUtils2 {
 	 *             module definition for a superclass or interface implemented
 	 *             by the class to be checked here)
 	 */
-	public static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
+	public static boolean isPresent(@NotNull String className, @Nullable ClassLoader classLoader) {
 		try {
-			forName(className, classLoader);
+			forName(notNullOf(className, "className"), classLoader);
 			return true;
 		} catch (IllegalAccessError err) {
 			throw new IllegalStateException(

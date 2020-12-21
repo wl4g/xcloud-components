@@ -17,6 +17,8 @@ package com.wl4g.component.data.config;
 
 import java.util.Properties;
 
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.InterceptorChain;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -24,12 +26,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import com.github.pagehelper.PageHelper;
 import com.wl4g.component.core.annotation.condition.ConditionalOnJdwpDebug;
 import com.wl4g.component.data.mybatis.loader.SqlSessionMapperHotspotLoader;
 import com.wl4g.component.data.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoaderProperties;
-import com.wl4g.component.data.mybatis.mapper.GenericBeanMapperInterceptor;
+import com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor;
 import com.wl4g.component.data.mybatis.mapper.IdGenerator;
 
 /**
@@ -65,7 +69,7 @@ public class MybatisAutoConfiguration {
 		return new SqlSessionMapperHotspotLoader(sessionFactory, config);
 	}
 
-	// --- Mapper ID generator. ---
+	// --- Mapper ID generators. ---
 
 	/**
 	 * A better recommendation is to use a dedicated ID generation
@@ -84,9 +88,11 @@ public class MybatisAutoConfiguration {
 		};
 	}
 
-	// --- Mapper interceptor. ---
+	// --- Mapper interceptors. ---
 
 	@Bean
+	@ConditionalOnClass(PageHelper.class)
+	@Order(ORDER_PAGEHELPER)
 	public PageHelper githubPageHelper() {
 		Properties props = new Properties();
 		props.setProperty("dialect", "mysql");
@@ -100,11 +106,22 @@ public class MybatisAutoConfiguration {
 	}
 
 	@Bean
-	public GenericBeanMapperInterceptor genericBeanMapperInterceptor() {
-		return new GenericBeanMapperInterceptor();
+	@Order(ORDER_PREPARED_BEAN_MAPPER)
+	public PreparedBeanMapperInterceptor preparedBeanMapperInterceptor() {
+		return new PreparedBeanMapperInterceptor();
 	}
 
 	final public static String KEY_MYBATIS_PREFIX = "mybatis";
 	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.cloud.xcloud.components.data.mybatis-loader";
+
+	/**
+	 * Make sure that the prepared bean mapper interceptor is executed the
+	 * earliest. </br>
+	 * </br>
+	 * Note: mybatis {@link Interceptor} is reverse, that is, the last execution
+	 * that is first added to {@link InterceptorChain}
+	 */
+	final public static int ORDER_PREPARED_BEAN_MAPPER = Ordered.LOWEST_PRECEDENCE;
+	final public static int ORDER_PAGEHELPER = ORDER_PREPARED_BEAN_MAPPER - 1;
 
 }

@@ -354,6 +354,25 @@ public abstract class ReflectionUtils2 {
 
 	/**
 	 * Attempt to find a {@link Method} on the supplied class with the supplied
+	 * name and parameter types. Searches all superclasses up to {@code Object}.
+	 * <p>
+	 * Returns {@code null} if no {@link Method} can be found.
+	 * 
+	 * @param clazz
+	 *            the class to introspect
+	 * @param name
+	 *            the name of the method
+	 * @param paramTypes
+	 *            the parameter types of the method (may be {@code null} to
+	 *            indicate any signature)
+	 * @return the Method object, or {@code null} if none found
+	 */
+	public static Method findMethodNullable(@Nullable Class<?> clazz, @NotNull String name, Class<?>... paramTypes) {
+		return nonNull(clazz) ? findMethod(clazz, name, paramTypes) : null;
+	}
+
+	/**
+	 * Attempt to find a {@link Method} on the supplied class with the supplied
 	 * name and no parameters. Searches all superclasses up to {@code Object}.
 	 * <p>
 	 * Returns {@code null} if no {@link Method} can be found.
@@ -390,8 +409,8 @@ public abstract class ReflectionUtils2 {
 		while (searchType != null) {
 			Method[] methods = (searchType.isInterface() ? searchType.getMethods() : getDeclaredMethods(searchType));
 			for (Method method : methods) {
-				if (name.equals(method.getName()) && (isNull(paramTypes) || paramTypes.length == 0
-						|| Arrays.equals(paramTypes, method.getParameterTypes()))) {
+				if (name.equals(method.getName())
+						&& (isNull(paramTypes) || Arrays.equals(paramTypes, method.getParameterTypes()))) {
 					return method;
 				}
 			}

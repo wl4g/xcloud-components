@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.wl4g.component.common.annotation.Stable;
 import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.remoting.standard.HttpStatus;
 
@@ -55,7 +56,7 @@ import static org.apache.commons.lang3.StringUtils.*;
  * @date 2018年3月9日
  * @since
  */
-@Beta
+@Stable
 public class RespBase<D> implements Serializable {
 	private static final long serialVersionUID = 2647155468624590650L;
 

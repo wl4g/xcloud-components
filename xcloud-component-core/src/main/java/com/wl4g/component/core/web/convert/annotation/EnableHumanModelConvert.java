@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.core.web.method.mapping.annotation;
+package com.wl4g.component.core.web.convert.annotation;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -29,9 +29,6 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import com.google.common.base.Predicate;
 
 /**
  * {@link EnableSmartHandlerMappingConfiguration}
@@ -45,44 +42,23 @@ import com.google.common.base.Predicate;
 @Target({ TYPE })
 @Documented
 @Indexed
-@Import({ SmartHandlerMappingRegistrar.class })
-public @interface EnableSmartHandlerMapping {
+@Import({ HumanModelConvertRegistrar.class })
+public @interface EnableHumanModelConvert {
 
 	/**
-	 * Excludes the target {@link RequestMappingHandlerMapping} according to the
-	 * base scanning packages. </br>
-	 * </br>
-	 * Notes: if-empty, the all instances that exist in the bean factory
-	 * scanned.
+	 * Human model convert scan base packages.
 	 * 
-	 * @see {@link com.wl4g.component.core.web.method.mapping.WebMvcHandlerMappingConfigurer.SmartServletHandlerMapping#initHandlerMethods()}
+	 * @return
 	 */
 	@AliasFor("value")
 	String[] scanBasePackages() default {};
 
-	/**
-	 * Refer to {@link #scanBasePackages()}
-	 * 
-	 * @return
-	 */
-	@AliasFor(SCAN_BASE_PACKAGE)
+	@AliasFor(SCAN_BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
-	 * Include filters, Union with {@link #scanBasePackages()}
-	 * 
-	 * @return
+	 * Refer: {@link #value()}
 	 */
-	Class<? extends Predicate<Class<?>>>[] includeFilters() default {};
-
-	/**
-	 * Refer: {@link #scanBasePackages()}
-	 */
-	public static final String INCLUDE_FILTERS = "includeFilters";
-
-	/**
-	 * Refer: {@link #scanBasePackages()}
-	 */
-	public static final String SCAN_BASE_PACKAGE = "scanBasePackages";
+	public static final String SCAN_BASE_PACKAGES = "scanBasePackages";
 
 }

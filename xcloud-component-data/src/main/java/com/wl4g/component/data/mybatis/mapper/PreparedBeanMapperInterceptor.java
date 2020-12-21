@@ -15,6 +15,10 @@
  */
 package com.wl4g.component.data.mybatis.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.SqlUtil;
+
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -22,16 +26,13 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.bean.BaseBean;
-
+import com.wl4g.component.core.bean.model.PageWrapper;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static java.util.Objects.isNull;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import java.util.Properties;
 
 /**
@@ -57,8 +58,7 @@ import java.util.Properties;
 @Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class }),
 		@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class,
 				ResultHandler.class }) })
-@Order(Ordered.HIGHEST_PRECEDENCE + 10)
-public class GenericBeanMapperInterceptor implements Interceptor {
+public class PreparedBeanMapperInterceptor implements Interceptor {
 
 	protected final SmartLogger log = getLogger(getClass());
 
@@ -74,11 +74,11 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 		MappedStatement statement = (MappedStatement) invoc.getArgs()[0];
 		SqlCommandType command = statement.getSqlCommandType();
 
-		// Sets properties with update|insert.
-		applyUpdatePropertiesSet(invoc, command);
-
 		// Sets properties with query.
-		applyQueryPropertiesSet(invoc, command);
+		preQueryPropertiesSet(invoc, command);
+
+		// Sets properties with update|insert.
+		preUpdatePropertiesSet(invoc, command);
 
 		return invoc.proceed();
 	}
@@ -103,12 +103,40 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	}
 
 	/**
-	 * Sets properties attributes with updation and insertion(if necessary).
+	 * Pre query properties set. (if necessary)
 	 * 
 	 * @param invoc
 	 * @param command
 	 */
-	private void applyUpdatePropertiesSet(Invocation invoc, SqlCommandType command) {
+	private void preQueryPropertiesSet(Invocation invoc, SqlCommandType command) {
+		/*
+		 * Note: In order to be compatible with the distributed microservice
+		 * architecture, it is not the best solution to convert the bean time
+		 * returned by Dao layer here. Because Dao layer may not be able to
+		 * obtain the I18N language of the current user, it is finally decided
+		 * to migrate to the web layer.
+		 */
+		// Sets query attibutes
+		if (command == SqlCommandType.SELECT) {
+			if (isNull(SqlUtil.getLocalPage())) { // No set?
+				// Obtain page from Rpc context.
+				PageWrapper<?> page = PageWrapper.getCurrentContextPage();
+				log.debug("Get current page from RpcContext holder: {}", page);
+				if (nonNull(page)) {
+					PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.getPage().isCount());
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Pre updation|insertion properties set.(if necessary)
+	 * 
+	 * @param invoc
+	 * @param command
+	 */
+	private void preUpdatePropertiesSet(Invocation invoc, SqlCommandType command) {
 		// Sets insert properties
 		if (command == SqlCommandType.INSERT) {
 			for (int i = 1; i < invoc.getArgs().length; i++) {
@@ -123,6 +151,7 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 					if (isInsertSettable(bean)) {
 						bean.preInsert();
 					}
+					break;
 				}
 			}
 		}
@@ -135,44 +164,9 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 					if (isUpdateSettable(bean)) {
 						bean.preUpdate();
 					}
+					break;
 				}
 			}
-		}
-
-	}
-
-	/**
-	 * Sets properties with query(if necessary).
-	 * 
-	 * @param invoc
-	 * @param command
-	 */
-	private void applyQueryPropertiesSet(Invocation invoc, SqlCommandType command) {
-		/*
-		 * Note: In order to be compatible with the distributed microservice
-		 * architecture, it is not the best solution to convert the bean time
-		 * returned by Dao layer here. Because Dao layer may not be able to
-		 * obtain the I18N language of the current user, it is finally decided
-		 * to migrate to the web layer.
-		 */
-
-		// Sets query result attributes
-		if (command == SqlCommandType.SELECT) {
-			// for (int i = 1; i < invoc.getArgs().length; i++) {
-			// Object arg = invoc.getArgs()[i];
-			// if (BaseBean.class.isAssignableFrom(arg.getClass())) {
-			// BaseBean bean = (BaseBean) arg;
-			// if (!isNull(bean) && (isNull(bean.getHumanCreateDate()) ||
-			// isNull(bean.getHumanCreateDate()))) {
-			// bean.setHumanCreateDate(isNull(bean.getCreateDate()) ? null
-			// :
-			// periodFormatter.formatHumanDate(bean.getCreateDate().getTime()));
-			// bean.setHumanUpdateDate(isNull(bean.getUpdateDate()) ? null
-			// :
-			// periodFormatter.formatHumanDate(bean.getUpdateDate().getTime()));
-			// }
-			// }
-			// }
 		}
 
 	}
@@ -196,11 +190,5 @@ public class GenericBeanMapperInterceptor implements Interceptor {
 	private boolean isUpdateSettable(BaseBean bean) {
 		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
 	}
-
-	// /*
-	// * Human date formatter instance.
-	// */
-	// private static final PeriodFormatter periodFormatter =
-	// PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 }

@@ -42,7 +42,8 @@ public class FeignRpcContextHolder extends RpcContextHolder {
 
 	private static final ThreadLocal<FeignRpcContextHolder> LOCAL = withInitial(() -> new FeignRpcContextHolder());
 
-	private final Map<String, String> attachments = new HashMap<String, String>();
+	/** Feign request context attachments store. */
+	private final Map<String, String> attachments = new HashMap<>();
 
 	@Override
 	public String getAttachment(String key) {

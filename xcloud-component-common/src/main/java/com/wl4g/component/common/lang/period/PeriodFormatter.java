@@ -19,8 +19,10 @@ import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
 import static com.wl4g.component.common.lang.ClassUtils2.forName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Collections.synchronizedMap;
 import static java.util.Locale.US;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.lang.reflect.Method;
@@ -164,10 +166,13 @@ public abstract class PeriodFormatter {
 	protected String getLocalizedMessage(String localizedKey) {
 		String loc = null;
 		try {
-			loc = (String) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
+			if (nonNull(iamSecurityHolderGetBindValueMethod)) {
+				loc = (String) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
+			}
 		} catch (Exception e) {
 			log.warn(format("Cannot get IAM session locale, fallback use '%s'", locale), e);
 		}
+
 		try {
 			return getResourceBundle(isNull(loc) ? locale : new Locale(loc)).getString(localizedKey);
 		} catch (MissingResourceException e) {
@@ -207,7 +212,7 @@ public abstract class PeriodFormatter {
 	/**
 	 * {@link PeriodFormatter} register instances
 	 */
-	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = new HashMap<>();
+	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = synchronizedMap(new HashMap<>());
 
 	/**
 	 * IAM security holder method.
@@ -223,7 +228,7 @@ public abstract class PeriodFormatter {
 					forName("com.wl4g.iam.core.utils.IamSecurityHolder", currentThread().getContextClassLoader()), "getBindValue",
 					Object.class);
 		} catch (ClassNotFoundException | LinkageError e) {
-			getLogger(PeriodFormatter.class).warn("Internal error of cannot load class method. - {}", e.getMessage());
+			getLogger(PeriodFormatter.class).warn("Cannot load class iam security holder method. - {}", e.getMessage());
 		}
 		iamSecurityHolderGetBindValueMethod = getBindValueMethod;
 
