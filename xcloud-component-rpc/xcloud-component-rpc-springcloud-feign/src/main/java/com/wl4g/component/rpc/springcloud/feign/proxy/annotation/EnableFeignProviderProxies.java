@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.proxy.annotation;
+package com.wl4g.component.rpc.springcloud.feign.proxy.annotation;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Indexed;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartHandlerMapping;
-import com.wl4g.component.rpc.feign.proxy.FeignProxyMvcAutoConfiguration;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyMvcAutoConfiguration;
 
 import java.lang.annotation.*;
 

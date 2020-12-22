@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.wl4g.component.rpc.feign.proxy;
+package com.wl4g.component.rpc.springcloud.feign.proxy;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static java.lang.String.format;

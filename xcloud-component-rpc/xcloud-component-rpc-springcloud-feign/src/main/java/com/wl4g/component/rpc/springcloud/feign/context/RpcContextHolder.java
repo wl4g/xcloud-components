@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.feign.context;
+package com.wl4g.component.rpc.springcloud.feign.context;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;

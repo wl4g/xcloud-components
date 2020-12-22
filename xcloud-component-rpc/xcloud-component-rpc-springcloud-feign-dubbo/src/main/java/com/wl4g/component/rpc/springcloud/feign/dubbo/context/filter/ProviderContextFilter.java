@@ -27,7 +27,7 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.rpc.feign.context.RpcContextHolder;
+import com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder;
 
 /**
  * {@link ProviderContextFilter}

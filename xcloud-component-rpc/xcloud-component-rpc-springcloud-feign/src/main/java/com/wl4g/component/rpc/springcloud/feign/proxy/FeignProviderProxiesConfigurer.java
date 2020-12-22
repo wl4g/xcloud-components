@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.proxy;
+package com.wl4g.component.rpc.springcloud.feign.proxy;
 
 import java.util.Set;
 
@@ -41,9 +41,9 @@ import static org.springframework.util.ClassUtils.CGLIB_CLASS_SEPARATOR;
 
 import static com.wl4g.component.common.lang.Assert2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.FEIGN_PROXY_ORDER;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.generateFeignProxyBeanName;
+import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.FEIGNPROXY_INTERFACE_CLASS_ATTRIBUTE;
+import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.FEIGN_PROXY_ORDER;
+import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.generateFeignProxyBeanName;
 
 /**
  * The scanning injection is realized with reference to

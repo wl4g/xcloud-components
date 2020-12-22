@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.proxy;
+package com.wl4g.component.rpc.springcloud.feign.proxy;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +26,8 @@ import com.wl4g.component.core.framework.aop.ProxyInvocation;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.typeofDubboServiceBean;
-import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.typeofMapperProxy;
+import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.typeofDubboServiceBean;
+import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.typeofMapperProxy;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

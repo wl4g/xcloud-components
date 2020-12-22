@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.feign.context.interceptor;
+package com.wl4g.component.rpc.springcloud.feign.context.interceptor;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeEnumerationToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;

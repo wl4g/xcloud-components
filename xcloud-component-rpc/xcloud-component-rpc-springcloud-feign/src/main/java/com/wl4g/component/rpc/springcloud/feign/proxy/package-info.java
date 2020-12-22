@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.proxy;
-
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.web.bind.annotation.RestController;
-
+package com.wl4g.component.rpc.springcloud.feign.proxy;
 /**
- * Defining special class as a feign proxy controller.
- * 
- * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @author liqiu
- * @version v1.0 2019-11-20
- * @sine v1.0
- * @see
+ * The purpose of this module is to dynamically add the service API of @
+ * feignclient to the rest controller through AOP (cglib). In this way, the @
+ * restcontroller is not required to be used on the implementation class. It
+ * solves the problem that the same project can not only support multi JVM
+ * process startup in distributed mode, but also can be started by local
+ * debugging single JVM process.</br>
+ * </br>
+ * Thanks to refer: https://gitee.com/leecho/spring-cloud-feign-proxy
  */
-@RestController
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public interface FeignProxyController {
-}

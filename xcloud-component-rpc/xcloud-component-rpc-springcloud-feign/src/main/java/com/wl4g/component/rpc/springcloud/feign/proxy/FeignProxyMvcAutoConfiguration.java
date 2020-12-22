@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.proxy;
+package com.wl4g.component.rpc.springcloud.feign.proxy;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import static com.wl4g.component.rpc.feign.proxy.FeignProxyUtil.isFeignProxyBean;
+import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.isFeignProxyBean;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;

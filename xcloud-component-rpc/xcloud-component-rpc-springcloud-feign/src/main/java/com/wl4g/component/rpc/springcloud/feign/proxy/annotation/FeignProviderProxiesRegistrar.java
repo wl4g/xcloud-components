@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.proxy.annotation;
+package com.wl4g.component.rpc.springcloud.feign.proxy.annotation;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -34,7 +34,7 @@ import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import com.wl4g.component.rpc.feign.proxy.FeignProviderProxiesConfigurer;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProviderProxiesConfigurer;
 
 import static org.springframework.util.StringUtils.*;
 import static java.util.Arrays.asList;

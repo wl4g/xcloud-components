@@ -17,9 +17,10 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.feign.context.interceptor;
+package com.wl4g.component.rpc.springcloud.feign.context.interceptor;
 
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
+import static java.util.Objects.isNull;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,22 +29,23 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
+import org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.alibaba.cloud.sentinel.custom.SentinelAutoConfiguration;
-import com.wl4g.component.common.log.SmartLogger;
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
 import com.wl4g.component.common.web.WebUtils2;
-import com.wl4g.component.rpc.feign.context.RpcContextHolder;
+import com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
 /***
- * {@link SentinelFeignContextConfigurer}
+ * {@link HytrixFeignContextConfigurer}
  *
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-07
@@ -51,50 +53,71 @@ import feign.RequestTemplate;
  * @see
  */
 @Configuration
-@ConditionalOnClass(SentinelAutoConfiguration.class)
-@ConditionalOnBean(SentinelAutoConfiguration.class)
+@ConditionalOnClass(HystrixAutoConfiguration.class)
+@ConditionalOnBean(HystrixAutoConfiguration.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
-public class SentinelFeignContextConfigurer implements WebMvcConfigurer {
-	protected final SmartLogger log = getLogger(getClass());
+public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 
 	@Bean
-	public ServletSentinelConsumerContextInterceptor servletSentinelConsumerContextInterceptor() {
-		return new ServletSentinelConsumerContextInterceptor();
+	public ServletHytrixFeignConsumerContextInterceptor servletHytrixConsumerContextInterceptor() {
+		return new ServletHytrixFeignConsumerContextInterceptor();
 	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(servletSentinelConsumerContextInterceptor()).addPathPatterns("/**");
+		registry.addInterceptor(servletHytrixConsumerContextInterceptor()).addPathPatterns("/**");
 	}
 
 	// TODO
-	
+
 	/**
-	 * Servlet sentinel request context handler interceptor.
+	 * Servlet hytrix request context parameters interceptor. </br>
+	 * </br>
+	 * Refer to <a href=
+	 * "https://blog.csdn.net/luliuliu1234/article/details/96472893">HystrixInterceptor</a>
 	 */
-	static class ServletSentinelConsumerContextInterceptor implements RequestInterceptor, HandlerInterceptor {
+	static class ServletHytrixFeignConsumerContextInterceptor implements RequestInterceptor, HandlerInterceptor {
+
+		public static final HystrixRequestVariableDefault<HttpServletRequest> REQUEST = new HystrixRequestVariableDefault<>();
 
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			// TODO Auto-generated method stub
+			// Initializes hystrixrequestcontext in the current thread.
+			if (!HystrixRequestContext.isCurrentThreadInitialized()) {
+				HystrixRequestContext.initializeContext();
+			}
+			REQUEST.set(request);
 			return true;
 		}
 
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
-			// TODO Auto-generated method stub
+			if (HystrixRequestContext.isCurrentThreadInitialized()) {
+				// Destroy current thread
+				HystrixRequestContext.getContextForCurrentThread().shutdown();
+			}
 		}
 
 		@Override
 		public void apply(RequestTemplate template) {
-			// TODO Auto-generated method stub
+			if (!HystrixRequestContext.isCurrentThreadInitialized()) {
+				HystrixRequestContext.initializeContext();
+			}
+			// Obtain current request parameters save to feign request template
+			HttpServletRequest request = ServletHytrixFeignConsumerContextInterceptor.REQUEST.get();
+			if (isNull(request)) {
+				return;
+			}
+			FeignContextUtil.addParamsFromServletRequest(template, request);
 
+			// Obtain current rpc context attachments save to feign request
+			// template
+			safeMap(RpcContextHolder.get().getAttachments()).forEach((name, value) -> template.header(name, value));
 		}
-
 	}
 
-	static class ServletSentinelFeignProviderContextInterceptor implements HandlerInterceptor {
+	static class ServletHytrixFeignProviderContextInterceptor implements HandlerInterceptor {
 
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
