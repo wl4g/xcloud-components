@@ -57,10 +57,11 @@
 	</parent>
 	<modules>
 		<module>xcloud-component-rpc-codec</module>
-		<module>xcloud-component-rpc-feign</module>
-        <module>xcloud-component-rpc-feign-dubbo</module>
-		<module>xcloud-component-rpc-eureka</module>
-		<module>xcloud-component-rpc-eureka-sample</module>
+		<module>xcloud-component-rpc-istio-feign</module>
+		<module>xcloud-component-rpc-springcloud-feign</module>
+        <module>xcloud-component-rpc-springcloud-feign-dubbo</module>
+		<module>xcloud-component-rpc-springcloud-eureka</module>
+		<module>xcloud-component-rpc-springcloud-eureka-sample</module>
         <!--<module>xcloud-component-rpc-nacos</module>-->
         <!--<module>xcloud-component-rpc-consul</module>-->
         <!--<module>xcloud-component-rpc-zookeeper</module>-->

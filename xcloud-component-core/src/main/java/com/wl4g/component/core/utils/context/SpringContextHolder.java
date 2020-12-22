@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.reactive.context.ConfigurableReactiveWebEnvironment;
@@ -139,15 +140,14 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 	 * 
 	 * @return
 	 */
-	public static boolean isServletWebApplication(@Nullable ClassLoader classLoader,
-			@Nullable ConfigurableBeanFactory beanFactory, @Nullable Environment environment,
-			@Nullable ResourceLoader resourceLoader) {
+	public static boolean isServletWebApplication(@Nullable ClassLoader classLoader, @Nullable BeanFactory beanFactory,
+			@Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
 
 		if (!ClassUtils2.isPresent(SERVLET_WEB_APPLICATION_CLASS, classLoader)) {
 			return false;
 		}
-		if (!isNull(beanFactory)) {
-			String[] scopes = beanFactory.getRegisteredScopeNames();
+		if (!isNull(beanFactory) && beanFactory instanceof ConfigurableBeanFactory) {
+			String[] scopes = ((ConfigurableBeanFactory) beanFactory).getRegisteredScopeNames();
 			if (ObjectUtils.containsElement(scopes, "session")) {
 				return true;
 			}

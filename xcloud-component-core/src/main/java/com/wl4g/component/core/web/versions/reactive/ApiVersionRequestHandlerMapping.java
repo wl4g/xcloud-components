@@ -41,7 +41,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMappingWrapper;
 import com.wl4g.component.common.collection.CollectionUtils2;
-import com.wl4g.component.core.web.method.mapping.WebFluxHandlerMappingConfigurer.ReactiveHandlerMappingSupport;
+import com.wl4g.component.core.web.mapping.WebFluxSmartHandlerMappingConfigurer.ReactiveHandlerMappingSupport;
 import com.wl4g.component.core.web.versions.AmbiguousApiVersionMappingException;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionManagementWrapper;
 

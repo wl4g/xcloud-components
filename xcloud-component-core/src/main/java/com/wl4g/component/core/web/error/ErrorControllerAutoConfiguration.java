@@ -48,7 +48,7 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
 
-import com.wl4g.component.core.web.method.PrefixHandlerMappingSupport;
+import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport;
 
 /**
  * Global error controller handler auto configuration.

@@ -84,6 +84,12 @@ public class SpelExpressionsTests {
 	}
 
 	@Test
+	public void nonStringArgCallMethodSpelCase() {
+		String expression = "#{T(com.wl4g.component.core.utils.expression.SpelExpressionsTests.JoinUtil).show(T(String).class)}";
+		System.out.println("result: " + SpelExpressions.create().resolve(expression, null));
+	}
+
+	@Test
 	public void modelCallObjectMethodSpelCase() {
 		String expression = "#{joinUtil.join(name)}";
 		Map<String, Object> model = new HashMap<>();
@@ -123,6 +129,10 @@ public class SpelExpressionsTests {
 	public static class JoinUtil {
 		public static String join(String str) {
 			return format("%s nationality is America", str);
+		}
+
+		public static String show(Class<?> clazz) {
+			return format("Show input parameters: %s", clazz);
 		}
 	}
 

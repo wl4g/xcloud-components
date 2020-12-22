@@ -15,6 +15,7 @@
  */
 package com.wl4g.component.core.kit.access;
 
+import static java.lang.ThreadLocal.withInitial;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
+import static java.util.regex.Pattern.compile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +68,8 @@ public class IPAccessControl {
 	/**
 	 * Thread local pattern cache.
 	 */
-	final private static ThreadLocal<Pattern[]> DEFAULT_PATTERN_CACHE = new ThreadLocal<Pattern[]>() {
-		@Override
-		protected Pattern[] initialValue() {
-			return new Pattern[] { Pattern.compile(OWN_A), Pattern.compile(OWN_B), Pattern.compile(OWN_C) };
-		}
-	};
+	final private static ThreadLocal<Pattern[]> DEFAULT_PATTERN_CACHE = withInitial(
+			() -> new Pattern[] { compile(OWN_A), compile(OWN_B), compile(OWN_C) });
 
 	private IPAccessProperties config;
 

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.wl4g.component.core.web.method.mapping.WebMvcHandlerMappingConfigurer;
+import com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer;
 import com.wl4g.component.core.web.versions.annotation.ApiVersion;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement;
@@ -38,7 +38,7 @@ import com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagemen
  * @see https://spring.io/guides/gs/testing-web/
  */
 @EnableApiVersionManagement
-@SpringBootApplication(scanBasePackageClasses = WebMvcHandlerMappingConfigurer.class)
+@SpringBootApplication(scanBasePackageClasses = WebMvcSmartHandlerMappingConfigurer.class)
 public class ApiVersionControllerTests {
 
 	public static void main(String[] args) throws Exception {

@@ -17,6 +17,7 @@ package com.wl4g.component.core.utils.expression;
 
 import javax.annotation.Nullable;
 import org.springframework.context.expression.MapAccessor;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParserContext;
@@ -27,7 +28,12 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.expression.spel.support.StandardTypeLocator;
 import org.springframework.util.ClassUtils;
 
+import com.wl4g.component.common.function.CallbackFunction;
+
 import javax.validation.constraints.NotBlank;
+
+import static java.util.Objects.nonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,8 +119,20 @@ public abstract class SpelExpressions {
 	 * @param model
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked" })
 	public <T> T resolve(@NotBlank String expression, @Nullable Object model) throws EvaluationException {
+		return resolve(expression, model, null);
+	}
+
+	/**
+	 * Resolving spring expression to real value.
+	 * 
+	 * @param expression
+	 * @param model
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked" })
+	public <T> T resolve(@NotBlank String expression, @Nullable Object model,
+			@Nullable CallbackFunction<EvaluationContext> customizer) throws EvaluationException {
 		hasTextOf(expression, "expression");
 
 		// Create expression parser.
@@ -123,6 +141,15 @@ public abstract class SpelExpressions {
 		safeList(knownPackagePrefixes).forEach(p -> locator.registerImport(p));
 		context.setTypeLocator(locator);
 		context.setPropertyAccessors(defaultPropertyAccessors);
+
+		// Customize evaluation context.
+		if (nonNull(customizer)) {
+			try {
+				customizer.process(context);
+			} catch (Exception e) {
+				throw new IllegalStateException(e);
+			}
+		}
 
 		return (T) defaultParser.parseExpression(expression, ParserContext.TEMPLATE_EXPRESSION).getValue(context);
 	}

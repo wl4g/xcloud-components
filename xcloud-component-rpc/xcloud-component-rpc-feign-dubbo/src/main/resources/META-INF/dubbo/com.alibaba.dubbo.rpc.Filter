@@ -1,1 +1,0 @@
-attachmentConsumerContextFilter=com.wl4g.component.rpc.feign.dubbo.context.filter.ConsumerContextFilter
