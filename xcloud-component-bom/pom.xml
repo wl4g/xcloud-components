@@ -192,11 +192,6 @@
 				<artifactId>xcloud-component-rpc-springcloud-feign-dubbo</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-springcloud-eureka</artifactId>
-				<version>${project.parent.version}</version>
-			</dependency>
 			<!-- Third party dependency librarys -->
 			<!-- Spring Boot. -->
 			<dependency>

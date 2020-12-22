@@ -60,7 +60,6 @@
 		<module>xcloud-component-rpc-istio-feign</module>
 		<module>xcloud-component-rpc-springcloud-feign</module>
         <module>xcloud-component-rpc-springcloud-feign-dubbo</module>
-		<module>xcloud-component-rpc-springcloud-eureka</module>
 		<module>xcloud-component-rpc-springcloud-eureka-sample</module>
         <!--<module>xcloud-component-rpc-nacos</module>-->
         <!--<module>xcloud-component-rpc-consul</module>-->

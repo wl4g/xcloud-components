@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.feign.dubbo.context;
+package com.wl4g.component.rpc.springcloud.feign.dubbo.context;
 
 import java.util.Map;
 

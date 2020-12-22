@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.wl4g.component.rpc.feign.dubbo.FeignDubboAutoConfiguration
+com.wl4g.component.rpc.springcloud.feign.dubbo.FeignDubboAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.dubbo.registry.EurekaDubboRegistryAutoConfiguration

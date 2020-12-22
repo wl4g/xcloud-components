@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.springcloud.dubbo.eureka;
-
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.Registry;
-import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
-
+package com.wl4g.component.rpc.springcloud.feign.dubbo;
 /**
- * EurekaDubboRegistryFactory
+ * The purpose of this module is to enable the project to easily switch between
+ * Spring Cloud Feign and Dubbo to realize the remote call of the underlying
+ * layer.</br>
+ * </br>
+ * Thanks to refer: https://github.com/SpringCloud/spring-cloud-dubbo
  */
-public class EurekaDubboRegistryFactory extends AbstractRegistryFactory {
-
-	@Override
-	protected Registry createRegistry(URL url) {
-		return new EurekaDubboRegistry(url);
-	}
-
-}

@@ -173,7 +173,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- Spring Cloud -->
+		<!-- Spring Cloud. //TODO 待移除，计划后续从springcloud演进到springboot+istio平台 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-context</artifactId>

@@ -1,1 +1,0 @@
-eureka=com.wl4g.component.rpc.springcloud.dubbo.eureka.EurekaDubboRegistryFactory

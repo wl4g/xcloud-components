@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.feign.dubbo.context.filter;
+package com.wl4g.component.rpc.springcloud.feign.dubbo.context.filter;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
