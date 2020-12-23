@@ -33,6 +33,7 @@ import org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -67,8 +68,6 @@ public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(servletHytrixConsumerContextInterceptor()).addPathPatterns("/**");
 	}
-
-	// TODO
 
 	/**
 	 * Servlet hytrix request context parameters interceptor. </br>
@@ -109,7 +108,9 @@ public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 			if (isNull(request)) {
 				return;
 			}
-			FeignContextUtil.addParamsFromServletRequest(template, request);
+
+			// Sets request attachments.
+			FeignUtil.addParamsFromServletRequest(template, request);
 
 			// Obtain current rpc context attachments save to feign request
 			// template
@@ -124,6 +125,13 @@ public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 			// Obtain current request parameters and save to rpc context
 			RpcContextHolder.get().setAttachments(WebUtils2.getFirstParameters(request));
 			return true;
+		}
+
+		@Override
+		public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+				ModelAndView modelAndView) throws Exception {
+			// Sets response attachments.
+
 		}
 
 	}

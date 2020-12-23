@@ -37,15 +37,15 @@ import com.wl4g.component.common.log.SmartLogger;
 import feign.RequestTemplate;
 
 /**
- * {@link FeignContextUtil}
+ * {@link FeignUtil}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-18
  * @sine v1.0
  * @see
  */
-final class FeignContextUtil {
-	private static final SmartLogger log = getLogger(FeignContextUtil.class);
+final class FeignUtil {
+	private static final SmartLogger log = getLogger(FeignUtil.class);
 
 	/**
 	 * Addition servlet request parameters to feign context.

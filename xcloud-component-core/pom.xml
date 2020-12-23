@@ -174,14 +174,14 @@
 			</exclusions>
 		</dependency>
 		<!-- Spring Cloud. //TODO 待移除，计划后续从springcloud演进到springboot+istio平台 -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-context</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-commons</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.springframework.cloud</groupId> -->
+		<!-- <artifactId>spring-cloud-context</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.springframework.cloud</groupId> -->
+		<!-- <artifactId>spring-cloud-commons</artifactId> -->
+		<!-- </dependency> -->
 		<!-- Invalid spring-cloud-commons indirect dependency on HttpCore?? -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>

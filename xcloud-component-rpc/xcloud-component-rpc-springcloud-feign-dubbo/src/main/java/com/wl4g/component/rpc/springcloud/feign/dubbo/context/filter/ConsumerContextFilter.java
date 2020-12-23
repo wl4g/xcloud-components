@@ -48,9 +48,11 @@ import com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder;
  * @see https://github.com/apache/dubbo/issues/1533
  */
 @Activate(group = Constants.CONSUMER, order = -2000)
+@Deprecated // 原因见：#invoke()方法注释
 public class ConsumerContextFilter implements Filter {
-	private static final SmartLogger log = getLogger(ConsumerContextFilter.class);
+	protected final SmartLogger log = getLogger(getClass());
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 		// Sets current request parameters.
@@ -68,8 +70,11 @@ public class ConsumerContextFilter implements Filter {
 			RpcContextHolder.get().set("IAM_PRINCIPAL", invokeMethod(GET_PRINCIPALINFO_METHOD, null));
 		}
 
+		log.debug("Pre invoke attachments: {}", () -> RpcContextHolder.get().getAttachments());
 		Result result = invoker.invoke(invocation);
-		System.out.println(result.getAttachments());
+
+		// TODO 未通过测试!!! 无法获得ProviderContextFilter返回的附加参数???
+		log.debug("Post invoke attachments: {}", () -> result.getAttachments());
 		return result;
 	}
 
@@ -81,7 +86,7 @@ public class ConsumerContextFilter implements Filter {
 			getPrincipalMethod = findMethod(Class.forName("com.wl4g.iam.core.utils.IamSecurityHolder"), "getPrincipalInfo");
 			makeAccessible(getPrincipalMethod);
 		} catch (ClassNotFoundException e) { // Ignore
-			log.warn("Cannot load IamSecurityHolder.getPrincipalInfo() ", e.getMessage());
+			getLogger(ConsumerContextFilter.class).warn("Cannot load IamSecurityHolder.getPrincipalInfo() ", e.getMessage());
 		}
 		GET_PRINCIPALINFO_METHOD = getPrincipalMethod;
 	}

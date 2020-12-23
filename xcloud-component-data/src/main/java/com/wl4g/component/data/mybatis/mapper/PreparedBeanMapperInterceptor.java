@@ -28,7 +28,6 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import static org.apache.ibatis.mapping.SqlCommandType.*;
 
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.bean.BaseBean;
@@ -38,6 +37,8 @@ import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+
+import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -104,9 +105,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		final Object result = invoc.proceed();
 
 		// Post properties.
-		postProcess(invoc, command, result);
-
-		return result;
+		return postProcess(invoc, command, result);
 	}
 
 	/**
@@ -116,12 +115,17 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @param command
 	 */
 	private void preProcess(Invocation invoc, SqlCommandType command) {
-		if (command == SELECT) {
-			preQueryPropertiesSet(invoc);
-		} else if (command == UPDATE) {
-			preUpdatePropertiesSet(invoc);
-		} else if (command == INSERT) {
-			preInsertPropertiesSet(invoc);
+		switch (command) {
+		case SELECT:
+			preQuery(invoc);
+			break;
+		case UPDATE:
+			preUpdate(invoc);
+			break;
+		case INSERT:
+			preInsert(invoc);
+			break;
+		default: // Ignore
 		}
 	}
 
@@ -132,15 +136,20 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @param command
 	 * @param result
 	 */
-	private void postProcess(Invocation invoc, SqlCommandType command, Object result) {
-		if (command == SELECT) {
-			postQueryPropertiesSet(invoc, result);
-		} else if (command == UPDATE) {
-			postUpdatePropertiesSet(invoc, result);
-		} else if (command == INSERT) {
-			postInsertPropertiesSet(invoc, result);
+	private Object postProcess(Invocation invoc, SqlCommandType command, Object result) {
+		switch (command) {
+		case SELECT:
+			return postQuery(invoc, result);
+		case UPDATE:
+			return postUpdate(invoc, result);
+		case INSERT:
+			return postInsert(invoc, result);
+		default: // Ignore
+			return result;
 		}
 	}
+
+	// --- Prepare SQL processing. ---
 
 	/**
 	 * Pre query properties set. (if necessary)
@@ -148,7 +157,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @param invoc
 	 * @param command
 	 */
-	protected void preQueryPropertiesSet(Invocation invoc) {
+	protected void preQuery(Invocation invoc) {
 		/*
 		 * Note: In order to be compatible with the distributed microservice
 		 * architecture, it is not the best solution to convert the bean time
@@ -173,7 +182,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @param invoc
 	 * @param command
 	 */
-	protected void preUpdatePropertiesSet(Invocation invoc) {
+	protected void preUpdate(Invocation invoc) {
 		for (int i = 1; i < invoc.getArgs().length; i++) {
 			Object arg = invoc.getArgs()[i];
 			if (BaseBean.class.isAssignableFrom(arg.getClass())) {
@@ -186,12 +195,14 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		}
 	}
 
+	// --- Post SQL processing. ---
+
 	/**
 	 * Pre insertion properties set.(if necessary)
 	 * 
 	 * @param invoc
 	 */
-	protected void preInsertPropertiesSet(Invocation invoc) {
+	protected void preInsert(Invocation invoc) {
 		// Sets insert properties
 		for (int i = 1; i < invoc.getArgs().length; i++) {
 			Object arg = invoc.getArgs()[i];
@@ -215,21 +226,24 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * 
 	 * @param invoc
 	 * @param result
+	 * @return
 	 */
-	protected void postQueryPropertiesSet(Invocation invoc, Object result) {
-		PageHolder<?> page = PageHolder.getCurrentPage();
-		if (nonNull(page)) {
-			Page<?> helperPage = helperPageLocal.get();
-			if (nonNull(helperPage)) {
-				try {
-					BeanUtils.copyProperties(helperPage, page.getPage());
-					page.setPages(100112123);
-					PageHolder.setCurrentPage(page);
-				} finally {
-					helperPageLocal.remove();
-				}
+	protected Object postQuery(Invocation invoc, Object result) {
+		if (isNull(result)) {
+			return null;
+		}
+
+		// Transform result Page to original object.
+		if (result instanceof Page) {
+			PageHolder<?> page = PageHolder.getCurrentPage();
+			if (nonNull(page)) {
+				Page<?> helperPage = (Page<?>) result;
+				BeanUtils.copyProperties(helperPage, page.getPage());
+				PageHolder.setCurrentPage(page);
+				return new ArrayList<>(helperPage);
 			}
 		}
+		return result;
 	}
 
 	/**
@@ -237,8 +251,10 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * 
 	 * @param invoc
 	 * @param result
+	 * @return
 	 */
-	protected void postUpdatePropertiesSet(Invocation invoc, Object result) {
+	protected Object postUpdate(Invocation invoc, Object result) {
+		return result;
 	}
 
 	/**
@@ -247,7 +263,8 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @param invoc
 	 * @param result
 	 */
-	protected void postInsertPropertiesSet(Invocation invoc, Object result) {
+	protected Object postInsert(Invocation invoc, Object result) {
+		return result;
 	}
 
 	/**

@@ -40,14 +40,19 @@ import com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder;
  * @see https://github.com/apache/dubbo/issues/1533
  */
 @Activate(group = Constants.PROVIDER, order = -2000)
+@Deprecated // 原因见：#invoke()方法注释
 public class ProviderContextFilter implements Filter {
-	private static final SmartLogger log = getLogger(ProviderContextFilter.class);
+	protected final SmartLogger log = getLogger(getClass());
 
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 		Result result = invoker.invoke(invocation);
 		Map<String, String> attachments = RpcContextHolder.get().getAttachments();
 		result.getAttachments().putAll(attachments);
+		invocation.getAttachments().putAll(attachments);
+		log.debug("Sets response context attachments: {}", attachments);
+
+		// TODO 未通过测试!!! 在ConsumerContextFilter无法获取到这里返回的附加参数???
 		return result;
 	}
 

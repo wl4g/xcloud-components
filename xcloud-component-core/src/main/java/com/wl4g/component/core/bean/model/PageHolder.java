@@ -159,7 +159,9 @@ public class PageHolder<E> implements Serializable {
 		return getClass().getSimpleName().concat("<").concat(toJSONString(this)).concat(">");
 	}
 
+	//
 	// --- Current context page helper. ---
+	//
 
 	public PageHolder<E> setCurrentPage() {
 		setCurrentPage(this);
@@ -481,7 +483,7 @@ public class PageHolder<E> implements Serializable {
 
 	// Rpc context methods.
 	private static transient final Class<?> rpcContextHolderClass = resolveClassNameNullable(
-			"com.wl4g.component.rpc.feign.context.RpcContextHolder");
+			"com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder");
 	private static transient final Method rpcContextGetHolderMethod = findMethodNullable(rpcContextHolderClass, "get");
 	private static transient final Method rpcContextGetMethod = findMethodNullable(rpcContextHolderClass, "get", String.class,
 			Class.class);
