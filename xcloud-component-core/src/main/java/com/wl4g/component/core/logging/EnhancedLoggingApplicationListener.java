@@ -17,6 +17,7 @@ package com.wl4g.component.core.logging;
 
 import static org.springframework.boot.logging.LoggingSystem.SYSTEM_PROPERTY;
 
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.context.logging.LoggingApplicationListener;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.Ordered;
@@ -31,7 +32,8 @@ import com.wl4g.component.core.logging.logback.LogbackLoggingSystem;
  * @version v1.0 2020年2月24日
  * @since
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 10)
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class EnhancedLoggingApplicationListener extends LoggingApplicationListener {
 
 	/**

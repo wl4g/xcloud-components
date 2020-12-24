@@ -27,8 +27,7 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
 
 import feign.Logger;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
+import feign.Retryer;
 
 /**
  * {@link SpringBootFeignClient}
@@ -65,7 +64,7 @@ public @interface SpringBootFeignClient {
 	String name() default "";
 
 	/**
-	 * An absolute URL or resolvable hostname (the protocol is optional).
+	 * An absolute base URL or resolvable hostname (the protocol is optional).
 	 */
 	@AliasFor(annotation = FeignClient.class, attribute = "url")
 	String url() default "";
@@ -86,14 +85,13 @@ public @interface SpringBootFeignClient {
 	 * A custom configuration class for the feign client. Can contain override
 	 * <code>@Bean</code> definition for the pieces that make up the client, for
 	 * instance {@link feign.codec.Decoder}, {@link feign.codec.Encoder},
-	 * {@link feign.Contract}. </br>
-	 * </br>
+	 * {@link feign.Contract}, {@link Retryer}. </br>
 	 *
-	 * Default configuration by {@link GsonEncoder} and {@link GsonDecoder} and
-	 * {@link feign.Contract.Default}, refer to
+	 * Default configuration refer to
+	 * {@link EnableSpringBootFeignClients#defaultConfiguration()}
 	 * {@link com.wl4g.component.rpc.springboot.feign.factory.SpringBootFeignBeanFactory#getObject()}
 	 * 
-	 * @return list of configurations for feign client
+	 * @return list of configurations for feign client.
 	 */
 	@AliasFor(annotation = FeignClient.class, attribute = "configuration")
 	Class<?>[] configuration() default {};

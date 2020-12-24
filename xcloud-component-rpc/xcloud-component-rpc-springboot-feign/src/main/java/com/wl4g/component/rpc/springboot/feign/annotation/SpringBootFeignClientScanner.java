@@ -33,11 +33,15 @@ import com.wl4g.component.rpc.springboot.feign.factory.SpringBootFeignBeanFactor
 import feign.Logger;
 
 import static org.apache.commons.lang3.StringUtils.endsWithAny;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 /**
  * {@link SpringBootFeignClientScanner}
@@ -49,12 +53,17 @@ import java.util.Set;
  */
 class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 
+	@Nullable
+	private final String defaultUrl; // default base URL
+	@Nullable
 	private final Class<?>[] defaultConfiguration;
+	@Nullable
 	private final Logger.Level defaultLogLevel;
 
-	public SpringBootFeignClientScanner(BeanDefinitionRegistry registry, Class<?>[] defaultConfiguration,
+	public SpringBootFeignClientScanner(BeanDefinitionRegistry registry, String defaultUrl, Class<?>[] defaultConfiguration,
 			Logger.Level defaultLogLevel) {
 		super(registry, true);
+		this.defaultUrl = defaultUrl;
 		this.defaultConfiguration = defaultConfiguration;
 		this.defaultLogLevel = defaultLogLevel;
 		registerFilters();
@@ -86,9 +95,8 @@ class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 			MergedAnnotation<SpringBootFeignClient> feignClient = ((ScannedGenericBeanDefinition) definition).getMetadata()
 					.getAnnotations().get(SpringBootFeignClient.class);
 			// Must existing. see:#MARK1
-			// if (!feignClient.isPresent()) {
+			// if (!feignClient.isPresent())
 			// continue;
-			// }
 
 			MergedAnnotation<RequestMapping> requestMapping = ((ScannedGenericBeanDefinition) definition).getMetadata()
 					.getAnnotations().get(RequestMapping.class);
@@ -115,6 +123,7 @@ class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 	private String buildUrl(MergedAnnotation<SpringBootFeignClient> feignClient,
 			MergedAnnotation<RequestMapping> requestMapping) {
 		String url = feignClient.getString("url");
+		url = isBlank(url) ? trimToEmpty(defaultUrl) : url; // fallback
 		if (requestMapping.isPresent()) {
 			String[] value = (String[]) requestMapping.getValue("value").get();
 			url += value[0]; // append to url suffix

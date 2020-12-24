@@ -16,9 +16,13 @@
 package com.wl4g.component.rpc.springboot.feign;
 
 import com.google.gson.Gson;
+import com.wl4g.component.core.boot.BootDefaultAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.GithubService1.GitHubContributor;
 import com.wl4g.component.rpc.springboot.feign.GithubService2.GitHubRepo;
 import com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients;
+import com.wl4g.component.rpc.springboot.feign.SpringBootFeignTests.SampleRetryer;
+
+import feign.Retryer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,16 +34,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.List;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test1")
-@SpringBootTest(classes = SpringBootTests.class)
-@EnableSpringBootFeignClients(basePackages = "com.wl4g.component.rpc.springboot.feign")
-@EnableAutoConfiguration
-public class SpringBootTests {
+@SpringBootTest(classes = SpringBootFeignTests.class)
+@EnableAutoConfiguration(exclude = { BootDefaultAutoConfiguration.class })
+@EnableSpringBootFeignClients(basePackages = "com.wl4g.component.rpc.springboot.feign", defaultUrl = "${github.defaultUrl}", defaultConfiguration = {
+		SampleRetryer.class })
+public class SpringBootFeignTests {
 
-	private Logger log = LoggerFactory.getLogger(SpringBootTests.class);
+	private Logger log = LoggerFactory.getLogger(SpringBootFeignTests.class);
 
 	@Autowired
 	private GithubService1 githubService1;
@@ -59,6 +66,12 @@ public class SpringBootTests {
 		List<GitHubRepo> repos = githubService2.getRepos("wl4g");
 		log.info(">>> Result:");
 		log.info("repos={}", new Gson().toJson(repos));
+	}
+
+	public static class SampleRetryer extends Retryer.Default {
+		public SampleRetryer() {
+			super(200, SECONDS.toMillis(2), 3);
+		}
 	}
 
 }

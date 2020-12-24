@@ -59,7 +59,7 @@ public class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegi
 					basePackages.add(pkg);
 				}
 			}
-			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
+			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry, attrs.getString("defaultUrl"),
 					attrs.getClassArray("defaultConfiguration"), (Level) attrs.get("defaultLogLevel"));
 			scanner.doScan(StringUtils.toStringArray(basePackages));
 		}

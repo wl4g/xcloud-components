@@ -27,6 +27,7 @@ import java.util.*;
 import static com.wl4g.component.common.lang.Assert2.*;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
+import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -40,28 +41,28 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  */
 public abstract class GenericOperatorAdapter<K extends Enum<?>, O extends Operator<K>> implements Operator<K> {
 
-	final protected SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
 	/**
 	 * Generic registrar of operator alias names.
 	 */
-	final protected Map<K, O> operatorAliasRegistry = new RegisteredUnmodifiableMap<>(new HashMap<>());
+	protected final Map<K, O> operatorAliasRegistry = synchronizedMap(new RegisteredUnmodifiableMap<>(new HashMap<>()));
 
 	/**
 	 * Generic registrar of operator classes.
 	 */
-	final protected Map<Class<? extends Operator<Enum<?>>>, O> operatorClassRegistry = new RegisteredUnmodifiableMap<>(
-			new HashMap<>());
+	protected final Map<Class<? extends Operator<Enum<?>>>, O> operatorClassRegistry = synchronizedMap(
+			new RegisteredUnmodifiableMap<>(new HashMap<>()));
 
 	/**
 	 * Kind type class of operator provider.
 	 */
-	final private Class<? extends Enum<?>> kindClass;
+	private final Class<? extends Enum<?>> kindClass;
 
 	/**
 	 * Fallback no operation of operator.
 	 */
-	final private O fallbackNoOp;
+	private final O fallbackNoOp;
 
 	public GenericOperatorAdapter() {
 		this(null, null);

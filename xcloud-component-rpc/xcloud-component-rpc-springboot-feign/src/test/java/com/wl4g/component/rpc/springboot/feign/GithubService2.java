@@ -22,8 +22,8 @@ import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
  * @sine v1.0
  * @see
  */
-@SpringBootFeignClient(name = "github", url = "${github.url}", configuration = { SpringMvcContract.class })
-// @RequestMapping("${github.url}") // append to url suffix
+@SpringBootFeignClient(name = "github", configuration = { SpringMvcContract.class })
+// @RequestMapping("${github.api-path}") // append to url suffix
 public interface GithubService2 {
 
 	@RequestMapping(method = GET, path = "/users/{owner}/repos")

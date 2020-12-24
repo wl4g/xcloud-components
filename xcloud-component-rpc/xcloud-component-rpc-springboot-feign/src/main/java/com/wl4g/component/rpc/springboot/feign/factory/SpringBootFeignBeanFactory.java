@@ -23,6 +23,8 @@ import feign.Request;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -116,32 +118,51 @@ public class SpringBootFeignBeanFactory<T> implements FactoryBean<T>, Applicatio
 		}
 
 		// Builder feign
-		Feign.Builder builder = Feign.builder().client(client).retryer(new Retryer.Default(100, SECONDS.toMillis(1), 0))
+		Feign.Builder builder = Feign.builder().client(client)
 				.options(new Request.Options(config.getConnectTimeout(), config.getReadTimeout(), true));
+		// Sets decode404
 		if (decode404) {
 			builder.decode404();
 		}
+		// Sets log level
 		builder.logLevel((logLevel != Logger.Level.NONE) ? logLevel : defaultLogLevel);
 
-		// Merge configuration
+		// Sets configuration with merge.
+		mergeFeignConfigurationSet(builder);
+
+		return builder.target(proxyInterface, url);
+	}
+
+	private void mergeFeignConfigurationSet(Feign.Builder builder) throws Exception {
 		List<Class<?>> mergedConfiguration = new ArrayList<>(safeArrayToList(configuration));
 		mergedConfiguration.addAll(safeArrayToList(defaultConfiguration));
-		// If there are multiple configuration classes of the same type, the
-		// first one takes effect.
 		Encoder encoder = null;
 		Decoder decoder = null;
 		Contract contract = null;
+		Retryer retryer = null;
 		for (Class<?> clazz : mergedConfiguration) {
+			// If there are multiple configuration classes of the same type, the
+			// first one takes effect.
 			if (isNull(encoder) && Encoder.class.isAssignableFrom(clazz)) {
-				builder.encoder(encoder = (Encoder) clazz.newInstance());
+				encoder = (Encoder) clazz.newInstance();
 			} else if (isNull(decoder) && Decoder.class.isAssignableFrom(clazz)) {
-				builder.decoder(decoder = (Decoder) clazz.newInstance());
+				decoder = (Decoder) clazz.newInstance();
 			} else if (isNull(contract) && Contract.class.isAssignableFrom(clazz)) {
-				builder.contract(contract = (Contract) clazz.newInstance());
+				contract = (Contract) clazz.newInstance();
+			} else if (isNull(retryer) && Retryer.class.isAssignableFrom(clazz)) {
+				retryer = (Retryer) clazz.newInstance();
 			}
 		}
+		builder.encoder(isNull(encoder) ? new GsonEncoder() : encoder);
+		builder.decoder(isNull(decoder) ? new GsonDecoder() : decoder);
+		builder.contract(isNull(contract) ? new Contract.Default() : contract);
+		builder.retryer(isNull(retryer) ? new DefaultRetryer() : retryer);
+	}
 
-		return builder.target(proxyInterface, url);
+	public static class DefaultRetryer extends Retryer.Default {
+		public DefaultRetryer() {
+			super(100, SECONDS.toMillis(1), 0);
+		}
 	}
 
 }

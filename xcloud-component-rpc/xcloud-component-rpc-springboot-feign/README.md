@@ -72,7 +72,7 @@ Now we can use it as we normally use `Spring`.
     logger.info("repos={}", new Gson().toJson(repos));    
 ```
 
-##### For example codes refer to: [src/test/com/wl4g/component/rpc/springboot/feign/SpringBootTests.java](src/test/com/wl4g/component/rpc/springboot/feign/SpringBootTests.java)
+##### For example codes refer to: [src/test/com/wl4g/component/rpc/springboot/feign/SpringBootFeignTests.java](src/test/com/wl4g/component/rpc/springboot/feign/SpringBootFeignTests.java)
 
 
 ## More features:

@@ -19,6 +19,7 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -43,6 +44,7 @@ import com.wl4g.component.core.logging.TraceLoggingMDCFilter;
  */
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 
 	protected final SmartLogger log = getLogger(getClass());
@@ -50,13 +52,12 @@ public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 	/**
 	 * {@link ApplicationContext}
 	 */
-	protected ApplicationContext actx;
+	protected ApplicationContext applicationContext;
 
 	@Override
-	public void setApplicationContext(ApplicationContext actx) throws BeansException {
-		notNullOf(actx, "applicationContext");
-		this.actx = actx;
-		initBootProperties(actx.getEnvironment());
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = notNullOf(applicationContext, "applicationContext");
+		initBootPropertiesSet(applicationContext.getEnvironment());
 	}
 
 	/**
@@ -64,7 +65,7 @@ public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 	 * 
 	 * @param env
 	 */
-	protected void initBootProperties(Environment env) {
+	protected void initBootPropertiesSet(Environment env) {
 		// Sets API message prompt
 		initErrorPrompt(env);
 	}
