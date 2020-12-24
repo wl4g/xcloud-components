@@ -28,7 +28,7 @@ import com.wl4g.component.support.cli.repository.ProcessRepository;
  * @version v1.0.0 2019-10-20
  * @since
  */
-@ConditionalOnProperty(name = "spring.cloud.xcloud.support.cli.enable", matchIfMissing = false)
+@ConditionalOnProperty(name = "spring.boot.xcloud.support.cli.enable", matchIfMissing = false)
 public class CommandLineAutoConfiguration {
 
 	@Bean

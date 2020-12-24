@@ -9,7 +9,7 @@
 #
 
 spring:
-   cloud:
+   boot:
       xcloud:
          components:
             data:

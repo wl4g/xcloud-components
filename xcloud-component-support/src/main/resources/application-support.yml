@@ -12,8 +12,8 @@
 # #### Spring cloud devops support configuration. ####
 #
 spring:
-  cloud:
-    devops:
+  boot:
+    xcloud:
       #support:
       #  devel:
       #    mybatis-loader: # Mybatis mappers autoloader for development only(Note: production disabled)

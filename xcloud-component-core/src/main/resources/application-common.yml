@@ -18,7 +18,7 @@ spring:
   banner:
     charset: UTF-8
     location: classpath:banner.txt
-  cloud:
+  boot:
     xcloud:
       #error:
       #  enable: true # Default true

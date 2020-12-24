@@ -245,6 +245,6 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 	public static @interface ErrorController {
 	}
 
-	final public static String KEY_PROPERTY_PREFIX = "spring.cloud.xcloud.error";
+	final public static String KEY_PROPERTY_PREFIX = "spring.boot.xcloud.error";
 
 }

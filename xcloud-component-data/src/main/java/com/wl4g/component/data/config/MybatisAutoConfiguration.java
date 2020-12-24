@@ -112,7 +112,7 @@ public class MybatisAutoConfiguration {
 	}
 
 	final public static String KEY_MYBATIS_PREFIX = "mybatis";
-	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.cloud.xcloud.components.data.mybatis-loader";
+	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.boot.xcloud.components.data.mybatis-loader";
 
 	/**
 	 * Make sure that the prepared bean mapper interceptor is executed the

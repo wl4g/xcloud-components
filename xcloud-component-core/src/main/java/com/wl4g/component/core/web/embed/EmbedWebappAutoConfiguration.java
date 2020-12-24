@@ -174,6 +174,6 @@ public class EmbedWebappAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	public static final String BEAN_DEFAULT_PROPERTIES = "defaultSimpleEmbeddedWebappsProperties";
 	public static final String BEAN_DEFAULT_ENDPOINT = "defaultSimpleEmbeddedWebappsEndpoint";
-	public static final String KEY_EMBEDDED_WEBAPP_BASE = "spring.cloud.xcloud.embedded-webapps";
+	public static final String KEY_EMBEDDED_WEBAPP_BASE = "spring.boot.xcloud.embedded-webapps";
 
 }
