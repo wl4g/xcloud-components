@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.wl4g.component.rpc.istio.feign.config.IstioFeignAutoConfiguration

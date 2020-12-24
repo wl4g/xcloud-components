@@ -104,7 +104,7 @@
 		<sshj.version>0.27.0</sshj.version>
 		<!-- web compontens -->
 		<user-agent.version>1.2.4</user-agent.version>
-		<open.feign.version>10.10.1</open.feign.version>
+		<feign.version>10.10.1</feign.version>
 		<httpclient.version>4.5.5</httpclient.version>
 		<httpcore.version>4.4.9</httpcore.version>
 		<!-- compression -->
@@ -177,7 +177,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-istio-feign</artifactId>
+				<artifactId>xcloud-component-rpc-springboot-feign</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
@@ -511,22 +511,52 @@
 			<dependency>
 				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-core</artifactId>
-				<version>${open.feign.version}</version>
+				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-okhttp</artifactId>
-				<version>${open.feign.version}</version>
+				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-java11</artifactId>
-				<version>${open.feign.version}</version>
+				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-gson</artifactId>
-				<version>${open.feign.version}</version>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-slf4j</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-httpclient</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jackson-jaxb</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jackson</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jaxb</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jaxrs</artifactId>
+				<version>${feign.version}</version>
 			</dependency>
 			<!-- Apatche HttpClient. -->
 			<dependency>
