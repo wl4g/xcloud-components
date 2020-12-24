@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.wl4g.component.support.config.JedisAutoConfiguration.JedisProperties;
+import com.wl4g.component.support.redis.jedis.JedisAutoConfiguration.JedisProperties;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;

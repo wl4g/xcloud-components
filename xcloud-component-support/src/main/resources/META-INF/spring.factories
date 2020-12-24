@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wl4g.component.support.redis.jedis.JedisAutoConfiguration,\
+com.wl4g.component.support.notification.NotificationAutoConfiguration,\
+com.wl4g.component.support.cli.CommandLineAutoConfiguration

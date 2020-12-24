@@ -1,0 +1,4 @@
+# Application Auto Configuration.
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration,\
+com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClientsRegistrar

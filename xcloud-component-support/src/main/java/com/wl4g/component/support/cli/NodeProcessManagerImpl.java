@@ -35,8 +35,8 @@ import com.wl4g.component.support.cli.destroy.DestroySignal;
 import com.wl4g.component.support.cli.destroy.DestroySignalMessage;
 import com.wl4g.component.support.cli.process.DestroableProcess;
 import com.wl4g.component.support.cli.repository.ProcessRepository;
-import com.wl4g.component.support.concurrent.locks.JedisLockManager;
 import com.wl4g.component.support.redis.jedis.JedisService;
+import com.wl4g.component.support.redis.locks.JedisLockManager;
 
 /**
  * Implementation of distributed destroable command process based on jedis

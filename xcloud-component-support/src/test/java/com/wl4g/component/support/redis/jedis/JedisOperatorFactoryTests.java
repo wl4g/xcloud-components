@@ -21,9 +21,9 @@ import static java.util.Collections.singletonList;
 
 import org.junit.Test;
 
-import com.wl4g.component.support.config.JedisAutoConfiguration.JedisProperties;
 import com.wl4g.component.support.redis.jedis.JedisOperator;
 import com.wl4g.component.support.redis.jedis.JedisOperatorFactory;
+import com.wl4g.component.support.redis.jedis.JedisAutoConfiguration.JedisProperties;
 import com.wl4g.component.support.redis.jedis.JedisOperator.RedisProtoUtil;
 
 /**

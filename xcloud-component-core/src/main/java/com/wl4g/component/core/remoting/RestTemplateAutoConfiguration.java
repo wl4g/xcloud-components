@@ -15,8 +15,6 @@
  */
 package com.wl4g.component.core.remoting;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,31 +27,32 @@ import javax.net.ssl.SSLSession;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorResourceFactory;
 import org.springframework.web.client.RestTemplate;
 
-import static com.wl4g.component.common.lang.TypeConverts.safeLongToInt;
-import static io.netty.channel.ChannelOption.*;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 
-@Configuration
-@ConditionalOnClass({
-		RestTemplate.class/* , ClientHttpConnector.class, HttpClient.class */ })
-public class ClientHttpAutoConfiguration {
+/**
+ * {@link RestTemplateAutoConfiguration}
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version v1.0 2019-12-24
+ * @sine v1.0
+ * @see
+ */
+@SuppressWarnings("deprecation")
+@ConditionalOnClass(RestTemplate.class)
+@ConditionalOnWebApplication(type = Type.SERVLET)
+public class RestTemplateAutoConfiguration {
 
 	@Bean
 	@ConfigurationProperties(prefix = "spring.web.remote")
@@ -67,7 +66,6 @@ public class ClientHttpAutoConfiguration {
 		return new RestTemplate(factory);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Bean
 	@ConditionalOnMissingBean
 	public ClientHttpRequestFactory netty4ClientHttpRequestFactory(
@@ -79,15 +77,6 @@ public class ClientHttpAutoConfiguration {
 		// factory.setSslContext(sslContext);
 		return factory;
 	}
-	
-//	@Bean
-//	@ConditionalOnMissingBean
-//	public ClientHttpConnector clientHttpConnector(ClientHttpProperties config, ReactorResourceFactory reactorFactory) {
-//		TcpClient client = TcpClient.create(reactorFactory.getConnectionProvider()).runOn(reactorFactory.getLoopResources())
-//				.option(CONNECT_TIMEOUT_MILLIS, safeLongToInt(SECONDS.toMillis(config.getConnectTimeout())))
-//				.doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(config.getReadTimeout())));
-//		return new ReactorClientHttpConnector(HttpClient.from(client));
-//	}
 
 	/**
 	 * Clearly specify OpenSSL, because jdk8 may have performance problems, See:

@@ -25,6 +25,8 @@ import org.springframework.util.StringUtils;
 
 import feign.Logger.Level;
 
+import static java.util.Objects.nonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,7 @@ import java.util.List;
  * @sine v1.0
  * @see
  */
-class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+public class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
 	@SuppressWarnings("unused")
 	private ResourceLoader resourceLoader;
@@ -50,17 +52,18 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableSpringBootFeignClients.class.getName()));
-
-		List<String> basePackages = new ArrayList<>();
-		for (String pkg : attrs.getStringArray("basePackages")) {
-			if (StringUtils.hasText(pkg)) {
-				basePackages.add(pkg);
+		if (nonNull(attrs)) {
+			List<String> basePackages = new ArrayList<>();
+			for (String pkg : attrs.getStringArray("basePackages")) {
+				if (StringUtils.hasText(pkg)) {
+					basePackages.add(pkg);
+				}
 			}
+			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
+					attrs.getClassArray("defaultConfiguration"), (Level) attrs.get("defaultLogLevel"));
+			scanner.doScan(StringUtils.toStringArray(basePackages));
 		}
 
-		SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
-				attrs.getClassArray("defaultConfiguration"), (Level) attrs.get("defaultLogLevel"));
-		scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 
 }

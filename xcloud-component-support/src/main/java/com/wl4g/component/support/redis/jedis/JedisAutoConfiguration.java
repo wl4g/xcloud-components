@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.config;
+package com.wl4g.component.support.redis.jedis;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
@@ -34,10 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.support.concurrent.locks.JedisLockManager;
-import com.wl4g.component.support.redis.jedis.JedisOperator;
-import com.wl4g.component.support.redis.jedis.JedisOperatorFactory;
-import com.wl4g.component.support.redis.jedis.JedisService;
+import com.wl4g.component.support.redis.locks.JedisLockManager;
 
 import static redis.clients.jedis.HostAndPort.parseString;
 import redis.clients.jedis.HostAndPort;

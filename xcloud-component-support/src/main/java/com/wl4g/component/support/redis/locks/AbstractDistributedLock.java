@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.concurrent.locks;
+package com.wl4g.component.support.redis.locks;
 
 import static com.wl4g.component.common.lang.SystemUtils2.GLOBAL_PROCESS_SERIAL;
 import static org.springframework.util.Assert.hasText;

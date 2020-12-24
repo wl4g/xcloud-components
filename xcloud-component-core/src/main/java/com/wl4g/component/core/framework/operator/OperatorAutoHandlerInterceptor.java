@@ -29,7 +29,7 @@ import com.wl4g.component.common.log.SmartLogger;
  * @version v1.0 2020年3月11日
  * @since
  */
-public class OperatorAutoHandleInterceptor implements MethodInterceptor {
+public class OperatorAutoHandlerInterceptor implements MethodInterceptor {
 
 	final protected SmartLogger log = getLogger(getClass());
 

@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.config;
+package com.wl4g.component.support.cli;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-import com.wl4g.component.support.cli.DestroableProcessManager;
-import com.wl4g.component.support.cli.NodeProcessManagerImpl;
 import com.wl4g.component.support.cli.repository.DefaultProcessRepository;
 import com.wl4g.component.support.cli.repository.ProcessRepository;
 
@@ -31,7 +28,6 @@ import com.wl4g.component.support.cli.repository.ProcessRepository;
  * @version v1.0.0 2019-10-20
  * @since
  */
-@Configuration
 @ConditionalOnProperty(name = "spring.cloud.xcloud.support.cli.enable", matchIfMissing = false)
 public class CommandLineAutoConfiguration {
 

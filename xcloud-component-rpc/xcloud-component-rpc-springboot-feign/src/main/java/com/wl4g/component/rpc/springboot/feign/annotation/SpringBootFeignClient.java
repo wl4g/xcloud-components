@@ -54,31 +54,32 @@ public @interface SpringBootFeignClient {
 	 * 
 	 * @return the name of the service with optional protocol prefix
 	 */
-	@AliasFor("name")
+	@AliasFor(annotation = FeignClient.class, attribute = "value")
 	String value() default "";
 
 	/**
 	 * The service id with optional protocol prefix. Synonym for {@link #value()
 	 * value}.
 	 */
-	@AliasFor("value")
-	String name()
-
-	default "";
+	@AliasFor(annotation = FeignClient.class, attribute = "name")
+	String name() default "";
 
 	/**
 	 * An absolute URL or resolvable hostname (the protocol is optional).
 	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "url")
 	String url() default "";
 
 	/**
 	 * whether 404s should be decoded instead of throwing FeignExceptions
 	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "decode404")
 	boolean decode404() default false;
 
 	/**
 	 * Whether to mark the feign proxy as a primary bean. Defaults to true.
 	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "primary")
 	boolean primary() default true;
 
 	/**
@@ -94,6 +95,7 @@ public @interface SpringBootFeignClient {
 	 * 
 	 * @return list of configurations for feign client
 	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "configuration")
 	Class<?>[] configuration() default {};
 
 	Logger.Level logLevel() default Logger.Level.NONE;

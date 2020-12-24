@@ -2,3 +2,10 @@
 org.springframework.context.ApplicationListener=\
 com.wl4g.component.core.logging.EnhancedLoggingApplicationListener,\
 com.wl4g.component.core.boot.listener.DefaultConfigurationApplicationListener
+
+# Application Auto Configuration.
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wl4g.component.core.boot.BootDefaultAutoConfiguration,\
+com.wl4g.component.core.framework.GenericOperatorAutoConfiguration,\
+com.wl4g.component.core.remoting.RestTemplateAutoConfiguration,\
+com.wl4g.component.core.remoting.WebClientAutoConfiguration

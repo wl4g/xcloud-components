@@ -1,4 +1,4 @@
-package com.wl4g.component.rpc.istio.feign;
+package com.wl4g.component.rpc.springboot.feign;
 
 import feign.Param;
 import feign.RequestLine;

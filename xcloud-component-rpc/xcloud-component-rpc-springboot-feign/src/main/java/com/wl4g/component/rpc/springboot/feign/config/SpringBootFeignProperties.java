@@ -15,8 +15,6 @@
  */
 package com.wl4g.component.rpc.springboot.feign.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 /**
  * {@link SpringBootFeignProperties}
  * 
@@ -25,7 +23,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @sine v1.0
  * @see
  */
-@ConfigurationProperties(prefix = "istio.feign", ignoreInvalidFields = true, ignoreUnknownFields = true)
 public class SpringBootFeignProperties {
 
 	private int maxIdleConnections = 200;

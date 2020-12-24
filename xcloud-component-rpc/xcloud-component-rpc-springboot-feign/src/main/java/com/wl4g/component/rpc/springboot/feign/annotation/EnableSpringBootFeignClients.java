@@ -47,6 +47,7 @@ import java.lang.annotation.Target;
 @Documented
 @EnableSmartMappingConfiguration
 @Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
+// @Import(SpringBootFeignMarkerConfiguration.class)
 public @interface EnableSpringBootFeignClients {
 
 	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)

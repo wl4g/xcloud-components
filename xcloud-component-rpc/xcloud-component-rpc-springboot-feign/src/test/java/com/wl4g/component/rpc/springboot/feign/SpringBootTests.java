@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.istio.feign;
+package com.wl4g.component.rpc.springboot.feign;
 
 import com.google.gson.Gson;
-import com.wl4g.component.rpc.istio.feign.GithubService1.GitHubContributor;
-import com.wl4g.component.rpc.istio.feign.GithubService2.GitHubRepo;
+import com.wl4g.component.rpc.springboot.feign.GithubService1.GitHubContributor;
+import com.wl4g.component.rpc.springboot.feign.GithubService2.GitHubRepo;
 import com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients;
 
 import org.junit.Test;
@@ -35,7 +35,7 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test1")
 @SpringBootTest(classes = SpringBootTests.class)
-@EnableSpringBootFeignClients(basePackages = "com.wl4g.component.rpc.istio.feign")
+@EnableSpringBootFeignClients(basePackages = "com.wl4g.component.rpc.springboot.feign")
 @EnableAutoConfiguration
 public class SpringBootTests {
 

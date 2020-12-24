@@ -17,19 +17,7 @@ package com.wl4g.component.core.boot;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static java.lang.reflect.Modifier.*;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.aop.ClassFilter;
-import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.Pointcut;
-import org.springframework.aop.PointcutAdvisor;
-import org.springframework.aop.support.AbstractGenericPointcutAdvisor;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,17 +25,13 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.rest.RespBase.ErrorPromptMessageBuilder;
-import com.wl4g.component.core.framework.operator.EmptyOperator;
-import com.wl4g.component.core.framework.operator.GenericOperatorAdapter;
-import com.wl4g.component.core.framework.operator.Operator;
-import com.wl4g.component.core.framework.operator.OperatorAutoHandleInterceptor;
 import com.wl4g.component.core.logging.TraceLoggingMDCFilter;
 
 /**
@@ -57,11 +41,11 @@ import com.wl4g.component.core.logging.TraceLoggingMDCFilter;
  * @version v1.0 2020年2月20日
  * @since
  */
-@Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 
-	final protected SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
 	/**
 	 * {@link ApplicationContext}
@@ -117,79 +101,6 @@ public class BootDefaultAutoConfiguration implements ApplicationContextAware {
 		// '/**')
 		filterBean.addUrlPatterns("/*");
 		return filterBean;
-	}
-
-	// --- C U S T O M A T I O N _ F R A M E W O R K. ---
-
-	@Bean
-	@ConditionalOnMissingBean(Operator.class)
-	public Operator<Enum<?>> emptyOperator() {
-		return new EmptyOperator();
-	}
-
-	@Bean
-	@ConditionalOnBean(Operator.class)
-	public OperatorAutoHandleInterceptor operatorAutoHandleInterceptor() {
-		return new OperatorAutoHandleInterceptor();
-	}
-
-	@Bean
-	@ConditionalOnBean(OperatorAutoHandleInterceptor.class)
-	public PointcutAdvisor compositeOperatorAspectJExpressionPointcutAdvisor(OperatorAutoHandleInterceptor advice) {
-		AbstractGenericPointcutAdvisor advisor = new AbstractGenericPointcutAdvisor() {
-			final private static long serialVersionUID = 1L;
-
-			@Override
-			public Pointcut getPointcut() {
-				return new Pointcut() {
-
-					final private List<String> EXCLUDE_METHODS = new ArrayList<String>(4) {
-						private static final long serialVersionUID = 3369346948736795743L;
-						{
-							addAll(asList(Operator.class.getDeclaredMethods()).stream().map(m -> m.getName()).collect(toList()));
-							addAll(asList(GenericOperatorAdapter.class.getDeclaredMethods()).stream().map(m -> m.getName())
-									.collect(toList()));
-							addAll(asList(Object.class.getDeclaredMethods()).stream().map(m -> m.getName()).collect(toList()));
-						}
-					};
-
-					@Override
-					public MethodMatcher getMethodMatcher() {
-						return new MethodMatcher() {
-
-							@Override
-							public boolean matches(Method method, Class<?> targetClass) {
-								Class<?> declareClass = method.getDeclaringClass();
-								int mod = method.getModifiers();
-								String name = method.getName();
-								return !isAbstract(mod) && isPublic(mod) && !isInterface(declareClass.getModifiers())
-										&& !EXCLUDE_METHODS.contains(name);
-							}
-
-							@Override
-							public boolean isRuntime() {
-								return false;
-							}
-
-							@Override
-							public boolean matches(Method method, Class<?> targetClass, Object... args) {
-								throw new Error("Shouldn't be here");
-							}
-						};
-					}
-
-					@Override
-					public ClassFilter getClassFilter() {
-						return clazz -> {
-							return Operator.class.isAssignableFrom(clazz) && !GenericOperatorAdapter.class.isAssignableFrom(clazz)
-									&& !isAbstract(clazz.getModifiers()) && !isInterface(clazz.getModifiers());
-						};
-					}
-				};
-			}
-		};
-		advisor.setAdvice(advice);
-		return advisor;
 	}
 
 	// --- C U S T O M A T I O N _ S E R V L E T _ C O N T A I N E R. ---

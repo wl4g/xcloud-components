@@ -20,6 +20,8 @@ import okhttp3.OkHttpClient;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 //import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 //import org.springframework.boot.autoconfigure.condition.ConditionalOnJava;
 //import org.springframework.boot.system.JavaVersion;
@@ -27,9 +29,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 //import feign.http2client.Http2Client;
 import feign.Client;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 //import java.net.http.HttpClient;
 //import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * {@link SpringBootFeignAutoConfiguration}
@@ -42,28 +46,28 @@ import java.util.concurrent.TimeUnit;
 public class SpringBootFeignAutoConfiguration {
 
 	@Bean
-	public SpringBootFeignProperties istioFeignProperties() {
+	@ConfigurationProperties(prefix = KEY_PREFIX, ignoreInvalidFields = true, ignoreUnknownFields = true)
+	public SpringBootFeignProperties springBootFeignProperties() {
 		return new SpringBootFeignProperties();
 	}
 
 	@Bean
 	public ConnectionPool okHttp3ConnectionPool(SpringBootFeignProperties config) {
-		return new ConnectionPool(config.getMaxIdleConnections(), config.getKeepAliveDuration(), TimeUnit.MINUTES);
+		return new ConnectionPool(config.getMaxIdleConnections(), config.getKeepAliveDuration(), MINUTES);
 	}
 
 	@Bean(BEAN_FEIGN_CLIENT)
-	@ConditionalOnExpression("'okhttp3'.equals('${feign.httpclient:okhttp3}')")
-	public Client okHttpFeignClient(SpringBootFeignProperties config, ConnectionPool connectionPool) {
-		OkHttpClient delegate = new OkHttpClient().newBuilder().connectionPool(connectionPool)
-				.connectTimeout(config.getConnectTimeout(), TimeUnit.MILLISECONDS)
-				.readTimeout(config.getReadTimeout(), TimeUnit.MILLISECONDS)
-				.writeTimeout(config.getWriteTimeout(), TimeUnit.MILLISECONDS).build();
+	@ConditionalOnExpression(KEY_CLIENT_EXPRESSION)
+	public Client okHttpFeignClient(SpringBootFeignProperties config, ConnectionPool pool) {
+		OkHttpClient delegate = new OkHttpClient().newBuilder().connectionPool(pool)
+				.connectTimeout(config.getConnectTimeout(), MILLISECONDS).readTimeout(config.getReadTimeout(), MILLISECONDS)
+				.writeTimeout(config.getWriteTimeout(), MILLISECONDS).build();
 		return new feign.okhttp.OkHttpClient(delegate);
 	}
 
 	// @Bean(BEAN_FEIGN_CLIENT)
 	// @ConditionalOnJava(JavaVersion.ELEVEN)
-	// @ConditionalOnExpression("'http2Client'.equals('${feign.httpclient:okhttp3}')")
+	// @ConditionalOnExpression(KEY_CLIENT_EXPRESSION)
 	// @ConditionalOnClass(HttpClient.class)
 	// public Client http2FeignClient() {
 	// HttpClient httpClient =
@@ -72,6 +76,9 @@ public class SpringBootFeignAutoConfiguration {
 	// return new Http2Client(httpClient);
 	// }
 
-	public static final String BEAN_FEIGN_CLIENT = "istioFeignClient";
+	public static final String BEAN_FEIGN_CLIENT = "springBootFeignClient";
+	public static final String KEY_PREFIX = "spring.boot.xcloud.feign";
+	public static final String KEY_CLIENT_EXPRESSION = "'okhttp3'.equalsIgnoreCase('${" + KEY_PREFIX
+			+ ".client.provider:okhttp3}')";
 
 }
