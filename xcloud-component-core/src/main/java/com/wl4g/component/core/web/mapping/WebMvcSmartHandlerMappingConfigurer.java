@@ -17,7 +17,6 @@ package com.wl4g.component.core.web.mapping;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.wl4g.component.common.collection.CollectionUtils2;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
@@ -49,6 +48,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
@@ -58,6 +58,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
@@ -99,12 +100,18 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	@Autowired(required = false)
 	private List<ServletHandlerMappingSupport> handlerMappings;
 
+	private boolean ambiguousMappingOverrideByOrder;
+
 	public void setScanBasePackages(String[] scanBasePackages) {
 		this.scanBasePackages = scanBasePackages;
 	}
 
 	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
 		this.includeFilters = includeFilters;
+	}
+
+	public void setAmbiguousMappingOverrideByOrder(boolean ambiguousMappingOverrideByOrder) {
+		this.ambiguousMappingOverrideByOrder = ambiguousMappingOverrideByOrder;
 	}
 
 	/**
@@ -119,16 +126,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		if (!CollectionUtils2.isEmpty(handlerMappings)) {
-			return new SmartServletHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
-		}
-
-		/**
-		 * If there is no custom request mapping that uses any extensions, don't
-		 * need to enable it. refer to
-		 * {@link WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
-		 */
-		return null;
+		return new SmartServletHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
 	}
 
 	/**
@@ -171,10 +169,8 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
-			this.handlerMappings = handlerMappings;
-			if (!CollectionUtils2.isEmpty(handlerMappings)) {
-				sort(handlerMappings);
-			}
+			this.handlerMappings = safeList(handlerMappings);
+			sort(this.handlerMappings);
 		}
 
 		@Override
@@ -187,7 +183,8 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
-			return mergedIncludeFilter.apply(beanType) && super.isHandler(beanType);
+			// Remove, only has @RequestMapping condidtion is not a controller
+			return mergedIncludeFilter.apply(beanType) || hasAnnotation(beanType, Controller.class);
 		}
 
 		@Override
@@ -287,6 +284,11 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 *            Actual request mapping handler method.
 		 */
 		void doRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
+			if (!ambiguousMappingOverrideByOrder) {
+				super.registerMapping(mapping, handler, method); // By default
+				return;
+			}
+
 			HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
 			HandlerMethod oldHandlerMethod = registeredMappings.get(mapping);
 

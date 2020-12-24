@@ -76,8 +76,6 @@ public @interface SpringBootFeignClient {
 	 */
 	boolean decode404() default false;
 
-	Logger.Level logLevel() default Logger.Level.NONE;
-
 	/**
 	 * Whether to mark the feign proxy as a primary bean. Defaults to true.
 	 */
@@ -97,5 +95,7 @@ public @interface SpringBootFeignClient {
 	 * @return list of configurations for feign client
 	 */
 	Class<?>[] configuration() default {};
+
+	Logger.Level logLevel() default Logger.Level.NONE;
 
 }

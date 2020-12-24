@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.core.web.method;
+package com.wl4g.component.core.web.method.convert;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -111,7 +111,7 @@ public class HumanDateConversionProcessor implements HandlerProcessor {
 	@Configuration
 	static class HumanDateConversionAutoConfiguration {
 		@Bean
-		public HumanDateConversionProcessor humanDateConversion() {
+		public HumanDateConversionProcessor humanDateConversionProcessor() {
 			return new HumanDateConversionProcessor();
 		}
 	}

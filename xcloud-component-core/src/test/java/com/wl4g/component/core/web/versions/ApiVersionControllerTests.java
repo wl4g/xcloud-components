@@ -37,7 +37,7 @@ import com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagemen
  * @sine v1.0
  * @see https://spring.io/guides/gs/testing-web/
  */
-@EnableApiVersionManagement
+@EnableApiVersionManagement("com.wl4g.component.core.web.versions")
 @SpringBootApplication(scanBasePackageClasses = WebMvcSmartHandlerMappingConfigurer.class)
 public class ApiVersionControllerTests {
 

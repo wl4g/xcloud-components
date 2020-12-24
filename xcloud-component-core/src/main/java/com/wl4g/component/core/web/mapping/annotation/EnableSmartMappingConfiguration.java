@@ -46,7 +46,15 @@ import com.google.common.base.Predicate;
 @Documented
 @Indexed
 @Import({ SmartHandlerMappingRegistrar.class })
-public @interface EnableSmartHandlerMapping {
+public @interface EnableSmartMappingConfiguration {
+
+	/**
+	 * Refer to {@link #scanBasePackages()}
+	 * 
+	 * @return
+	 */
+	@AliasFor(SCAN_BASE_PACKAGE)
+	String[] value() default {};
 
 	/**
 	 * Excludes the target {@link RequestMappingHandlerMapping} according to the
@@ -61,19 +69,19 @@ public @interface EnableSmartHandlerMapping {
 	String[] scanBasePackages() default {};
 
 	/**
-	 * Refer to {@link #scanBasePackages()}
-	 * 
-	 * @return
-	 */
-	@AliasFor(SCAN_BASE_PACKAGE)
-	String[] value() default {};
-
-	/**
 	 * Include filters, Union with {@link #scanBasePackages()}
 	 * 
 	 * @return
 	 */
 	Class<? extends Predicate<Class<?>>>[] includeFilters() default {};
+
+	/**
+	 * When the same handler mapping appears, whether to enable overlay in bean
+	 * order or not. Default: false
+	 * 
+	 * @return
+	 */
+	boolean ambiguousMappingOverrideByOrder() default false;
 
 	/**
 	 * Refer: {@link #scanBasePackages()}
@@ -84,5 +92,10 @@ public @interface EnableSmartHandlerMapping {
 	 * Refer: {@link #scanBasePackages()}
 	 */
 	public static final String SCAN_BASE_PACKAGE = "scanBasePackages";
+
+	/**
+	 * Refer: {@link #ambiguousMappingOverrideByOrder()}
+	 */
+	public static final String AMBIGUOUS_MAP_OVERRIDE = "ambiguousMappingOverrideByOrder";
 
 }

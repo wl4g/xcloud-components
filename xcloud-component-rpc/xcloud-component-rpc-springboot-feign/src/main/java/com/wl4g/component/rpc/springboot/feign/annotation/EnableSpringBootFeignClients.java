@@ -19,7 +19,12 @@ import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
+import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
+
 import feign.Contract;
+import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 
@@ -40,10 +45,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(SpringBootFeignClientsRegistrar.class)
+@EnableSmartMappingConfiguration
+@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor("basePackages")
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)
 	String[] value() default {};
 
 	/**
@@ -51,7 +57,7 @@ public @interface EnableSpringBootFeignClients {
 	 * 
 	 * @return
 	 */
-	@AliasFor("value")
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)
 	String[] basePackages() default {};
 
 	/**
@@ -64,5 +70,7 @@ public @interface EnableSpringBootFeignClients {
 	 * @return list of default configurations
 	 */
 	Class<?>[] defaultConfiguration() default { GsonEncoder.class, GsonDecoder.class, Contract.Default.class };
+
+	Logger.Level defaultLogLevel() default Logger.Level.NONE;
 
 }

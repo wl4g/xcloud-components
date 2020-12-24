@@ -23,8 +23,9 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToL
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartHandlerMapping.INCLUDE_FILTERS;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartHandlerMapping.SCAN_BASE_PACKAGE;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.INCLUDE_FILTERS;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.AMBIGUOUS_MAP_OVERRIDE;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
@@ -90,7 +91,7 @@ public class SmartHandlerMappingRegistrar
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		AnnotationAttributes annoAttrs = AnnotationAttributes
-				.fromMap(metadata.getAnnotationAttributes(EnableSmartHandlerMapping.class.getName()));
+				.fromMap(metadata.getAnnotationAttributes(EnableSmartMappingConfiguration.class.getName()));
 		if (!isNull(annoAttrs)) {
 			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 
@@ -113,6 +114,7 @@ public class SmartHandlerMappingRegistrar
 
 		builder.addPropertyValue("includeFilters", resolveIncludeFilters(annoAttrs, registry));
 		builder.addPropertyValue("scanBasePackages", resolveScanBasePackages(annoAttrs, registry));
+		builder.addPropertyValue("ambiguousMappingOverrideByOrder", annoAttrs.getBoolean(AMBIGUOUS_MAP_OVERRIDE));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
 		String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);

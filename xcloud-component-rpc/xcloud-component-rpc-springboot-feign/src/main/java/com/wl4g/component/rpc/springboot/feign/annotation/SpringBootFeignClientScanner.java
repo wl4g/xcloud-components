@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.wl4g.component.rpc.springboot.feign.factory.SpringBootFeignBeanFactory;
 
+import feign.Logger;
+
 import static org.apache.commons.lang3.StringUtils.endsWithAny;
 
 import java.io.IOException;
@@ -48,17 +50,19 @@ import java.util.Set;
 class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 
 	private final Class<?>[] defaultConfiguration;
+	private final Logger.Level defaultLogLevel;
 
-	public SpringBootFeignClientScanner(BeanDefinitionRegistry registry, Class<?>[] defaultConfiguration) {
+	public SpringBootFeignClientScanner(BeanDefinitionRegistry registry, Class<?>[] defaultConfiguration,
+			Logger.Level defaultLogLevel) {
 		super(registry, true);
 		this.defaultConfiguration = defaultConfiguration;
+		this.defaultLogLevel = defaultLogLevel;
 		registerFilters();
 	}
 
 	void registerFilters() {
 		// include service interfaces
-		addIncludeFilter(new AnnotationTypeFilter(SpringBootFeignClient.class, true, true));
-		addIncludeFilter(new AnnotationTypeFilter(RequestMapping.class, true, true));
+		addIncludeFilter(new AnnotationTypeFilter(SpringBootFeignClient.class, true, true)); // [MARK1]
 
 		// exclude package-info.java
 		addExcludeFilter(new TypeFilter() {
@@ -81,6 +85,10 @@ class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 			GenericBeanDefinition definition = (GenericBeanDefinition) holder.getBeanDefinition();
 			MergedAnnotation<SpringBootFeignClient> feignClient = ((ScannedGenericBeanDefinition) definition).getMetadata()
 					.getAnnotations().get(SpringBootFeignClient.class);
+			// Must existing. see:#MARK1
+			// if (!feignClient.isPresent()) {
+			// continue;
+			// }
 
 			MergedAnnotation<RequestMapping> requestMapping = ((ScannedGenericBeanDefinition) definition).getMetadata()
 					.getAnnotations().get(RequestMapping.class);
@@ -94,6 +102,7 @@ class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 			definition.getPropertyValues().add("decode404", feignClient.getBoolean("decode404"));
 			definition.getPropertyValues().add("configuration", feignClient.getClassArray("configuration"));
 			definition.getPropertyValues().add("defaultConfiguration", defaultConfiguration);
+			definition.getPropertyValues().add("defaultLogLevel", defaultLogLevel);
 			Optional<Object> logLevel = feignClient.getValue("logLevel");
 			if (logLevel.isPresent()) {
 				definition.getPropertyValues().add("logLevel", logLevel.get());

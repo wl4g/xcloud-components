@@ -25,7 +25,7 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartHandlerMapping.SCAN_BASE_PACKAGE;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isInterface;
 import static java.lang.reflect.Modifier.isPublic;
@@ -73,14 +73,14 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.web.method.HandlerMethodCustomizerInterceptor;
 
 /**
- * {@link HandlerMethodInterceptorRegistrar}
+ * {@link HandlerMappingMethodInterceptorRegistrar}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17
  * @sine v1.0
  * @see
  */
-public class HandlerMethodInterceptorRegistrar
+public class HandlerMappingMethodInterceptorRegistrar
 		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
 
 	protected final SmartLogger log = getLogger(getClass());
@@ -107,7 +107,7 @@ public class HandlerMethodInterceptorRegistrar
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		AnnotationAttributes annoAttrs = AnnotationAttributes
-				.fromMap(metadata.getAnnotationAttributes(EnableHandlerMethodCustomizer.class.getName()));
+				.fromMap(metadata.getAnnotationAttributes(EnableHandlerMappingCustomizer.class.getName()));
 		if (!isNull(annoAttrs)) {
 			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 

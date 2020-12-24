@@ -27,6 +27,7 @@ import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
@@ -50,6 +51,7 @@ import org.springframework.boot.autoconfigure.web.reactive.WebFluxRegistrations;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
@@ -91,12 +93,18 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	@Autowired(required = false)
 	private List<ReactiveHandlerMappingSupport> handlerMappings;
 
+	private boolean ambiguousMappingOverrideByOrder;
+
 	public void setScanBasePackages(String[] scanBasePackages) {
 		this.scanBasePackages = scanBasePackages;
 	}
 
 	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
 		this.includeFilters = includeFilters;
+	}
+
+	public void setAmbiguousMappingOverrideByOrder(boolean ambiguousMappingOverrideByOrder) {
+		this.ambiguousMappingOverrideByOrder = ambiguousMappingOverrideByOrder;
 	}
 
 	/**
@@ -108,16 +116,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		if (!CollectionUtils2.isEmpty(handlerMappings)) {
-			return new SmartReactiveHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
-		}
-
-		/**
-		 * If there is no custom request mapping that uses any extensions, don't
-		 * need to enable it. refer to
-		 * {@link WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
-		 */
-		return null;
+		return new SmartReactiveHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
 	}
 
 	/**
@@ -160,10 +159,8 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
-			this.handlerMappings = handlerMappings;
-			if (!CollectionUtils2.isEmpty(handlerMappings)) {
-				sort(handlerMappings);
-			}
+			this.handlerMappings = safeList(handlerMappings);
+			sort(this.handlerMappings);
 		}
 
 		@Override
@@ -176,7 +173,8 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
-			return mergedIncludeFilter.apply(beanType) && super.isHandler(beanType);
+			// Remove, only has @RequestMapping condidtion is not a controller
+			return mergedIncludeFilter.apply(beanType) || hasAnnotation(beanType, Controller.class);
 		}
 
 		@Override
@@ -284,6 +282,11 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 *            Actual request mapping handler method.
 		 */
 		void doRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
+			if (!ambiguousMappingOverrideByOrder) {
+				super.registerMapping(mapping, handler, method); // By default
+				return;
+			}
+
 			HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
 			HandlerMethod oldHandlerMethod = registeredMappings.get(mapping);
 

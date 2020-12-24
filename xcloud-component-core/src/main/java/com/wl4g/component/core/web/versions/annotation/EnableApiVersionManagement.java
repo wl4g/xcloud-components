@@ -16,11 +16,13 @@
 package com.wl4g.component.core.web.versions.annotation;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
 
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartHandlerMapping;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -39,9 +41,25 @@ import java.lang.annotation.*;
 @Target({ TYPE })
 @Documented
 @Indexed
-@EnableSmartHandlerMapping
+@EnableSmartMappingConfiguration
 @Import({ ApiVersionMappingRegistrar.class })
 public @interface EnableApiVersionManagement {
+
+	/**
+	 * Base packages to scan for annotated components.
+	 * 
+	 * @return
+	 */
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)
+	String[] value() default {};
+
+	/**
+	 * Base packages to scan for annotated components.
+	 * 
+	 * @return
+	 */
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)
+	String[] basePackages() default {};
 
 	/**
 	 * Whether to be case sensitive when matching request parameters.

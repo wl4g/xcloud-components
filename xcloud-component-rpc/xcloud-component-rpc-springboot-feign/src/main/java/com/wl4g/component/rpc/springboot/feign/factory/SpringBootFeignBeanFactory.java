@@ -57,7 +57,9 @@ public class SpringBootFeignBeanFactory<T> implements FactoryBean<T>, Applicatio
 	private boolean decode404;
 	private Logger.Level logLevel;
 	private Class<?>[] configuration;
+
 	private Class<?>[] defaultConfiguration;
+	private Logger.Level defaultLogLevel;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -88,6 +90,20 @@ public class SpringBootFeignBeanFactory<T> implements FactoryBean<T>, Applicatio
 		this.defaultConfiguration = defaultConfiguration;
 	}
 
+	public void setDefaultLogLevel(Logger.Level defaultLogLevel) {
+		this.defaultLogLevel = defaultLogLevel;
+	}
+
+	@Override
+	public Class<?> getObjectType() {
+		return proxyInterface;
+	}
+
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
+
 	@SuppressWarnings({ "deprecation" })
 	@Override
 	public T getObject() throws Exception {
@@ -101,11 +117,11 @@ public class SpringBootFeignBeanFactory<T> implements FactoryBean<T>, Applicatio
 
 		// Builder feign
 		Feign.Builder builder = Feign.builder().client(client).retryer(new Retryer.Default(100, SECONDS.toMillis(1), 0))
-				.options(new Request.Options(config.getConnectTimeout(), config.getReadTimeout(), true)).logLevel(logLevel);
-
+				.options(new Request.Options(config.getConnectTimeout(), config.getReadTimeout(), true));
 		if (decode404) {
 			builder.decode404();
 		}
+		builder.logLevel((logLevel != Logger.Level.NONE) ? logLevel : defaultLogLevel);
 
 		// Merge configuration
 		List<Class<?>> mergedConfiguration = new ArrayList<>(safeArrayToList(configuration));
@@ -126,16 +142,6 @@ public class SpringBootFeignBeanFactory<T> implements FactoryBean<T>, Applicatio
 		}
 
 		return builder.target(proxyInterface, url);
-	}
-
-	@Override
-	public Class<?> getObjectType() {
-		return proxyInterface;
-	}
-
-	@Override
-	public boolean isSingleton() {
-		return true;
 	}
 
 }

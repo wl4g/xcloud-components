@@ -23,6 +23,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
+import feign.Logger.Level;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,7 @@ import java.util.List;
  * @sine v1.0
  * @see
  */
-public class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
 	@SuppressWarnings("unused")
 	private ResourceLoader resourceLoader;
@@ -46,18 +48,18 @@ public class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegi
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-		AnnotationAttributes attr = AnnotationAttributes
+		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableSpringBootFeignClients.class.getName()));
 
 		List<String> basePackages = new ArrayList<>();
-		for (String pkg : attr.getStringArray("basePackages")) {
+		for (String pkg : attrs.getStringArray("basePackages")) {
 			if (StringUtils.hasText(pkg)) {
 				basePackages.add(pkg);
 			}
 		}
 
 		SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
-				attr.getClassArray("defaultConfiguration"));
+				attrs.getClassArray("defaultConfiguration"), (Level) attrs.get("defaultLogLevel"));
 		scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

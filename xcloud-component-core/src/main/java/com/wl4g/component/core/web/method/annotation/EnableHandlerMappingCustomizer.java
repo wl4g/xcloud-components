@@ -28,12 +28,11 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
-import org.springframework.stereotype.Indexed;
 
 import com.google.common.annotations.Beta;
 
 /**
- * {@link HandlerMethodInterceptorRegistrar}
+ * {@link HandlerMappingMethodInterceptorRegistrar}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17
@@ -43,10 +42,9 @@ import com.google.common.annotations.Beta;
 @Retention(RUNTIME)
 @Target({ TYPE })
 @Documented
-@Indexed
-@Import({ HandlerMethodInterceptorRegistrar.class })
+@Import({ HandlerMappingMethodInterceptorRegistrar.class })
 @Beta
-public @interface EnableHandlerMethodCustomizer {
+public @interface EnableHandlerMappingCustomizer {
 
 	/**
 	 * Human model convert scan base packages.
