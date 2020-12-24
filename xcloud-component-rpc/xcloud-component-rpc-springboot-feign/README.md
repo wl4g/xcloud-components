@@ -83,10 +83,15 @@ because `@SpringBootFeignClient` is compatible with `@FeignClient`
 
 ## More configuration
 
-```properties
-spring.boot.xcloud.feign.max-idle-connections = 520
-spring.boot.xcloud.feign.connect-timeout = 11000
-spring.boot.xcloud.feign.read-timeout = 12000
-# Option: http2Client|okhttp3, Default: okhttp3
-spring.boot.xcloud.feign.client.provider=http2Client
+```yaml
+spring:
+   boot:
+      xcloud:
+         feign:
+            default-url: https://api.github.com
+            default-log-level: BASIC # NONE|BASIC|HEADERS|FULL
+            client-provider: okhttp3 # http2Client|okhttp3, Default: okhttp3
+            max-idle-connections: 520
+            connect-timeout: 11000
+            read-timeout: 12000
 ```

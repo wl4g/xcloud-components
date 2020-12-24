@@ -21,7 +21,6 @@ import org.springframework.core.annotation.AliasFor;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
-import com.wl4g.component.rpc.springboot.feign.factory.SpringBootFeignBeanFactory;
 
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
 
@@ -62,34 +61,19 @@ public @interface EnableSpringBootFeignClients {
 	String[] basePackages() default {};
 
 	/**
-	 * The default absolute base URL or resolvable hostname (the protocol is
-	 * optional). Will be used when not set in
-	 * {@link SpringBootFeignClient#url()}
-	 */
-	String defaultUrl() default "";
-
-	/**
 	 * The default custom <code>@Configuration</code> for all feign clients. Can
 	 * contain override <code>@Bean</code> definition for the pieces that make
 	 * up the client, for instance {@link feign.codec.Decoder},
-	 * {@link feign.codec.Encoder}, {@link feign.Contract}, {@link Retryer}.
-	 * </br>
+	 * {@link feign.codec.Encoder}, {@link feign.Contract}, {@link Retryer},
+	 * {@link Logger}. </br>
 	 * </br>
 	 * 
 	 * The if empty, default refer to
-	 * {@link SpringBootFeignBeanFactory#mergeFeignConfigurationSet()}
+	 * {@link SpringBootFeignFactoryBean#mergeConfigurationSet()}
 	 * 
 	 * @see FeignClientsConfiguration for the defaults
 	 * @return list of default configurations
 	 */
 	Class<?>[] defaultConfiguration() default {};
-
-	/**
-	 * The default request base URL, Will be used when not set in
-	 * {@link SpringBootFeignClient#logLevel()}
-	 * 
-	 * @return
-	 */
-	Logger.Level defaultLogLevel() default Logger.Level.NONE;
 
 }

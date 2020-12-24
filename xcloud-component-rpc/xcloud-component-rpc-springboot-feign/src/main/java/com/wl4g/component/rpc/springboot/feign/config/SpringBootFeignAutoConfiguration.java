@@ -79,6 +79,6 @@ public class SpringBootFeignAutoConfiguration {
 	public static final String BEAN_FEIGN_CLIENT = "springBootFeignClient";
 	public static final String KEY_PREFIX = "spring.boot.xcloud.feign";
 	public static final String KEY_CLIENT_EXPRESSION = "'okhttp3'.equalsIgnoreCase('${" + KEY_PREFIX
-			+ ".client.provider:okhttp3}')";
+			+ ".client-provider:okhttp3}')";
 
 }

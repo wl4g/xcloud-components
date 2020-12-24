@@ -23,7 +23,7 @@ import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
  * @see
  */
 @SuppressWarnings("unused")
-@SpringBootFeignClient(name = "github", url = "${github.url}")
+@SpringBootFeignClient(name = "github", url = "${github.api-url}")
 //@RequestMapping("${github.api-path}") // append to url suffix
 public interface GithubService1 {
 

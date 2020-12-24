@@ -28,17 +28,11 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.wl4g.component.rpc.springboot.feign.factory.SpringBootFeignBeanFactory;
-
-import feign.Logger;
-
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.endsWithAny;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -54,18 +48,11 @@ import javax.annotation.Nullable;
 class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 
 	@Nullable
-	private final String defaultUrl; // default base URL
-	@Nullable
 	private final Class<?>[] defaultConfiguration;
-	@Nullable
-	private final Logger.Level defaultLogLevel;
 
-	public SpringBootFeignClientScanner(BeanDefinitionRegistry registry, String defaultUrl, Class<?>[] defaultConfiguration,
-			Logger.Level defaultLogLevel) {
+	public SpringBootFeignClientScanner(BeanDefinitionRegistry registry, Class<?>[] defaultConfiguration) {
 		super(registry, true);
-		this.defaultUrl = defaultUrl;
 		this.defaultConfiguration = defaultConfiguration;
-		this.defaultLogLevel = defaultLogLevel;
 		registerFilters();
 	}
 
@@ -102,33 +89,41 @@ class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 					.getAnnotations().get(RequestMapping.class);
 
 			String beanClassName = definition.getBeanClassName();
-			definition.setBeanClass(SpringBootFeignBeanFactory.class);
+			definition.setBeanClass(SpringBootFeignFactoryBean.class);
 
 			definition.setPrimary(feignClient.getBoolean("primary"));
 			definition.getPropertyValues().add("proxyInterface", beanClassName);
-			definition.getPropertyValues().add("url", buildUrl(feignClient, requestMapping));
+			definition.getPropertyValues().add("baseUrl", getRequestBaseUrl(feignClient));
+			definition.getPropertyValues().add("path", getRequestMappingPath(requestMapping));
 			definition.getPropertyValues().add("decode404", feignClient.getBoolean("decode404"));
+			definition.getPropertyValues().add("logLevel", feignClient.getValue("logLevel").orElse(null));
 			definition.getPropertyValues().add("configuration", feignClient.getClassArray("configuration"));
+			definition.getPropertyValues().add("connectTimeout", feignClient.getLong("connectTimeout"));
+			definition.getPropertyValues().add("readTimeout", feignClient.getLong("readTimeout"));
+			definition.getPropertyValues().add("writeTimeout", feignClient.getLong("writeTimeout"));
+			definition.getPropertyValues().add("followRedirects", feignClient.getBoolean("followRedirects"));
+			// Fallback default configuration.
 			definition.getPropertyValues().add("defaultConfiguration", defaultConfiguration);
-			definition.getPropertyValues().add("defaultLogLevel", defaultLogLevel);
-			Optional<Object> logLevel = feignClient.getValue("logLevel");
-			if (logLevel.isPresent()) {
-				definition.getPropertyValues().add("logLevel", logLevel.get());
-			}
 		}
 
 		return beanDefinitions;
 	}
 
-	private String buildUrl(MergedAnnotation<SpringBootFeignClient> feignClient,
-			MergedAnnotation<RequestMapping> requestMapping) {
-		String url = feignClient.getString("url");
-		url = isBlank(url) ? trimToEmpty(defaultUrl) : url; // fallback
-		if (requestMapping.isPresent()) {
-			String[] value = (String[]) requestMapping.getValue("value").get();
-			url += value[0]; // append to url suffix
+	private String getRequestBaseUrl(MergedAnnotation<SpringBootFeignClient> feignClient) {
+		if (feignClient.isPresent()) {
+			return feignClient.getString("url"); // base URL
 		}
-		return url;
+		return "";
+	}
+
+	private String getRequestMappingPath(MergedAnnotation<RequestMapping> requestMapping) {
+		if (requestMapping.isPresent()) {
+			String[] paths = (String[]) requestMapping.getValue("value").get();
+			if (nonNull(paths) && paths.length > 0) {
+				return paths[0]; // append to url suffix
+			}
+		}
+		return "";
 	}
 
 	@Override

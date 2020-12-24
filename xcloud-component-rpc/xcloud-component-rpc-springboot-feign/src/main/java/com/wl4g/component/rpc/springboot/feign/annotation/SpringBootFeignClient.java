@@ -85,11 +85,10 @@ public @interface SpringBootFeignClient {
 	 * A custom configuration class for the feign client. Can contain override
 	 * <code>@Bean</code> definition for the pieces that make up the client, for
 	 * instance {@link feign.codec.Decoder}, {@link feign.codec.Encoder},
-	 * {@link feign.Contract}, {@link Retryer}. </br>
+	 * {@link feign.Contract}, {@link Retryer}, {@link Logger}. </br>
 	 *
-	 * Default configuration refer to
+	 * Default configuration refer to:
 	 * {@link EnableSpringBootFeignClients#defaultConfiguration()}
-	 * {@link com.wl4g.component.rpc.springboot.feign.factory.SpringBootFeignBeanFactory#getObject()}
 	 * 
 	 * @return list of configurations for feign client.
 	 */
@@ -97,5 +96,34 @@ public @interface SpringBootFeignClient {
 	Class<?>[] configuration() default {};
 
 	Logger.Level logLevel() default Logger.Level.NONE;
+
+	/**
+	 * The request connect timeout(ms)
+	 * 
+	 * @return
+	 */
+	long connectTimeout() default -1;
+
+	/**
+	 * The request read timeout(ms)
+	 * 
+	 * @return
+	 */
+	long readTimeout() default -1;
+
+	/**
+	 * The request write timeout(ms)
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	long writeTimeout() default -1;
+
+	/**
+	 * The request support 3xx redirection.
+	 * 
+	 * @return
+	 */
+	boolean followRedirects() default true;
 
 }

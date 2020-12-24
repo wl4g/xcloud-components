@@ -15,6 +15,12 @@
  */
 package com.wl4g.component.rpc.springboot.feign.config;
 
+import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
+
+import feign.Logger;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * {@link SpringBootFeignProperties}
  * 
@@ -23,59 +29,37 @@ package com.wl4g.component.rpc.springboot.feign.config;
  * @sine v1.0
  * @see
  */
+@Getter
+@Setter
 public class SpringBootFeignProperties {
+
+	/**
+	 * The default absolute base URL or resolvable hostname (the protocol is
+	 * optional). Will be used when not set in
+	 * {@link SpringBootFeignClient#url()}
+	 */
+	private String defaultUrl;
+
+	/**
+	 * The default request base URL, Will be used when not set in
+	 * {@link SpringBootFeignClient#logLevel()}
+	 * 
+	 * @return
+	 */
+	private Logger.Level defaultLogLevel = Logger.Level.NONE;
 
 	private int maxIdleConnections = 200;
 
-	/**
-	 * The default is 5 minutes.
-	 */
+	/** The keep alive default is 5 minutes. */
 	private long keepAliveDuration = 5;
 
-	/**
-	 * Default connection timeout (in milliseconds). The default is 10 seconds.
-	 */
-	private int connectTimeout = 10 * 1000;
-	private int readTimeout = 10 * 1000;
-	private int writeTimeout = 10 * 1000;
+	/** The connect timeout default is 10 seconds. */
+	private long connectTimeout = 10 * 1000;
 
-	public int getMaxIdleConnections() {
-		return maxIdleConnections;
-	}
+	/** The read timeout default is 10 seconds. */
+	private long readTimeout = 10 * 1000;
 
-	public void setMaxIdleConnections(int maxIdleConnections) {
-		this.maxIdleConnections = maxIdleConnections;
-	}
+	/** The write timeout default is 10 seconds. */
+	private long writeTimeout = 10 * 1000;
 
-	public long getKeepAliveDuration() {
-		return keepAliveDuration;
-	}
-
-	public void setKeepAliveDuration(long keepAliveDuration) {
-		this.keepAliveDuration = keepAliveDuration;
-	}
-
-	public int getConnectTimeout() {
-		return connectTimeout;
-	}
-
-	public void setConnectTimeout(int connectTimeout) {
-		this.connectTimeout = connectTimeout;
-	}
-
-	public int getReadTimeout() {
-		return readTimeout;
-	}
-
-	public void setReadTimeout(int readTimeout) {
-		this.readTimeout = readTimeout;
-	}
-
-	public int getWriteTimeout() {
-		return writeTimeout;
-	}
-
-	public void setWriteTimeout(int writeTimeout) {
-		this.writeTimeout = writeTimeout;
-	}
 }

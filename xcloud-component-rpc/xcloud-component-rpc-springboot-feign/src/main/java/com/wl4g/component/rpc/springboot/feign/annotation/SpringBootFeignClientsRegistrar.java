@@ -23,8 +23,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
-import feign.Logger.Level;
-
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
@@ -38,7 +36,7 @@ import java.util.List;
  * @sine v1.0
  * @see
  */
-public class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
 	@SuppressWarnings("unused")
 	private ResourceLoader resourceLoader;
@@ -59,8 +57,8 @@ public class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegi
 					basePackages.add(pkg);
 				}
 			}
-			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry, attrs.getString("defaultUrl"),
-					attrs.getClassArray("defaultConfiguration"), (Level) attrs.get("defaultLogLevel"));
+			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
+					attrs.getClassArray("defaultConfiguration"));
 			scanner.doScan(StringUtils.toStringArray(basePackages));
 		}
 
