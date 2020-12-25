@@ -15,6 +15,12 @@
  */
 package com.wl4g.component.core.web.versions.annotation;
 
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
+
+import java.util.Set;
+import java.util.function.Predicate;
+
+import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
 /**
@@ -26,6 +32,13 @@ import com.wl4g.component.core.web.versions.SimpleVersionComparator;
  * @see
  */
 public class ApiVersionManagementWrapper {
+
+	/**
+	 * {@link EnableApiVersionManagement#value()} and
+	 * {@link EnableApiVersionManagement#basePackages()} and
+	 * {@link EnableApiVersionManagement#basePackageClasses()}
+	 */
+	private final Predicate<Class<?>> mergedIncludeFilter;
 
 	/**
 	 * {@link EnableApiVersionManagement#sensitiveParams()}
@@ -47,13 +60,18 @@ public class ApiVersionManagementWrapper {
 	 */
 	private final SimpleVersionComparator versionComparator;
 
-	public ApiVersionManagementWrapper(boolean sensitiveParams, String[] versionParams, String[] groupParams,
-			SimpleVersionComparator versionComparator) {
-		super();
+	public ApiVersionManagementWrapper(Set<String> basePackages, boolean sensitiveParams, String[] versionParams,
+			String[] groupParams, SimpleVersionComparator versionComparator) {
+		final String[] basePackages0 = basePackages.toArray(new String[0]);
+		this.mergedIncludeFilter = (beanType -> startsWithAny(getPackageName(beanType), basePackages0));
 		this.sensitiveParams = sensitiveParams;
 		this.versionParams = versionParams;
 		this.groupParams = groupParams;
 		this.versionComparator = versionComparator;
+	}
+
+	public Predicate<Class<?>> getMergedIncludeFilter() {
+		return mergedIncludeFilter;
 	}
 
 	public boolean isSensitiveParams() {

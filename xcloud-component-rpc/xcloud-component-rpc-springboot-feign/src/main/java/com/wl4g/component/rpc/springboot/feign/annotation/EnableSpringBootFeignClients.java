@@ -15,11 +15,19 @@
  */
 package com.wl4g.component.rpc.springboot.feign.annotation;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.DefaultHandlerFilter;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
+
+import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
+import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeFeignClientsHandlerFilter;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
 import feign.Logger;
 import feign.Retryer;
@@ -41,10 +49,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+@EnableSmartMappingConfiguration(includeFilters = ExcludeFeignClientsHandlerFilter.class)
 @Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor(BASE_PACKAGES)
+	@AliasFor(SCAN_BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
@@ -53,14 +62,14 @@ public @interface EnableSpringBootFeignClients {
 	 * @return
 	 */
 	@AliasFor("value")
-	String[] basePackages() default {};
+	String[] scanBasePackages() default {};
 
 	/**
 	 * Base packages to scan for annotated components.
 	 * 
 	 * @return
 	 */
-	Class<?>[] basePackageClasses() default {};
+	Class<?>[] scanBasePackageClasses() default {};
 
 	/**
 	 * The default custom <code>@Configuration</code> for all feign clients. Can
@@ -79,18 +88,35 @@ public @interface EnableSpringBootFeignClients {
 	Class<?>[] defaultConfiguration() default {};
 
 	/**
-	 * Refer: {@link #basePackages()}
+	 * Refer: {@link #scanBasePackages()}
 	 */
-	public static final String BASE_PACKAGES = "basePackages";
+	public static final String SCAN_BASE_PACKAGES = "scanBasePackages";
 
 	/**
-	 * Refer: {@link #basePackageClasses()}
+	 * Refer: {@link #scanBasePackageClasses()}
 	 */
-	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
+	public static final String SCAN_BASE_PACKAGE_CLASSES = "scanBasePackageClasses";
 
 	/**
 	 * Refer: {@link #defaultConfiguration()}
 	 */
 	public static final String DEFAULT_CONFIGURATION = "defaultConfiguration";
+
+	public static class ExcludeFeignClientsHandlerFilter extends DefaultHandlerFilter {
+		private static String[] scanBasePackages = {};
+
+		public static void setScanBasePackages(String[] scanBasePackages) {
+			if (nonNull(scanBasePackages)) {
+				ExcludeFeignClientsHandlerFilter.scanBasePackages = scanBasePackages;
+			}
+		}
+
+		@Override
+		public boolean apply(@Nullable Class<?> beanType) {
+			// 排除被 @SpringBootFeignClient 包含的接口，如，service(facade)层启动，需注入
+			// data(dao) 层的feign实例这个场景.
+			return !startsWithAny(getPackageName(beanType), scanBasePackages) && super.apply(beanType);
+		}
+	}
 
 }

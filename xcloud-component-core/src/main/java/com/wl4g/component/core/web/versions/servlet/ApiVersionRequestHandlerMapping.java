@@ -89,7 +89,7 @@ public class ApiVersionRequestHandlerMapping extends ServletHandlerMappingSuppor
 
 	@Override
 	protected boolean supportsHandlerMethod(Object handler, Class<?> handlerType, Method method) {
-		return hasAnnotation(method, ApiVersionMapping.class);
+		return versionConfig.getMergedIncludeFilter().test(handlerType) && hasAnnotation(method, ApiVersionMapping.class);
 	}
 
 	@Override

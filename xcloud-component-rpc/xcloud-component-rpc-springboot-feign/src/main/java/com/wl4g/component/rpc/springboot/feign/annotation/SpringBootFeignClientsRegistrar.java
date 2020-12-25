@@ -61,33 +61,35 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 			 * 且没有依赖spring-cloud-openfeign包时，就不能合并属性值？？？
 			 * 如，配了value就只能获取value的值，而无法获取被@AliasFor的basePackages的值，稳妥起见手动合并。
 			 */
-			Set<String> basePackages = getBasePackages(metadata, attrs).stream().filter(pkg -> !isBlank(pkg)).collect(toSet());
+			Set<String> scanBasePackages = getScanBasePackages(metadata, attrs).stream().filter(pkg -> !isBlank(pkg))
+					.collect(toSet());
+			ExcludeFeignClientsHandlerFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
 
 			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
 					attrs.getClassArray(DEFAULT_CONFIGURATION));
-			scanner.doScan(StringUtils.toStringArray(basePackages));
+			scanner.doScan(StringUtils.toStringArray(scanBasePackages));
 		}
 	}
 
-	private Set<String> getBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
-		Set<String> basePackages = new HashSet<>();
+	private Set<String> getScanBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
+		Set<String> scanBasePackages = new HashSet<>();
 		for (String pkg : (String[]) attrs.get("value")) {
 			if (hasText(pkg)) {
-				basePackages.add(pkg);
+				scanBasePackages.add(pkg);
 			}
 		}
-		for (String pkg : (String[]) attrs.get(BASE_PACKAGES)) {
+		for (String pkg : (String[]) attrs.get(SCAN_BASE_PACKAGES)) {
 			if (hasText(pkg)) {
-				basePackages.add(pkg);
+				scanBasePackages.add(pkg);
 			}
 		}
-		for (Class<?> clazz : (Class[]) attrs.get(BASE_PACKAGE_CLASSES)) {
-			basePackages.add(ClassUtils.getPackageName(clazz));
+		for (Class<?> clazz : (Class[]) attrs.get(SCAN_BASE_PACKAGE_CLASSES)) {
+			scanBasePackages.add(ClassUtils.getPackageName(clazz));
 		}
-		if (basePackages.isEmpty()) {
-			basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+		if (scanBasePackages.isEmpty()) {
+			scanBasePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
 		}
-		return basePackages;
+		return scanBasePackages;
 	}
 
 }

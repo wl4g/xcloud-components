@@ -42,7 +42,7 @@ import java.util.List;
 @ActiveProfiles("test1")
 @SpringBootTest(classes = SpringBootFeignTests.class)
 @EnableAutoConfiguration(exclude = { BootDefaultAutoConfiguration.class })
-@EnableSpringBootFeignClients(basePackages = "com.wl4g.component.rpc.springboot.feign", defaultConfiguration = {
+@EnableSpringBootFeignClients(scanBasePackages = "com.wl4g.component.rpc.springboot.feign", defaultConfiguration = {
 		SampleRetryer.class })
 public class SpringBootFeignTests {
 

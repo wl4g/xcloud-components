@@ -22,7 +22,6 @@ import org.springframework.stereotype.Indexed;
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -60,6 +59,14 @@ public @interface EnableApiVersionManagement {
 	 */
 	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] basePackages() default {};
+
+	/**
+	 * Base packages to scan for annotated components.
+	 * 
+	 * @return
+	 */
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGE_CLASSES)
+	Class<?>[] basePackageClasses() default {};
 
 	/**
 	 * Whether to be case sensitive when matching request parameters.
@@ -109,6 +116,16 @@ public @interface EnableApiVersionManagement {
 	 * @return
 	 */
 	Class<? extends SimpleVersionComparator> versionComparator() default SimpleVersionComparator.class;
+
+	/**
+	 * Refer: {@link #basePackages()}
+	 */
+	public static final String BASE_PACKAGES = EnableSmartMappingConfiguration.BASE_PACKAGES;
+
+	/**
+	 * Refer: {@link #basePackageClasses()}
+	 */
+	public static final String BASE_PACKAGE_CLASSES = EnableSmartMappingConfiguration.BASE_PACKAGE_CLASSES;
 
 	/**
 	 * Refer: {@link #sensitiveParams()}

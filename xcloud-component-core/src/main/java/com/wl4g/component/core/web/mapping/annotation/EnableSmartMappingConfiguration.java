@@ -108,7 +108,7 @@ public @interface EnableSmartMappingConfiguration {
 	 */
 	public static final String OVERRIDE_AMBIGUOUS = "overrideAmbiguousByOrder";
 
-	static class DefaultHandlerFilter implements Predicate<Class<?>> {
+	public static class DefaultHandlerFilter implements Predicate<Class<?>> {
 		@Override
 		public boolean apply(@Nullable Class<?> beanType) {
 			return hasAnnotation(beanType, Controller.class) || hasAnnotation(beanType, RequestMapping.class);
