@@ -25,6 +25,8 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
+import feign.slf4j.Slf4jLogger;
+import lombok.Getter;
 import lombok.Setter;
 
 import org.springframework.beans.BeansException;
@@ -59,6 +61,7 @@ import java.util.List;
  * @sine v1.0
  * @see
  */
+@Getter
 @Setter
 class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContextAware {
 
@@ -67,13 +70,11 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	private String baseUrl;
 	private String path; // handler mapping path(type)
 	private boolean decode404;
-	private Logger logger;
 	private Logger.Level logLevel;
 	private Class<?>[] configuration;
 	private long connectTimeout;
 	private long readTimeout;
-	@SuppressWarnings("unused")
-	private long writeTimeout;
+	private long writeTimeout; // Ignore
 	private boolean followRedirects;
 
 	// Fallback default configuration.
@@ -116,7 +117,6 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		mergeRequestOptionSet(config, builder);
 
 		// Sets logger/level
-		builder.logger(isNull(logger) ? new Logger.NoOpLogger() : logger);
 		mergeLoggerLevelSet(config, builder);
 
 		// Sets configuration with merge.
@@ -154,9 +154,10 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		}
 		builder.encoder(isNull(encoder) ? new GsonEncoder() : encoder);
 		builder.decoder(isNull(decoder) ? new GsonDecoder() : decoder);
-		// builder.contract(isNull(contract) ? new Contract.Default():contract);
+		// new Contract.Default()
 		builder.contract(isNull(contract) ? new SpringMvcContract() : contract);
 		builder.retryer(isNull(retryer) ? new DefaultRetryer() : retryer);
+		builder.logger(isNull(logger) ? new Slf4jLogger() : logger);
 	}
 
 	private void mergeRequestOptionSet(SpringBootFeignProperties config, Feign.Builder builder) {
@@ -173,7 +174,14 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		String baseUrl0 = trimToEmpty(isBlank(baseUrl) ? config.getDefaultUrl() : baseUrl);
 		hasText(baseUrl0, "feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
 				SpringBootFeignAutoConfiguration.KEY_PREFIX, SpringBootFeignClient.class.getSimpleName());
-		return baseUrl0 + trimToEmpty(path);
+
+		// String path0 = trimToEmpty(path);
+		// if (!baseUrl0.endsWith("/") && !path0.startsWith("/")) {
+		// baseUrl0 += "/";
+		// }
+		// return baseUrl0 + path0;
+
+		return baseUrl0;
 	}
 
 	public static class DefaultRetryer extends Retryer.Default {

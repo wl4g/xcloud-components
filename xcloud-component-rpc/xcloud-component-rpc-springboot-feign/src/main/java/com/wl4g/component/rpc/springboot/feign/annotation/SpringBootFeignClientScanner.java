@@ -28,6 +28,9 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.wl4g.component.common.log.SmartLogger;
+
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.endsWithAny;
 
@@ -46,6 +49,7 @@ import javax.annotation.Nullable;
  * @see
  */
 class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
+	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
 	private final Class<?>[] defaultConfiguration;
@@ -74,7 +78,7 @@ class SpringBootFeignClientScanner extends ClassPathBeanDefinitionScanner {
 	public Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 		if (beanDefinitions.isEmpty()) {
-			logger.warn("No spring boot feign client is found in package '" + Arrays.toString(basePackages) + "'.");
+			log.warn("No spring boot feign client is found in package '" + Arrays.toString(basePackages) + "'.");
 		}
 
 		for (BeanDefinitionHolder holder : beanDefinitions) {
