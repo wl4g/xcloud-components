@@ -143,7 +143,7 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		//
 		// [Start] Custom enhanced logback configurer.
 		//
-		new EnhancedLogbackConfiguration(initializationContext, logFile).apply(configurator);
+		new EnhancedLogbackConfigurer(initializationContext, logFile).apply(configurator);
 		// [End] Custom enhanced logback configurer.
 
 		context.setPackagingDataEnabled(true);

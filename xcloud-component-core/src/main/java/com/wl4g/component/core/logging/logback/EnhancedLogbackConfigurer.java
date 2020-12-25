@@ -50,27 +50,24 @@ import org.springframework.util.unit.DataSize;
  * <b>Set on the boot class:</b>
  * 
  * <pre>
- * public static MyBootstrap {
- * 	static {
- * 		System.setProperty(LoggingSystem.SYSTEM_PROPERTY, LogbackLoggingSystem.class.getName());
- * 	}
- * 	
+ * public static MyApplication {
  * 	public static void main(String[] args) {
  * 		SpringApplication(MyBootstrap.class, args);
  * 	}
  * }
  * </pre>
  * 
- * <b>application.yml e.g:</b>
+ * for example: <b>application.yml</b>
  * 
  * <pre>
  * logging:
- *   file: /var/log/${spring.application.name}/${spring.application.name}.log
+ *   file
+ *     name: ${server.tomcat.basedir}/logs/${spring.application.name}.log
+ *     clean-history-on-start: false
+ *     total-size-cap: 200GB # default to 200GB
+ *     max-size: 1GB # default to 10MB
+ *     max-history: 30 # default to 7
  *   root: INFO
- *   <b>policy:</b>
- *     <b>maxFileSize: 1GB</b>
- *     <b>minIndex: 1</b>
- *     <b>maxIndex: 30</b>
  *   level:
  *     org:
  *       springframework: INFO
@@ -80,8 +77,9 @@ import org.springframework.util.unit.DataSize;
  * @author Wangl.sir
  * @author Phillip Webb
  * @since 1.1.2
+ * @see {@link org.springframework.boot.logging.logback.DefaultLogbackConfiguration.DefaultLogbackConfiguration}
  */
-class EnhancedLogbackConfiguration {
+class EnhancedLogbackConfigurer {
 
 	private static final String CONSOLE_LOG_PATTERN = "%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} "
 			+ "%clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} "
@@ -99,7 +97,7 @@ class EnhancedLogbackConfiguration {
 
 	private final LogFile logFile;
 
-	EnhancedLogbackConfiguration(LoggingInitializationContext initializationContext, LogFile logFile) {
+	EnhancedLogbackConfigurer(LoggingInitializationContext initializationContext, LogFile logFile) {
 		this.patterns = getPatternsResolver(initializationContext.getEnvironment());
 		this.logFile = logFile;
 	}
@@ -183,7 +181,7 @@ class EnhancedLogbackConfiguration {
 		setMaxFileSize(rollingPolicy, getDataSize("logging.file.max-size", MAX_FILE_SIZE));
 		rollingPolicy.setMaxHistory(this.patterns.getProperty("logging.file.max-history", Integer.class, MAX_FILE_HISTORY));
 		// DataSize totalSizeCap = getDataSize("logging.file.total-size-cap",
-		// DataSize.ofBytes(CoreConstants.UNBOUNDED_TOTAL_SIZE_CAP));
+		// DataSize.ofBytes(CoreConstants.UNBOUNDED_TOTAL_SIZE_CAP));//Disable-unlimited
 		rollingPolicy.setTotalSizeCap(new FileSize(totalSizeCap.toBytes()));
 		appender.setRollingPolicy(rollingPolicy);
 		rollingPolicy.setParent(appender);
