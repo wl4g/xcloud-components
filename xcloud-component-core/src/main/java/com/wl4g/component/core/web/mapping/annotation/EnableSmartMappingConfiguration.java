@@ -67,6 +67,13 @@ public @interface EnableSmartMappingConfiguration {
 	String[] basePackages() default {};
 
 	/**
+	 * Base packages to scan for annotated components.
+	 * 
+	 * @return
+	 */
+	Class<?>[] basePackageClasses() default {};
+
+	/**
 	 * Include filters, union with {@link #basePackages()} by 'OR'
 	 * 
 	 * @return
@@ -85,6 +92,11 @@ public @interface EnableSmartMappingConfiguration {
 	 * Refer: {@link #basePackages()}
 	 */
 	public static final String BASE_PACKAGES = "basePackages";
+
+	/**
+	 * Refer: {@link #basePackageClasses()}
+	 */
+	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
 
 	/**
 	 * Refer: {@link #basePackages()}

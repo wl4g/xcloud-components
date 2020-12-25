@@ -21,15 +21,16 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import com.google.common.collect.Streams;
-
-import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToSet;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.StringUtils.hasText;
+import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -60,14 +61,33 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 			 * 且没有依赖spring-cloud-openfeign包时，就不能合并属性值？？？
 			 * 如，配了value就只能获取value的值，而无法获取被@AliasFor的basePackages的值，稳妥起见手动合并。
 			 */
-			Set<String> basePackages = Streams.concat(safeArrayToSet(attrs.getStringArray("basePackages")).stream(),
-					safeArrayToSet(attrs.getStringArray("value")).stream()).filter(pkg -> !isBlank(pkg)).collect(toSet());
+			Set<String> basePackages = getBasePackages(metadata, attrs).stream().filter(pkg -> !isBlank(pkg)).collect(toSet());
 
 			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
-					attrs.getClassArray("defaultConfiguration"));
+					attrs.getClassArray(DEFAULT_CONFIGURATION));
 			scanner.doScan(StringUtils.toStringArray(basePackages));
 		}
+	}
 
+	private Set<String> getBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
+		Set<String> basePackages = new HashSet<>();
+		for (String pkg : (String[]) attrs.get("value")) {
+			if (hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (String pkg : (String[]) attrs.get(BASE_PACKAGES)) {
+			if (hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (Class<?> clazz : (Class[]) attrs.get(BASE_PACKAGE_CLASSES)) {
+			basePackages.add(ClassUtils.getPackageName(clazz));
+		}
+		if (basePackages.isEmpty()) {
+			basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+		}
+		return basePackages;
 	}
 
 }

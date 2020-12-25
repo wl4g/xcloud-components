@@ -19,9 +19,7 @@ import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
 
 import feign.Logger;
 import feign.Retryer;
@@ -43,11 +41,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@EnableSmartMappingConfiguration
 @Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
+	@AliasFor(BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
@@ -55,15 +52,15 @@ public @interface EnableSpringBootFeignClients {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
+	@AliasFor("value")
 	String[] basePackages() default {};
 
 	/**
-	 * The default absolute base URL or resolvable hostname (the protocol is
-	 * optional). Will be used when not set in
-	 * {@link SpringBootFeignClient#url()}
+	 * Base packages to scan for annotated components.
+	 * 
+	 * @return
 	 */
-	String defaultUrl() default "";
+	Class<?>[] basePackageClasses() default {};
 
 	/**
 	 * The default custom <code>@Configuration</code> for all feign clients. Can
@@ -82,11 +79,18 @@ public @interface EnableSpringBootFeignClients {
 	Class<?>[] defaultConfiguration() default {};
 
 	/**
-	 * The default request base URL, Will be used when not set in
-	 * {@link SpringBootFeignClient#logLevel()}
-	 * 
-	 * @return
+	 * Refer: {@link #basePackages()}
 	 */
-	Logger.Level defaultLogLevel() default Logger.Level.NONE;
+	public static final String BASE_PACKAGES = "basePackages";
+
+	/**
+	 * Refer: {@link #basePackageClasses()}
+	 */
+	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
+
+	/**
+	 * Refer: {@link #defaultConfiguration()}
+	 */
+	public static final String DEFAULT_CONFIGURATION = "defaultConfiguration";
 
 }

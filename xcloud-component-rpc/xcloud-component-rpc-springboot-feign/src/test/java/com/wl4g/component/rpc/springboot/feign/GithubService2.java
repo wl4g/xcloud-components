@@ -12,7 +12,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
-import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 
 /**
  * {@link GithubService2}
@@ -22,7 +21,7 @@ import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
  * @sine v1.0
  * @see
  */
-@SpringBootFeignClient(name = "github", configuration = { SpringMvcContract.class })
+@SpringBootFeignClient(name = "github")
 // @RequestMapping("${github.api-path}") // append to url suffix
 public interface GithubService2 {
 

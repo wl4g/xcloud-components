@@ -33,6 +33,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
 
@@ -153,7 +154,8 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		}
 		builder.encoder(isNull(encoder) ? new GsonEncoder() : encoder);
 		builder.decoder(isNull(decoder) ? new GsonDecoder() : decoder);
-		builder.contract(isNull(contract) ? new Contract.Default() : contract);
+		// builder.contract(isNull(contract) ? new Contract.Default():contract);
+		builder.contract(isNull(contract) ? new SpringMvcContract() : contract);
 		builder.retryer(isNull(retryer) ? new DefaultRetryer() : retryer);
 	}
 

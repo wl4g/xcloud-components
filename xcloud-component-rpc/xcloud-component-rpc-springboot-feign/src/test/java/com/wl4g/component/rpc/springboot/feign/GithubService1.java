@@ -1,5 +1,6 @@
 package com.wl4g.component.rpc.springboot.feign;
 
+import feign.Contract;
 import feign.Param;
 import feign.RequestLine;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
+import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 
 /**
  * {@link GithubService1}
@@ -23,8 +25,8 @@ import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
  * @see
  */
 @SuppressWarnings("unused")
-@SpringBootFeignClient(name = "github", url = "${github.api-url}")
-//@RequestMapping("${github.api-path}") // append to url suffix
+@SpringBootFeignClient(name = "github", url = "${github.api-url}", configuration = { Contract.Default.class })
+// @RequestMapping("${github.api-path}") // append to url suffix
 public interface GithubService1 {
 
 	@RequestLine("GET /repos/{owner}/{repo}/contributors")
