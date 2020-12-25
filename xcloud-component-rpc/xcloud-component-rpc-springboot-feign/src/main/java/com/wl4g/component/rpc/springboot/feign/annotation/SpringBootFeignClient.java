@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import feign.Logger;
 import feign.Retryer;
@@ -42,7 +43,8 @@ import feign.Retryer;
 @Documented
 @Indexed
 @Inherited
-@FeignClient // for compatibility with SpringCloud annotation
+@FeignClient // for compatibility with springCloud annotation
+@ResponseBody // If use the springMVC annotation, will auto enable responseBody
 public @interface SpringBootFeignClient {
 
 	/**

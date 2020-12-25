@@ -17,8 +17,10 @@ package com.wl4g.component.core.web.mapping;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.wl4g.component.common.log.SmartLogger;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
@@ -48,7 +50,6 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
@@ -58,7 +59,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
@@ -88,6 +88,7 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations {
+	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
 	private String[] scanBasePackages;
@@ -184,7 +185,9 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
 			// Remove, only has @RequestMapping condidtion is not a controller
-			return mergedIncludeFilter.apply(beanType) || hasAnnotation(beanType, Controller.class);
+			// return mergedIncludeFilter.apply(beanType) ||
+			// hasAnnotation(beanType, Controller.class);
+			return mergedIncludeFilter.apply(beanType) && super.isHandler(beanType);
 		}
 
 		@Override
@@ -285,6 +288,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 */
 		void doRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
 			if (!ambiguousMappingOverrideByOrder) {
+				log.debug("Register request mapping [{}] => [{}]", mapping, method.toGenericString());
 				super.registerMapping(mapping, handler, method); // By default
 				return;
 			}
@@ -308,10 +312,12 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 							"Override register mapping. Newer bean '%s' method '%s' to '%s': There is already '%s' older bean method '%s' mapped.",
 							newHandlerMethod.getBean(), newHandlerMethod, mapping, oldHandlerMethod.getBean(), oldHandlerMethod));
 				}
+				log.debug("Register request mapping [{}] => [{}]", mapping, method.toGenericString());
 				super.registerMapping(mapping, handler, method);
 				registeredMappings.put(mapping, newHandlerMethod);
 			} else {
 				if ((isNull(oldHandlerMethod) || oldHandlerMethod.equals(newHandlerMethod))) {
+					log.debug("Register request mapping [{}] => [{}]", mapping, method.toGenericString());
 					super.registerMapping(mapping, handler, method);
 					registeredMappings.put(mapping, newHandlerMethod);
 				} else {
