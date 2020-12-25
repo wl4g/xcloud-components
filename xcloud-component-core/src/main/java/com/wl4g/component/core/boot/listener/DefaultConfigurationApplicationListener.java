@@ -15,7 +15,11 @@
  */
 package com.wl4g.component.core.boot.listener;
 
-import static java.util.Collections.singletonMap;
+import static java.lang.System.getProperty;
+import static com.wl4g.component.common.lang.StringUtils2.isTrue;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_ADDITIONAL_LOCATION_PROPERTY;
+
+import java.util.Properties;
 
 import org.springframework.boot.context.event.ApplicationStartingEvent;
 import org.springframework.boot.context.logging.LoggingApplicationListener;
@@ -40,7 +44,14 @@ public class DefaultConfigurationApplicationListener extends AbstractStartingApp
 	 */
 	@Override
 	public void onStarting(ApplicationStartingEvent event) throws Exception {
-		event.getSpringApplication().setDefaultProperties(singletonMap("spring.main.allow-bean-definition-overriding", "true"));
+		Properties defaultProperties = new Properties();
+		defaultProperties.put("spring.main.allow-bean-definition-overriding", "true");
+		// Addidtion default config location
+		if (!isTrue(getProperty("disable.default-properties"), false)) {
+			defaultProperties.put(CONFIG_ADDITIONAL_LOCATION_PROPERTY,
+					"classpath:/,classpath:/sbf/,classpath:/scf/,classpath:/dubbo/,classpath:/dubbo/");
+		}
+		event.getSpringApplication().setDefaultProperties(defaultProperties);
 	}
 
 }
