@@ -22,7 +22,7 @@ import org.springframework.stereotype.Indexed;
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -50,7 +50,7 @@ public @interface EnableApiVersionManagement {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
@@ -58,7 +58,7 @@ public @interface EnableApiVersionManagement {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = SCAN_BASE_PACKAGE)
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] basePackages() default {};
 
 	/**

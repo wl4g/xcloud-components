@@ -25,7 +25,7 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isInterface;
 import static java.lang.reflect.Modifier.isPublic;
@@ -138,7 +138,7 @@ public class HandlerMappingMethodInterceptorRegistrar
 	}
 
 	private String[] resolveScanBasePackages(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return safeArrayToList(annoAttrs.getStringArray(SCAN_BASE_PACKAGE)).stream().filter(v -> !isBlank(v))
+		return safeArrayToList(annoAttrs.getStringArray(BASE_PACKAGES)).stream().filter(v -> !isBlank(v))
 				.map(v -> environment.resolveRequiredPlaceholders(v)).toArray(String[]::new);
 	}
 

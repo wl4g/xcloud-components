@@ -32,7 +32,6 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,7 +83,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private String[] scanBasePackages;
+	private String[] basePackages;
 
 	@Nullable
 	private Predicate<Class<?>>[] includeFilters;
@@ -94,18 +93,18 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	@Autowired(required = false)
 	private List<ReactiveHandlerMappingSupport> handlerMappings;
 
-	private boolean ambiguousMappingOverrideByOrder;
+	private boolean overrideAmbiguousByOrder;
 
-	public void setScanBasePackages(String[] scanBasePackages) {
-		this.scanBasePackages = scanBasePackages;
+	public void setBasePackages(String[] scanBasePackages) {
+		this.basePackages = scanBasePackages;
 	}
 
 	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
 		this.includeFilters = includeFilters;
 	}
 
-	public void setAmbiguousMappingOverrideByOrder(boolean ambiguousMappingOverrideByOrder) {
-		this.ambiguousMappingOverrideByOrder = ambiguousMappingOverrideByOrder;
+	public void setOverrideAmbiguousByOrder(boolean overrideAmbiguousByOrder) {
+		this.overrideAmbiguousByOrder = overrideAmbiguousByOrder;
 	}
 
 	/**
@@ -117,7 +116,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartReactiveHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
+		return new SmartReactiveHandlerMapping(basePackages, includeFilters, handlerMappings);
 	}
 
 	/**
@@ -134,7 +133,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * Merged include filter conditionals predicate used to check whether
 		 * the bean is a request handler.
 		 */
-		private final Predicate<Class<?>> mergedIncludeFilter;
+		private final java.util.function.Predicate<Class<?>> mergedIncludeFilter;
 
 		/**
 		 * All extensions custom request handler mappings.
@@ -147,16 +146,16 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.reactive.DispatcherHandler#initStrategies()}
 		 */
-		public SmartReactiveHandlerMapping(@Nullable String[] scanBasePackages, @Nullable Predicate<Class<?>>[] includeFilters,
+		public SmartReactiveHandlerMapping(@Nullable String[] basePackages, @Nullable Predicate<Class<?>>[] includeFilters,
 				@Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
-			// Merge predicate for scanBasePackages and includeFilters
-			List<Predicate<Class<?>>> includes = new ArrayList<>(safeArrayToList(includeFilters));
-			if (!isEmptyArray(scanBasePackages)) {
-				includes.add(beanType -> startsWithAny(getPackageName(beanType), scanBasePackages));
+			// Merge predicate for basePackages and includeFilters.
+			Predicate<Class<?>> basePackagesFilter = beanType -> true;
+			if (!isEmptyArray(basePackages)) {
+				basePackagesFilter = beanType -> startsWithAny(getPackageName(beanType), basePackages);
 			}
-			this.mergedIncludeFilter = includes.isEmpty() ? (beanType -> false) : Predicates.or(includes);
+			this.mergedIncludeFilter = basePackagesFilter.and(Predicates.or(safeArrayToList(includeFilters)));
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -174,7 +173,10 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
-			return mergedIncludeFilter.apply(beanType) || super.isHandler(beanType);
+			// Remove, only has @RequestMapping condidtion is not a controller
+			// return mergedIncludeFilter.apply(beanType) ||
+			// hasAnnotation(beanType, Controller.class);
+			return mergedIncludeFilter.test(beanType);
 		}
 
 		@Override
@@ -282,7 +284,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 *            Actual request mapping handler method.
 		 */
 		void doRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			if (!ambiguousMappingOverrideByOrder) {
+			if (!overrideAmbiguousByOrder) {
 				log.debug("Register request mapping [{}] => [{}]", mapping, method.toGenericString());
 				super.registerMapping(mapping, handler, method); // By default
 				return;

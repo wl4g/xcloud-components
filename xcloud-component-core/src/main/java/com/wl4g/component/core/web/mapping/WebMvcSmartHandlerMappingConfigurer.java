@@ -30,7 +30,6 @@ import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -91,7 +90,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private String[] scanBasePackages;
+	private String[] basePackages;
 
 	@Nullable
 	private Predicate<Class<?>>[] includeFilters;
@@ -101,18 +100,18 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	@Autowired(required = false)
 	private List<ServletHandlerMappingSupport> handlerMappings;
 
-	private boolean ambiguousMappingOverrideByOrder;
+	private boolean overrideAmbiguousByOrder;
 
-	public void setScanBasePackages(String[] scanBasePackages) {
-		this.scanBasePackages = scanBasePackages;
+	public void setBasePackages(String[] scanBasePackages) {
+		this.basePackages = scanBasePackages;
 	}
 
 	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
 		this.includeFilters = includeFilters;
 	}
 
-	public void setAmbiguousMappingOverrideByOrder(boolean ambiguousMappingOverrideByOrder) {
-		this.ambiguousMappingOverrideByOrder = ambiguousMappingOverrideByOrder;
+	public void setOverrideAmbiguousByOrder(boolean overrideAmbiguousByOrder) {
+		this.overrideAmbiguousByOrder = overrideAmbiguousByOrder;
 	}
 
 	/**
@@ -127,7 +126,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartServletHandlerMapping(scanBasePackages, includeFilters, handlerMappings);
+		return new SmartServletHandlerMapping(basePackages, includeFilters, handlerMappings);
 	}
 
 	/**
@@ -144,7 +143,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 * Merged include filter conditionals predicate used to check whether
 		 * the bean is a request handler.
 		 */
-		private final Predicate<Class<?>> mergedIncludeFilter;
+		private final java.util.function.Predicate<Class<?>> mergedIncludeFilter;
 
 		/**
 		 * All extensions custom request handler mappings.
@@ -157,16 +156,16 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public SmartServletHandlerMapping(@Nullable String[] scanBasePackages, @Nullable Predicate<Class<?>>[] includeFilters,
+		public SmartServletHandlerMapping(@Nullable String[] basePackages, @Nullable Predicate<Class<?>>[] includeFilters,
 				@Nullable List<ServletHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
-			// Merge predicate for scanBasePackages and includeFilters
-			List<Predicate<Class<?>>> includes = new ArrayList<>(safeArrayToList(includeFilters));
-			if (!isEmptyArray(scanBasePackages)) {
-				includes.add(beanType -> startsWithAny(getPackageName(beanType), scanBasePackages));
+			// Merge predicate for basePackages and includeFilters.
+			Predicate<Class<?>> basePackagesFilter = beanType -> true;
+			if (!isEmptyArray(basePackages)) {
+				basePackagesFilter = beanType -> startsWithAny(getPackageName(beanType), basePackages);
 			}
-			this.mergedIncludeFilter = includes.isEmpty() ? (beanType -> false) : Predicates.or(includes);
+			this.mergedIncludeFilter = basePackagesFilter.and(Predicates.or(safeArrayToList(includeFilters)));
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -187,7 +186,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 			// Remove, only has @RequestMapping condidtion is not a controller
 			// return mergedIncludeFilter.apply(beanType) ||
 			// hasAnnotation(beanType, Controller.class);
-			return mergedIncludeFilter.apply(beanType) || super.isHandler(beanType);
+			return mergedIncludeFilter.test(beanType);
 		}
 
 		@Override
@@ -287,7 +286,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 *            Actual request mapping handler method.
 		 */
 		void doRegisterMapping(RequestMappingInfo mapping, Object handler, Method method) {
-			if (!ambiguousMappingOverrideByOrder) {
+			if (!overrideAmbiguousByOrder) {
 				log.debug("Register request mapping [{}] => [{}]", mapping, method.toGenericString());
 				super.registerMapping(mapping, handler, method); // By default
 				return;

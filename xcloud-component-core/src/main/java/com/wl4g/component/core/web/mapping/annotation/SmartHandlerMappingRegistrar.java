@@ -24,8 +24,8 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.INCLUDE_FILTERS;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.SCAN_BASE_PACKAGE;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.AMBIGUOUS_MAP_OVERRIDE;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.OVERRIDE_AMBIGUOUS;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
@@ -113,16 +113,16 @@ public class SmartHandlerMappingRegistrar
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
 
 		builder.addPropertyValue("includeFilters", resolveIncludeFilters(annoAttrs, registry));
-		builder.addPropertyValue("scanBasePackages", resolveScanBasePackages(annoAttrs, registry));
-		builder.addPropertyValue("ambiguousMappingOverrideByOrder", annoAttrs.getBoolean(AMBIGUOUS_MAP_OVERRIDE));
+		builder.addPropertyValue(BASE_PACKAGES, resolveBasePackages(annoAttrs, registry));
+		builder.addPropertyValue(OVERRIDE_AMBIGUOUS, annoAttrs.getBoolean(OVERRIDE_AMBIGUOUS));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
 		String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
 		registry.registerBeanDefinition(beanName, beanDefinition);
 	}
 
-	private String[] resolveScanBasePackages(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return safeArrayToList(annoAttrs.getStringArray(SCAN_BASE_PACKAGE)).stream().filter(v -> !isBlank(v))
+	private String[] resolveBasePackages(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
+		return safeArrayToList(annoAttrs.getStringArray(BASE_PACKAGES)).stream().filter(v -> !isBlank(v))
 				.map(v -> environment.resolveRequiredPlaceholders(v)).toArray(String[]::new);
 	}
 

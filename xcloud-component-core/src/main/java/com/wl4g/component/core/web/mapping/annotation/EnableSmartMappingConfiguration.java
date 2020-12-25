@@ -26,10 +26,14 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Indexed;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import com.google.common.base.Predicate;
 
@@ -49,31 +53,25 @@ import com.google.common.base.Predicate;
 public @interface EnableSmartMappingConfiguration {
 
 	/**
-	 * Refer to {@link #scanBasePackages()}
+	 * Refer to {@link #basePackages()}
 	 * 
 	 * @return
 	 */
-	@AliasFor(SCAN_BASE_PACKAGE)
+	@AliasFor(BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
-	 * Excludes the target {@link RequestMappingHandlerMapping} according to the
-	 * base scanning packages. </br>
-	 * </br>
-	 * Notes: if-empty, the all instances that exist in the bean factory
-	 * scanned.
-	 * 
-	 * @see {@link com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping#initHandlerMethods()}
+	 * Include filter, type base packages.
 	 */
 	@AliasFor("value")
-	String[] scanBasePackages() default {};
+	String[] basePackages() default {};
 
 	/**
-	 * Include filters, Union with {@link #scanBasePackages()}
+	 * Include filters, union with {@link #basePackages()} by 'OR'
 	 * 
 	 * @return
 	 */
-	Class<? extends Predicate<Class<?>>>[] includeFilters() default {};
+	Class<? extends Predicate<Class<?>>>[] includeFilters() default { DefaultHandlerFilter.class };
 
 	/**
 	 * When the same handler mapping appears, whether to enable overlay in bean
@@ -81,21 +79,28 @@ public @interface EnableSmartMappingConfiguration {
 	 * 
 	 * @return
 	 */
-	boolean ambiguousMappingOverrideByOrder() default false;
+	boolean overrideAmbiguousByOrder() default false;
 
 	/**
-	 * Refer: {@link #scanBasePackages()}
+	 * Refer: {@link #basePackages()}
+	 */
+	public static final String BASE_PACKAGES = "basePackages";
+
+	/**
+	 * Refer: {@link #basePackages()}
 	 */
 	public static final String INCLUDE_FILTERS = "includeFilters";
 
 	/**
-	 * Refer: {@link #scanBasePackages()}
+	 * Refer: {@link #overrideAmbiguousByOrder()}
 	 */
-	public static final String SCAN_BASE_PACKAGE = "scanBasePackages";
+	public static final String OVERRIDE_AMBIGUOUS = "overrideAmbiguousByOrder";
 
-	/**
-	 * Refer: {@link #ambiguousMappingOverrideByOrder()}
-	 */
-	public static final String AMBIGUOUS_MAP_OVERRIDE = "ambiguousMappingOverrideByOrder";
+	static class DefaultHandlerFilter implements Predicate<Class<?>> {
+		@Override
+		public boolean apply(@Nullable Class<?> beanType) {
+			return hasAnnotation(beanType, Controller.class) || hasAnnotation(beanType, RequestMapping.class);
+		}
+	}
 
 }

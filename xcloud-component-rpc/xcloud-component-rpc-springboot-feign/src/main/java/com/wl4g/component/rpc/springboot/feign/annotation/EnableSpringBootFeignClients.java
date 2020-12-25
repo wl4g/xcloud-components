@@ -19,7 +19,9 @@ import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
 
 import feign.Logger;
 import feign.Retryer;
@@ -41,10 +43,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+@EnableSmartMappingConfiguration
 @Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor("basePackages")
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
@@ -52,8 +55,15 @@ public @interface EnableSpringBootFeignClients {
 	 * 
 	 * @return
 	 */
-	@AliasFor("value")
+	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] basePackages() default {};
+
+	/**
+	 * The default absolute base URL or resolvable hostname (the protocol is
+	 * optional). Will be used when not set in
+	 * {@link SpringBootFeignClient#url()}
+	 */
+	String defaultUrl() default "";
 
 	/**
 	 * The default custom <code>@Configuration</code> for all feign clients. Can
@@ -64,11 +74,19 @@ public @interface EnableSpringBootFeignClients {
 	 * </br>
 	 * 
 	 * The if empty, default refer to
-	 * {@link SpringBootFeignFactoryBean#mergeConfigurationSet()}
+	 * {@link SpringBootFeignFactoryBean#mergeFeignConfigurationSet()}
 	 * 
 	 * @see FeignClientsConfiguration for the defaults
 	 * @return list of default configurations
 	 */
 	Class<?>[] defaultConfiguration() default {};
+
+	/**
+	 * The default request base URL, Will be used when not set in
+	 * {@link SpringBootFeignClient#logLevel()}
+	 * 
+	 * @return
+	 */
+	Logger.Level defaultLogLevel() default Logger.Level.NONE;
 
 }
