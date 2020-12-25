@@ -551,11 +551,28 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 * Ensure that the default is at least an ArrayList instance (when the
 	 * parameter is empty)
 	 * 
-	 * @param list
+	 * @param array
 	 * @return
 	 */
 	public static <T> List<T> safeArrayToList(T[] array) {
-		return isNull(array) ? emptyList() : asList(array);
+		if (isNull(array)) {
+			return emptyList();
+		}
+		List<T> list = new ArrayList<>(array.length);
+		for (T t : array)
+			list.add(t);
+		return list;
+	}
+
+	/**
+	 * Ensure that the default is at least an ArrayList instance (when the
+	 * parameter is empty)
+	 * 
+	 * @param array
+	 * @return
+	 */
+	public static <T> Set<T> safeArrayToSet(T[] array) {
+		return isNull(array) ? emptySet() : new HashSet<>(asList(array));
 	}
 
 	/**
@@ -586,7 +603,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 * @return
 	 */
 	public static <T> List<T> safeToList(Class<T> componentType, T[] array) {
-		return Arrays.asList(safeArray(componentType, array));
+		return safeArrayToList(safeArray(componentType, array));
 	}
 
 	/**

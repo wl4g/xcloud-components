@@ -15,6 +15,7 @@
  */
 package com.wl4g.component.rpc.springboot.feign.annotation;
 
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
@@ -41,10 +42,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+@EnableFeignClients
 @Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
+// @Import(SpringBootFeignMarkerConfiguration.class)
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor("basePackages")
+	@AliasFor(annotation = EnableFeignClients.class, attribute = "value")
 	String[] value() default {};
 
 	/**
@@ -52,7 +55,7 @@ public @interface EnableSpringBootFeignClients {
 	 * 
 	 * @return
 	 */
-	@AliasFor("value")
+	@AliasFor(annotation = EnableFeignClients.class, attribute = "basePackages")
 	String[] basePackages() default {};
 
 	/**
@@ -69,6 +72,7 @@ public @interface EnableSpringBootFeignClients {
 	 * @see FeignClientsConfiguration for the defaults
 	 * @return list of default configurations
 	 */
+	@AliasFor(annotation = EnableFeignClients.class, attribute = "defaultConfiguration")
 	Class<?>[] defaultConfiguration() default {};
 
 }

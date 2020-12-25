@@ -166,7 +166,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 			if (!isEmptyArray(scanBasePackages)) {
 				includes.add(beanType -> startsWithAny(getPackageName(beanType), scanBasePackages));
 			}
-			this.mergedIncludeFilter = includes.isEmpty() ? (beanType -> true) : Predicates.or(includes);
+			this.mergedIncludeFilter = includes.isEmpty() ? (beanType -> false) : Predicates.or(includes);
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -187,7 +187,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 			// Remove, only has @RequestMapping condidtion is not a controller
 			// return mergedIncludeFilter.apply(beanType) ||
 			// hasAnnotation(beanType, Controller.class);
-			return mergedIncludeFilter.apply(beanType) && super.isHandler(beanType);
+			return mergedIncludeFilter.apply(beanType) || super.isHandler(beanType);
 		}
 
 		@Override

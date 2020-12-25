@@ -39,6 +39,7 @@ import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.hasText;
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration.BEAN_FEIGN_CLIENT;
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -144,6 +145,10 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 				retryer = (Retryer) clazz.newInstance();
 			} else if (isNull(logger) && Logger.class.isAssignableFrom(clazz)) {
 				logger = (Logger) clazz.newInstance();
+			} else {
+				throw new IllegalArgumentException(
+						format("Unsupported spring boot feign configuration type: %s, The supported lists are: %s, %s, %s, %s",
+								clazz, Encoder.class, Decoder.class, Contract.class, Retryer.class, Logger.class));
 			}
 		}
 		builder.encoder(isNull(encoder) ? new GsonEncoder() : encoder);
