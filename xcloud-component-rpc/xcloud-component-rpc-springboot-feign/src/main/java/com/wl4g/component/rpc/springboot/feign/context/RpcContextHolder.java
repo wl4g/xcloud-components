@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springcloud.feign.context;
+package com.wl4g.component.rpc.springboot.feign.context;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
@@ -50,7 +50,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 public abstract class RpcContextHolder {
 
 	/** Singleton holder instance */
-	private static volatile RpcContextHolder holder;
+	private static volatile RpcContextHolder provider;
 
 	/**
 	 * Obtain singleton instance of {@link RpcContextHolder}
@@ -58,14 +58,14 @@ public abstract class RpcContextHolder {
 	 * @return
 	 */
 	public static final RpcContextHolder get() {
-		if (isNull(holder)) {
+		if (isNull(provider)) {
 			synchronized (RpcContextHolder.class) {
-				if (isNull(holder)) {
-					holder = initObtainAvailableHolderImpl();
+				if (isNull(provider)) {
+					provider = initAvailableHolderProvider();
 				}
 			}
 		}
-		return holder.current();
+		return provider.current();
 	}
 
 	/**
@@ -93,7 +93,7 @@ public abstract class RpcContextHolder {
 			return (T) value;
 		} else if (isSimpleType(valueType)) {
 			return (T) defaultConverter.convert(value, valueType);
-		} else { // Other object
+		} else { // Custom object
 			return parseJSON((String) value, valueType);
 		}
 	}
@@ -184,7 +184,7 @@ public abstract class RpcContextHolder {
 	 * 
 	 * @return
 	 */
-	private static final RpcContextHolder initObtainAvailableHolderImpl() {
+	private static final RpcContextHolder initAvailableHolderProvider() {
 		List<RpcContextHolder> candidateHolders = safeMap(SpringContextHolder.getBeans(RpcContextHolder.class)).values().stream()
 				.collect(toList());
 

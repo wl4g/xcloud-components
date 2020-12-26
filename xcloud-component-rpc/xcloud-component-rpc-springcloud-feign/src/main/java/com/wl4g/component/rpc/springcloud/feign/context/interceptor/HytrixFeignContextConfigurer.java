@@ -40,7 +40,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
 import com.wl4g.component.common.web.WebUtils2;
-import com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder;
+import com.wl4g.component.rpc.springboot.feign.context.FeignUtil;
+import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

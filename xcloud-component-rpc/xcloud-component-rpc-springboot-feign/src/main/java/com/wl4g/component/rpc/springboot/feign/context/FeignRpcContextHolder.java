@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springcloud.feign.context;
+package com.wl4g.component.rpc.springboot.feign.context;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
+import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import static java.lang.ThreadLocal.withInitial;
 
@@ -38,7 +41,7 @@ import static java.lang.ThreadLocal.withInitial;
  * @sine v1.0
  * @see
  */
-public class FeignRpcContextHolder extends RpcContextHolder {
+class FeignRpcContextHolder extends RpcContextHolder {
 
 	private static final ThreadLocal<FeignRpcContextHolder> LOCAL = withInitial(() -> new FeignRpcContextHolder());
 
@@ -76,15 +79,9 @@ public class FeignRpcContextHolder extends RpcContextHolder {
 	}
 
 	@Configuration
-	@ConditionalOnClass(FeignClient.class)
+	@ConditionalOnClass({ SpringBootFeignClient.class, FeignClient.class })
 	static class FeignRpcContextHolderAutoConfiguration {
-		/**
-		 * Lower priority, e.g. lower than
-		 * {@link com.wl4g.component.rpc.feign.dubbo.context.DubboRpcContextHolder.DubboRpcContextHolderAutoConfiguration#dubboRpcContextHolder()}
-		 * 
-		 * @return
-		 */
-		@Bean
+		@Bean // Lower priority
 		@ConditionalOnMissingBean
 		public RpcContextHolder feignRpcContextHolder() {
 			return new FeignRpcContextHolder();

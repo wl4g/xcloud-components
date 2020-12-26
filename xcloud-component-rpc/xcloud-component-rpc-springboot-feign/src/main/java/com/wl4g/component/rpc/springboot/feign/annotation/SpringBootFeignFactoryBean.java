@@ -18,16 +18,18 @@ package com.wl4g.component.rpc.springboot.feign.annotation;
 import feign.Client;
 import feign.Contract;
 import feign.Feign;
+import feign.FeignException;
 import feign.Logger;
+import feign.Request;
 import feign.Request.Options;
+import feign.Response;
 import feign.Retryer;
+import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.slf4j.Slf4jLogger;
-import lombok.Getter;
-import lombok.Setter;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -35,20 +37,27 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
+import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.hasText;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration.BEAN_FEIGN_CLIENT;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,20 +70,21 @@ import java.util.List;
  * @sine v1.0
  * @see
  */
-@Getter
-@Setter
+@SuppressWarnings("unused")
 class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContextAware {
 
 	private ApplicationContext applicationContext;
 	private Class<T> proxyInterface;
 	private String baseUrl;
-	private String path; // handler mapping path(type)
+	@Deprecated
+	private String path; // Contract will be append auto
 	private boolean decode404;
 	private Logger.Level logLevel;
 	private Class<?>[] configuration;
 	private long connectTimeout;
 	private long readTimeout;
-	private long writeTimeout; // Ignore
+	@Deprecated
+	private long writeTimeout;
 	private boolean followRedirects;
 
 	// Fallback default configuration.
@@ -83,6 +93,50 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
+	}
+
+	public void setProxyInterface(Class<T> proxyInterface) {
+		this.proxyInterface = proxyInterface;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setDecode404(boolean decode404) {
+		this.decode404 = decode404;
+	}
+
+	public void setLogLevel(Logger.Level logLevel) {
+		this.logLevel = logLevel;
+	}
+
+	public void setConfiguration(Class<?>[] configuration) {
+		this.configuration = configuration;
+	}
+
+	public void setConnectTimeout(long connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public void setReadTimeout(long readTimeout) {
+		this.readTimeout = readTimeout;
+	}
+
+	public void setWriteTimeout(long writeTimeout) {
+		this.writeTimeout = writeTimeout;
+	}
+
+	public void setFollowRedirects(boolean followRedirects) {
+		this.followRedirects = followRedirects;
+	}
+
+	public void setDefaultConfiguration(Class<?>[] defaultConfiguration) {
+		this.defaultConfiguration = defaultConfiguration;
 	}
 
 	@Override
@@ -153,10 +207,10 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			}
 		}
 		builder.encoder(isNull(encoder) ? new GsonEncoder() : encoder);
-		builder.decoder(isNull(decoder) ? new GsonDecoder() : decoder);
+		builder.decoder(new DelegateFeignDecoder(isNull(decoder) ? new GsonDecoder() : decoder));
 		// new Contract.Default()
 		builder.contract(isNull(contract) ? new SpringMvcContract() : contract);
-		builder.retryer(isNull(retryer) ? new DefaultRetryer() : retryer);
+		builder.retryer(isNull(retryer) ? new Retryer.Default() : retryer);
 		builder.logger(isNull(logger) ? new Slf4jLogger() : logger);
 	}
 
@@ -175,6 +229,8 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		hasText(baseUrl0, "feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
 				SpringBootFeignAutoConfiguration.KEY_PREFIX, SpringBootFeignClient.class.getSimpleName());
 
+		// Contract will be append auto
+		//
 		// String path0 = trimToEmpty(path);
 		// if (!baseUrl0.endsWith("/") && !path0.startsWith("/")) {
 		// baseUrl0 += "/";
@@ -184,9 +240,36 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		return baseUrl0;
 	}
 
-	public static class DefaultRetryer extends Retryer.Default {
-		public DefaultRetryer() {
-			super(100, SECONDS.toMillis(1), 0);
+	/**
+	 * {@link feign.SynchronousMethodHandler#executeAndDecode()}
+	 */
+	class DelegateFeignDecoder implements Decoder {
+		private final Decoder decoder;
+
+		public DelegateFeignDecoder(Decoder decoder) {
+			this.decoder = notNullOf(decoder, "decoder");
+		}
+
+		@Override
+		public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
+			try {
+				return decoder.decode(response, type);
+			} finally {
+				bindResponseToRpcContext(response, type);
+			}
+		}
+
+		private synchronized void bindResponseToRpcContext(Response response, Type type) {
+			// Bind current response attachments from provider.
+			if (!isEmpty(response.headers())) {
+				response.headers().forEach((name, values) -> {
+					String firstValue = null;
+					if (nonNull(values) && !values.isEmpty()) {
+						firstValue = values.iterator().next();
+					}
+					RpcContextHolder.get().getAttachments().put(name, firstValue);
+				});
+			}
 		}
 	}
 

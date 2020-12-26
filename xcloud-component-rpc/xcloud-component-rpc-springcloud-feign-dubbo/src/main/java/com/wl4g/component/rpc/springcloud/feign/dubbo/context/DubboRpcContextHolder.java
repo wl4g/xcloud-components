@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration;
 import com.alibaba.dubbo.rpc.RpcContext;
-import com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder;
+import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 /**
  * {@link DubboRpcContextHolder}
