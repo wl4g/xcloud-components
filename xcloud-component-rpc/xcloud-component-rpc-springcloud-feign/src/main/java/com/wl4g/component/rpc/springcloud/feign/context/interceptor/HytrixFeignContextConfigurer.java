@@ -40,7 +40,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
 import com.wl4g.component.common.web.WebUtils2;
-import com.wl4g.component.rpc.springboot.feign.context.FeignUtil;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import feign.RequestInterceptor;
@@ -111,7 +110,7 @@ public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 			}
 
 			// Sets request attachments.
-			FeignUtil.addParamsFromServletRequest(template, request);
+			addParamsFromServletRequest(template, request);
 
 			// Obtain current rpc context attachments save to feign request
 			// template

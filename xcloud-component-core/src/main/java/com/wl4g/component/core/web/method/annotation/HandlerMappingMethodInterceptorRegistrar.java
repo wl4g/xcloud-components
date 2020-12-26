@@ -20,12 +20,12 @@
 package com.wl4g.component.core.web.method.annotation;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
-import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
+import static com.wl4g.component.core.web.method.annotation.EnableHandlerMappingCustomizer.BASE_PACKAGES;
+import static com.wl4g.component.core.web.method.annotation.EnableHandlerMappingCustomizer.BASE_PACKAGE_CLASSES;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isInterface;
 import static java.lang.reflect.Modifier.isPublic;
@@ -36,7 +36,9 @@ import static org.springframework.context.annotation.AnnotationConfigUtils.CONFI
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
@@ -61,10 +63,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
+import static org.springframework.util.StringUtils.hasText;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
@@ -82,7 +86,6 @@ import com.wl4g.component.core.web.method.HandlerMethodCustomizerInterceptor;
  */
 public class HandlerMappingMethodInterceptorRegistrar
 		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, BeanFactoryAware {
-
 	protected final SmartLogger log = getLogger(getClass());
 
 	private ResourceLoader resourceLoader;
@@ -106,9 +109,9 @@ public class HandlerMappingMethodInterceptorRegistrar
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-		AnnotationAttributes annoAttrs = AnnotationAttributes
+		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableHandlerMappingCustomizer.class.getName()));
-		if (!isNull(annoAttrs)) {
+		if (!isNull(attrs)) {
 			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 
 			if (isServletWebApplication(getClass().getClassLoader(), beanFactory, environment, resourceLoader)) {
@@ -118,8 +121,8 @@ public class HandlerMappingMethodInterceptorRegistrar
 				registerBeanDefinition(builder1, registry, beanNameGenerator);
 
 				// register post conversion interceptor advisor.
-				BeanDefinitionBuilder builder2 = genericBeanDefinition(HumanModelConvertAdvisor.class);
-				builder2.addPropertyValue("scanBasePackages", resolveScanBasePackages(annoAttrs, registry));
+				BeanDefinitionBuilder builder2 = genericBeanDefinition(HandlerMethodCustomizerInterceptorAdvisor.class);
+				builder2.addPropertyValue("basePackages", resolveBasePackages(metadata, attrs, registry));
 				builder2.addPropertyValue("advice", beanFactory.getBean(HandlerMethodCustomizerInterceptor.class));
 
 				registerBeanDefinition(builder2, registry, beanNameGenerator);
@@ -137,8 +140,9 @@ public class HandlerMappingMethodInterceptorRegistrar
 		registry.registerBeanDefinition(beanName, beanDefinition);
 	}
 
-	private String[] resolveScanBasePackages(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return safeArrayToList(annoAttrs.getStringArray(BASE_PACKAGES)).stream().filter(v -> !isBlank(v))
+	private String[] resolveBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs,
+			BeanDefinitionRegistry registry) {
+		return getBasePackages(metadata, attrs).stream().filter(v -> !isBlank(v))
 				.map(v -> environment.resolveRequiredPlaceholders(v)).toArray(String[]::new);
 	}
 
@@ -171,16 +175,37 @@ public class HandlerMappingMethodInterceptorRegistrar
 		return beanNameGenerator;
 	}
 
+	private Set<String> getBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
+		Set<String> basePackages = new HashSet<>();
+		for (String pkg : (String[]) attrs.get("value")) {
+			if (hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (String pkg : (String[]) attrs.get(BASE_PACKAGES)) {
+			if (hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (Class<?> clazz : (Class[]) attrs.get(BASE_PACKAGE_CLASSES)) {
+			basePackages.add(ClassUtils.getPackageName(clazz));
+		}
+		if (basePackages.isEmpty()) {
+			basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+		}
+		return basePackages;
+	}
+
 	/**
 	 * AOP advisor of {@link HandlerMethodCustomizerInterceptor}
 	 */
-	static class HumanModelConvertAdvisor extends AbstractGenericPointcutAdvisor {
+	static class HandlerMethodCustomizerInterceptorAdvisor extends AbstractGenericPointcutAdvisor {
 		final private static long serialVersionUID = 1L;
 
-		private String[] scanBasePackages;
+		private String[] basePackages;
 
-		public void setScanBasePackages(String[] scanBasePackages) {
-			this.scanBasePackages = scanBasePackages;
+		public void setBasePackages(String[] basePackages) {
+			this.basePackages = basePackages;
 		}
 
 		@Override
@@ -221,7 +246,7 @@ public class HandlerMappingMethodInterceptorRegistrar
 				@Override
 				public ClassFilter getClassFilter() {
 					return clazz -> (hasAnnotation(clazz, ResponseBody.class)
-							&& (isEmptyArray(scanBasePackages) || startsWithAny(getPackageName(clazz), scanBasePackages))
+							&& (isEmptyArray(basePackages) || startsWithAny(getPackageName(clazz), basePackages))
 							&& (hasAnnotation(clazz, Controller.class) || hasAnnotation(clazz, RequestMapping.class)));
 				}
 			};

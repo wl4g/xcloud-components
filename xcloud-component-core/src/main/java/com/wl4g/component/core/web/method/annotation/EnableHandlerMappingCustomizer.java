@@ -47,24 +47,36 @@ import com.google.common.annotations.Beta;
 public @interface EnableHandlerMappingCustomizer {
 
 	/**
-	 * Human model convert scan base packages.
+	 * {@link #basePackages()}
+	 * 
+	 * @return
+	 */
+	@AliasFor(BASE_PACKAGES)
+	String[] value() default {};
+
+	/**
+	 * Smart customizer handler mapping base packages.
 	 * 
 	 * @return
 	 */
 	@AliasFor("value")
-	String[] scanBasePackages() default {};
+	String[] basePackages() default {};
 
 	/**
-	 * {@link #scanBasePackages()}
+	 * Base packages to scan for annotated components.
 	 * 
 	 * @return
 	 */
-	@AliasFor(SCAN_BASE_PACKAGES)
-	String[] value() default {};
+	Class<?>[] basePackageClasses() default {};
 
 	/**
 	 * Refer: {@link #value()}
 	 */
-	public static final String SCAN_BASE_PACKAGES = "scanBasePackages";
+	public static final String BASE_PACKAGES = "basePackages";
+
+	/**
+	 * Refer: {@link #basePackageClasses()}
+	 */
+	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
 
 }
