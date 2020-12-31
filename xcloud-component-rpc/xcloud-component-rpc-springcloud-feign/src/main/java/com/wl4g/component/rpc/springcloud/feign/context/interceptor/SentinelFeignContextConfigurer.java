@@ -36,11 +36,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.cloud.sentinel.custom.SentinelAutoConfiguration;
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.common.web.WebUtils2;
-import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+
+// TODO
 
 /***
  * {@link SentinelFeignContextConfigurer}
@@ -58,21 +58,19 @@ public class SentinelFeignContextConfigurer implements WebMvcConfigurer {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Bean
-	public ServletSentinelConsumerContextInterceptor servletSentinelConsumerContextInterceptor() {
-		return new ServletSentinelConsumerContextInterceptor();
+	public SentinelFeignContextServletInterceptor sentinelFeignContextServletInterceptor() {
+		return new SentinelFeignContextServletInterceptor();
 	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(servletSentinelConsumerContextInterceptor()).addPathPatterns("/**");
+		registry.addInterceptor(sentinelFeignContextServletInterceptor()).addPathPatterns("/**");
 	}
 
-	// TODO
-	
 	/**
-	 * Servlet sentinel request context handler interceptor.
+	 * Sentinel servlet request context handler interceptor.
 	 */
-	static class ServletSentinelConsumerContextInterceptor implements RequestInterceptor, HandlerInterceptor {
+	static class SentinelFeignContextServletInterceptor implements RequestInterceptor, HandlerInterceptor {
 
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -90,17 +88,6 @@ public class SentinelFeignContextConfigurer implements WebMvcConfigurer {
 		public void apply(RequestTemplate template) {
 			// TODO Auto-generated method stub
 
-		}
-
-	}
-
-	static class ServletSentinelFeignProviderContextInterceptor implements HandlerInterceptor {
-
-		@Override
-		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			// Obtain current request parameters and save to rpc context
-			RpcContextHolder.get().setAttachments(WebUtils2.getFirstParameters(request));
-			return true;
 		}
 
 	}

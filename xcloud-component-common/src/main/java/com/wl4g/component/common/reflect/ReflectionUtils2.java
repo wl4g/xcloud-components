@@ -212,9 +212,27 @@ public abstract class ReflectionUtils2 {
 	 *            the class to introspect
 	 * @param name
 	 *            the name of the field
+	 * @param type
+	 *            the type of the field (may be {@code null} if name is
+	 *            specified)
 	 * @return the corresponding Field object, or {@code null} if not found
 	 */
-	public static Field findField(@NotNull Class<?> clazz, String name) {
+	public static Field findFieldNullable(@Nullable Class<?> clazz, @NotNull String name, @Nullable Class<?> type) {
+		return nonNull(clazz) ? findField(clazz, name, type) : null;
+	}
+
+	/**
+	 * Attempt to find a {@link Field field} on the supplied {@link Class} with
+	 * the supplied {@code name}. Searches all superclasses up to
+	 * {@link Object}.
+	 * 
+	 * @param clazz
+	 *            the class to introspect
+	 * @param name
+	 *            the name of the field
+	 * @return the corresponding Field object, or {@code null} if not found
+	 */
+	public static Field findField(@NotNull Class<?> clazz, @NotNull String name) {
 		return findField(clazz, name, null);
 	}
 
@@ -233,7 +251,7 @@ public abstract class ReflectionUtils2 {
 	 *            specified)
 	 * @return the corresponding Field object, or {@code null} if not found
 	 */
-	public static Field findField(@NotNull Class<?> clazz, String name, Class<?> type) {
+	public static Field findField(@NotNull Class<?> clazz, @NotNull String name, Class<?> type) {
 		notNull(clazz, "Class must not be null");
 		isTrue(name != null || type != null, "Either name or type of the field must be specified");
 		Class<?> searchType = clazz;
@@ -367,7 +385,7 @@ public abstract class ReflectionUtils2 {
 	 *            indicate any signature)
 	 * @return the Method object, or {@code null} if none found
 	 */
-	public static Method findMethodNullable(@Nullable Class<?> clazz, @NotNull String name, Class<?>... paramTypes) {
+	public static Method findMethodNullable(@Nullable Class<?> clazz, @NotNull String name, @Nullable Class<?>... paramTypes) {
 		return nonNull(clazz) ? findMethod(clazz, name, paramTypes) : null;
 	}
 

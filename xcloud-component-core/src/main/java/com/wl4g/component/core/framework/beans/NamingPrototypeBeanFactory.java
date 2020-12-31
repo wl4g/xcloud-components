@@ -17,6 +17,7 @@ package com.wl4g.component.core.framework.beans;
 
 import static com.wl4g.component.common.lang.Assert2.*;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.core.constant.ConfigConstant.KEY_NAMING_PROTOYPE_FACTORY;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -40,6 +41,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -104,7 +106,7 @@ public class NamingPrototypeBeanFactory {
 	 * @since
 	 * @see {@link MapperScannerRegistrar} struct implements.
 	 */
-	public static class NamingPrototypeBeanDefinitionRegistrar implements BeanDefinitionRegistryPostProcessor {
+	static class NamingPrototypeBeanDefinitionRegistrar implements BeanDefinitionRegistryPostProcessor {
 		final protected SmartLogger log = getLogger(getClass());
 
 		@Override
@@ -209,8 +211,9 @@ public class NamingPrototypeBeanFactory {
 	 * @since
 	 */
 	@Configuration
+	@ConditionalOnProperty(name = KEY_NAMING_PROTOYPE_FACTORY + ".enable", matchIfMissing = true)
 	@Import(NamingPrototypeBeanDefinitionRegistrar.class)
-	public static class NamingPrototypeBeanFactoryAutoConfiguration {
+	static class NamingPrototypeBeanFactoryAutoConfiguration {
 
 		@Bean
 		public NamingPrototypeBeanFactory namingPrototypeBeanFactory() {

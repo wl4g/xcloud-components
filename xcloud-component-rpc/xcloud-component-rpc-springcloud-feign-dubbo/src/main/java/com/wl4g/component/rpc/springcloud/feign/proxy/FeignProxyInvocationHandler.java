@@ -21,7 +21,11 @@ import static org.springframework.aop.support.AopUtils.getTargetClass;
 
 import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.framework.aop.ProxyInvocation;
+import com.wl4g.component.core.framework.proxy.ProxyInvocation;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProviderProxiesConfigurer;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyController;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyInvocationHandler;
+import com.wl4g.component.rpc.springcloud.feign.proxy.NoSuchFeignProxyBeanException;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;

@@ -21,7 +21,6 @@ package com.wl4g.component.core.web.method.convert;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -29,19 +28,14 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wl4g.component.common.lang.period.PeriodFormatter;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.core.bean.BaseBean;
-import com.wl4g.component.core.framework.proxy.SmartProxyProcessor;
-import static com.wl4g.component.core.constant.ConfigConstant.KEY_WEB_HUMAN_DATE_CONVERTER;
+import com.wl4g.component.core.web.method.HandlerMethodCustomizerInterceptor.HandlerProcessor;
 
 /**
  * {@link HumanDateConversionProcessor}
@@ -51,54 +45,41 @@ import static com.wl4g.component.core.constant.ConfigConstant.KEY_WEB_HUMAN_DATE
  * @sine v1.0
  * @see
  */
-public class HumanDateConversionProcessor implements SmartProxyProcessor {
+public class HumanDateConversionProcessor implements HandlerProcessor {
 
 	@Override
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE - 100;
 	}
 
-	@Override
-	public boolean supportTypeProxy(Object bean, Class<?> actualOriginalTargetClass) {
-		// support all web mappingHandler type
-		return hasAnnotation(actualOriginalTargetClass, Controller.class)
-				|| hasAnnotation(actualOriginalTargetClass, RequestMapping.class);
-	}
-
-	@Override
-	public boolean supportMethodProxy(Object target, Method method, Class<?> actualOriginalTargetClass, Object... args) {
-		// support has @ResponseBody method.
-		return hasAnnotation(actualOriginalTargetClass, ResponseBody.class);
-	}
-
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Object postHandle(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result, Throwable ex) {
+	public Object postHandle(@NotNull Object bean, @NotNull Method method, Object[] parameters, Object result, Throwable ex) {
 		if (nonNull(result)) {
 			if (result instanceof RespBase) {
 				Object data = ((RespBase) result).getData();
-				updateHumanDateIfNecessary(data);
+				convertIfNecessary(data);
 			} else {
-				updateHumanDateIfNecessary(result);
+				convertIfNecessary(result);
 			}
 		}
 		return result;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void updateHumanDateIfNecessary(Object data) {
+	public static void convertIfNecessary(Object data) {
 		if (data instanceof BaseBean) {
-			updateFieldHumanDateIfNecessary(data);
+			processHumanIfNecessary(data);
 		} else if (data instanceof Collection) {
 			Collection<Object> elements = (Collection<Object>) data;
 			for (Object element : elements) {
-				updateFieldHumanDateIfNecessary(element);
+				processHumanIfNecessary(element);
 			}
 		} else if (data instanceof Map) {
 			Map<Object, Object> elements = (Map<Object, Object>) data;
 			elements.forEach((key, value) -> {
-				updateFieldHumanDateIfNecessary(key);
-				updateFieldHumanDateIfNecessary(value);
+				processHumanIfNecessary(key);
+				processHumanIfNecessary(value);
 			});
 		}
 	}
@@ -109,7 +90,7 @@ public class HumanDateConversionProcessor implements SmartProxyProcessor {
 	 * @param model
 	 * @return
 	 */
-	public static boolean updateFieldHumanDateIfNecessary(Object model) {
+	public static boolean processHumanIfNecessary(Object model) {
 		if (model instanceof BaseBean) {
 			BaseBean bean = (BaseBean) model;
 			if (!isNull(bean) && (isNull(bean.getHumanCreateDate()) || isNull(bean.getHumanCreateDate()))) {
@@ -129,7 +110,6 @@ public class HumanDateConversionProcessor implements SmartProxyProcessor {
 	private static final PeriodFormatter defaultFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 	@Configuration
-	@ConditionalOnProperty(name = KEY_WEB_HUMAN_DATE_CONVERTER + ".enable", matchIfMissing = true)
 	static class HumanDateConversionAutoConfiguration {
 		@Bean
 		public HumanDateConversionProcessor humanDateConversionProcessor() {

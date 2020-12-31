@@ -18,7 +18,7 @@ package com.wl4g.component.common.log;
 import static com.wl4g.component.common.lang.Assert2.notNull;
 import static java.util.Objects.isNull;
 
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
@@ -85,13 +85,13 @@ public class SmartLogger implements Logger {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void trace(String format, Callable<Object>... call) {
+	public void trace(String format, Supplier<Object>... call) {
 		if (orig.isTraceEnabled()) {
 			if (!isNull(call)) {
 				Object[] args = new Object[call.length];
 				for (int i = 0; i < call.length; i++) {
 					try {
-						args[i] = call[i].call();
+						args[i] = call[i].get();
 					} catch (Exception e) {
 						error("", e);
 					}
@@ -182,13 +182,13 @@ public class SmartLogger implements Logger {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void debug(String format, Callable<Object>... calls) {
+	public void debug(String format, Supplier<Object>... calls) {
 		if (orig.isDebugEnabled()) {
 			if (!isNull(calls)) {
 				Object[] args = new Object[calls.length];
 				for (int i = 0; i < calls.length; i++) {
 					try {
-						args[i] = calls[i].call();
+						args[i] = calls[i].get();
 					} catch (Exception e) {
 						error("", e);
 					}
@@ -279,13 +279,13 @@ public class SmartLogger implements Logger {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void info(String format, Callable<Object>... calls) {
+	public void info(String format, Supplier<Object>... calls) {
 		if (orig.isInfoEnabled()) {
 			if (!isNull(calls)) {
 				Object[] args = new Object[calls.length];
 				for (int i = 0; i < calls.length; i++) {
 					try {
-						args[i] = calls[i].call();
+						args[i] = calls[i].get();
 					} catch (Exception e) {
 						error("", e);
 					}
@@ -376,13 +376,13 @@ public class SmartLogger implements Logger {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void warn(String format, Callable<Object>... calls) {
+	public void warn(String format, Supplier<Object>... calls) {
 		if (orig.isWarnEnabled()) {
 			if (!isNull(calls)) {
 				Object[] args = new Object[calls.length];
 				for (int i = 0; i < calls.length; i++) {
 					try {
-						args[i] = calls[i].call();
+						args[i] = calls[i].get();
 					} catch (Exception e) {
 						error("", e);
 					}
@@ -473,13 +473,13 @@ public class SmartLogger implements Logger {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void error(String format, Callable<Object>... calls) {
+	public void error(String format, Supplier<Object>... calls) {
 		if (orig.isErrorEnabled()) {
 			if (!isNull(calls)) {
 				Object[] args = new Object[calls.length];
 				for (int i = 0; i < calls.length; i++) {
 					try {
-						args[i] = calls[i].call();
+						args[i] = calls[i].get();
 					} catch (Exception e) {
 						error("", e);
 					}

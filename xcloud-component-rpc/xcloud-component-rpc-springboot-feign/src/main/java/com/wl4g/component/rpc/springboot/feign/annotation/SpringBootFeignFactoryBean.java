@@ -20,6 +20,7 @@ import feign.Contract;
 import feign.Feign;
 import feign.FeignException;
 import feign.Logger;
+import feign.MethodMetadata;
 import feign.Request;
 import feign.Request.Options;
 import feign.Response;
@@ -29,6 +30,8 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 import feign.slf4j.Slf4jLogger;
 
 import org.springframework.beans.BeansException;
@@ -38,6 +41,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.wl4g.component.common.collection.CollectionUtils2;
+import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
@@ -45,18 +50,23 @@ import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.Assert2.hasText;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration.BEAN_FEIGN_CLIENT;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,7 +180,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		// Sets request option
 		mergeRequestOptionSet(config, builder);
 
-		// Sets logger/level
+		// Sets logger level
 		mergeLoggerLevelSet(config, builder);
 
 		// Sets configuration with merge.
@@ -206,10 +216,13 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 								clazz, Encoder.class, Decoder.class, Contract.class, Retryer.class, Logger.class));
 			}
 		}
-		builder.encoder(isNull(encoder) ? new GsonEncoder() : encoder);
-		builder.decoder(new DelegateFeignDecoder(isNull(decoder) ? new GsonDecoder() : decoder));
+		// new GsonEncoder()
+		builder.encoder(isNull(encoder) ? new JacksonEncoder() : encoder);
+		// new GsonDecoder()
+		// new ParameterizedGsonDecoder()
+		builder.decoder(new DelegateFeignDecoder(isNull(decoder) ? new JacksonDecoder() : decoder));
 		// new Contract.Default()
-		builder.contract(isNull(contract) ? new SpringMvcContract() : contract);
+		builder.contract(new DelegateContract(isNull(contract) ? new SpringMvcContract() : contract));
 		builder.retryer(isNull(retryer) ? new Retryer.Default() : retryer);
 		builder.logger(isNull(logger) ? new Slf4jLogger() : logger);
 	}
@@ -243,7 +256,12 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	/**
 	 * {@link feign.SynchronousMethodHandler#executeAndDecode()}
 	 */
-	class DelegateFeignDecoder implements Decoder {
+	static class DelegateFeignDecoder implements Decoder {
+
+		/**
+		 * To be consistent with the {@link feign.slf4j.Slf4jLogger} log prefix.
+		 */
+		private final SmartLogger log = getLogger(feign.Logger.class);
 		private final Decoder decoder;
 
 		public DelegateFeignDecoder(Decoder decoder) {
@@ -254,6 +272,12 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
 			try {
 				return decoder.decode(response, type);
+			} catch (Exception e) {
+				String errmsg = format(
+						"Failed to feign RPC. - return.type: %s, http.status: %s, http.request: %s, http.response: %s", type,
+						response.status(), getRequestAsString(response.request()), response.toString());
+				// High-concurrency-performance-optimization
+				throw new FeignRpcException(errmsg, e, log.isDebugEnabled());
 			} finally {
 				bindResponseToRpcContext(response, type);
 			}
@@ -270,6 +294,89 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 					RpcContextHolder.get().getAttachments().put(name, firstValue);
 				});
 			}
+		}
+
+		private String getRequestAsString(Request request) {
+			if (request.isBinary()) {
+				return request.httpMethod().toString().concat(" ").concat(request.url()).concat(" HTTP/x ").concat(File.separator)
+						.concat("--- Binary Data ---");
+			}
+			return request.toString();
+		}
+
+	}
+
+	static class FeignRpcException extends RuntimeException {
+		static final long serialVersionUID = -7034833390745116939L;
+
+		/**
+		 * Has been message to specify whether to log exceptions.
+		 * 
+		 * @param message
+		 * @param cause
+		 * @param dumpStackTrace
+		 */
+		public FeignRpcException(String message, Throwable cause, boolean dumpStackTrace) {
+			super(message, cause, false, dumpStackTrace);
+		}
+
+	}
+
+	static class DelegateContract implements Contract {
+		private final Contract delegate;
+
+		public DelegateContract(Contract delegate) {
+			this.delegate = notNullOf(delegate, "delegate");
+		}
+
+		@Override
+		public List<MethodMetadata> parseAndValidateMetadata(Class<?> targetType) {
+			List<MethodMetadata> mds = delegate.parseAndValidateMetadata(targetType);
+			for (MethodMetadata md : safeList(mds)) {
+				md.returnType(wrapParameterizedType(md.returnType()));
+			}
+			return mds;
+		}
+
+		private ParameterizedType wrapParameterizedType(Type returnType) {
+			Type[] actualTypes = { returnType };
+			if (returnType instanceof ParameterizedType) {
+				ParameterizedType pType = (ParameterizedType) returnType;
+				actualTypes = new Type[] { new ParameterizedType() {
+					@Override
+					public Type getRawType() {
+						return pType.getRawType();
+					}
+
+					@Override
+					public Type getOwnerType() {
+						return null;
+					}
+
+					@Override
+					public Type[] getActualTypeArguments() {
+						return pType.getActualTypeArguments();
+					}
+				} };
+			}
+			final Type rawType0 = RespBase.class;
+			final Type[] actualTypes0 = actualTypes;
+			return new ParameterizedType() {
+				@Override
+				public Type getRawType() {
+					return rawType0;
+				}
+
+				@Override
+				public Type getOwnerType() {
+					return null;
+				}
+
+				@Override
+				public Type[] getActualTypeArguments() {
+					return actualTypes0;
+				}
+			};
 		}
 	}
 

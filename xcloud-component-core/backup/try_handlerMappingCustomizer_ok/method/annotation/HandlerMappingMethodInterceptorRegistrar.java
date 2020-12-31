@@ -248,6 +248,7 @@ public class HandlerMappingMethodInterceptorRegistrar
 					return clazz -> (hasAnnotation(clazz, ResponseBody.class)
 							&& (isEmptyArray(basePackages) || startsWithAny(getPackageName(clazz), basePackages))
 							&& (hasAnnotation(clazz, Controller.class) || hasAnnotation(clazz, RequestMapping.class)));
+
 				}
 			};
 		}

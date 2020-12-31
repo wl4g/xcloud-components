@@ -23,7 +23,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil.isFeignProxyBean;
+import static java.util.Objects.nonNull;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
@@ -33,7 +35,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -61,6 +62,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wl4g.component.core.framework.HierarchyParameterNameDiscoverer;
 import com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.ServletHandlerMappingSupport;
+import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyController;
 
 /**
  * Feign proxy rest configurer of servlet mvc.
@@ -229,19 +232,21 @@ public class FeignProxyMvcAutoConfiguration implements InitializingBean {
 	 * @see {@link org.springframework.web.servlet.DispatcherServlet#getHandler()}
 	 */
 	static class FeignProxyRequestHandlerMapping extends ServletHandlerMappingSupport {
-
 		@Override
 		protected boolean supportsHandlerMethod(Object handler, Class<?> handlerType, Method method) {
 			// In order to solve the following problems, spring will scan
 			// the @RequestMapping annotation class by default and inject
 			// it into MapperRegistry, which will cause conflicts with the
 			// dynamically generated $FeignProxyController class.
-			if (hasAnnotation(handlerType, FeignClient.class)) {
+			if (hasAnnotation(handlerType, SpringBootFeignClient.class)
+					|| (nonNull(FEIGNCLIENT_CLASS) && hasAnnotation(handlerType, FEIGNCLIENT_CLASS))) {
 				return isFeignProxyBean((String) handler); // beanName
 			}
 			return false;
 		}
-
 	}
+
+	public static final Class<? extends Annotation> FEIGNCLIENT_CLASS = resolveClassNameNullable(
+			"org.springframework.cloud.openfeign.FeignClient");
 
 }

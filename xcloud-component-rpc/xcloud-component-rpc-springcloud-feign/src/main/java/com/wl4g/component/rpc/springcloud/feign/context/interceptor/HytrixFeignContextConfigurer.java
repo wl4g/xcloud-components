@@ -19,9 +19,6 @@
  */
 package com.wl4g.component.rpc.springcloud.feign.context.interceptor;
 
-import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
-import static java.util.Objects.isNull;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,17 +30,11 @@ import org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
-import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
-import com.wl4g.component.common.web.WebUtils2;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
-
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
+import com.wl4g.component.rpc.springcloud.feign.context.HytrixFeignRpcContextHolder;
 
 /***
  * {@link HytrixFeignContextConfigurer}
@@ -60,80 +51,34 @@ import feign.RequestTemplate;
 public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 
 	@Bean
-	public ServletHytrixFeignConsumerContextInterceptor servletHytrixConsumerContextInterceptor() {
-		return new ServletHytrixFeignConsumerContextInterceptor();
+	public HytrixFeignContextServletInterceptor hytrixFeignContextServletInterceptor() {
+		return new HytrixFeignContextServletInterceptor();
 	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(servletHytrixConsumerContextInterceptor()).addPathPatterns("/**");
+		registry.addInterceptor(hytrixFeignContextServletInterceptor()).addPathPatterns("/**");
 	}
 
 	/**
-	 * Servlet hytrix request context parameters interceptor. </br>
+	 * hytrix Servlet request context parameters interceptor. </br>
 	 * </br>
 	 * Refer to <a href=
 	 * "https://blog.csdn.net/luliuliu1234/article/details/96472893">HystrixInterceptor</a>
 	 */
-	static class ServletHytrixFeignConsumerContextInterceptor implements RequestInterceptor, HandlerInterceptor {
-
-		public static final HystrixRequestVariableDefault<HttpServletRequest> REQUEST = new HystrixRequestVariableDefault<>();
-
+	static class HytrixFeignContextServletInterceptor implements HandlerInterceptor {
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			// Initializes hystrixrequestcontext in the current thread.
-			if (!HystrixRequestContext.isCurrentThreadInitialized()) {
-				HystrixRequestContext.initializeContext();
-			}
-			REQUEST.set(request);
+			// RpcContextHolder holder = RpcContextHolder.get();
+			// isInstanceOf(HytrixFeignRpcContextHolder.class, holder);
 			return true;
 		}
 
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
-			if (HystrixRequestContext.isCurrentThreadInitialized()) {
-				// Destroy current thread
-				HystrixRequestContext.getContextForCurrentThread().shutdown();
-			}
+			((HytrixFeignRpcContextHolder) RpcContextHolder.get()).close();
 		}
-
-		@Override
-		public void apply(RequestTemplate template) {
-			if (!HystrixRequestContext.isCurrentThreadInitialized()) {
-				HystrixRequestContext.initializeContext();
-			}
-			// Obtain current request parameters save to feign request template
-			HttpServletRequest request = ServletHytrixFeignConsumerContextInterceptor.REQUEST.get();
-			if (isNull(request)) {
-				return;
-			}
-
-			// Sets request attachments.
-			addParamsFromServletRequest(template, request);
-
-			// Obtain current rpc context attachments save to feign request
-			// template
-			safeMap(RpcContextHolder.get().getAttachments()).forEach((name, value) -> template.header(name, value));
-		}
-	}
-
-	static class ServletHytrixFeignProviderContextInterceptor implements HandlerInterceptor {
-
-		@Override
-		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			// Obtain current request parameters and save to rpc context
-			RpcContextHolder.get().setAttachments(WebUtils2.getFirstParameters(request));
-			return true;
-		}
-
-		@Override
-		public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-				ModelAndView modelAndView) throws Exception {
-			// Sets response attachments.
-
-		}
-
 	}
 
 }

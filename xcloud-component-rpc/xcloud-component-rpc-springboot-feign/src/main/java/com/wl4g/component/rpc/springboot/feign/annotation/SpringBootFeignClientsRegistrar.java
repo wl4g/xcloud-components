@@ -63,7 +63,7 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 			 */
 			Set<String> scanBasePackages = getScanBasePackages(metadata, attrs).stream().filter(pkg -> !isBlank(pkg))
 					.collect(toSet());
-			ExcludeFeignClientsHandlerFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
+			ExcludeSelfFeignClientsFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
 
 			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
 					attrs.getClassArray(DEFAULT_CONFIGURATION));

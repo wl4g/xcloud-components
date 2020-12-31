@@ -556,7 +556,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 */
 	public static <T> List<T> safeArrayToList(T[] array) {
 		if (isNull(array)) {
-			return emptyList();
+			return new ArrayList<>(2);
 		}
 		List<T> list = new ArrayList<>(array.length);
 		for (T t : array)
@@ -572,7 +572,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 * @return
 	 */
 	public static <T> Set<T> safeArrayToSet(T[] array) {
-		return isNull(array) ? emptySet() : new HashSet<>(asList(array));
+		return isNull(array) ? new HashSet<>(2) : new HashSet<>(asList(array));
 	}
 
 	/**

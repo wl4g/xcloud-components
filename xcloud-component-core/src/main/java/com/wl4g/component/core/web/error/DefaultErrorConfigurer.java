@@ -57,7 +57,7 @@ public class DefaultErrorConfigurer extends ErrorConfigurer {
 			if (!isNull(retCode)) {
 				statusCode = retCode.getErrcode();
 			} else if (th instanceof IllegalArgumentException) {
-				return PARAM_ERR.getErrcode();
+				return BAD_PARAMS.getErrcode();
 			} else if (th instanceof UnsupportedOperationException) {
 				return UNSUPPORTED.getErrcode();
 			} else { // status=999?

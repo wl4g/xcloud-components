@@ -135,6 +135,7 @@ public abstract class SystemUtils2 extends SystemUtils {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	private static String globalAppSerial0() {
 		hasText(DEFAULT_GLOBAL_HOST_SERIAL, "HostSerial is empty.");
 		String packagePath = SystemUtils2.class.getProtectionDomain().getCodeSource().getLocation().toString();

@@ -13,4 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.core.web.method;
+package com.wl4g.component.core.framework.proxy;
+
+import org.springframework.cglib.proxy.InvocationHandler;
+
+/**
+ * Generic proxy invocation handler. (Compatible with JDK proxy and CGLIB proxy)
+ * 
+ * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+ * @version v1.0 2020-11-25
+ * @sine v1.0
+ * @see
+ */
+public interface ProxyInvocation extends java.lang.reflect.InvocationHandler, InvocationHandler {
+
+	/**
+	 * Gets proxed original target bean instance.
+	 * 
+	 * @return
+	 */
+	Object getTarget();
+
+}

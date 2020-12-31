@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.DefaultHandlerFilter;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.DefaultMappingHandlerFilter;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.context.interceptor.FeignContextServletConfigurer;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
-import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeFeignClientsHandlerFilter;
+import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeSelfFeignClientsFilter;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
@@ -50,7 +50,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@EnableSmartMappingConfiguration(includeFilters = ExcludeFeignClientsHandlerFilter.class)
+@EnableSmartMappingConfiguration(includeFilters = ExcludeSelfFeignClientsFilter.class)
 @Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class, FeignContextServletConfigurer.class })
 public @interface EnableSpringBootFeignClients {
 
@@ -103,19 +103,19 @@ public @interface EnableSpringBootFeignClients {
 	 */
 	public static final String DEFAULT_CONFIGURATION = "defaultConfiguration";
 
-	public static class ExcludeFeignClientsHandlerFilter extends DefaultHandlerFilter {
+	public static class ExcludeSelfFeignClientsFilter extends DefaultMappingHandlerFilter {
 		private static String[] scanBasePackages = {};
 
 		public static void setScanBasePackages(String[] scanBasePackages) {
 			if (nonNull(scanBasePackages)) {
-				ExcludeFeignClientsHandlerFilter.scanBasePackages = scanBasePackages;
+				ExcludeSelfFeignClientsFilter.scanBasePackages = scanBasePackages;
 			}
 		}
 
 		@Override
 		public boolean apply(@Nullable Class<?> beanType) {
 			// 排除被 @SpringBootFeignClient 包含的接口，如，service(facade)层启动，需注入
-			// data(dao) 层的feign实例这个场景.
+			// 的是data(dao)层的feign实例这个场景(而不需要创建service接口的feign实例).
 			return !startsWithAny(getPackageName(beanType), scanBasePackages) && super.apply(beanType);
 		}
 	}

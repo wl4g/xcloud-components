@@ -50,17 +50,17 @@ public class FeignContextServletConfigurer implements WebMvcConfigurer {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Bean
-	public ServletFeignContextInterceptor servletFeignContextInterceptor() {
-		return new ServletFeignContextInterceptor();
+	public FeignContextServletInterceptor feignContextServletInterceptor() {
+		return new FeignContextServletInterceptor();
 	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(servletFeignContextInterceptor()).addPathPatterns("/**");
+		registry.addInterceptor(feignContextServletInterceptor()).addPathPatterns("/**");
 	}
 
 	/**
-	 * {@link ServletFeignContextInterceptor}
+	 * {@link FeignContextServletInterceptor}
 	 * 
 	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
 	 * @version v1.0 2020-12-26
@@ -68,7 +68,7 @@ public class FeignContextServletConfigurer implements WebMvcConfigurer {
 	 * @see
 	 */
 	@Order(Ordered.HIGHEST_PRECEDENCE + 9)
-	class ServletFeignContextInterceptor implements HandlerInterceptor {
+	static class FeignContextServletInterceptor implements HandlerInterceptor {
 		protected final SmartLogger log = getLogger(getClass());
 
 		@Override

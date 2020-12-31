@@ -54,7 +54,7 @@ public class HandlerMethodCustomizerInterceptor implements MethodInterceptor {
 	private ListableBeanFactory beanFactory;
 
 	private final AtomicBoolean init = new AtomicBoolean(false);
-	private volatile List<HandlerProcessor> conversions;
+	private volatile List<HandlerProcessor> processors;
 
 	public void setBeanFactory(ListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
@@ -62,17 +62,35 @@ public class HandlerMethodCustomizerInterceptor implements MethodInterceptor {
 
 	@Override
 	public Object invoke(MethodInvocation invo) throws Throwable {
+		initConversionsIfNecessary();
+
 		// Prepared process
-		if (nonNull(obtainOrInitConversions())) {
-			obtainOrInitConversions().forEach(c -> c.preHandle(invo.getThis(), invo.getMethod(), invo.getArguments()));
+		if (nonNull(processors)) {
+			Object[] parameters = invo.getArguments();
+			for (HandlerProcessor p : processors) {
+				parameters = p.preHandle(invo.getThis(), invo.getMethod(), parameters);
+			}
 		}
 
-		// Invoke actual method
-		Object result = invo.proceed();
+		// Invoke actual method.
+		Throwable ex = null;
+		Object result = null;
+		try {
+			result = invo.proceed();
+		} catch (Throwable e) {
+			ex = e;
+		}
 
 		// Post process
-		if (nonNull(obtainOrInitConversions())) {
-			obtainOrInitConversions().forEach(c -> c.postHandle(invo.getThis(), invo.getMethod(), invo.getArguments(), result));
+		if (nonNull(processors)) {
+			for (HandlerProcessor p : processors) {
+				result = p.postHandle(invo.getThis(), invo.getMethod(), invo.getArguments(), result, ex);
+			}
+		}
+
+		// Throws actual invoke exception.
+		if (nonNull(ex)) {
+			throw ex;
 		}
 
 		return result;
@@ -83,10 +101,10 @@ public class HandlerMethodCustomizerInterceptor implements MethodInterceptor {
 	 * 
 	 * @return
 	 */
-	private final List<HandlerProcessor> obtainOrInitConversions() {
-		if (isNull(conversions) && init.compareAndSet(false, true)) {
+	private final List<HandlerProcessor> initConversionsIfNecessary() {
+		if (isNull(processors) && init.compareAndSet(false, true)) {
 			synchronized (this) {
-				if (isNull(conversions)) {
+				if (isNull(processors)) {
 					// Obtain handler conversions.
 					List<HandlerProcessor> conversions0 = safeMap(beanFactory.getBeansOfType(HandlerProcessor.class)).values()
 							.stream().collect(toList());
@@ -94,23 +112,25 @@ public class HandlerMethodCustomizerInterceptor implements MethodInterceptor {
 					if (!CollectionUtils2.isEmpty(conversions0)) {
 						// By order priority
 						AnnotationAwareOrderComparator.sort(conversions0);
-						this.conversions = conversions0;
+						this.processors = conversions0;
 					}
 				}
 			}
 		}
-		return conversions;
+		return processors;
 	}
 
 	/**
 	 * Request mapping handler processor.
 	 */
 	public static interface HandlerProcessor extends Ordered {
-		default void preHandle(@NotNull Object bean, @NotNull Method method, @Nullable Object[] parameters) {
+		default Object[] preHandle(@NotNull Object bean, @NotNull Method method, @Nullable Object[] parameters) {
+			return parameters;
 		}
 
-		default void postHandle(@NotNull Object bean, @NotNull Method method, @Nullable Object[] parameters,
-				@Nullable Object result) {
+		default Object postHandle(@NotNull Object bean, @NotNull Method method, @Nullable Object[] parameters,
+				@Nullable Object result, Throwable ex) {
+			return result;
 		}
 	}
 

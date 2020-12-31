@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.core.framework;
+package com.wl4g.component.core.framework.operator;
 
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+
+import static com.wl4g.component.core.constant.ConfigConstant.KEY_GENERIC_OPERATOR;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,12 +32,8 @@ import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.support.AbstractGenericPointcutAdvisor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-
-import com.wl4g.component.core.framework.operator.EmptyOperator;
-import com.wl4g.component.core.framework.operator.GenericOperatorAdapter;
-import com.wl4g.component.core.framework.operator.Operator;
-import com.wl4g.component.core.framework.operator.OperatorAutoHandlerInterceptor;
 
 /**
  * System boot defaults auto configuration.
@@ -44,6 +42,7 @@ import com.wl4g.component.core.framework.operator.OperatorAutoHandlerInterceptor
  * @version v1.0 2020年2月20日
  * @since
  */
+@ConditionalOnProperty(name = KEY_GENERIC_OPERATOR + ".enable", matchIfMissing = true)
 public class GenericOperatorAutoConfiguration {
 
 	@Bean

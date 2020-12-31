@@ -38,3 +38,17 @@ spring:
       #  enable: false # Default false
       #  base-uri: /default-view
       #  webapp-location: classpath*:/default-webapps
+      #boot:
+      #  default-configurer:
+      #    enable: true # Default true
+      #framework:
+      #  naming-prototype-factory:
+      #    enable: true # Default true
+      #  operator:
+      #    enable: true # Default true
+      #  smart-proxy:
+      #    enable: true # Default true
+      #    base-packages: # Default ALL
+      #web:
+      #  human-date-converter:
+      #    enable: true # Default true

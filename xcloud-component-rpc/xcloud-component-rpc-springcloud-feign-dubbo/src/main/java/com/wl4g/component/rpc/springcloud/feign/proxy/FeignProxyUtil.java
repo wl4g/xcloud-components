@@ -24,6 +24,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 
 import com.wl4g.component.common.lang.ClassUtils2;
 import com.wl4g.component.core.utils.AopUtils2;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProviderProxiesConfigurer;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyController;
+import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyUtil;
 
 /**
  * {@link FeignProxyUtil}

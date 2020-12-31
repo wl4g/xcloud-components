@@ -74,25 +74,25 @@ public class FeignProviderProxiesRegistrar implements ImportBeanDefinitionRegist
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-		AnnotationAttributes anno = AnnotationAttributes
+		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableFeignProviderProxies.class.getName()));
-		if (!isNull(anno)) {
-			registerFeignConfigurer(metadata, anno, registry, generateBaseBeanName(metadata, 0));
+		if (!isNull(attrs)) {
+			registerFeignConfigurer(metadata, attrs, registry, generateBaseBeanName(metadata, 0));
 		}
 	}
 
-	protected void registerFeignConfigurer(AnnotationMetadata metadata, AnnotationAttributes annoAttrs,
+	protected void registerFeignConfigurer(AnnotationMetadata metadata, AnnotationAttributes attrs,
 			BeanDefinitionRegistry registry, String beanName) {
 
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FeignProviderProxiesConfigurer.class);
 
-		Class<?> superClass = annoAttrs == null ? null : (Class<?>) annoAttrs.get("superClass");
+		Class<?> superClass = attrs == null ? null : (Class<?>) attrs.get("superClass");
 		superClass = superClass.equals(Void.class) ? null : superClass;
 		builder.addPropertyValue("superClass", superClass);
 
 		Set<String> basePackages;
 		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(FeignClient.class);
-		final Class<?>[] clients = annoAttrs == null ? null : (Class<?>[]) annoAttrs.get("clients");
+		final Class<?>[] clients = attrs == null ? null : (Class<?>[]) attrs.get("clients");
 
 		if (clients == null || clients.length == 0) {
 			builder.addPropertyValue("includeFilter", annotationTypeFilter);

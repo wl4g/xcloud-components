@@ -24,11 +24,16 @@ import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.lang.reflect.AnnotatedArrayType;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -333,9 +338,11 @@ public abstract class ClassUtils2 {
 	 *             by the class to be loaded here)
 	 * @see #forName(String, ClassLoader)
 	 */
-	public static Class<?> resolveClassName(String className, @Nullable ClassLoader classLoader) throws IllegalStateException {
+	@SuppressWarnings("unchecked")
+	public static <T> Class<? extends T> resolveClassName(String className, @Nullable ClassLoader classLoader)
+			throws IllegalStateException {
 		try {
-			return forName(className, classLoader);
+			return (Class<? extends T>) forName(className, classLoader);
 		} catch (IllegalAccessError err) {
 			throw new IllegalStateException(
 					"Readability mismatch in inheritance hierarchy of class [" + className + "]: " + err.getMessage(), err);
@@ -354,10 +361,11 @@ public abstract class ClassUtils2 {
 	 * @return
 	 * @throws IllegalStateException
 	 */
-	public static Class<?> resolveClassNameNullable(@NotNull String className, @Nullable ClassLoader classLoader)
+	@SuppressWarnings("unchecked")
+	public static <T> Class<? extends T> resolveClassNameNullable(@NotNull String className, @Nullable ClassLoader classLoader)
 			throws IllegalStateException {
 		try {
-			return resolveClassName(notNullOf(className, "className"), classLoader);
+			return (Class<? extends T>) resolveClassName(notNullOf(className, "className"), classLoader);
 		} catch (RuntimeException ex) {
 			return null;
 		}
@@ -370,8 +378,9 @@ public abstract class ClassUtils2 {
 	 * @return
 	 * @throws IllegalStateException
 	 */
-	public static Class<?> resolveClassNameNullable(@NotNull String className) throws IllegalStateException {
-		return resolveClassNameNullable(className, currentThread().getContextClassLoader());
+	@SuppressWarnings("unchecked")
+	public static <T> Class<? extends T> resolveClassNameNullable(@NotNull String className) throws IllegalStateException {
+		return (Class<? extends T>) resolveClassNameNullable(className, currentThread().getContextClassLoader());
 	}
 
 	/**
@@ -1605,14 +1614,36 @@ public abstract class ClassUtils2 {
 	 * @param classes
 	 * @return
 	 */
-	public static boolean anyInstanceOf(@NotNull Object objOrClass, @NotNull Class<?>... classes) {
+	public static boolean anyTypeOf(@NotNull Object objOrClass, @NotNull Class<?>... classes) {
 		notNullOf(objOrClass, "objOrClass");
 		notNullOf(classes, "classes");
-		Class<?> ifIsClass = (objOrClass instanceof Class) ? ((Class<?>) objOrClass) : null;
+		Type ifIsType = (objOrClass instanceof Type) ? ((Type) objOrClass) : null;
 		for (Class<?> clazz : safeArrayToList(classes)) {
-			if (nonNull(ifIsClass)) {
-				if (clazz.isAssignableFrom(ifIsClass)) {
-					return true;
+			if (nonNull(ifIsType)) {
+				if (ifIsType instanceof Class) {
+					if (clazz.isAssignableFrom((Class<?>) ifIsType)) {
+						return true;
+					}
+				} else if (ifIsType instanceof ParameterizedType) {
+					Type parameterizedType = ((ParameterizedType) ifIsType).getRawType();
+					if ((parameterizedType instanceof Class) && clazz.isAssignableFrom((Class<?>) parameterizedType)) {
+						return true;
+					}
+				} else if (ifIsType instanceof AnnotatedType) {
+					Type annotatedType = ((AnnotatedType) ifIsType).getType();
+					if ((annotatedType instanceof Class) && clazz.isAssignableFrom((Class<?>) annotatedType)) {
+						return false;
+					}
+				} else if (ifIsType instanceof AnnotatedArrayType) {
+					Type annotatedArrayType = ((AnnotatedType) ifIsType).getType();
+					if ((annotatedArrayType instanceof Class) && clazz.isAssignableFrom((Class<?>) annotatedArrayType)) {
+						return false;
+					}
+				} else if (ifIsType instanceof GenericArrayType) {
+					Type arrayType = ((GenericArrayType) ifIsType).getGenericComponentType();
+					if ((arrayType instanceof Class) && clazz.isAssignableFrom((Class<?>) arrayType)) {
+						return false;
+					}
 				}
 			} else if (clazz.isInstance(objOrClass)) { // It's not a class
 				return true;
@@ -1629,14 +1660,36 @@ public abstract class ClassUtils2 {
 	 * @param classes
 	 * @return
 	 */
-	public static boolean allInstanceOf(@NotNull Object objOrClass, @NotNull Class<?>... classes) {
+	public static boolean allTypeOf(@NotNull Object objOrClass, @NotNull Class<?>... classes) {
 		notNullOf(objOrClass, "objOrClass");
 		notNullOf(classes, "classes");
-		Class<?> ifIsClass = (objOrClass instanceof Class) ? ((Class<?>) objOrClass) : null;
+		Type ifIsType = (objOrClass instanceof Class) ? ((Class<?>) objOrClass) : null;
 		for (Class<?> clazz : safeArrayToList(classes)) {
-			if (nonNull(ifIsClass)) {
-				if (!clazz.isAssignableFrom(ifIsClass)) {
-					return false;
+			if (nonNull(ifIsType)) {
+				if (ifIsType instanceof Class) {
+					if (!clazz.isAssignableFrom((Class<?>) ifIsType)) {
+						return false;
+					}
+				} else if (!(ifIsType instanceof ParameterizedType)) {
+					Type parameterizedType = ((ParameterizedType) ifIsType).getRawType();
+					if ((parameterizedType instanceof Class) && clazz.isAssignableFrom((Class<?>) parameterizedType)) {
+						return false;
+					}
+				} else if (!(ifIsType instanceof AnnotatedType)) {
+					Type annotatedType = ((AnnotatedType) ifIsType).getType();
+					if ((annotatedType instanceof Class) && clazz.isAssignableFrom((Class<?>) annotatedType)) {
+						return false;
+					}
+				} else if (!(ifIsType instanceof AnnotatedArrayType)) {
+					Type annotatedArrayType = ((AnnotatedType) ifIsType).getType();
+					if ((annotatedArrayType instanceof Class) && clazz.isAssignableFrom((Class<?>) annotatedArrayType)) {
+						return false;
+					}
+				} else if (!(ifIsType instanceof GenericArrayType)) {
+					Type arrayType = ((GenericArrayType) ifIsType).getGenericComponentType();
+					if ((arrayType instanceof Class) && clazz.isAssignableFrom((Class<?>) arrayType)) {
+						return false;
+					}
 				}
 			} else if (!clazz.isInstance(objOrClass)) { // It's not a class
 				return false;

@@ -17,11 +17,13 @@ package com.wl4g.component.core.boot;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.core.constant.ConfigConstant.KEY_BOOT_DEFAULT;
 
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -42,6 +44,7 @@ import com.wl4g.component.core.logging.TraceLoggingMDCFilter;
  * @version v1.0 2020年2月20日
  * @since
  */
+@ConditionalOnProperty(name = KEY_BOOT_DEFAULT + ".enable", matchIfMissing = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)

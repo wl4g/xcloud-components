@@ -180,7 +180,7 @@ public class RespBaseTest {
 	}
 
 	public static void respBasePromptTest1() {
-		String errmsg = ErrorPromptMessageBuilder.build(RetCode.PARAM_ERR, "参数错误");
+		String errmsg = ErrorPromptMessageBuilder.build(RetCode.BAD_PARAMS, "参数错误");
 		System.out.println(errmsg);
 		System.out.println(ErrorPromptMessageBuilder.build(RetCode.SYS_ERR, errmsg));
 	}

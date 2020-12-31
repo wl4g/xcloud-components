@@ -44,7 +44,7 @@ public class FeignContextRequestInterceptor implements RequestInterceptor {
 		try {
 			// Obtain current rpc context attachments save to feign request
 			// template.
-			safeMap(RpcContextHolder.get().getAttachments()).forEach((name, value) -> template.query(name, value));
+			safeMap(RpcContextHolder.get().getAttachments()).forEach((name, value) -> template.header(name, value));
 		} finally {
 			// Clear current attachments.
 			RpcContextHolder.get().clearAttachments();

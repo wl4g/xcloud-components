@@ -34,7 +34,7 @@ public interface InvalidParametersException extends RESTfulException {
 	 */
 	@Override
 	default RetCode getCode() {
-		return RetCode.PARAM_ERR;
+		return RetCode.BAD_PARAMS;
 	}
 
 }

@@ -621,7 +621,7 @@ public class RespBase<D> implements Serializable {
 		 * Parameter error </br>
 		 * {@link HttpStatus.BAD_REQUEST}
 		 */
-		public static final RetCode PARAM_ERR = new RetCode(BAD_REQUEST.value(), "Bad parameters") {
+		public static final RetCode BAD_PARAMS = new RetCode(BAD_REQUEST.value(), "Bad parameters") {
 		};
 
 		/**
@@ -694,12 +694,12 @@ public class RespBase<D> implements Serializable {
 		/**
 		 * Name to {@link RetCode} value definitions.
 		 */
-		private static final Map<String, RetCode> nameValueDefinition;
+		private static final Map<String, RetCode> internalNameValues;
 
 		/**
 		 * Code to {@link RetCode} value definitions.
 		 */
-		private static final Map<Integer, RetCode> codeValueDefinition;
+		private static final Map<Integer, RetCode> internalCodeValues;
 
 		/**
 		 * Errors code.
@@ -711,10 +711,10 @@ public class RespBase<D> implements Serializable {
 		 */
 		private final String errmsg;
 
-		private RetCode(int code, String msg) {
-			// hasTextOf(msg, "msg");
-			this.errcode = code;
-			this.errmsg = msg;
+		private RetCode(int errcode, String errmsg) {
+			// hasTextOf(errmsg, "errmsg");
+			this.errcode = errcode;
+			this.errmsg = errmsg;
 		}
 
 		/**
@@ -765,9 +765,9 @@ public class RespBase<D> implements Serializable {
 			if (isNull(nameOrCode)) {
 				return null;
 			}
-			RetCode retCode = nameValueDefinition.get(nameOrCode);
+			RetCode retCode = internalNameValues.get(nameOrCode);
 			if (isNull(retCode)) {
-				return codeValueDefinition.get(nameOrCode);
+				return internalCodeValues.get(nameOrCode);
 			}
 			return retCode;
 		}
@@ -822,8 +822,8 @@ public class RespBase<D> implements Serializable {
 						}
 					}
 				}
-				nameValueDefinition = unmodifiableMap(nameValueMap);
-				codeValueDefinition = unmodifiableMap(codeValueMap);
+				internalNameValues = unmodifiableMap(nameValueMap);
+				internalCodeValues = unmodifiableMap(codeValueMap);
 			} catch (Exception ex) {
 				throw new IllegalStateException("", ex);
 			}

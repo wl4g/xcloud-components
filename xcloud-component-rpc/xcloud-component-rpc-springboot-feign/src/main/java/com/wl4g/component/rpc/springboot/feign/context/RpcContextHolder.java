@@ -52,6 +52,17 @@ public abstract class RpcContextHolder {
 	/** Singleton holder instance */
 	private static volatile RpcContextHolder provider;
 
+	/** References attachments repository implementation. */
+	private final ReferenceRepository repository;
+
+	protected RpcContextHolder() {
+		this(ReferenceRepository.NOOP);
+	}
+
+	protected RpcContextHolder(ReferenceRepository repository) {
+		this.repository = notNullOf(repository, "referenceRepository");
+	}
+
 	/**
 	 * Obtain singleton instance of {@link RpcContextHolder}
 	 * 
@@ -162,20 +173,55 @@ public abstract class RpcContextHolder {
 	 */
 	public abstract void clearAttachments();
 
+	/**
+	 * Gets current remote port.
+	 * 
+	 * @return
+	 */
 	public Integer getRemotePort() {
 		return get("remotePort", Integer.class);
 	}
 
+	/**
+	 * Gets current remote host.
+	 * 
+	 * @return
+	 */
 	public String getRemoteHost() {
 		return get("remoteHost", String.class);
 	}
 
+	/**
+	 * Gets current rpc local port
+	 * 
+	 * @return
+	 */
 	public Integer getLocalPort() {
 		return get("localPort", Integer.class);
 	}
 
+	/**
+	 * Gets current rpc local host.
+	 * 
+	 * @return
+	 */
 	public String getLocalHost() {
 		return get("localHost", String.class);
+	}
+
+	//
+	// --- References attachemnts implementation. ---
+	//
+
+	public <T> T get(@NotBlank ReferenceKey key, @NotNull Class<T> valueType) {
+		notNullOf(key, "referenceKey");
+		return repository.doGetReferenceValue(key.getKey(), valueType);
+	}
+
+	public void set(@NotBlank ReferenceKey key, @Nullable Object value) {
+		notNullOf(key, "referenceKey");
+		set(key.getKey(), value);
+		repository.doSetReferenceValue(key.getKey(), value);
 	}
 
 	/**
@@ -200,6 +246,46 @@ public abstract class RpcContextHolder {
 		}
 	}
 
+	/**
+	 * Reference type attachment attribute key. Using this type of attachment
+	 * key, only the referenced key will be passed in the RPC context, and the
+	 * actual value object will not be passed directly. Usage scenario: it is
+	 * very useful for attachments with large object value and low frequency of
+	 * use, which can greatly improve performance.
+	 */
+	public final static class ReferenceKey {
+		private final String key;
+
+		public ReferenceKey(String key) {
+			super();
+			this.key = key;
+		}
+
+		public String getKey() {
+			return key;
+		}
+	}
+
+	/**
+	 * Refer to {@link ReferenceKey}
+	 */
+	public static interface ReferenceRepository {
+		default <T> T doGetReferenceValue(@NotBlank String referenceKey, @NotNull Class<T> valueType) {
+			// throw new UnsupportedOperationException(format("Not
+			// implementation of %s", getClass()));
+			return null;
+		}
+
+		default void doSetReferenceValue(@NotBlank String referenceKey, @Nullable Object value) {
+			// throw new UnsupportedOperationException(format("Not
+			// implementation of %s", getClass()));
+		}
+
+		public static final ReferenceRepository NOOP = new ReferenceRepository() {
+		};
+	}
+
+	/** Default types converter. */
 	private static final ConvertUtilsBean defaultConverter = new ConvertUtilsBean();
 
 }

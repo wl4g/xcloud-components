@@ -17,32 +17,38 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springboot.feign.context;
+package com.wl4g.component.rpc.springcloud.feign.context;
 
+import static java.util.Objects.isNull;
+
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
-
-import static java.lang.ThreadLocal.withInitial;
+import com.wl4g.component.rpc.springcloud.feign.context.interceptor.HytrixFeignContextConfigurer;
 
 /**
- * {@link FeignRpcContextHolder}
+ * Context holder of hytrix in thread isolation mode.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17
  * @sine v1.0
  * @see
  */
-class FeignRpcContextHolder extends RpcContextHolder {
+public class HytrixFeignRpcContextHolder extends RpcContextHolder implements Closeable {
 
-	private static final ThreadLocal<FeignRpcContextHolder> LOCAL = withInitial(() -> new FeignRpcContextHolder());
+	private static final HystrixRequestVariableDefault<HytrixFeignRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
 
 	/** Feign request context attachments store. */
 	private final Map<String, String> attachments = new HashMap<>();
@@ -73,17 +79,31 @@ class FeignRpcContextHolder extends RpcContextHolder {
 	}
 
 	@Override
+	public void close() throws IOException {
+		if (HystrixRequestContext.isCurrentThreadInitialized()) {
+			// Destroy current thread
+			HystrixRequestContext.getContextForCurrentThread().shutdown();
+		}
+	}
+
+	@Override
 	protected RpcContextHolder current() {
-		return LOCAL.get();
+		HytrixFeignRpcContextHolder current = LOCAL.get();
+		// Initializes hystrix request context in the current thread.
+		if (isNull(current) && !HystrixRequestContext.isCurrentThreadInitialized()) {
+			HystrixRequestContext.initializeContext();
+			LOCAL.set(current = new HytrixFeignRpcContextHolder());
+		}
+		return current;
 	}
 
 	@Configuration
-	@ConditionalOnClass(SpringBootFeignClient.class)
-	static class FeignRpcContextHolderAutoConfiguration {
-		@Bean // Lower priority
-		@ConditionalOnMissingBean
-		public RpcContextHolder feignRpcContextHolder() {
-			return new FeignRpcContextHolder();
+	@ConditionalOnBean(HytrixFeignContextConfigurer.class)
+	@ConditionalOnClass({ SpringBootFeignClient.class, FeignClient.class })
+	static class HytrixFeignRpcContextHolderAutoConfiguration {
+		@Bean
+		public RpcContextHolder hytrixFeignRpcContextHolder() {
+			return new HytrixFeignRpcContextHolder();
 		}
 	}
 

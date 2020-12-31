@@ -183,9 +183,6 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
-			// Remove, only has @RequestMapping condidtion is not a controller
-			// return mergedIncludeFilter.apply(beanType) ||
-			// hasAnnotation(beanType, Controller.class);
 			return mergedIncludeFilter.test(beanType);
 		}
 
