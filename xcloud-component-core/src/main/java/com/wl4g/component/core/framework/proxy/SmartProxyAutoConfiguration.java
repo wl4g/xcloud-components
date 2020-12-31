@@ -76,7 +76,7 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 
 	private final Map<Class<?>, List<SmartProxyProcessor>> knownProxiedMapping = new ConcurrentHashMap<>(4);
 
-	@Value(KEY_SMART_PROXY + ".base-packages")
+	@Value("${" + KEY_SMART_PROXY + ".base-packages:}")
 	private String[] basePackages;
 
 	@Autowired
