@@ -15,6 +15,7 @@
  */
 package com.wl4g.component.rpc.springboot.feign.annotation;
 
+import feign.Body;
 import feign.Client;
 import feign.Contract;
 import feign.Feign;
@@ -25,6 +26,7 @@ import feign.Request;
 import feign.Request.Options;
 import feign.Response;
 import feign.Retryer;
+import feign.Util;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
@@ -40,6 +42,11 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.io.CharStreams;
+import com.wl4g.component.common.annotation.Reserved;
 import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.rest.RespBase;
@@ -55,6 +62,9 @@ import static com.wl4g.component.common.lang.Assert2.hasText;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration.BEAN_FEIGN_CLIENT;
+import static feign.Util.UTF_8;
+import static feign.Util.toByteArray;
+import static feign.Util.valuesOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -64,10 +74,15 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -217,14 +232,16 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			}
 		}
 		// new GsonEncoder()
-		builder.encoder(isNull(encoder) ? new JacksonEncoder() : encoder);
+		builder.encoder(isNull(encoder) ? defaultEncoder : encoder);
 		// new GsonDecoder()
 		// new ParameterizedGsonDecoder()
-		builder.decoder(new DelegateFeignDecoder(isNull(decoder) ? new JacksonDecoder() : decoder));
+		builder.decoder(new DelegateFeignDecoder(isNull(decoder) ? defaultDecoder : decoder));
 		// new Contract.Default()
-		builder.contract(new DelegateContract(isNull(contract) ? new SpringMvcContract() : contract));
-		builder.retryer(isNull(retryer) ? new Retryer.Default() : retryer);
-		builder.logger(isNull(logger) ? new Slf4jLogger() : logger);
+		builder.contract(isNull(contract) ? defaultContract : contract);
+		// builder.contract(new DelegateContract(isNull(contract)?new
+		// SpringMvcContract():contract));
+		builder.retryer(isNull(retryer) ? defaultRetryer : retryer);
+		builder.logger(isNull(logger) ? defaultLogger : logger);
 	}
 
 	private void mergeRequestOptionSet(SpringBootFeignProperties config, Feign.Builder builder) {
@@ -256,7 +273,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	/**
 	 * {@link feign.SynchronousMethodHandler#executeAndDecode()}
 	 */
-	static class DelegateFeignDecoder implements Decoder {
+	class DelegateFeignDecoder implements Decoder {
 
 		/**
 		 * To be consistent with the {@link feign.slf4j.Slf4jLogger} log prefix.
@@ -268,22 +285,29 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			this.decoder = notNullOf(decoder, "decoder");
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
+			Response wrapper = wrapMarkableResponseIfNecessary(response);
 			try {
-				return decoder.decode(response, type);
+				return decoder.decode(wrapper, type);
 			} catch (Exception e) {
-				String errmsg = format(
-						"Failed to feign RPC. - return.type: %s, http.status: %s, http.request: %s, http.response: %s", type,
-						response.status(), getRequestAsString(response.request()), response.toString());
+				String errmsg = format("Failed to feign RPC. - return.type: %s,\nhttp.request: %s,\nhttp.response: %s", type,
+						printRequestAsString(response.request()), wrapper);
 				// High-concurrency-performance-optimization
 				throw new FeignRpcException(errmsg, e, log.isDebugEnabled());
 			} finally {
+				// Actual close response.
+				try {
+					((RepeatableResponseBody) wrapper.body()).actualClose();
+				} catch (Exception e2) {
+					throw e2;
+				}
 				bindResponseToRpcContext(response, type);
 			}
 		}
 
-		private synchronized void bindResponseToRpcContext(Response response, Type type) {
+		private void bindResponseToRpcContext(Response response, Type type) {
 			// Bind current response attachments from provider.
 			if (!isEmpty(response.headers())) {
 				response.headers().forEach((name, values) -> {
@@ -296,7 +320,13 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			}
 		}
 
-		private String getRequestAsString(Request request) {
+		private Response wrapMarkableResponseIfNecessary(Response response) throws IOException {
+			// Wrap response.
+			return Response.builder().status(response.status()).reason(response.reason()).request(response.request())
+					.headers(response.headers()).body(new RepeatableResponseBody(response.body())).build();
+		}
+
+		private String printRequestAsString(Request request) {
 			if (request.isBinary()) {
 				return request.httpMethod().toString().concat(" ").concat(request.url()).concat(" HTTP/x ").concat(File.separator)
 						.concat("--- Binary Data ---");
@@ -306,23 +336,11 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 
 	}
 
-	static class FeignRpcException extends RuntimeException {
-		static final long serialVersionUID = -7034833390745116939L;
-
-		/**
-		 * Has been message to specify whether to log exceptions.
-		 * 
-		 * @param message
-		 * @param cause
-		 * @param dumpStackTrace
-		 */
-		public FeignRpcException(String message, Throwable cause, boolean dumpStackTrace) {
-			super(message, cause, false, dumpStackTrace);
-		}
-
-	}
-
-	static class DelegateContract implements Contract {
+	/**
+	 * Wrapper feign contract.
+	 */
+	@Reserved
+	class DelegateContract implements Contract {
 		private final Contract delegate;
 
 		public DelegateContract(Contract delegate) {
@@ -338,6 +356,9 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			return mds;
 		}
 
+		/**
+		 * Wrap parameterized raw type to {@link RespBase}
+		 */
 		private ParameterizedType wrapParameterizedType(Type returnType) {
 			Type[] actualTypes = { returnType };
 			if (returnType instanceof ParameterizedType) {
@@ -362,6 +383,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			final Type rawType0 = RespBase.class;
 			final Type[] actualTypes0 = actualTypes;
 			return new ParameterizedType() {
+
 				@Override
 				public Type getRawType() {
 					return rawType0;
@@ -379,5 +401,86 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			};
 		}
 	}
+
+	class RepeatableResponseBody implements feign.Response.Body {
+		private final feign.Response.Body orig;
+		private final Reader reader;
+
+		RepeatableResponseBody(feign.Response.Body orig) throws IOException {
+			this.orig = notNullOf(orig, "originalBody");
+			Reader reader0 = orig.asReader(Util.UTF_8);
+			if (!reader0.markSupported()) {
+				reader0 = new BufferedReader(reader0, 1) {
+					@Override
+					public void close() throws IOException {
+						// Ignore defer close, see:
+						// RepeatableResponseBody#actualClose()
+					}
+				};
+			}
+			this.reader = reader0;
+		}
+
+		final void actualClose() throws IOException {
+			orig.close();
+		}
+
+		@Override
+		public void close() throws IOException {
+			// Ignore defer close, see: RepeatableResponseBody#actualClose()
+		}
+
+		@Override
+		public Integer length() {
+			return orig.length();
+		}
+
+		@Override
+		public boolean isRepeatable() {
+			return true;
+		}
+
+		@Override
+		public InputStream asInputStream() throws IOException {
+			return orig.asInputStream();
+		}
+
+		@Override
+		public Reader asReader(Charset charset) throws IOException {
+			return reader;
+		}
+
+		@Override
+		public String toString() {
+			try {
+				reader.reset();
+				return CharStreams.toString(reader);
+			} catch (Exception e) {
+				return super.toString();
+			}
+		}
+	}
+
+	public static class FeignRpcException extends RuntimeException {
+		static final long serialVersionUID = -7034833390745116939L;
+
+		/**
+		 * Has been message to specify whether to log exceptions.
+		 * 
+		 * @param message
+		 * @param cause
+		 * @param dumpStackTrace
+		 */
+		public FeignRpcException(String message, Throwable cause, boolean dumpStackTrace) {
+			super(message, cause, false, dumpStackTrace);
+		}
+	}
+
+	private static final Encoder defaultEncoder = new JacksonEncoder(
+			new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL));
+	private static final Decoder defaultDecoder = new JacksonDecoder();
+	private static final Contract defaultContract = new SpringMvcContract();
+	private static final Retryer defaultRetryer = new Retryer.Default();
+	private static final Logger defaultLogger = new Slf4jLogger();
 
 }
