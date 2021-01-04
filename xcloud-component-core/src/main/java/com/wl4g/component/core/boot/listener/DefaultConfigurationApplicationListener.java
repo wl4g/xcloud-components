@@ -15,8 +15,11 @@
  */
 package com.wl4g.component.core.boot.listener;
 
-import static java.lang.System.getProperty;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
+import static java.lang.System.getProperty;
+import static org.apache.commons.lang3.StringUtils.containsAny;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY;
 import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_ADDITIONAL_LOCATION_PROPERTY;
 
 import java.util.Properties;
@@ -46,12 +49,16 @@ public class DefaultConfigurationApplicationListener extends AbstractStartingApp
 	public void onStarting(ApplicationStartingEvent event) throws Exception {
 		Properties defaultProperties = new Properties();
 		defaultProperties.put("spring.main.allow-bean-definition-overriding", "true");
-		// Addidtion default config location
-		if (!isTrue(getProperty("disable.default-properties"), false)) {
-			defaultProperties.put(CONFIG_ADDITIONAL_LOCATION_PROPERTY,
-					"classpath:/,classpath:/sbf/,classpath:/scf/,classpath:/dubbo/,classpath:/dubbo/");
+
+		// Addidtion default config location.
+		String argsString = safeArrayToList(event.getArgs()).toString();
+		if (!containsAny(argsString, CONFIG_ADDITIONAL_LOCATION_PROPERTY, CONFIG_LOCATION_PROPERTY)
+				&& !isTrue(getProperty("disable.default-config-location"), false)) {
+			defaultProperties.put(CONFIG_ADDITIONAL_LOCATION_PROPERTY, DEFAULT_CONFIG_ADD_LOCATION);
 		}
 		event.getSpringApplication().setDefaultProperties(defaultProperties);
 	}
+
+	public static final String DEFAULT_CONFIG_ADD_LOCATION = "classpath:/,classpath:/sbf/,classpath:/scf/,classpath:/dubbo/";
 
 }
