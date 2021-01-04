@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
+import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -461,11 +462,23 @@ public abstract class WebUtils2 {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static Map<String, String> getRequestHeaders(@NotNull HttpServletRequest request) {
+		return getRequestHeaders(request, null);
+	}
+
+	/**
+	 * Gets HTTP request headers.
+	 * 
+	 * @param request
+	 * @param filter
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<String, String> getRequestHeaders(@NotNull HttpServletRequest request, @Nullable Predicate<String> filter) {
 		notNullOf(request, "request");
+		filter = isNull(filter) ? defaultStringAnyFilter : filter;
 		List<String> headerNames = EnumerationUtils.toList(request.getHeaderNames());
-		return headerNames.stream().map(name -> singletonMap(name, request.getHeader((String) name)))
+		return headerNames.stream().filter(filter).map(name -> singletonMap(name, request.getHeader((String) name)))
 				.flatMap(e -> e.entrySet().stream()).collect(toMap(e -> e.getKey(), e -> e.getValue()));
 	}
 
@@ -1278,5 +1291,7 @@ public abstract class WebUtils2 {
 	 * Controlling enabled unified exception handling stacktrace information.
 	 */
 	public static final String PARAM_STACKTRACE = getenv().getOrDefault("xcloud.error.stacktrace.param", "_stacktrace");
+
+	private static final Predicate<String> defaultStringAnyFilter = name -> true;
 
 }

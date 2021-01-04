@@ -46,7 +46,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class SpringBootFeignAutoConfiguration {
 
 	@Bean
-	@ConfigurationProperties(prefix = KEY_PREFIX, ignoreInvalidFields = true, ignoreUnknownFields = true)
+	@ConfigurationProperties(prefix = KEY_PREFIX)
 	public SpringBootFeignProperties springBootFeignProperties() {
 		return new SpringBootFeignProperties();
 	}

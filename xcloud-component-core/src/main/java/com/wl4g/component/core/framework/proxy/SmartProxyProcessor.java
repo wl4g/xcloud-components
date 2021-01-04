@@ -24,10 +24,17 @@ import java.lang.reflect.Method;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.Ordered;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * {@link SmartProxyProcessor}
+ * Cglib-aop-based intelligent agent custom interception handler, such as: it
+ * can proxy controller instance, {@link org.mybatis.spring.mapper.MapperProxy}
+ * instance of mybatis and any {@link FactoryBean}, and it can configure
+ * multiple (executed in orders), but it should be noted: because spring cglib
+ * does not support return values of incompatible types, if you need to return
+ * values of incompatible types, Please use {@link ResponseBodyAdvice}.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-29

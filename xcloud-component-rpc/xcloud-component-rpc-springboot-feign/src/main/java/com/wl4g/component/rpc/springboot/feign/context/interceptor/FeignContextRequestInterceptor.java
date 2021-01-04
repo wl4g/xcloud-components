@@ -19,10 +19,9 @@
  */
 package com.wl4g.component.rpc.springboot.feign.context.interceptor;
 
-import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-
 import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import feign.RequestInterceptor;
@@ -42,11 +41,12 @@ public class FeignContextRequestInterceptor implements RequestInterceptor {
 	@Override
 	public void apply(RequestTemplate template) {
 		try {
-			// Obtain current rpc context attachments save to feign request
-			// template.
-			safeMap(RpcContextHolder.get().getAttachments()).forEach((name, value) -> template.header(name, value));
+			// Before calling RPC, the current context attachment info should be
+			// added to the request header.
+			FeignContextBinders.writeAttachmentsToFeignRequest(template);
 		} finally {
-			// Clear current attachments.
+			// The RPC has been called and the local context should be
+			// cleaned up immediately.
 			RpcContextHolder.get().clearAttachments();
 		}
 	}

@@ -6,8 +6,9 @@ com.wl4g.component.core.boot.listener.DefaultConfigurationApplicationListener
 # Application Auto Configuration.
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.wl4g.component.core.boot.BootDefaultAutoConfiguration,\
+com.wl4g.component.core.framework.beans.NamingPrototypeBeanAutoConfiguration,\
 com.wl4g.component.core.framework.operator.GenericOperatorAutoConfiguration,\
+com.wl4g.component.core.framework.proxy.SmartProxyAutoConfiguration,\
 com.wl4g.component.core.remoting.RestTemplateAutoConfiguration,\
 com.wl4g.component.core.remoting.WebClientAutoConfiguration,\
-com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration,\
-com.wl4g.component.core.framework.proxy.SmartProxyAutoConfiguration
+com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration

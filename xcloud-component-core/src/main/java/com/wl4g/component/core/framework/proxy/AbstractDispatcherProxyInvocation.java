@@ -75,13 +75,13 @@ public abstract class AbstractDispatcherProxyInvocation implements ProxyInvocati
 		private static final long serialVersionUID = 3369346948736795743L;
 		{
 			addAll(asList(Object.class.getDeclaredMethods()).stream().map(m -> m.getName()).collect(toList()));
-			add("close"); // Closeable#close()
-			add("clone"); // Object#clone()
 			add("wait"); // Object#wait()
 			add("notifyAll"); // Object#notifyAll()
 			add("notify"); // Object#notify()
-			add("toString"); // Object#toString()
+			add("finalize"); // Object#finalize()
+			add("clone"); // Object#clone()
 			add("hashCode"); // Object#hashCode()
+			add("toString"); // Object#toString()
 			add("equals"); // Object#equals()
 			add("getClass"); // Object#getClass()
 			add("isSingleton"); // org.springframework.beans.factory.FactoryBean#isSingleton()

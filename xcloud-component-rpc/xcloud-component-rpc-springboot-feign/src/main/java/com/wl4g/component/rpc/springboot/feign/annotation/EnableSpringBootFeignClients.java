@@ -23,7 +23,6 @@ import org.springframework.core.annotation.AliasFor;
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.DefaultMappingHandlerFilter;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
-import com.wl4g.component.rpc.springboot.feign.context.interceptor.FeignContextServletConfigurer;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeSelfFeignClientsFilter;
@@ -51,7 +50,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 @EnableSmartMappingConfiguration(includeFilters = ExcludeSelfFeignClientsFilter.class)
-@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class, FeignContextServletConfigurer.class })
+@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
 	@AliasFor(SCAN_BASE_PACKAGES)

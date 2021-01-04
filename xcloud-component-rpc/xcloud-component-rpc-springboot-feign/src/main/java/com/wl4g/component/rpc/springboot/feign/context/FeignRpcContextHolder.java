@@ -22,12 +22,9 @@ package com.wl4g.component.rpc.springboot.feign.context;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import static java.lang.ThreadLocal.withInitial;
@@ -44,7 +41,9 @@ class FeignRpcContextHolder extends RpcContextHolder {
 
 	private static final ThreadLocal<FeignRpcContextHolder> LOCAL = withInitial(() -> new FeignRpcContextHolder());
 
-	/** Feign request context attachments store. */
+	/**
+	 * Feign request context attachments store. Thread isolation, thread safety
+	 */
 	private final Map<String, String> attachments = new HashMap<>();
 
 	@Override
@@ -77,8 +76,8 @@ class FeignRpcContextHolder extends RpcContextHolder {
 		return LOCAL.get();
 	}
 
-	@Configuration
-	@ConditionalOnClass(SpringBootFeignClient.class)
+	@Configuration // auto-configuration(client|server)
+	// @ConditionalOnBean(annotation={SpringBootFeignClient.class,FeignClient.class})//Feign-client
 	static class FeignRpcContextHolderAutoConfiguration {
 		@Bean // Lower priority
 		@ConditionalOnMissingBean

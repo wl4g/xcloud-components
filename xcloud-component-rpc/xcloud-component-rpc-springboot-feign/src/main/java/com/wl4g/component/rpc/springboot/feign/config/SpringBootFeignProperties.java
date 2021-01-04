@@ -18,8 +18,6 @@ package com.wl4g.component.rpc.springboot.feign.config;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 
 import feign.Logger;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * {@link SpringBootFeignProperties}
@@ -29,8 +27,6 @@ import lombok.Setter;
  * @sine v1.0
  * @see
  */
-@Getter
-@Setter
 public class SpringBootFeignProperties {
 
 	/**
@@ -61,5 +57,61 @@ public class SpringBootFeignProperties {
 
 	/** The write timeout default is 10 seconds. */
 	private long writeTimeout = 10 * 1000;
+
+	public String getDefaultUrl() {
+		return defaultUrl;
+	}
+
+	public void setDefaultUrl(String defaultUrl) {
+		this.defaultUrl = defaultUrl;
+	}
+
+	public Logger.Level getDefaultLogLevel() {
+		return defaultLogLevel;
+	}
+
+	public void setDefaultLogLevel(Logger.Level defaultLogLevel) {
+		this.defaultLogLevel = defaultLogLevel;
+	}
+
+	public int getMaxIdleConnections() {
+		return maxIdleConnections;
+	}
+
+	public void setMaxIdleConnections(int maxIdleConnections) {
+		this.maxIdleConnections = maxIdleConnections;
+	}
+
+	public long getKeepAliveDuration() {
+		return keepAliveDuration;
+	}
+
+	public void setKeepAliveDuration(long keepAliveDuration) {
+		this.keepAliveDuration = keepAliveDuration;
+	}
+
+	public long getConnectTimeout() {
+		return connectTimeout;
+	}
+
+	public void setConnectTimeout(long connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public long getReadTimeout() {
+		return readTimeout;
+	}
+
+	public void setReadTimeout(long readTimeout) {
+		this.readTimeout = readTimeout;
+	}
+
+	public long getWriteTimeout() {
+		return writeTimeout;
+	}
+
+	public void setWriteTimeout(long writeTimeout) {
+		this.writeTimeout = writeTimeout;
+	}
 
 }

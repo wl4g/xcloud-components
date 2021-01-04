@@ -16,44 +16,16 @@
 package com.wl4g.component.core.framework.beans;
 
 import static com.wl4g.component.common.lang.Assert2.*;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.core.constant.ConfigConstant.KEY_NAMING_PROTOYPE_FACTORY;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.ClassUtils.forName;
-import static org.springframework.util.ClassUtils.getDefaultClassLoader;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotBlank;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ScannedGenericBeanDefinition;
-import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.core.type.MethodMetadata;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
-
 import javax.annotation.Nullable;
-import com.wl4g.component.common.log.SmartLogger;
+
+import org.springframework.beans.factory.BeanFactory;
 
 /**
  * Naming prototype bean factory.</br>
@@ -67,10 +39,13 @@ public class NamingPrototypeBeanFactory {
 	/**
 	 * Global delegate alias prototype bean class registry.
 	 */
-	final private static Map<String, String> NAMING_REGISTRY = synchronizedMap(new HashMap<>());
+	private final Map<String, String> knownPrototypeBeanAlias = synchronizedMap(new HashMap<>(8));
 
-	@Autowired
-	private BeanFactory beanFactory;
+	private final BeanFactory beanFactory;
+
+	public NamingPrototypeBeanFactory(BeanFactory beanFactory) {
+		this.beanFactory = notNullOf(beanFactory, "beanFactory");
+	}
 
 	/**
 	 * Get and create prototype bean instance by alias.
@@ -93,133 +68,21 @@ public class NamingPrototypeBeanFactory {
 	@SuppressWarnings("unchecked")
 	public <T> T getPrototypeBean(@NotBlank String alias, @Nullable Object... args) {
 		hasTextOf(alias, "alias");
-		String beanName = NAMING_REGISTRY.get(alias);
+		String beanName = knownPrototypeBeanAlias.get(alias);
 		notNull(beanName, "No such prototype bean name for 'alias=%s'", alias);
 		return (T) beanFactory.getBean(beanName, args);
 	}
 
 	/**
-	 * Delegate alias prototype bean importing auto registrar.
 	 * 
-	 * @author Wangl.sir <Wanglsir@gmail.com, 983708408@qq.com>
-	 * @version v1.0.0 2019-10-09
-	 * @since
-	 * @see {@link MapperScannerRegistrar} struct implements.
-	 */
-	static class NamingPrototypeBeanDefinitionRegistrar implements BeanDefinitionRegistryPostProcessor {
-		final protected SmartLogger log = getLogger(getClass());
-
-		@Override
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		}
-
-		@Override
-		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
-			for (String beanName : registry.getBeanDefinitionNames()) {
-				BeanDefinition bd = registry.getBeanDefinition(beanName);
-				if (nonNull(beanName) && bd.isPrototype()) {
-					if (bd instanceof AnnotatedBeanDefinition) {
-						log.debug("Register prototype bean with AnnotatedBeanDefinition... - {}", bd);
-
-						AnnotatedBeanDefinition abd = (AnnotatedBeanDefinition) bd;
-						String prototypeBeanClassName = null;
-						// Bean alias, Used to get prototype bean instance.
-						String[] beanAliass = null;
-						if (abd instanceof ScannedGenericBeanDefinition) {
-							// Using with @Service/@Component...
-							AnnotationMetadata metadata = abd.getMetadata();
-							if (nonNull(metadata)) {
-								prototypeBeanClassName = metadata.getClassName();
-								beanAliass = getAnnotationNamingAliasValue(metadata);
-							}
-						} else {
-							/**
-							 * Using with {@link Configuration} </br>
-							 * See: {@link ConfigurationClassBeanDefinition}
-							 */
-							MethodMetadata metadata = abd.getFactoryMethodMetadata();
-							if (nonNull(metadata)) {
-								prototypeBeanClassName = metadata.getReturnTypeName();
-								beanAliass = getAnnotationNamingAliasValue(metadata);
-							}
-						}
-						if (!isBlank(prototypeBeanClassName) && nonNull(beanAliass)) {
-							try {
-								Class<?> beanClass = forName(prototypeBeanClassName, getDefaultClassLoader());
-								registerPrototypeBean(beanName, (Class<?>) beanClass, ArrayUtils.add(beanAliass, beanName));
-							} catch (LinkageError | ClassNotFoundException e) {
-								throw new IllegalStateException(e);
-							}
-						}
-					}
-				}
-			}
-
-		}
-
-		/**
-		 * Gets annotation naming alias value.
-		 * 
-		 * @param metadata
-		 * @return
-		 */
-		@SuppressWarnings("rawtypes")
-		private String[] getAnnotationNamingAliasValue(AnnotatedTypeMetadata metadata) {
-			MultiValueMap<String, Object> annotationPropertyValues = metadata
-					.getAllAnnotationAttributes(NamingPrototype.class.getName());
-			if (!CollectionUtils.isEmpty(annotationPropertyValues)) {
-				/**
-				 * See:{@link DelegateAlias}
-				 */
-				Object values = annotationPropertyValues.get("value");
-				if (nonNull(values) && values instanceof List) {
-					List _values = ((List) values);
-					if (!isEmpty(_values)) {
-						return (String[]) _values.get(0);
-					}
-				}
-			}
-			return null;
-		}
-
-		/**
-		 * Saved prototype bean class alias to factory registry.
-		 * 
-		 * @param beanName
-		 * @param beanClass
-		 * @param namingBeanAliass
-		 */
-		private final void registerPrototypeBean(String beanName, Class<?> beanClass, String... namingBeanAliass) {
-			if (nonNull(namingBeanAliass)) {
-				for (String alias : namingBeanAliass) {
-					// if (isNull(NAMING_REGISTRY.putIfAbsent(alias, (Class<?>)
-					// beanClass))) {
-					if (isNull(NAMING_REGISTRY.putIfAbsent(alias, beanName))) {
-						log.debug("Registered prototype bean for alias: {}, class: {}", alias, beanClass);
-					}
-				}
-			}
-		}
-
-	}
-
-	/**
-	 * Delegate alias prototype bean auto configuration.
+	 * Register prototype bean name to alias mapping.
 	 * 
-	 * @author Wangl.sir <Wanglsir@gmail.com, 983708408@qq.com>
-	 * @version v1.0.0 2019-10-09
-	 * @since
+	 * @param alias
+	 * @param beanName
+	 * @return
 	 */
-	@Configuration
-	@ConditionalOnProperty(name = KEY_NAMING_PROTOYPE_FACTORY + ".enable", matchIfMissing = true)
-	@Import(NamingPrototypeBeanDefinitionRegistrar.class)
-	static class NamingPrototypeBeanFactoryAutoConfiguration {
-
-		@Bean
-		public NamingPrototypeBeanFactory namingPrototypeBeanFactory() {
-			return new NamingPrototypeBeanFactory();
-		}
-
+	boolean registerBeanAlias(String alias, String beanName) {
+		return isNull(knownPrototypeBeanAlias.putIfAbsent(alias, beanName));
 	}
 
 }

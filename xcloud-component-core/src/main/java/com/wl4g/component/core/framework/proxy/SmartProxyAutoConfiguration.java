@@ -162,10 +162,10 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 			enhancer.setCallback(new DispatcherSmartProxyInvocation(beanFactory, this, beanName, targetClass, () -> bean));
 		}
 		enhancer.setInterfaces(interfaces.toArray(new Class[0]));
-		final Object proxy = enhancer.create();
-		log.info("Created smart proxy: '{}' by actual original target class: '{}'", proxy, targetClass);
-		return proxy;
 
+		final Object proxy = enhancer.create();
+		log.info("Created smart proxy: '{}' of actual original target class: '{}'", proxy, targetClass);
+		return proxy;
 	}
 
 	/**

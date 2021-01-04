@@ -53,14 +53,14 @@ public abstract class RpcContextHolder {
 	private static volatile RpcContextHolder provider;
 
 	/** References attachments repository implementation. */
-	private final ReferenceRepository repository;
+	private final RefAttachmentRepository repository;
 
 	protected RpcContextHolder() {
-		this(ReferenceRepository.NOOP);
+		this(RefAttachmentRepository.NOOP);
 	}
 
-	protected RpcContextHolder(ReferenceRepository repository) {
-		this.repository = notNullOf(repository, "referenceRepository");
+	protected RpcContextHolder(RefAttachmentRepository repository) {
+		this.repository = notNullOf(repository, "refAttachmentRepository");
 	}
 
 	/**
@@ -213,12 +213,12 @@ public abstract class RpcContextHolder {
 	// --- References attachemnts implementation. ---
 	//
 
-	public <T> T get(@NotBlank ReferenceKey key, @NotNull Class<T> valueType) {
+	public <T> T get(@NotBlank RefAttachmentKey key, @NotNull Class<T> valueType) {
 		notNullOf(key, "referenceKey");
 		return repository.doGetReferenceValue(key.getKey(), valueType);
 	}
 
-	public void set(@NotBlank ReferenceKey key, @Nullable Object value) {
+	public void set(@NotBlank RefAttachmentKey key, @Nullable Object value) {
 		notNullOf(key, "referenceKey");
 		set(key.getKey(), value);
 		repository.doSetReferenceValue(key.getKey(), value);
@@ -253,12 +253,11 @@ public abstract class RpcContextHolder {
 	 * very useful for attachments with large object value and low frequency of
 	 * use, which can greatly improve performance.
 	 */
-	public final static class ReferenceKey {
+	public final static class RefAttachmentKey {
 		private final String key;
 
-		public ReferenceKey(String key) {
-			super();
-			this.key = key;
+		public RefAttachmentKey(String key) {
+			this.key = hasTextOf(key, "key");
 		}
 
 		public String getKey() {
@@ -267,9 +266,9 @@ public abstract class RpcContextHolder {
 	}
 
 	/**
-	 * Refer to {@link ReferenceKey}
+	 * Refer to {@link RefAttachmentKey}
 	 */
-	public static interface ReferenceRepository {
+	public static interface RefAttachmentRepository {
 		default <T> T doGetReferenceValue(@NotBlank String referenceKey, @NotNull Class<T> valueType) {
 			// throw new UnsupportedOperationException(format("Not
 			// implementation of %s", getClass()));
@@ -281,7 +280,7 @@ public abstract class RpcContextHolder {
 			// implementation of %s", getClass()));
 		}
 
-		public static final ReferenceRepository NOOP = new ReferenceRepository() {
+		public static final RefAttachmentRepository NOOP = new RefAttachmentRepository() {
 		};
 	}
 
