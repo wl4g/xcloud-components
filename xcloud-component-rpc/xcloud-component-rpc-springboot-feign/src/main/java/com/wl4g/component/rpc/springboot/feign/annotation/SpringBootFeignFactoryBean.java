@@ -21,6 +21,7 @@ import feign.Contract;
 import feign.Feign;
 import feign.FeignException;
 import feign.Logger;
+import feign.Logger.Level;
 import feign.MethodMetadata;
 import feign.Request;
 import feign.RequestInterceptor;
@@ -45,6 +46,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,18 +67,25 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToL
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.Assert2.hasText;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration.BEAN_FEIGN_CLIENT;
 import static feign.Util.UTF_8;
 import static feign.Util.toByteArray;
 import static feign.Util.valuesOrEmpty;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
+import static java.lang.System.lineSeparator;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
@@ -86,6 +95,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
@@ -113,7 +123,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	private ApplicationContext applicationContext;
 	private SpringBootFeignProperties config;
 	private Client client;
-	private Collection<RequestInterceptor> requestInterceptors;
+	private List<RequestInterceptor> requestInterceptors;
 
 	private Class<T> proxyInterface;
 	private String baseUrl;
@@ -213,8 +223,8 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		// Sets request option
 		mergeRequestOptionSet(builder);
 
-		// Sets logger level
-		mergeLoggerLevelSet(builder);
+		// Sets logger level.
+		builder.logLevel(getLogLevel());
 
 		// Sets configuration with merge.
 		mergeConfigurationSet(builder);
@@ -222,12 +232,14 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		return builder.target(proxyInterface, buildBaseUrl());
 	}
 
-	private Collection<RequestInterceptor> obtainFeignRequestInterceptors() {
+	private List<RequestInterceptor> obtainFeignRequestInterceptors() {
 		if (nonNull(requestInterceptors)) {
 			return requestInterceptors;
 		}
 		try {
-			return (requestInterceptors = applicationContext.getBeansOfType(RequestInterceptor.class).values());
+			requestInterceptors = applicationContext.getBeansOfType(RequestInterceptor.class).values().stream().collect(toList());
+			AnnotationAwareOrderComparator.sort(requestInterceptors);
+			return requestInterceptors;
 		} catch (BeansException e) {
 			return emptyList();
 		}
@@ -250,6 +262,10 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			throw new IllegalStateException("Without one of [okhttp3, Http2Client] client.");
 		}
 		return client;
+	}
+
+	private Logger.Level getLogLevel() {
+		return (logLevel != Logger.Level.NONE) ? logLevel : (logLevel = config.getDefaultLogLevel());
 	}
 
 	private void mergeConfigurationSet(Feign.Builder builder) throws Exception {
@@ -298,10 +314,6 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		builder.options(new Options(connectTimeout0, MILLISECONDS, readTimeout0, MILLISECONDS, followRedirects));
 	}
 
-	private void mergeLoggerLevelSet(Feign.Builder builder) {
-		builder.logLevel((logLevel != Logger.Level.NONE) ? logLevel : config.getDefaultLogLevel());
-	}
-
 	private String buildBaseUrl() {
 		String _baseUrl = trimToEmpty(isBlank(baseUrl) ? config.getDefaultUrl() : baseUrl);
 		hasText(_baseUrl, "Feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
@@ -334,6 +346,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	 */
 	class DelegateFeignDecoder implements Decoder {
 		private final Decoder decoder;
+		private String feignHttpProtocol;
 
 		public DelegateFeignDecoder(Decoder decoder) {
 			this.decoder = notNullOf(decoder, "decoder");
@@ -346,10 +359,11 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 			try {
 				return decoder.decode(wrapResponse, type);
 			} catch (Exception e) {
-				String errmsg = format("Failed to feign RPC. - return.type: %s,\nhttp.request: %s,\nhttp.response: %s", type,
+				String errmsg = format("Failed to decode feign RPC called. - ReturnType: %s\n----->>>\n%s\n<<<-----\n%s", type,
 						printRequestAsString(response.request()), wrapResponse);
-				// High concurrency performance optimizing throw exception
-				throw new FeignRpcException(errmsg, e, log.isDebugEnabled());
+				// High concurrency performance optimizing throw exception.
+				boolean dumpStackTrace = (getLogLevel() != Level.NONE);
+				throw new FeignRpcException(errmsg, (log.isDebugEnabled() ? e : null), true);
 			} finally {
 				// The RPC call has responded and the attachment info should be
 				// extracted from it.
@@ -371,11 +385,20 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 
 		private String printRequestAsString(Request request) {
 			if (request.isBinary()) {
-				return request.httpMethod().toString().concat(" ").concat(request.url()).concat(" HTTP/x ").concat(File.separator)
-						.concat("--- Binary Data ---");
+				if (isNull(feignHttpProtocol) && nonNull(JAVA11_HTTPCLIENT_VERSION_METHOD)) {
+					Object java11HttpClientVersion = invokeMethod(JAVA11_HTTPCLIENT_VERSION_METHOD, client);
+					if (equalsIgnoreCase(valueOf(java11HttpClientVersion), "HTTP_2")) {
+						feignHttpProtocol = "HTTP/2";
+					}
+				} else {
+					feignHttpProtocol = "HTTP/1.1";
+				}
+				return request.httpMethod().toString().concat(" ").concat(request.url()).concat(" ").concat(feignHttpProtocol)
+						.concat(lineSeparator()).concat("--- Binary Data ---");
 			}
 			return request.toString();
 		}
+
 	}
 
 	/**
@@ -531,5 +554,8 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	private static final Contract defaultContract = new SpringMvcContract();
 	private static final Retryer defaultRetryer = new Retryer.Default();
 	private static final Logger defaultLogger = new Slf4jLogger();
+
+	private static final Method JAVA11_HTTPCLIENT_VERSION_METHOD = findMethodNullable(
+			resolveClassNameNullable("java.net.http.HttpClient"), "version");
 
 }

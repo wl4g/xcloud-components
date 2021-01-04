@@ -20,6 +20,10 @@
 package com.wl4g.component.rpc.springboot.feign.context.interceptor;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
@@ -35,9 +39,13 @@ import feign.RequestTemplate;
  * @sine v1.0
  * @see
  */
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
 public class FeignContextRequestInterceptor implements RequestInterceptor {
 	protected final SmartLogger log = getLogger(getClass());
 
+	/**
+	 * {@link feign.SynchronousMethodHandler#executeAndDecode(RequestTemplate, Options)}
+	 */
 	@Override
 	public void apply(RequestTemplate template) {
 		try {

@@ -35,7 +35,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import java.lang.annotation.Annotation;
@@ -70,6 +69,11 @@ public class FeignContextAutoConfiguration {
 	}
 
 	@Bean
+	public SettableHeadersRequestInterceptor settableHeadersRequestInterceptor() {
+		return new SettableHeadersRequestInterceptor();
+	}
+
+	@Bean
 	public FeignContextProxyProcessor feignContextProxyProcessor() {
 		return new FeignContextProxyProcessor();
 	}
@@ -79,33 +83,21 @@ public class FeignContextAutoConfiguration {
 	 * request parameters are in the request.body , which may not perform
 	 * binding to {@link RpcContextHolder}
 	 */
-	@Order(Ordered.HIGHEST_PRECEDENCE + 9)
-	static class FeignContextProxyProcessor implements SmartProxyProcessor {
+	public static final class FeignContextProxyProcessor implements SmartProxyProcessor {
 
 		@Override
 		public int getOrder() {
-			return Ordered.HIGHEST_PRECEDENCE + 10;
+			return ORDER;
 		}
 
 		@Override
 		public boolean supportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
-			if (hasAnnotation(actualOriginalTargetClass, RequestMapping.class)
-					&& hasAnnotation(actualOriginalTargetClass, ResponseBody.class)) {
-				return true;
-			} else {
-				for (Class<?> interfaceClass : safeArrayToList(actualOriginalTargetClass.getInterfaces())) {
-					if (hasAnnotation(interfaceClass, SpringBootFeignClient.class)
-							|| (nonNull(FEIGN_CLIENT_CLASS) && hasAnnotation(interfaceClass, FEIGN_CLIENT_CLASS))) {
-						return true;
-					}
-				}
-			}
-			return false;
+			return checkSupportTypeProxy(target, actualOriginalTargetClass);
 		}
 
 		@Override
 		public boolean supportMethodProxy(Object target, Method method, Class<?> actualOriginalTargetClass, Object... args) {
-			return hasAnnotation(method.getDeclaringClass(), ResponseBody.class) || hasAnnotation(method, ResponseBody.class);
+			return checkSupportMethodProxy(target, method, actualOriginalTargetClass, args);
 		}
 
 		@Override
@@ -133,8 +125,30 @@ public class FeignContextAutoConfiguration {
 			return result;
 		}
 
-		private static final Class<? extends Annotation> FEIGN_CLIENT_CLASS = resolveClassNameNullable(
+		public static boolean checkSupportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
+			if (hasAnnotation(actualOriginalTargetClass, RequestMapping.class)
+					&& hasAnnotation(actualOriginalTargetClass, ResponseBody.class)) {
+				return true;
+			} else {
+				for (Class<?> interfaceClass : safeArrayToList(actualOriginalTargetClass.getInterfaces())) {
+					if (hasAnnotation(interfaceClass, SpringBootFeignClient.class)
+							|| (nonNull(FEIGN_CLIENT_CLASS) && hasAnnotation(interfaceClass, FEIGN_CLIENT_CLASS))) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		public static boolean checkSupportMethodProxy(Object target, Method method, Class<?> actualOriginalTargetClass,
+				Object... args) {
+			return hasAnnotation(method.getDeclaringClass(), ResponseBody.class) || hasAnnotation(method, ResponseBody.class);
+		}
+
+		public static final Class<? extends Annotation> FEIGN_CLIENT_CLASS = resolveClassNameNullable(
 				"org.springframework.cloud.openfeign.FeignClient");
+
+		public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
 	}
 
 }
