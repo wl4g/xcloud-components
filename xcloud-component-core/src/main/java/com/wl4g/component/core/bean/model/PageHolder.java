@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
@@ -163,12 +165,27 @@ public class PageHolder<E> implements Serializable {
 	// --- Current context page helper. ---
 	//
 
-	public PageHolder<E> setCurrentPage() {
-		setCurrentPage(this);
+	/**
+	 * Sets page in current Rpc context.
+	 */
+	public PageHolder<E> startPage() {
+		startPage(this);
 		return this;
 	}
 
-	public static void setCurrentPage(PageHolder<?> page) {
+	/**
+	 * Release remove current Rpc context page.
+	 */
+	public static void releasePage() {
+		startPage(null);
+	}
+
+	/**
+	 * Sets page in current Rpc context.
+	 * 
+	 * @param page
+	 */
+	public static void startPage(@Nullable PageHolder<?> page) {
 		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextSetMethod)) { // Distributed?
 			Object holder = invokeMethod(rpcContextGetHolderMethod, null);
 			invokeMethod(rpcContextSetMethod, holder, new Object[] { CURRENT_PAGE_KEY, page });
@@ -182,12 +199,14 @@ public class PageHolder<E> implements Serializable {
 	 * 
 	 * @return
 	 */
-	public static final PageHolder<?> getCurrentPage() {
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public static final <T> PageHolder<T> getCurrentPage() {
 		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextGetMethod)) { // Distributed?
 			Object holder = invokeMethod(rpcContextGetHolderMethod, null);
-			return (PageHolder<?>) invokeMethod(rpcContextGetMethod, holder, new Object[] { CURRENT_PAGE_KEY, PageHolder.class });
+			return (PageHolder<T>) invokeMethod(rpcContextGetMethod, holder, new Object[] { CURRENT_PAGE_KEY, PageHolder.class });
 		} else { // fallback, use local
-			return defaultLocal.get();
+			return (PageHolder<T>) defaultLocal.get();
 		}
 	}
 
@@ -483,7 +502,7 @@ public class PageHolder<E> implements Serializable {
 
 	// Rpc context methods.
 	private static transient final Class<?> rpcContextHolderClass = resolveClassNameNullable(
-			"com.wl4g.component.rpc.springcloud.feign.context.RpcContextHolder");
+			"com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder");
 	private static transient final Method rpcContextGetHolderMethod = findMethodNullable(rpcContextHolderClass, "get");
 	private static transient final Method rpcContextGetMethod = findMethodNullable(rpcContextHolderClass, "get", String.class,
 			Class.class);

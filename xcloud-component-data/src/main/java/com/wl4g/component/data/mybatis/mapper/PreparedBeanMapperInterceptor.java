@@ -15,10 +15,8 @@
  */
 package com.wl4g.component.data.mybatis.mapper;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.SqlUtil;
 
@@ -38,7 +36,6 @@ import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -170,9 +167,10 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 			PageHolder<?> page = PageHolder.getCurrentPage();
 			log.debug("Start current pagination of RpcContext holder. -> {}", page);
 			if (nonNull(page)) {
-				Page<Object> helperPage = PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.getPage().isCount());
-				helperPageLocal.set(helperPage);
+				PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.getPage().isCount());
 			}
+			// Release current Page in Rpc context.
+			PageHolder.releasePage();
 		}
 	}
 
@@ -229,20 +227,20 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @return
 	 */
 	protected Object postQuery(Invocation invoc, Object result) {
-		if (isNull(result)) {
-			return null;
-		}
-
-		// Transform result Page to original object.
-		if (result instanceof Page) {
-			PageHolder<?> page = PageHolder.getCurrentPage();
-			if (nonNull(page)) {
-				Page<?> helperPage = (Page<?>) result;
-				BeanUtils.copyProperties(helperPage, page.getPage());
-				PageHolder.setCurrentPage(page);
-				return new ArrayList<>(helperPage);
-			}
-		}
+		// if (isNull(result)) {
+		// return null;
+		// }
+		// // Transform result Page to original object.
+		// if (result instanceof Page) {
+		// PageHolder<?> page = PageHolder.getCurrentPage();
+		// if (nonNull(page)) {
+		// com.github.pagehelper.Page<?> helperPage =
+		// (com.github.pagehelper.Page<?>) result;
+		// org.springframework.beans.BeanUtils.copyProperties(helperPage,
+		// page.getPage());
+		// return new java.util.ArrayList<>(helperPage);
+		// }
+		// }
 		return result;
 	}
 
@@ -286,8 +284,5 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	protected boolean isUpdateSettable(BaseBean bean) {
 		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
 	}
-
-	/** Helper {@link Page} copy cache, for binding rpc context. */
-	private static final ThreadLocal<Page<?>> helperPageLocal = new ThreadLocal<>();
 
 }

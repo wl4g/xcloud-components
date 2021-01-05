@@ -23,16 +23,19 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static com.wl4g.component.core.constant.EnvConstant.RPC_ATTACTMENT_MAX_BYTES;
 
 import com.wl4g.component.common.codec.CodecSource;
+import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.utils.context.SpringContextHolder;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -52,6 +55,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
  * @see
  */
 public abstract class RpcContextHolder {
+	protected static final SmartLogger log = getLogger(RpcContextHolder.class);
 
 	/** Singleton holder instance */
 	private static volatile RpcContextHolder provider;
@@ -129,7 +133,7 @@ public abstract class RpcContextHolder {
 	 */
 	public void set(@NotBlank String key, @Nullable Object value) {
 		hasTextOf(key, "attachmentKey");
-		if (!isNull(value)) {
+		if (nonNull(value)) {
 			String valStr = null;
 			if (value instanceof String) {
 				valStr = (String) value;
@@ -146,6 +150,8 @@ public abstract class RpcContextHolder {
 			}
 			// Encode attachemnts value(http header safe)
 			setAttachment(key, codec.encode(valStr));
+		} else { // Remove attachment
+			removeAttachment(key);
 		}
 	}
 
@@ -241,8 +247,13 @@ public abstract class RpcContextHolder {
 
 	public void set(@NotBlank RefAttachmentKey key, @Nullable Object value) {
 		notNullOf(key, "referenceKey");
-		set(key.getKey(), key.getValueRef());
-		repository.doSetRefValue(key.getValueRef(), value);
+		if (nonNull(value)) {
+			set(key.getKey(), key.getValueRef());
+			repository.doSetRefValue(key.getValueRef(), value);
+		} else { // Remove attachment
+			removeAttachment(key.getKey());
+			repository.doRemoveRefValue(key.getKey());
+		}
 	}
 
 	/**
@@ -294,11 +305,17 @@ public abstract class RpcContextHolder {
 	 * Refer to {@link RefAttachmentKey}
 	 */
 	public static interface RefAttachmentRepository {
-		default <T> T doGetRefValue(@NotBlank String referenceKey, @NotNull Class<T> valueType) {
+		default <T> T doGetRefValue(@NotBlank String refKey, @NotNull Class<T> valueType) {
+			log.warn("Unable get reference attachments, because the not implemented! - {}", refKey);
 			return null;
 		}
 
-		default void doSetRefValue(@NotBlank String referenceKey, @Nullable Object value) {
+		default void doSetRefValue(@NotBlank String refKey, @Nullable Object value) {
+			log.warn("Unable set reference attachments, because the not implemented! - {}, {}", refKey, value);
+		}
+
+		default void doRemoveRefValue(@NotBlank String refKey) {
+			log.warn("Unable remove reference attachments, because the not implemented! - {}", refKey);
 		}
 
 		public static final RefAttachmentRepository NOOP = new RefAttachmentRepository() {
