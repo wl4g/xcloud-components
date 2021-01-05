@@ -18,7 +18,6 @@ package com.wl4g.component.core.bean;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.utils.expression.SpelExpressions;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -30,10 +29,7 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.Date;
 
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
-import static java.lang.String.valueOf;
-import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -47,7 +43,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Setter
 public abstract class BaseBean implements Serializable {
 	private static final long serialVersionUID = 8940373806493080114L;
-	private static final transient SmartLogger log = getLogger(BaseBean.class);
 
 	/**
 	 * Bean unqiue ID.</br>
@@ -150,9 +145,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	public Long preInsert() {
 		setCreateDate(new Date());
-		setCreateBy(getCurrentPrincipal());
 		setUpdateDate(getCreateDate());
-		setUpdateBy(getCreateBy());
 		setDelFlag(DEL_FLAG_NORMAL);
 		setEnable(ENABLED);
 		return getId();
@@ -176,7 +169,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	public void preUpdate() {
 		setUpdateDate(new Date());
-		setUpdateBy(UNKNOWN_USER_ID);
+		// setUpdateBy(UNKNOWN_USER_ID);
 	}
 
 	public BaseBean withId(Long id) {
@@ -229,60 +222,6 @@ public abstract class BaseBean implements Serializable {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName().concat("<").concat(toJSONString(this)).concat(">");
-	}
-
-	/**
-	 * Gets current authentication principal(ID/name).
-	 * 
-	 * @return
-	 */
-	private static final Long getCurrentPrincipal() {
-		Throwable err = null;
-		Object principal = null; // Principal(ID/name)
-
-		// Frist get by request
-		// try {
-		// HttpServletRequest request = ((ServletRequestAttributes)
-		// RequestContextHolder.currentRequestAttributes())
-		// .getRequest();
-		// curPrincipal = request.getRemoteUser();
-		// } catch (Throwable e1) {
-		// err = e1;
-		// log.warn("Cannot get request authenticated principal. cause by: {}",
-		// err.getMessage());
-		// }
-
-		// Fallback get by IAM
-		if (isNull(principal)) {
-			try {
-				principal = spelExpr.resolve("#{T(IamSecurityHolder).getPrincipalInfo().getPrincipalId()}");
-			} catch (Throwable e2) {
-				err = e2;
-				log.warn("Cannot fallback get IAM authenticated principal. cause by: {}", err.getMessage());
-			}
-		}
-
-		// Fallback get by spring security
-		// if (isNull(curPrincipal)) {
-		// try {
-		// // org.springframework.security.core.userdetails.UserDetails
-		// curPrincipal = spelExpr
-		// .resolve("#{T(SecurityContextHolder).getContext().getAuthentication().getPrincipal().getName()}",
-		// null);
-		// } catch (Throwable e3) {
-		// err = e3;
-		// curPrincipal = UNKNOWN_USER_ID;
-		// log.warn(format("Cannot fallback get spring-security authenticated
-		// principal, using fallback: '%s', cause by: {}",
-		// curPrincipal), err.getMessage());
-		// }
-		// }
-		if(isNull(principal)){
-			return -1L;
-		}else{
-			return Long.parseLong(valueOf(principal));
-		}
-
 	}
 
 	/**
