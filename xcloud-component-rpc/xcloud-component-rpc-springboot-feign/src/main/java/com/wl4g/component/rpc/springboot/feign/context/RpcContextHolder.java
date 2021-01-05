@@ -19,12 +19,16 @@
  */
 package com.wl4g.component.rpc.springboot.feign.context;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
+import static com.wl4g.component.core.constant.EnvConstant.RPC_ATTACTMENT_MAX_BYTES;
+
+import com.wl4g.component.common.codec.CodecSource;
 import com.wl4g.component.core.utils.context.SpringContextHolder;
 
 import static java.lang.String.format;
@@ -53,14 +57,18 @@ public abstract class RpcContextHolder {
 	private static volatile RpcContextHolder provider;
 
 	/** References attachments repository implementation. */
-	private final RefAttachmentRepository repository;
+	protected final RefAttachmentRepository repository;
+
+	/** Attachments safe codec implementation. */
+	protected final AttachmentCodec codec;
 
 	protected RpcContextHolder() {
-		this(RefAttachmentRepository.NOOP);
+		this(RefAttachmentRepository.NOOP, AttachmentCodec.DEFAULT);
 	}
 
-	protected RpcContextHolder(RefAttachmentRepository repository) {
+	protected RpcContextHolder(@NotNull RefAttachmentRepository repository, @NotNull AttachmentCodec codec) {
 		this.repository = notNullOf(repository, "refAttachmentRepository");
+		this.codec = notNullOf(codec, "attachmentCodec");
 	}
 
 	/**
@@ -97,16 +105,19 @@ public abstract class RpcContextHolder {
 	public <T> T get(@NotBlank String key, @NotNull Class<T> valueType) {
 		hasTextOf(key, "attachmentKey");
 		notNullOf(valueType, "attachmentValueType");
-		Object value = getAttachment(key);
-		if (isNull(value)) {
-			return null;
-		} else if (String.class.isAssignableFrom(valueType)) {
-			return (T) value;
-		} else if (isSimpleType(valueType)) {
-			return (T) defaultConverter.convert(value, valueType);
-		} else { // Custom object
-			return parseJSON((String) value, valueType);
+		String value = getAttachment(key);
+		if (!isNull(value)) {
+			// Decode attachemnts value(http header safe)
+			String val = codec.decode(value);
+			if (String.class.isAssignableFrom(valueType)) {
+				return (T) val;
+			} else if (isSimpleType(valueType)) {
+				return (T) defaultConverter.convert(val, valueType);
+			} else { // Custom object
+				return parseJSON((String) val, valueType);
+			}
 		}
+		return null;
 	}
 
 	/**
@@ -119,13 +130,22 @@ public abstract class RpcContextHolder {
 	public void set(@NotBlank String key, @Nullable Object value) {
 		hasTextOf(key, "attachmentKey");
 		if (!isNull(value)) {
+			String valStr = null;
 			if (value instanceof String) {
-				setAttachment(key, (String) value);
+				valStr = (String) value;
 			} else if (isSimpleType(value.getClass())) {
-				setAttachment(key, defaultConverter.convert(value));
+				valStr = defaultConverter.convert(value);
 			} else { // Other object
-				setAttachment(key, toJSONString(value));
+				valStr = toJSONString(value);
 			}
+			// Check safe max bytes limit
+			if (valStr.getBytes(UTF_8).length > RPC_ATTACTMENT_MAX_BYTES) {
+				throw new IllegalArgumentException(format(
+						"Too large (%sbytes) attachment object, It is recommended to use parameters in the form of %s. - key: %s, value: %s",
+						RPC_ATTACTMENT_MAX_BYTES, RefAttachmentKey.class.getSimpleName(), key, value));
+			}
+			// Encode attachemnts value(http header safe)
+			setAttachment(key, codec.encode(valStr));
 		}
 	}
 
@@ -215,13 +235,14 @@ public abstract class RpcContextHolder {
 
 	public <T> T get(@NotBlank RefAttachmentKey key, @NotNull Class<T> valueType) {
 		notNullOf(key, "referenceKey");
-		return repository.doGetReferenceValue(key.getKey(), valueType);
+		String valueRef = get(key.getKey(), String.class);
+		return repository.doGetRefValue(valueRef, valueType);
 	}
 
 	public void set(@NotBlank RefAttachmentKey key, @Nullable Object value) {
 		notNullOf(key, "referenceKey");
-		set(key.getKey(), value);
-		repository.doSetReferenceValue(key.getKey(), value);
+		set(key.getKey(), key.getValueRef());
+		repository.doSetRefValue(key.getValueRef(), value);
 	}
 
 	/**
@@ -253,7 +274,7 @@ public abstract class RpcContextHolder {
 	 * very useful for attachments with large object value and low frequency of
 	 * use, which can greatly improve performance.
 	 */
-	public final static class RefAttachmentKey {
+	public static final class RefAttachmentKey {
 		private final String key;
 
 		public RefAttachmentKey(String key) {
@@ -263,24 +284,40 @@ public abstract class RpcContextHolder {
 		public String getKey() {
 			return key;
 		}
+
+		public String getValueRef() {
+			return "ref@".concat(key);
+		}
 	}
 
 	/**
 	 * Refer to {@link RefAttachmentKey}
 	 */
 	public static interface RefAttachmentRepository {
-		default <T> T doGetReferenceValue(@NotBlank String referenceKey, @NotNull Class<T> valueType) {
-			// throw new UnsupportedOperationException(format("Not
-			// implementation of %s", getClass()));
+		default <T> T doGetRefValue(@NotBlank String referenceKey, @NotNull Class<T> valueType) {
 			return null;
 		}
 
-		default void doSetReferenceValue(@NotBlank String referenceKey, @Nullable Object value) {
-			// throw new UnsupportedOperationException(format("Not
-			// implementation of %s", getClass()));
+		default void doSetRefValue(@NotBlank String referenceKey, @Nullable Object value) {
 		}
 
 		public static final RefAttachmentRepository NOOP = new RefAttachmentRepository() {
+		};
+	}
+
+	/**
+	 * Attachment value safe-codec.
+	 */
+	public static interface AttachmentCodec {
+		default String encode(String value) {
+			return new CodecSource(value).toHex();
+		}
+
+		default String decode(String value) {
+			return CodecSource.fromHex(value).toString();
+		}
+
+		public static final AttachmentCodec DEFAULT = new AttachmentCodec() {
 		};
 	}
 

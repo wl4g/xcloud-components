@@ -19,18 +19,24 @@
  */
 package com.wl4g.component.core.constant;
 
+import static java.lang.Long.parseLong;
+import static java.lang.System.getProperty;
+
 /**
- * {@link ConfigConstant}
+ * {@link EnvConstant}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2020-12-31
+ * @version v1.0 2021-01-05
  * @sine v1.0
  * @see
  */
-public interface ConfigConstant extends EnvConstant {
-	public static final String KEY_BOOT_DEFAULT = "spring.boot.xcloud.boot.default-configurer";
-	public static final String KEY_NAMING_PROTOYPE_FACTORY = "spring.boot.xcloud.framework.naming-prototype-factory";
-	public static final String KEY_GENERIC_OPERATOR = "spring.boot.xcloud.framework.operator";
-	public static final String KEY_SMART_PROXY = "spring.boot.xcloud.framework.smart-proxy";
-	public static final String KEY_WEB_HUMAN_DATE_CONVERTER = "spring.boot.xcloud.web.human-date-converter";
+public interface EnvConstant {
+
+	/**
+	 * For example, Tomcat 8.0 allows a maximum of 8KB of HTTP request headers
+	 * by default
+	 */
+	public static final long RPC_ATTACTMENT_MAX_BYTES = parseLong(
+			getProperty("spring.boot.xcloud.rpc.attachment.max-bytes", "4096"));
+
 }
