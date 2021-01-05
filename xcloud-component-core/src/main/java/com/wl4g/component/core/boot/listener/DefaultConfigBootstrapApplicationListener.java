@@ -142,7 +142,7 @@ public class DefaultConfigBootstrapApplicationListener implements GenericApplica
 				builder.append(",classpath:/scf/");
 			} else if (hasSpringBootFeignClass) {
 				builder.append(",classpath:/sbf/");
-			} else {
+			} else if (hasDubboClass) {
 				builder.append(",classpath:/dubbo/");
 			}
 			defaultProperties.put(CONFIG_ADDITIONAL_LOCATION_PROPERTY, builder.toString());
@@ -172,8 +172,11 @@ public class DefaultConfigBootstrapApplicationListener implements GenericApplica
 
 	public static final boolean hasSpringBootFeignClass = isPresent(
 			"com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient", null);
-	public static final boolean hasSpringCloudFeignClass = isPresent("org.springframework.cloud.openfeign.FeignClient", null);
+	public static final boolean hasSpringCloudFeignClass = isPresent("org.springframework.cloud.openfeign.FeignAutoConfiguration",
+			null);
 	public static final boolean hasDubboClass = isPresent("com.alibaba.dubbo.rpc.Filter", null);
+	public static final boolean hasSpringBootDubboClass = isPresent("com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration",
+			null);
 
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
 
