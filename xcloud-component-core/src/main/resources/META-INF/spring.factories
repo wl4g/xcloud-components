@@ -1,11 +1,11 @@
 # Application Listeners
 org.springframework.context.ApplicationListener=\
 com.wl4g.component.core.logging.EnhancedLoggingApplicationListener,\
-com.wl4g.component.core.boot.listener.DefaultConfigurationApplicationListener
+com.wl4g.component.core.boot.listener.DefaultConfigBootstrapApplicationListener
 
 # Application Auto Configuration.
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.wl4g.component.core.boot.BootDefaultAutoConfiguration,\
+com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration,\
 com.wl4g.component.core.framework.beans.NamingPrototypeBeanAutoConfiguration,\
 com.wl4g.component.core.framework.operator.GenericOperatorAutoConfiguration,\
 com.wl4g.component.core.framework.proxy.SmartProxyAutoConfiguration,\

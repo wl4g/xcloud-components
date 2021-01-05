@@ -45,7 +45,7 @@ import com.wl4g.component.core.logging.TraceLoggingMDCFilter;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
-public class BootDefaultAutoConfiguration implements InitializingBean {
+public class DefaultBootstrapAutoConfiguration implements InitializingBean {
 
 	@Autowired
 	private ApplicationContext applicationContext;

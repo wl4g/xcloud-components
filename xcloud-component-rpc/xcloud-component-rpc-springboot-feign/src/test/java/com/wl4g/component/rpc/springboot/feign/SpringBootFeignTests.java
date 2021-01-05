@@ -16,7 +16,7 @@
 package com.wl4g.component.rpc.springboot.feign;
 
 import com.google.gson.Gson;
-import com.wl4g.component.core.boot.BootDefaultAutoConfiguration;
+import com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.GithubService1.GitHubContributor;
 import com.wl4g.component.rpc.springboot.feign.GithubService2.GitHubRepo;
 import com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients;
@@ -41,7 +41,7 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test1")
 @SpringBootTest(classes = SpringBootFeignTests.class)
-@EnableAutoConfiguration(exclude = { BootDefaultAutoConfiguration.class })
+@EnableAutoConfiguration(exclude = { DefaultBootstrapAutoConfiguration.class })
 @EnableSpringBootFeignClients(scanBasePackages = "com.wl4g.component.rpc.springboot.feign", defaultConfiguration = {
 		SampleRetryer.class })
 public class SpringBootFeignTests {
