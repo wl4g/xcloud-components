@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springcloud.feign.context.interceptor;
+package com.wl4g.component.rpc.springcloud.feign.context;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 

@@ -23,8 +23,8 @@ import static java.util.Objects.isNull;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -36,7 +36,6 @@ import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
-import com.wl4g.component.rpc.springcloud.feign.context.interceptor.HytrixFeignContextConfigurer;
 
 /**
  * Context holder of hytrix in thread isolation mode.
@@ -46,12 +45,14 @@ import com.wl4g.component.rpc.springcloud.feign.context.interceptor.HytrixFeignC
  * @sine v1.0
  * @see
  */
-public class HytrixFeignRpcContextHolder extends RpcContextHolder implements Closeable {
+class SpringCloudFeignHystrixRpcContextHolder extends RpcContextHolder implements Closeable {
 
-	private static final HystrixRequestVariableDefault<HytrixFeignRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
+	private static final HystrixRequestVariableDefault<SpringCloudFeignHystrixRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
 
+	// Notes: Since feignclient ignores case when setting header, it should be
+	// unified here.
 	/** Feign request context attachments store. */
-	private final Map<String, String> attachments = new HashMap<>();
+	private final Map<String, String> attachments = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Override
 	public String getAttachment(String key) {
@@ -88,11 +89,11 @@ public class HytrixFeignRpcContextHolder extends RpcContextHolder implements Clo
 
 	@Override
 	protected RpcContextHolder current() {
-		HytrixFeignRpcContextHolder current = LOCAL.get();
+		SpringCloudFeignHystrixRpcContextHolder current = LOCAL.get();
 		// Initializes hystrix request context in the current thread.
 		if (isNull(current) && !HystrixRequestContext.isCurrentThreadInitialized()) {
 			HystrixRequestContext.initializeContext();
-			LOCAL.set(current = new HytrixFeignRpcContextHolder());
+			LOCAL.set(current = new SpringCloudFeignHystrixRpcContextHolder());
 		}
 		return current;
 	}
@@ -103,7 +104,7 @@ public class HytrixFeignRpcContextHolder extends RpcContextHolder implements Clo
 	static class HytrixFeignRpcContextHolderAutoConfiguration {
 		@Bean
 		public RpcContextHolder hytrixFeignRpcContextHolder() {
-			return new HytrixFeignRpcContextHolder();
+			return new SpringCloudFeignHystrixRpcContextHolder();
 		}
 	}
 

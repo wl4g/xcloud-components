@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springcloud.feign.context.interceptor;
+package com.wl4g.component.rpc.springcloud.feign.context;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +34,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
-import com.wl4g.component.rpc.springcloud.feign.context.HytrixFeignRpcContextHolder;
 
 /***
  * {@link HytrixFeignContextConfigurer}
@@ -77,7 +76,7 @@ public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
-			((HytrixFeignRpcContextHolder) RpcContextHolder.get()).close();
+			((SpringCloudFeignHystrixRpcContextHolder) RpcContextHolder.get()).close();
 		}
 	}
 

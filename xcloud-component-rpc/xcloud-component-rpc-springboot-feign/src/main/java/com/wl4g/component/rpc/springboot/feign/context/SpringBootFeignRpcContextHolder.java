@@ -19,8 +19,8 @@
  */
 package com.wl4g.component.rpc.springboot.feign.context;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,21 +30,23 @@ import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 import static java.lang.ThreadLocal.withInitial;
 
 /**
- * {@link FeignRpcContextHolder}
+ * {@link SpringBootFeignRpcContextHolder}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17
  * @sine v1.0
  * @see
  */
-class FeignRpcContextHolder extends RpcContextHolder {
+class SpringBootFeignRpcContextHolder extends RpcContextHolder {
 
-	private static final ThreadLocal<FeignRpcContextHolder> LOCAL = withInitial(() -> new FeignRpcContextHolder());
+	private static final ThreadLocal<SpringBootFeignRpcContextHolder> LOCAL = withInitial(() -> new SpringBootFeignRpcContextHolder());
 
+	// Notes: Since feignclient ignores case when setting header, it should be
+	// unified here.
 	/**
 	 * Feign request context attachments store. Thread isolation, thread safety
 	 */
-	private final Map<String, String> attachments = new HashMap<>();
+	private final Map<String, String> attachments = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Override
 	public String getAttachment(String key) {
@@ -82,7 +84,7 @@ class FeignRpcContextHolder extends RpcContextHolder {
 		@Bean // Lower priority
 		@ConditionalOnMissingBean
 		public RpcContextHolder feignRpcContextHolder() {
-			return new FeignRpcContextHolder();
+			return new SpringBootFeignRpcContextHolder();
 		}
 	}
 
