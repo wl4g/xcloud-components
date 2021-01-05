@@ -18,6 +18,7 @@ package com.wl4g.component.core.framework.proxy;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.makeAccessible;
 import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Method;
@@ -60,6 +61,10 @@ public class DispatcherSmartProxyInvocation extends AbstractDispatcherProxyInvoc
 
 	@Override
 	public Object doInvoke(Object target, Method method, Object[] args) throws Throwable {
+		if (!method.isAccessible()) {
+			makeAccessible(method);
+		}
+
 		// Gets proxies handlers.
 		List<SmartProxyProcessor> processor = configurer.getProcessors(targetClass);
 

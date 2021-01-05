@@ -15,6 +15,8 @@
  */
 package com.wl4g.component.common.reflect;
 
+import static java.lang.reflect.Modifier.isAbstract;
+import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isFinal;
 import static java.lang.reflect.Modifier.isNative;
 import static java.lang.reflect.Modifier.isStatic;
@@ -748,7 +750,7 @@ public abstract class ReflectionUtils2 {
 	 * @see java.lang.reflect.Method#setAccessible
 	 */
 	public static void makeAccessible(Method method) {
-		if ((!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
+		if ((!isPublic(method.getModifiers()) || !isPublic(method.getDeclaringClass().getModifiers()))
 				&& !method.isAccessible()) {
 			method.setAccessible(true);
 		}
@@ -765,8 +767,7 @@ public abstract class ReflectionUtils2 {
 	 * @see java.lang.reflect.Constructor#setAccessible
 	 */
 	public static void makeAccessible(Constructor<?> ctor) {
-		if ((!Modifier.isPublic(ctor.getModifiers()) || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers()))
-				&& !ctor.isAccessible()) {
+		if ((!isPublic(ctor.getModifiers()) || !isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
 			ctor.setAccessible(true);
 		}
 	}
@@ -944,7 +945,7 @@ public abstract class ReflectionUtils2 {
 		List<Method> result = null;
 		for (Class<?> ifc : clazz.getInterfaces()) {
 			for (Method ifcMethod : ifc.getMethods()) {
-				if (!Modifier.isAbstract(ifcMethod.getModifiers())) {
+				if (!isAbstract(ifcMethod.getModifiers())) {
 					if (result == null) {
 						result = new LinkedList<Method>();
 					}
@@ -1165,7 +1166,7 @@ public abstract class ReflectionUtils2 {
 
 		@Override
 		public boolean matches(Field field) {
-			return !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()));
+			return !(isStatic(field.getModifiers()) || isFinal(field.getModifiers()));
 		}
 	};
 
