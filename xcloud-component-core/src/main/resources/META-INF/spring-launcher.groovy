@@ -37,19 +37,33 @@ class DefaultSpringLauncherConfigurer implements ISpringLauncherConfigurer {
 	public Properties defaultProperties() {
 		def defaultProperties = new Properties();
 		// Preset spring.config.name
-		defaultProperties.put(CONFIG_NAME_PROPERTY, """application,
-application-data,application-data-dubbo,application-data-sbf,application-data-scf,
-application-facade-dubbo,application-facade-sbf,application-facade-scf,
-application-web-dubbo,application-web-sbf,application-web-scf""");
+		// for example: spring auto load for 'application-dev.yml/application-data-dev.yml'
+		defaultProperties.put(CONFIG_NAME_PROPERTY,
+				"""
+application,
+application-data,
+application-data-sbf,
+application-data-scf,
+application-service,
+application-service-sbf,
+application-service-scf,
+application-facade,
+application-facade-sbf,
+application-facade-scf,
+application-web,
+application-web-api,
+application-web-security,
+application-web-sbf,
+application-web-scf
+""");
 
 		// Preset spring.config.location
+		// for example: spring auto load for 'classpath:/application-data-dev.yml'
 		def location = new StringBuffer("classpath:/");
 		if (isPresent("org.springframework.cloud.openfeign.FeignClient") && isPresent("org.springframework.cloud.openfeign.FeignAutoConfiguration")) {
 			location.append(",classpath:/scf/");
 		} else if (isPresent("com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient")) {
 			location.append(",classpath:/sbf/");
-		} else if (isPresent("com.alibaba.dubbo.rpc.Filter") && isPresent("com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration")) {
-			location.append(",classpath:/dubbo/");
 		}
 		defaultProperties.put(CONFIG_ADDITIONAL_LOCATION_PROPERTY, location.toString());
 

@@ -951,6 +951,62 @@ public abstract class Assert2 {
 	 * Assert that the provided object is an instance of the provided class.
 	 * 
 	 * <pre class="code">
+	 * Assert2.mustAssignableFrom(Parent.class, Sub.class);
+	 * </pre>
+	 * 
+	 * @param parentType
+	 *            the parent type class
+	 * @param type
+	 *            the target type class
+	 * @param fmtMessage
+	 *            a message which will be prepended to provide further context.
+	 *            If it is empty or ends in ":" or ";" or "," or ".", a full
+	 *            exception message will be appended. If it ends in a space, the
+	 *            name of the offending object's type will be appended. In any
+	 *            other case, a ":" with a space and the name of the offending
+	 *            object's type will be appended.
+	 * @throws ClassCastException
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Class mustAssignableFrom(Class<?> parentType, Class<?> type) {
+		return mustAssignableFrom(parentType, type, "Type '%s' must be extension compatible from parentType '%s'", parentType,
+				type);
+	}
+
+	/**
+	 * Assert that the provided object is an instance of the provided class.
+	 * 
+	 * <pre class="code">
+	 * Assert2.mustAssignableFrom(Parent.class, Sub.class, "Unexpected compatible type");
+	 * </pre>
+	 * 
+	 * @param parentType
+	 *            the parent type class
+	 * @param type
+	 *            the target type class
+	 * @param fmtMessage
+	 *            a message which will be prepended to provide further context.
+	 *            If it is empty or ends in ":" or ";" or "," or ".", a full
+	 *            exception message will be appended. If it ends in a space, the
+	 *            name of the offending object's type will be appended. In any
+	 *            other case, a ":" with a space and the name of the offending
+	 *            object's type will be appended.
+	 * @throws ClassCastException
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Class mustAssignableFrom(Class<?> parentType, Class<?> type, String fmtMessage, Object... args) {
+		notNull(parentType, "ParentType to check against must not be null");
+		notNull(type, "Type to check against must not be null");
+		if (!parentType.isAssignableFrom(type)) {
+			doWrapException(ClassCastException.class, fmtMessage, args);
+		}
+		return type;
+	}
+
+	/**
+	 * Assert that the provided object is an instance of the provided class.
+	 * 
+	 * <pre class="code">
 	 * Assert2.instanceOf(Foo.class, foo, "Foo expected");
 	 * </pre>
 	 * 

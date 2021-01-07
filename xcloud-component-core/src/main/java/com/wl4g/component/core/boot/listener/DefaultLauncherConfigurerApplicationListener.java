@@ -17,12 +17,16 @@ package com.wl4g.component.core.boot.listener;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
+import static com.wl4g.component.common.lang.Assert2.mustAssignableFrom;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.System.getProperty;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.replaceAll;
 import static org.apache.commons.lang3.StringUtils.replaceEach;
 
 import java.io.IOException;
@@ -131,7 +135,9 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 		// defaultProperties.put("spring.main.allow-bean-definition-overriding",
 		// "true");
 		if (nonNull(configurer.defaultProperties())) {
-			defaultProperties.putAll(configurer.defaultProperties());
+			safeMap(configurer.defaultProperties()).forEach((key, value) -> {
+				defaultProperties.put(key, defaultTrimEmptyClear.apply((String) value));
+			});
 		}
 
 		// Command-line arguments are preferred.
@@ -150,7 +156,9 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	protected void presetAdditionalProfiles(ApplicationStartingEvent event, SpringApplication application,
 			ISpringLauncherConfigurer configurer) throws Exception {
 		if (nonNull(configurer.additionalProfiles())) {
-			application.setAdditionalProfiles(configurer.additionalProfiles());
+			String[] additionalProfiles = safeArrayToList(configurer.additionalProfiles()).stream()
+					.map(p -> defaultTrimEmptyClear.apply(p)).toArray(String[]::new);
+			application.setAdditionalProfiles(additionalProfiles);
 		}
 	}
 
@@ -182,7 +190,7 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 				} catch (CompilationFailedException | IOException e) {
 					throw new IllegalStateException(e);
 				}
-			}).collect(toList());
+			}).map(c -> mustAssignableFrom(ISpringLauncherConfigurer.class, c)).collect(toList());
 		}
 
 		if (!CollectionUtils2.isEmpty(classes)) {
@@ -212,9 +220,13 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 		return false;
 	}
 
-	private static final Function<String, String> defaultClassNameConverter = filename -> replaceEach(filename,
+	// Standard java class name converter.
+	public static final Function<String, String> defaultClassNameConverter = filename -> replaceEach(filename,
 			new String[] { "!", "@", "#", "-", "&", "*" }, new String[] { "_", "_", "_", "_", "_", "_" });
+	// Newline and invalid char clear
+	public static final Function<String, String> defaultTrimEmptyClear = value -> replaceAll(value, "\\s*| |\t|\r|\\r|\n|\\n",
+			"");
 
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
-	public static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/default-launcher.groovy";
+	public static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/spring-launcher.groovy";
 }
