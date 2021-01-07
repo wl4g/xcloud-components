@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-rpc-springcloud-eureka-sample</artifactId>
+	<artifactId>xcloud-component-rpc-springcloud-eureka-server</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component RPC for Eureka Sample</name>
+	<name>XCloud Component RPC for Eureka Server</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component RPC for Eureka Sample.</description>
+	<description>A XCloud Component RPC for Eureka Server.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>

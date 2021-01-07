@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.sample.eureka;
+package com.wl4g;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 /**
- * {@link SampleEurekaServer}
+ * {@link EurekaServer}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-11-20
  * @sine v1.0
  * @see
  */
-@SpringBootApplication
 @EnableEurekaServer
-public class SampleEurekaServer {
+@SpringBootApplication
+public class EurekaServer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SampleEurekaServer.class, args);
+		SpringApplication.run(EurekaServer.class, args);
 	}
 
 }
