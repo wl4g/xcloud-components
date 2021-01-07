@@ -20,8 +20,8 @@ security:
 
 eureka:
   client:
-    registerWithEureka: false # Default by true, register self to other eureka
-    fetchRegistry: false # Default by true
+    registerWithEureka: true # Default by true, register self to other eureka
+    fetchRegistry: true # Default by true
     healthcheck:
       enabled: true
 
