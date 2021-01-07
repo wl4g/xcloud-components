@@ -22,8 +22,11 @@ package com.wl4g.component.core.boot.listener;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 
 /**
@@ -39,6 +42,33 @@ public interface ISpringLauncherConfigurer extends Ordered {
 	@Override
 	default int getOrder() {
 		return 0; // Default ordered
+	}
+
+	/**
+	 * Resolve for preset {@link SpringApplication#setHeadless(boolean)}
+	 * 
+	 * @return
+	 */
+	default Boolean headless() {
+		return null;
+	}
+
+	/**
+	 * Resolve for preset {@link SpringApplication#setBanner(Banner)}
+	 * 
+	 * @return
+	 */
+	default Banner banner() {
+		return null;
+	}
+
+	/**
+	 * Resolve for preset {@link SpringApplication#setBannerMode(Banner.Mode)}
+	 * 
+	 * @return
+	 */
+	default Banner.Mode bannerMode() {
+		return null;
 	}
 
 	/**
@@ -62,11 +92,39 @@ public interface ISpringLauncherConfigurer extends Ordered {
 
 	/**
 	 * Resolve for preset
+	 * {@link SpringApplication#setApplicationContextClass(Class)}
+	 * 
+	 * @return
+	 */
+	default Class<? extends ConfigurableApplicationContext> applicationContextClass() {
+		return null;
+	}
+
+	/**
+	 * Resolve for preset
 	 * {@link SpringApplication#setInitializers(java.util.Collection)}
 	 * 
 	 * @return
 	 */
 	default Collection<? extends ApplicationContextInitializer<?>> initializers() {
+		return null;
+	}
+
+	/**
+	 * Resolve for preset {@link SpringApplication#setListeners(Collection)}
+	 * 
+	 * @return
+	 */
+	default Collection<? extends ApplicationListener<?>> listeners() {
+		return null;
+	}
+
+	/**
+	 * Resolve for preset {@link SpringApplication#addListeners(Collection)}
+	 * 
+	 * @return
+	 */
+	default ApplicationListener<?>[] addListeners() {
 		return null;
 	}
 

@@ -164,11 +164,38 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 
 	protected void presetOtherProperties(ApplicationStartingEvent event, SpringApplication application,
 			ISpringLauncherConfigurer configurer) throws Exception {
+		if (nonNull(configurer.headless())) {
+			application.setHeadless(configurer.headless());
+		}
+		if (nonNull(configurer.logStartupInfo())) {
+			application.setLogStartupInfo(configurer.logStartupInfo());
+		}
+		if (nonNull(configurer.banner())) {
+			application.setBanner(configurer.banner());
+		}
+		if (nonNull(configurer.bannerMode())) {
+			application.setBannerMode(configurer.bannerMode());
+		}
 		if (nonNull(configurer.allowBeanDefinitionOverriding())) {
 			application.setAllowBeanDefinitionOverriding(configurer.allowBeanDefinitionOverriding());
 		}
 		if (nonNull(configurer.addCommandLineProperties())) {
 			application.setAddCommandLineProperties(configurer.addCommandLineProperties());
+		}
+		if (nonNull(configurer.lazyInitialization())) {
+			application.setLazyInitialization(configurer.lazyInitialization());
+		}
+		if (nonNull(configurer.applicationContextClass())) {
+			application.setApplicationContextClass(configurer.applicationContextClass());
+		}
+		if (nonNull(configurer.initializers())) {
+			application.setInitializers(configurer.initializers());
+		}
+		if (nonNull(configurer.listeners())) {
+			application.setListeners(configurer.listeners());
+		}
+		if (nonNull(configurer.addListeners())) {
+			application.addListeners(configurer.addListeners());
 		}
 	}
 
