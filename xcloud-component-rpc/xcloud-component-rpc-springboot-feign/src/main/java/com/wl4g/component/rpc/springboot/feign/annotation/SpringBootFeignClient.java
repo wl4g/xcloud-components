@@ -78,12 +78,6 @@ public @interface SpringBootFeignClient {
 	boolean decode404() default false;
 
 	/**
-	 * Whether to mark the feign proxy as a primary bean. Defaults to true.
-	 */
-	@AliasFor(annotation = FeignClient.class, attribute = "primary")
-	boolean primary() default true;
-
-	/**
 	 * A custom configuration class for the feign client. Can contain override
 	 * <code>@Bean</code> definition for the pieces that make up the client, for
 	 * instance {@link feign.codec.Decoder}, {@link feign.codec.Encoder},
@@ -97,6 +91,48 @@ public @interface SpringBootFeignClient {
 	@AliasFor(annotation = FeignClient.class, attribute = "configuration")
 	Class<?>[] configuration() default {};
 
+	/**
+	 * Fallback class for the specified Feign client interface. The fallback
+	 * class must implement the interface annotated by this annotation and be a
+	 * valid spring bean.</br>
+	 * </br>
+	 * Notes: Valid when the current environment is running in the springcloud
+	 * environment.
+	 * 
+	 * @return fallback class for the specified Feign client interface
+	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "fallback")
+	Class<?> fallback() default void.class;
+
+	/**
+	 * Define a fallback factory for the specified Feign client interface. The
+	 * fallback factory must produce instances of fallback classes that
+	 * implement the interface annotated by {@link FeignClient}. The fallback
+	 * factory must be a valid spring bean.</br>
+	 * </br>
+	 * Notes: Valid when the current environment is running in the springcloud
+	 * environment.
+	 *
+	 * @see feign.hystrix.FallbackFactory for details.
+	 * @return fallback factory for the specified Feign client interface
+	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "fallbackFactory")
+	Class<?> fallbackFactory() default void.class;
+
+	/**
+	 * Whether to mark the feign proxy as a primary bean. Defaults to true.</br>
+	 * </br>
+	 * Notes: Valid when the current environment is running in the springcloud
+	 * environment.
+	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "primary")
+	boolean primary() default true;
+
+	/**
+	 * Feign request {@link Logger.Level}
+	 * 
+	 * @return
+	 */
 	Logger.Level logLevel() default Logger.Level.NONE;
 
 	/**

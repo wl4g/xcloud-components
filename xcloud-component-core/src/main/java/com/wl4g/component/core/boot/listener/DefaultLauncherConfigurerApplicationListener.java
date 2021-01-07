@@ -26,8 +26,11 @@ import static java.lang.System.getProperty;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.replaceAll;
 import static org.apache.commons.lang3.StringUtils.replaceEach;
+import static org.apache.commons.lang3.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +50,6 @@ import org.springframework.context.event.GenericApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 import com.google.common.io.Resources;
@@ -136,17 +138,18 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 		// "true");
 		if (nonNull(configurer.defaultProperties())) {
 			safeMap(configurer.defaultProperties()).forEach((key, value) -> {
-				defaultProperties.put(key, defaultTrimEmptyClear.apply((String) value));
+				defaultProperties.put(key, defaultSafeCommClear.apply(defaultTrim2EmptyClear.apply((String) value)));
 			});
 		}
 
 		// Command-line arguments are preferred.
 		ApplicationArguments args = new DefaultApplicationArguments(event.getArgs());
 		for (String argName : args.getOptionNames()) {
-			List<String> values = args.getOptionValues(argName);
-			if (!CollectionUtils.isEmpty(values)) {
-				defaultProperties.put(argName, values);
-			}
+			defaultProperties.remove(argName);
+			// List<String> values = args.getOptionValues(argName);
+			// if (!CollectionUtils.isEmpty(values)) {
+			// defaultProperties.put(argName, values);
+			// }
 		}
 
 		log.info("Preset SpringApplication default properties: {}", defaultProperties);
@@ -157,7 +160,7 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 			ISpringLauncherConfigurer configurer) throws Exception {
 		if (nonNull(configurer.additionalProfiles())) {
 			String[] additionalProfiles = safeArrayToList(configurer.additionalProfiles()).stream()
-					.map(p -> defaultTrimEmptyClear.apply(p)).toArray(String[]::new);
+					.map(p -> defaultTrim2EmptyClear.apply(p)).toArray(String[]::new);
 			application.setAdditionalProfiles(additionalProfiles);
 		}
 	}
@@ -250,9 +253,11 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	// Standard java class name converter.
 	public static final Function<String, String> defaultClassNameConverter = filename -> replaceEach(filename,
 			new String[] { "!", "@", "#", "-", "&", "*" }, new String[] { "_", "_", "_", "_", "_", "_" });
-	// Newline and invalid char clear
-	public static final Function<String, String> defaultTrimEmptyClear = value -> replaceAll(value, "\\s*| |\t|\r|\\r|\n|\\n",
+	// Newline and invalid char clear.
+	public static final Function<String, String> defaultTrim2EmptyClear = value -> replaceAll(value, "\\s*| |\t|\r|\\r|\n|\\n",
 			"");
+	// Spring boot config end comm clear.
+	public static final Function<String, String> defaultSafeCommClear = value -> join(split(trimToEmpty(value), ","), ",");
 
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
 	public static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/spring-launcher.groovy";

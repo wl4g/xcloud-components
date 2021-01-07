@@ -41,19 +41,8 @@ class DefaultSpringLauncherConfigurer implements ISpringLauncherConfigurer {
 				"""
 application,
 application-data,
-application-data-sbf,
-application-data-scf,
 application-service,
-application-service-sbf,
-application-service-scf,
-application-facade,
-application-facade-sbf,
-application-facade-scf,
 application-web,
-application-web-api,
-application-web-security,
-application-web-sbf,
-application-web-scf
 """);
 
 		// Preset spring.config.location
