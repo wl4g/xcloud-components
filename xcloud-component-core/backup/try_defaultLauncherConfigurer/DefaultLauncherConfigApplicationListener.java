@@ -16,18 +16,15 @@
 package com.wl4g.component.core.boot.listener;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArray;
-import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
-import static com.wl4g.component.common.lang.ClassUtils2.isPresent;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.System.getProperty;
 
+import java.util.List;
 import java.util.Properties;
 
-import static org.apache.commons.lang3.StringUtils.containsAny;
-import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_ADDITIONAL_LOCATION_PROPERTY;
-import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY;
-
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.boot.context.event.ApplicationStartingEvent;
@@ -37,8 +34,11 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.GenericApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
+import org.springframework.util.CollectionUtils;
 
 import com.wl4g.component.common.log.SmartLogger;
+
+import groovy.lang.GroovyClassLoader;
 
 /**
  * Config bootstrap application listener. Before executing
@@ -49,7 +49,7 @@ import com.wl4g.component.common.log.SmartLogger;
  * @version v1.0 2020年5月20日
  * @since
  */
-public class DefaultConfigBootstrapApplicationListener implements GenericApplicationListener {
+public class DefaultLauncherConfigApplicationListener implements GenericApplicationListener {
 	protected final SmartLogger log = getLogger(getClass());
 
 	// Notes: If you need to customize boot configuration (override this kind of
@@ -75,6 +75,11 @@ public class DefaultConfigBootstrapApplicationListener implements GenericApplica
 		return isAssignableFrom(sourceType, SpringApplication.class, ApplicationContext.class);
 	}
 
+	/**
+	 * Refer to: </br>
+	 * {@link org.springframework.boot.SpringApplication#run(String)} and
+	 * {@link org.springframework.boot.SpringApplicationRunListeners#starting()}
+	 */
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationStartingEvent) {
@@ -132,20 +137,18 @@ public class DefaultConfigBootstrapApplicationListener implements GenericApplica
 		Properties defaultProperties = new Properties();
 		defaultProperties.put("spring.main.allow-bean-definition-overriding", "true");
 
-		// Addidtion default config location.
-		String argsString = safeArrayToList(event.getArgs()).toString();
-		if (!containsAny(argsString, CONFIG_ADDITIONAL_LOCATION_PROPERTY, CONFIG_LOCATION_PROPERTY)
-				&& !isTrue(getProperty("disable.default-config-location"), false)) {
-
-			StringBuilder builder = new StringBuilder("classpath:/");
-			if (hasSpringCloudFeignClass) {
-				builder.append(",classpath:/scf/");
-			} else if (hasSpringBootFeignClass) {
-				builder.append(",classpath:/sbf/");
-			} else if (hasDubboClass) {
-				builder.append(",classpath:/dubbo/");
+		// Preset addidtion config properties
+		if (!isTrue(getProperty("disable.default-launcher-config"), false)) {
+			Properties properties = new ConfigurableLauncherConfigurer().resolveDefaultProperties();
+			// Command line arguments are preferred
+			ApplicationArguments args = new DefaultApplicationArguments(event.getArgs());
+			for (String argName : args.getOptionNames()) {
+				List<String> values = args.getOptionValues(argName);
+				if (!CollectionUtils.isEmpty(values)) {
+					properties.put(argName, values);
+				}
 			}
-			defaultProperties.put(CONFIG_ADDITIONAL_LOCATION_PROPERTY, builder.toString());
+			defaultProperties.putAll(properties);
 		}
 
 		log.info("Preset application default properties: {}", defaultProperties);
@@ -170,14 +173,5 @@ public class DefaultConfigBootstrapApplicationListener implements GenericApplica
 		return false;
 	}
 
-	public static final boolean hasSpringBootFeignClass = isPresent(
-			"com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient", null);
-	public static final boolean hasSpringCloudFeignClass = isPresent("org.springframework.cloud.openfeign.FeignAutoConfiguration",
-			null);
-	public static final boolean hasDubboClass = isPresent("com.alibaba.dubbo.rpc.Filter", null);
-	public static final boolean hasSpringBootDubboClass = isPresent("com.alibaba.boot.dubbo.autoconfigure.DubboAutoConfiguration",
-			null);
-
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
-
 }

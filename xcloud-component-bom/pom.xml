@@ -62,6 +62,8 @@
 		<spring-cloud.version>Hoxton.SR9</spring-cloud.version>
 		<spring-cloud-alibaba.version>2.2.3.RELEASE</spring-cloud-alibaba.version>
 		<resilience4j-spring-boot2.version>1.6.1</resilience4j-spring-boot2.version>
+		<!-- groovy(springboot-2.3.2) -->
+		<groovy.version>2.5.13</groovy.version>
 		<!-- javax/jsr. -->
 		<javax-inject.version>1</javax-inject.version>
 		<javax-mail.version>1.4.7</javax-mail.version>
@@ -199,6 +201,11 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-web</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
 			<!-- Spring Cloud. -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -222,9 +229,14 @@
 				<version>${resilience4j-spring-boot2.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-web</artifactId>
-				<version>${spring-boot.version}</version>
+				<groupId>org.codehaus.groovy</groupId>
+				<artifactId>groovy-all</artifactId>
+				<version>${groovy.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.groovy</groupId>
+				<artifactId>groovy</artifactId>
+				<version>${groovy.version}</version>
 			</dependency>
 			<!-- Javax's. -->
 			<dependency>

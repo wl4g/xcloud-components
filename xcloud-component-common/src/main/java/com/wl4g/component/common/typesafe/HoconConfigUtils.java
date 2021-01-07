@@ -60,8 +60,7 @@ public abstract class HoconConfigUtils {
 	 * @return
 	 */
 	public static <T> T loadConfig(String location, Class<T> clazz) {
-		Config conf = loadConfig(location);
-		return create(conf, clazz);
+		return create(loadConfig(location), clazz);
 	}
 
 	/**
@@ -75,7 +74,7 @@ public abstract class HoconConfigUtils {
 		hasTextOf(location, "location");
 
 		// Correct scan path
-		if (!startsWithAny(CLASSPATH_URL_PREFIX, CLASSPATH_ALL_URL_PREFIX)) {
+		if (!startsWithAny(location, CLASSPATH_URL_PREFIX, CLASSPATH_ALL_URL_PREFIX)) {
 			location = CLASSPATH_ALL_URL_PREFIX.concat(location);
 		}
 
