@@ -211,7 +211,7 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	@SuppressWarnings("unchecked")
 	private ISpringLauncherConfigurer loadClassAndInstantiateSpringLauncherConfigurer() throws Exception {
 		// Load launcher classes.
-		List<Class<ISpringLauncherConfigurer>> classes = emptyList();
+		List<Class<?>> classes = emptyList();
 		try (GroovyClassLoader gcl = new GroovyClassLoader()) {
 			ClassPathResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
 			classes = resolver.getResources(DEFAULT_LAUNCHER_CLASSNAME).stream().map(r -> {
@@ -221,13 +221,12 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 				} catch (CompilationFailedException | IOException e) {
 					throw new IllegalStateException(e);
 				}
-			}).map(c -> (Class<ISpringLauncherConfigurer>) mustAssignableFrom(ISpringLauncherConfigurer.class, c))
-					.collect(toList());
+			}).map(c -> mustAssignableFrom(ISpringLauncherConfigurer.class, c)).collect(toList());
 		}
 
 		if (!CollectionUtils2.isEmpty(classes)) {
 			AnnotationAwareOrderComparator.sort(classes);
-			Class<? extends ISpringLauncherConfigurer> bestClass = classes.get(0);
+			Class<ISpringLauncherConfigurer> bestClass = (Class<ISpringLauncherConfigurer>) classes.get(0);
 			return ReflectionUtils.accessibleConstructor(bestClass).newInstance();
 		}
 
