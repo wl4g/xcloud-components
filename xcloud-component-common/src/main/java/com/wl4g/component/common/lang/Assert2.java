@@ -967,7 +967,7 @@ public abstract class Assert2 {
 	 *            object's type will be appended.
 	 * @throws ClassCastException
 	 */
-	public static <T> Class<T> mustAssignableFrom(Class<T> parentType, Class<? extends T> type) {
+	public static Class<?> mustAssignableFrom(Class<?> parentType, Class<?> type) {
 		return mustAssignableFrom(parentType, type, "Type '%s' must be extension compatible from parentType '%s'", parentType,
 				type);
 	}
@@ -992,15 +992,13 @@ public abstract class Assert2 {
 	 *            object's type will be appended.
 	 * @throws ClassCastException
 	 */
-	@SuppressWarnings({ "unchecked" })
-	public static <T> Class<T> mustAssignableFrom(Class<T> parentType, Class<? extends T> type, String fmtMessage,
-			Object... args) {
+	public static Class<?> mustAssignableFrom(Class<?> parentType, Class<?> type, String fmtMessage, Object... args) {
 		notNull(parentType, "ParentType to check against must not be null");
 		notNull(type, "Type to check against must not be null");
 		if (!parentType.isAssignableFrom(type)) {
 			doWrapException(ClassCastException.class, fmtMessage, args);
 		}
-		return (Class<T>) type;
+		return type;
 	}
 
 	/**
