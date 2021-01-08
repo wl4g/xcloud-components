@@ -22,12 +22,9 @@ spring:
 
 # Default eureka (local)configuration.
 eureka:
-  datacenter: defaultDataCenter # Default by default
-  environment: ${spring.profiles.active:dev} # Default by test
+  environment: dev # Default by test
   instance:
-    #hostname: localhost
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 30
+    hostname: localhost # Default
   client:
     registerWithEureka: false # Default by true, register self to other eureka
     fetchRegistry: false # Default by true

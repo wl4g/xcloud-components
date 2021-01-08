@@ -19,9 +19,9 @@ spring:
       name: user
       password: 123456
 
+# https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 eureka:
-  datacenter: defaultDataCenter # Default by default
-  environment: ${spring.profiles.active:dev} # Default by test
+  environment: pro # Default by test
   client:
     registerWithEureka: true # Default by true, register self to other eureka
     fetchRegistry: true # Default by true
