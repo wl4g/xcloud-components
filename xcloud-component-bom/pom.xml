@@ -58,8 +58,9 @@
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- spring -->
-		<spring-boot.version>2.3.2.RELEASE</spring-boot.version>
-		<spring-cloud.version>Hoxton.SR9</spring-cloud.version>
+		<spring-boot-dependencies.version>2.3.2.RELEASE</spring-boot-dependencies.version>
+		<spring-cloud-dependencies.version>Hoxton.SR9</spring-cloud-dependencies.version>
+		<spring-cloud.version>2.2.6.RELEASE</spring-cloud.version>
 		<spring-cloud-alibaba.version>2.2.3.RELEASE</spring-cloud-alibaba.version>
 		<resilience4j-spring-boot2.version>1.6.1</resilience4j-spring-boot2.version>
 		<!-- groovy(springboot-2.3.2) -->
@@ -197,22 +198,22 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${spring-boot.version}</version>
+				<version>${spring-boot-dependencies.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-web</artifactId>
-				<version>${spring-boot.version}</version>
 			</dependency>
 			<!-- Spring Cloud. -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
+				<version>${spring-cloud-dependencies.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+				<version>${spring-cloud.version}</version>
 			</dependency>
 			<!-- Spring Cloud Alibaba. -->
 			<dependency>
