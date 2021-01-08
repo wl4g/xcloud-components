@@ -208,6 +208,7 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	private ISpringLauncherConfigurer loadClassAndInstantiateSpringLauncherConfigurer() throws Exception {
 		// Load launcher classes.
 		List<Class<? extends ISpringLauncherConfigurer>> classes = emptyList();
