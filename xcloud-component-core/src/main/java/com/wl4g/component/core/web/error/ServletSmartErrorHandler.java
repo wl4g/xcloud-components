@@ -21,6 +21,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.core.Ordered;
@@ -56,8 +57,8 @@ import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorH
 @ErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
+@ConditionalOnBean(ErrorControllerAutoConfiguration.class)
 public class ServletSmartErrorHandler extends AbstractErrorController {
-
 	protected final SmartLogger log = getLogger(getClass());
 
 	/** {@link ErrorHandlerProperties} */

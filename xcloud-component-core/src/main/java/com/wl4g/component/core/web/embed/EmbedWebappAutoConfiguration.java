@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport;
 
+import static com.wl4g.component.core.constant.ConfigConstant.KEY_WEB_EMBEDDED_WEBAPP;
+
 import java.util.Properties;
 
 /**
@@ -34,6 +36,7 @@ import java.util.Properties;
  * @since
  */
 @Configuration
+@ConditionalOnProperty(value = KEY_WEB_EMBEDDED_WEBAPP + ".enable", matchIfMissing = false)
 public class EmbedWebappAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean(BEAN_DEFAULT_PROPERTIES)

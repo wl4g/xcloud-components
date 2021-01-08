@@ -20,35 +20,35 @@ spring:
     location: classpath:banner.txt
   boot:
     xcloud:
-      #error:
-      #  enable: true # Default true
-      #  base-path: /default-error-view/
-      #  # Default for empty, The default is to intercept the domain name of the browser address bar.
-      #  home-uri: 'javascript:location.href=location.origin'
-      #  # Rendering template path or redirect URI on exception,
-      #  # for example: redirect:http://domain.com/404.html or /404.tpl.html
-      #  rendering-mapping:
-      #     403: 403.tpl.html
-      #     404: 404.tpl.html
-      #     500: 50x.tpl.html
-      #     501: 50x.tpl.html
-      #     502: 50x.tpl.html
-      #     503: 50x.tpl.html
-      #embedded-webapps:
-      #  enable: false # Default false
-      #  base-uri: /default-view
-      #  webapp-location: classpath*:/default-webapps
-      #boot:
-      #  default-configurer:
-      #    enable: true # Default true
-      #framework:
-      #  naming-prototype-factory:
-      #    enable: true # Default true
-      #  operator:
-      #    enable: true # Default true
-      #  smart-proxy:
-      #    enable: true # Default true
-      #    base-packages: # Default ALL
-      #web:
-      #  human-date-converter:
-      #    enable: true # Default true
+      #component:
+      #  framework:
+      #    default-boot-configurer:
+      #      enable: true # Default true
+      #    naming-prototype-factory:
+      #      enable: true # Default true
+      #    generic-operator:
+      #      enable: true # Default true
+      #    smart-proxy:
+      #      enable: true # Default true
+      #      base-packages: # Default ALL
+      #  web:
+      #    human-date-converter:
+      #      enable: true # Default by true
+      #    embedded-webapps:
+      #      enable: false # Default by false
+      #      base-uri: /default-view
+      #      webapp-location: classpath*:/default-webapps
+      #    global-error:
+      #      enable: true # Default true
+      #      base-path: /default-error-view/
+      #      # Default for empty, The default is to intercept the domain name of the browser address bar.
+      #      home-uri: 'javascript:location.href=location.origin'
+      #      # Rendering template path or redirect URI on exception,
+      #      # for example: redirect:http://domain.com/404.html or /404.tpl.html
+      #      rendering-mapping:
+      #         403: 403.tpl.html
+      #         404: 404.tpl.html
+      #         500: 50x.tpl.html
+      #         501: 50x.tpl.html
+      #         502: 50x.tpl.html
+      #         503: 50x.tpl.html

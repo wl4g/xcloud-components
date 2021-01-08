@@ -17,7 +17,7 @@ package com.wl4g.component.core.web.error;
 
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.serialize.JacksonUtils.convertBean;
-import static com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.KEY_PROPERTY_PREFIX;
+import static com.wl4g.component.core.constant.ConfigConstant.KEY_WEB_GLOBAL_ERROR;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Documented;
@@ -52,11 +52,11 @@ import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport;
  * @version v1.0 2019年1月10日
  * @since
  */
-@ConditionalOnProperty(value = KEY_PROPERTY_PREFIX + ".enable", matchIfMissing = true)
+@ConditionalOnProperty(value = KEY_WEB_GLOBAL_ERROR + ".enable", matchIfMissing = true)
 public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean
-	@ConfigurationProperties(prefix = KEY_PROPERTY_PREFIX)
+	@ConfigurationProperties(prefix = KEY_WEB_GLOBAL_ERROR)
 	public ErrorHandlerProperties errorHandlerProperties() {
 		return new ErrorHandlerProperties();
 	}
@@ -74,6 +74,34 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 	@Bean
 	public Object errorHandlerPrefixHandlerMapping() {
 		return super.newPrefixHandlerMapping("/", ErrorController.class);
+	}
+
+	/**
+	 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}
+	 */
+	@Bean
+	@Order(-2) // Takes precedence over the default handler
+	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+	public ReactiveSmartErrorHandler reactiveSmartErrorHandler(
+			org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes, ResourceProperties resourceProperties,
+			ObjectProvider<ViewResolver> viewResolvers, ServerCodecConfigurer codecConfigurer, ApplicationContext actx) {
+		ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties, actx);
+		errorHandler.setViewResolvers(viewResolvers.orderedStream().collect(toList()));
+		errorHandler.setMessageWriters(codecConfigurer.getWriters());
+		errorHandler.setMessageReaders(codecConfigurer.getReaders());
+		return errorHandler;
+	}
+
+	/**
+	 * {@link ServletErrorHandlerAutoConfirguation}
+	 * 
+	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
+	 */
+	@Bean
+	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+	public ServletSmartErrorHandler servletSmartErrorHandler(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
+			CompositeErrorConfigurer adapter) {
+		return new ServletSmartErrorHandler(config, errorAttrs, adapter);
 	}
 
 	/**
@@ -161,51 +189,22 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 			return this.asMap;
 		}
 
-		final public static String DEFAULT_ERROR_VIEW_PATH = "/default-error-view/";
+		public static final String DEFAULT_ERROR_VIEW_PATH = "/default-error-view/";
 
 		/**
 		 * {@link HttpStatus#NOT_FOUND}
 		 */
-		final public static String DEFAULT_TPL_404_NAME = "404.tpl.html";
+		public static final String DEFAULT_TPL_404_NAME = "404.tpl.html";
 
 		/**
 		 * {@link HttpStatus#FORBIDDEN}
 		 */
-		final public static String DEFAULT_TPL_403_NAME = "403.tpl.html";
+		public static final String DEFAULT_TPL_403_NAME = "403.tpl.html";
 
 		/**
 		 * {@link HttpStatus#SERVICE_UNAVAILABLE}
 		 */
-		final public static String DEFAULT_TPL_50X_NAME = "50x.tpl.html";
-
-	}
-
-	/**
-	 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}
-	 */
-	@Bean
-	@Order(-2) // Takes precedence over the default handler
-	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-	public ReactiveSmartErrorHandler reactiveSmartErrorHandler(
-			org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes, ResourceProperties resourceProperties,
-			ObjectProvider<ViewResolver> viewResolvers, ServerCodecConfigurer codecConfigurer, ApplicationContext actx) {
-		ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties, actx);
-		errorHandler.setViewResolvers(viewResolvers.orderedStream().collect(toList()));
-		errorHandler.setMessageWriters(codecConfigurer.getWriters());
-		errorHandler.setMessageReaders(codecConfigurer.getReaders());
-		return errorHandler;
-	}
-
-	/**
-	 * {@link ServletErrorHandlerAutoConfirguation}
-	 * 
-	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
-	 */
-	@Bean
-	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-	public ServletSmartErrorHandler servletSmartErrorHandler(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
-			CompositeErrorConfigurer adapter) {
-		return new ServletSmartErrorHandler(config, errorAttrs, adapter);
+		public static final String DEFAULT_TPL_50X_NAME = "50x.tpl.html";
 	}
 
 	/**
@@ -220,7 +219,5 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 	@Documented
 	public static @interface ErrorController {
 	}
-
-	final public static String KEY_PROPERTY_PREFIX = "spring.boot.xcloud.error";
 
 }

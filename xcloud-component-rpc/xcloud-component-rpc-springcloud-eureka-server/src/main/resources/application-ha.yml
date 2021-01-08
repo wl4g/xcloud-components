@@ -11,14 +11,17 @@
 # #### Environment(Eureka Server for Uat) configuration. ####
 #
 
-security:
-  basic:
-    enabled: true
-  user:
-    name: user
-    password: 123456
+spring:
+  security:
+    basic:
+      enabled: true
+    user:
+      name: user
+      password: 123456
 
 eureka:
+  datacenter: defaultDataCenter # Default by default
+  environment: ${spring.profiles.active:dev} # Default by test
   client:
     registerWithEureka: true # Default by true, register self to other eureka
     fetchRegistry: true # Default by true
@@ -35,8 +38,8 @@ eureka:
     hostname: peer1
   client:
     serviceUrl.defaultZone: "\
-      http://${security.user.name}:${security.user.password}@peer2:9002/${spring.application.name}/,\
-      http://${security.user.name}:${security.user.password}@peer3:9003/${spring.application.name}/"
+      http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002${server.servlet.contextPath}/eureka/,\
+      http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003${server.servlet.contextPath}/eureka/"
 
 ---
 server:
@@ -48,8 +51,8 @@ eureka:
     hostname: peer2
   client:
     serviceUrl.defaultZone: "\
-      http://${security.user.name}:${security.user.password}@peer1:9001/${spring.application.name},\
-      http://${security.user.name}:${security.user.password}@peer3:9003/${spring.application.name}/"
+      http://${spring.security.user.name}:${spring.security.user.password}@peer1:9001${server.servlet.contextPath}/eureka/,\
+      http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003${server.servlet.contextPath}/eureka/"
 
 ---
 server:
@@ -61,6 +64,6 @@ eureka:
     hostname: peer3
   client:
     serviceUrl.defaultZone: "\
-      http://${security.user.name}:${security.user.password}@peer1:9001/${spring.application.name},\
-      http://${security.user.name}:${security.user.password}@peer2:9002/${spring.application.name}/"
+      http://${spring.security.user.name}:${spring.security.user.password}@peer1:9001${server.servlet.contextPath}/eureka/,\
+      http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002${server.servlet.contextPath}/eureka/"
 

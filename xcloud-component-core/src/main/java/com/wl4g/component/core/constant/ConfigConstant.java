@@ -28,9 +28,19 @@ package com.wl4g.component.core.constant;
  * @see
  */
 public interface ConfigConstant extends EnvConstant {
-	public static final String KEY_BOOT_DEFAULT = "spring.boot.xcloud.boot.default-configurer";
-	public static final String KEY_NAMING_PROTOYPE_FACTORY = "spring.boot.xcloud.framework.naming-prototype-factory";
-	public static final String KEY_GENERIC_OPERATOR = "spring.boot.xcloud.framework.operator";
-	public static final String KEY_SMART_PROXY = "spring.boot.xcloud.framework.smart-proxy";
-	public static final String KEY_WEB_HUMAN_DATE_CONVERTER = "spring.boot.xcloud.web.human-date-converter";
+
+	public static final String KEY_BOOT_DEFAULT = "spring.boot.xcloud.component.framework.default-boot-configurer";
+
+	public static final String KEY_NAMING_PROTOYPE_FACTORY = "spring.boot.xcloud.component.framework.naming-prototype-factory";
+
+	public static final String KEY_GENERIC_OPERATOR = "spring.boot.xcloud.component.framework.generic-operator";
+
+	public static final String KEY_SMART_PROXY = "spring.boot.xcloud.component.framework.smart-proxy";
+
+	public static final String KEY_WEB_HUMAN_DATE_CONVERTER = "spring.boot.xcloud.component.web.human-date-converter";
+
+	public static final String KEY_WEB_GLOBAL_ERROR = "spring.boot.xcloud.component.web.global-error";
+
+	public static final String KEY_WEB_EMBEDDED_WEBAPP = "spring.boot.xcloud.component.web.embedded-webapps";
+
 }

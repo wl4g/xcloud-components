@@ -14,6 +14,25 @@
 spring:
   application:
     name: eureka
+  boot:
+    xcloud:
+      component:
+        framework:
+          default-boot-configurer:
+            enable: false
+          naming-prototype-factory:
+            enable: false
+          generic-operator:
+            enable: false
+          smart-proxy:
+            enable: false
+        web:
+          embedded-webapps:
+            enable: false
+          human-date-converter:
+            enable: false
+          global-error:
+            enable: false
 
 # Logging configuration.
 logging:
@@ -33,6 +52,7 @@ logging:
       springframework: INFO
       apache: INFO
     com:
+      netflix: DEBUG
       wl4g: INFO
 
 # Server configuration.
@@ -40,7 +60,7 @@ server:
   #address: 0.0.0.0
   sessionTimeout: 30
   servlet:
-    contextPath: /${spring.application.name}
+    contextPath: /
   tomcat:
     uri-encoding: UTF-8
     protocolHeader: x-forwarded-proto

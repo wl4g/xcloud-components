@@ -12,23 +12,31 @@
 #
 
 # Default security configuration.
-security:
-  basic:
-    enabled: true
-  user:
-    name: user
-    password: 123456
-
-server.port: 8761
+spring:
+  security:
+    basic:
+      enabled: false
+    user:
+      name: user
+      password: 123456
 
 # Default eureka (local)configuration.
 eureka:
+  datacenter: defaultDataCenter # Default by default
+  environment: ${spring.profiles.active:dev} # Default by test
   instance:
-    hostname: localhost
+    #hostname: localhost
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
   client:
     registerWithEureka: false # Default by true, register self to other eureka
     fetchRegistry: false # Default by true
     serviceUrl:
-      defaultZone: http://${security.user.name}:${security.user.password}@localhost:${server.port}/${spring.application.name}
+      #defaultZone: http://localhost:${server.port}${server.servlet.contextPath}/eureka/
+      defaultZone: "\
+        http://${spring.security.user.name}:${spring.security.user.password}@localhost:${server.port}${server.servlet.contextPath}/eureka/"
     healthcheck:
-      enabled: true
+      enabled: false
+
+# Server configuration.
+server.port: 8761
