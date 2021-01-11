@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-rpc</artifactId>
-	<packaging>pom</packaging>
-	<name>XCloud Component RPC</name>
+	<artifactId>xcloud-component-rpc-springcloud-hystrix-turbine-server</artifactId>
+	<packaging>jar</packaging>
+	<name>XCloud Component RPC for Hystrix-Turbine Server</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component RPC Integration Projects.</description>
+	<description>A XCloud Component RPC for Hystrix-Turbine Server.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -52,34 +52,42 @@
 	</developers>
 	<parent>
 		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-component</artifactId>
+		<artifactId>xcloud-component-rpc</artifactId>
 		<version>master</version>
 	</parent>
-	<modules>
-		<module>xcloud-component-rpc-codec</module>
-		<module>xcloud-component-rpc-springboot-feign</module>
-		<module>xcloud-component-rpc-springcloud-feign</module>
-		<module>xcloud-component-rpc-springcloud-feign-dubbo</module>
-		<module>xcloud-component-rpc-springcloud-eureka-server</module>
-		<module>xcloud-component-rpc-springcloud-hystrix-turbine-server</module>
-		<!--<module>xcloud-component-rpc-nacos</module> -->
-		<!--<module>xcloud-component-rpc-consul</module> -->
-		<!--<module>xcloud-component-rpc-zookeeper</module> -->
-	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<dubbo-spring-boot-starter.version>0.2.0</dubbo-spring-boot-starter.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.alibaba.boot</groupId>
-				<artifactId>dubbo-spring-boot-starter</artifactId>
-				<version>${dubbo-spring-boot-starter.version}</version>
+				<groupId>com.wl4g</groupId>
+				<artifactId>xcloud-component-bom</artifactId>
+				<version>${project.parent.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>com.wl4g</groupId>
+			<artifactId>xcloud-component-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
+		</dependency>
+	</dependencies>
 	<build>
 		<resources>
 			<resource>

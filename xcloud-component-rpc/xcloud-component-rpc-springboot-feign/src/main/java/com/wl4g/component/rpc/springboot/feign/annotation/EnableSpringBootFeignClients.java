@@ -16,7 +16,6 @@
 package com.wl4g.component.rpc.springboot.feign.annotation;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
@@ -50,10 +49,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 @EnableSmartMappingConfiguration(includeFilters = ExcludeSelfFeignClientsFilter.class)
-@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class })
+@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class,
+		BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor(SCAN_BASE_PACKAGES)
+	@AliasFor(BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
@@ -62,14 +62,14 @@ public @interface EnableSpringBootFeignClients {
 	 * @return
 	 */
 	@AliasFor("value")
-	String[] scanBasePackages() default {};
+	String[] basePackages() default {};
 
 	/**
 	 * Base packages to scan for annotated components.
 	 * 
 	 * @return
 	 */
-	Class<?>[] scanBasePackageClasses() default {};
+	Class<?>[] basePackageClasses() default {};
 
 	/**
 	 * The default custom <code>@Configuration</code> for all feign clients. Can
@@ -82,20 +82,32 @@ public @interface EnableSpringBootFeignClients {
 	 * The if empty, default refer to
 	 * {@link SpringBootFeignFactoryBean#mergeFeignConfigurationSet()}
 	 * 
-	 * @see FeignClientsConfiguration for the defaults
+	 * @see {@link org.springframework.cloud.openfeign.FeignClientsConfiguration}
+	 *      for the defaults
 	 * @return list of default configurations
 	 */
 	Class<?>[] defaultConfiguration() default {};
 
 	/**
+	 * List of classes annotated with {@code @SpringBootFeignClient} or
+	 * {@code @FeignClient}. If not empty, disables classpath scanning.</br>
+	 * </br>
+	 * Notes: Valid when the current environment is running in the springcloud
+	 * environment.
+	 * 
+	 * @return list of FeignClient classes
+	 */
+	Class<?>[] clients() default {};
+
+	/**
 	 * Refer: {@link #scanBasePackages()}
 	 */
-	public static final String SCAN_BASE_PACKAGES = "scanBasePackages";
+	public static final String BASE_PACKAGES = "basePackages";
 
 	/**
 	 * Refer: {@link #scanBasePackageClasses()}
 	 */
-	public static final String SCAN_BASE_PACKAGE_CLASSES = "scanBasePackageClasses";
+	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
 
 	/**
 	 * Refer: {@link #defaultConfiguration()}

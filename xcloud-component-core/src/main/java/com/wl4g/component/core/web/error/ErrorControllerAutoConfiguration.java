@@ -31,6 +31,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
@@ -76,32 +78,40 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 		return super.newPrefixHandlerMapping("/", ErrorController.class);
 	}
 
-	/**
-	 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}
-	 */
-	@Bean
-	@Order(-2) // Takes precedence over the default handler
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-	public ReactiveSmartErrorHandler reactiveSmartErrorHandler(
-			org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes, ResourceProperties resourceProperties,
-			ObjectProvider<ViewResolver> viewResolvers, ServerCodecConfigurer codecConfigurer, ApplicationContext actx) {
-		ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties, actx);
-		errorHandler.setViewResolvers(viewResolvers.orderedStream().collect(toList()));
-		errorHandler.setMessageWriters(codecConfigurer.getWriters());
-		errorHandler.setMessageReaders(codecConfigurer.getReaders());
-		return errorHandler;
+	@ConditionalOnClass(ViewResolver.class)
+	@ConditionalOnBean(ErrorHandlerProperties.class)
+	public static class ReactiveSmartErrorAutoConfiguration {
+		/**
+		 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}
+		 */
+		@Bean
+		@Order(-2) // Takes precedence over the default handler
+		public ReactiveSmartErrorHandler reactiveSmartErrorHandler(
+				org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes,
+				ResourceProperties resourceProperties, ObjectProvider<ViewResolver> viewResolvers,
+				ServerCodecConfigurer codecConfigurer, ApplicationContext actx) {
+			ReactiveSmartErrorHandler errorHandler = new ReactiveSmartErrorHandler(errorAttributes, resourceProperties, actx);
+			errorHandler.setViewResolvers(viewResolvers.orderedStream().collect(toList()));
+			errorHandler.setMessageWriters(codecConfigurer.getWriters());
+			errorHandler.setMessageReaders(codecConfigurer.getReaders());
+			return errorHandler;
+		}
 	}
 
-	/**
-	 * {@link ServletErrorHandlerAutoConfirguation}
-	 * 
-	 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
-	 */
-	@Bean
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-	public ServletSmartErrorHandler servletSmartErrorHandler(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
-			CompositeErrorConfigurer adapter) {
-		return new ServletSmartErrorHandler(config, errorAttrs, adapter);
+	@ConditionalOnBean(ErrorHandlerProperties.class)
+	public static class ServletSmartErrorAutoConfiguration {
+		/**
+		 * {@link ServletErrorHandlerAutoConfirguation}
+		 * 
+		 * @see {@link de.codecentric.boot.admin.server.config.AdminServerWebConfiguration.ServletRestApiConfirguation}
+		 */
+		@Bean
+		public ServletSmartErrorHandler servletSmartErrorHandler(ErrorHandlerProperties config, ErrorAttributes errorAttrs,
+				CompositeErrorConfigurer adapter) {
+			return new ServletSmartErrorHandler(config, errorAttrs, adapter);
+		}
 	}
 
 	/**

@@ -19,12 +19,14 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.classreading.MetadataReader;
@@ -42,6 +44,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.endsWithAny;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
+import static com.wl4g.component.common.lang.ClassUtils2.isPresent;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.*;
 
@@ -60,11 +63,12 @@ import javax.annotation.Nullable;
  * @sine v1.0
  * @see
  */
-class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@SuppressWarnings("unused")
 	private ResourceLoader resourceLoader;
+	private Environment environment;
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -72,7 +76,19 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 	}
 
 	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
+
+	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		if (hasSpringCloudFeignClass()) {
+			log.info("The current classpath contains springcloud feign, "
+					+ "which automatically enables the SpringCloud + Feign environment. "
+					+ "SpringBoot + Feign has been ignored");
+			return;
+		}
+
 		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableSpringBootFeignClients.class.getName()));
 		if (nonNull(attrs)) {
@@ -98,18 +114,22 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 				scanBasePackages.add(pkg);
 			}
 		}
-		for (String pkg : (String[]) attrs.get(SCAN_BASE_PACKAGES)) {
+		for (String pkg : (String[]) attrs.get(BASE_PACKAGES)) {
 			if (hasText(pkg)) {
 				scanBasePackages.add(pkg);
 			}
 		}
-		for (Class<?> clazz : (Class[]) attrs.get(SCAN_BASE_PACKAGE_CLASSES)) {
+		for (Class<?> clazz : (Class[]) attrs.get(BASE_PACKAGE_CLASSES)) {
 			scanBasePackages.add(ClassUtils.getPackageName(clazz));
 		}
 		if (scanBasePackages.isEmpty()) {
 			scanBasePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
 		}
 		return scanBasePackages;
+	}
+
+	public static boolean hasSpringCloudFeignClass() {
+		return isPresent("org.springframework.cloud.openfeign.FeignClientsRegistrar");
 	}
 
 	/**
@@ -186,7 +206,7 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 
 		private String getRequestBaseUrl(MergedAnnotation<SpringBootFeignClient> feignClient) {
 			if (feignClient.isPresent()) {
-				return feignClient.getString("url"); // base URL
+				return environment.resolveRequiredPlaceholders(feignClient.getString("url")); // base-URL
 			}
 			return "";
 		}
@@ -195,7 +215,8 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 			if (requestMapping.isPresent()) {
 				String[] paths = (String[]) requestMapping.getValue("value").get();
 				if (nonNull(paths) && paths.length > 0) {
-					return paths[0]; // append to url suffix
+					// append to url suffix.
+					return environment.resolveRequiredPlaceholders(paths[0]);
 				}
 			}
 			return "";

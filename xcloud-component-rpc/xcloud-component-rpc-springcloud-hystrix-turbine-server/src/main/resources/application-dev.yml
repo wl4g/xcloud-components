@@ -8,7 +8,7 @@
 # limitations under the License.
 #
 
-# #### Environment(Eureka Server) configuration. ####
+# #### Environment(Hystrix turbine Server) configuration. ####
 #
 
 # Default security configuration.
@@ -17,10 +17,10 @@ spring:
     basic:
       enabled: false
     user:
-      name: eureka
-      password: wl4g.com
+      name: user
+      password: 123456
 
-# Default eureka (local)configuration.
+# Eureka (local)configuration.
 eureka:
   environment: dev # Default by test
   instance:
@@ -29,11 +29,6 @@ eureka:
     registerWithEureka: false # Default by true, register self to other eureka
     fetchRegistry: false # Default by true
     serviceUrl:
-      #defaultZone: http://localhost:${server.port}${server.servlet.contextPath}/eureka/
-      defaultZone: "\
-        http://${spring.security.user.name}:${spring.security.user.password}@localhost:${server.port}${server.servlet.contextPath}/eureka/"
+      defaultZone: "http://eureka:wl4g.com@localhost:8761/eureka/"
     healthcheck:
       enabled: false
-
-# Server configuration.
-server.port: 8761

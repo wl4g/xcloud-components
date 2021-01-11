@@ -10,12 +10,11 @@
 
 # #### Environment(Eureka Server) configuration. ####
 #
-
 spring:
   application:
-    name: eureka
+    name: hystrix-dashboard
   profiles:
-    active: local # for default
+    active: dev # for default
   boot:
     xcloud:
       component:
@@ -36,31 +35,39 @@ spring:
           global-error:
             enable: false
 
-#management:
+management:
 #  port: 8099
 #  context-path: /admin
 #  security:
 #    enabled: true
-#  endpoints:
-#    web:
-#      exposure:
-#        include: '*'
-#    health:
-#      sensitive: true
-#  endpoint:
-#      health:
-#        show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    health:
+      sensitive: true
+  endpoint:
+      health:
+        show-details: ALWAYS
 
 # Eureka configuration.
-# https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 eureka:
-  datacenter: 'cn-south-sz1' # Default by default
-  server:
-    enable-self-preservation: true # Default by true
-    eviction-interval-timer-in-ms: 4000 # Default by 60_000ms
-  instance:
-    leaseRenewalIntervalInSeconds: 10 # Default by 30sec
-    leaseExpirationDurationInSeconds: 30 # Default by 90sec
+  datacenter: 'cn-south-sz1' # Default by 'default'
+
+# Hystrix configuration.
+hystrix:
+  dashboard:
+    enableIgnoreConnectionCloseHeader: false
+    proxyStreamAllowList: '*'
+
+# Turbine configuration.
+turbine:
+  #appConfig: iam-data,iam-facade,iam-web
+  appConfig: iam-data
+  clusterNameExpression: "'default'"
+  combineHostPort: true
+  aggregator:
+    clusterConfig: default
 
 # Logging configuration.
 logging:
@@ -86,6 +93,7 @@ logging:
 # Server configuration.
 server:
   #address: 0.0.0.0
+  port: 9090
   sessionTimeout: 30
   servlet:
     contextPath: /
