@@ -726,13 +726,16 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 * Extract iterable element by iterations(index).
 	 * 
 	 * @param iter
-	 * @param iterations
+	 *            Target collection iterable
+	 * @param byIters
+	 *            The element to be extracted belongs to that iteration
 	 * @param defaultValue
+	 *            Default value.
 	 * @return
 	 */
 	@Nullable
-	public static <T> T extractElement(@Nullable Iterable<T> iter, int iterations, @Nullable T defaultValue) {
-		isTrue(iterations >= 0, format("iterations[%s] must >= 0", iterations));
+	public static <T> T extractElement(@Nullable Iterable<T> iter, int byIters, @Nullable T defaultValue) {
+		isTrue(byIters >= 0, format("byIterations(%s) must >= 0", byIters));
 		if (isNull(iter)) {
 			return defaultValue;
 		}
@@ -741,7 +744,7 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 		Iterator<T> it = iter.iterator();
 		while (it.hasNext()) {
 			T t = it.next();
-			if (iterations == i++) {
+			if (byIters == i++) {
 				return t;
 			}
 		}
