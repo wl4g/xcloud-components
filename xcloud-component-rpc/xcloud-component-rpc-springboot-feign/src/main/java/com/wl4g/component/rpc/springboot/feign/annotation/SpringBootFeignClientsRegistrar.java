@@ -82,13 +82,6 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-		if (hasSpringCloudFeignClass()) {
-			log.info("The current classpath contains springcloud feign, "
-					+ "which automatically enables the SpringCloud + Feign environment. "
-					+ "SpringBoot + Feign has been ignored");
-			return;
-		}
-
 		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableSpringBootFeignClients.class.getName()));
 		if (nonNull(attrs)) {
@@ -99,12 +92,23 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 			 */
 			Set<String> scanBasePackages = getScanBasePackages(metadata, attrs).stream().filter(pkg -> !isBlank(pkg))
 					.collect(toSet());
-			ExcludeSelfFeignClientsFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
+			ExcludeExportFeignServicesFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
 
-			SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
-					attrs.getClassArray(DEFAULT_CONFIGURATION));
-			scanner.doScan(StringUtils.toStringArray(scanBasePackages));
+			if (hasSpringCloudFeignClass()) { // SpringCloud-feign
+				log.info("The current classpath contains springcloud feign, "
+						+ "which automatically enables the SpringCloud + Feign architecture. "
+						+ "SpringBoot + Feign has been ignored");
+			} else { // SpringBoot-feign
+				registerSpringBootFeignClients(metadata, registry, attrs, scanBasePackages);
+			}
 		}
+	}
+
+	private void registerSpringBootFeignClients(AnnotationMetadata metadata, BeanDefinitionRegistry registry,
+			AnnotationAttributes attrs, Set<String> scanBasePackages) {
+		SpringBootFeignClientScanner scanner = new SpringBootFeignClientScanner(registry,
+				attrs.getClassArray(DEFAULT_CONFIGURATION));
+		scanner.doScan(StringUtils.toStringArray(scanBasePackages));
 	}
 
 	private Set<String> getScanBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {

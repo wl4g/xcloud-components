@@ -57,24 +57,11 @@ public @interface EnableSmartMappingConfiguration {
 	 * 
 	 * @return
 	 */
-	@AliasFor(BASE_PACKAGES)
-	String[] value() default {};
+	@AliasFor(INCLUDE_FILTERS)
+	Class<? extends Predicate<Class<?>>>[] value() default { DefaultMappingHandlerFilter.class };
 
 	/**
-	 * Include filter, type base packages.
-	 */
-	@AliasFor("value")
-	String[] basePackages() default {};
-
-	/**
-	 * Base packages to scan for annotated components.
-	 * 
-	 * @return
-	 */
-	Class<?>[] basePackageClasses() default {};
-
-	/**
-	 * Include filters, union with {@link #basePackages()} by 'OR'
+	 * Include handler filters.
 	 * 
 	 * @return
 	 */
@@ -87,16 +74,6 @@ public @interface EnableSmartMappingConfiguration {
 	 * @return
 	 */
 	boolean overrideAmbiguousByOrder() default false;
-
-	/**
-	 * Refer: {@link #basePackages()}
-	 */
-	public static final String BASE_PACKAGES = "basePackages";
-
-	/**
-	 * Refer: {@link #basePackageClasses()}
-	 */
-	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
 
 	/**
 	 * Refer: {@link #basePackages()}

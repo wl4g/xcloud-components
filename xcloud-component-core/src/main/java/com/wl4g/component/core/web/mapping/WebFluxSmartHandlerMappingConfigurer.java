@@ -19,10 +19,8 @@
  */
 package com.wl4g.component.core.web.mapping;
 
-import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
-import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
@@ -83,9 +81,6 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private String[] basePackages;
-
-	@Nullable
 	private Predicate<Class<?>>[] includeFilters;
 
 	@Lazy // Resolving cyclic dependency injection
@@ -94,10 +89,6 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	private List<ReactiveHandlerMappingSupport> handlerMappings;
 
 	private boolean overrideAmbiguousByOrder;
-
-	public void setBasePackages(String[] scanBasePackages) {
-		this.basePackages = scanBasePackages;
-	}
 
 	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
 		this.includeFilters = includeFilters;
@@ -116,7 +107,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartReactiveHandlerMapping(basePackages, includeFilters, handlerMappings);
+		return new SmartReactiveHandlerMapping(includeFilters, handlerMappings);
 	}
 
 	/**
@@ -146,16 +137,12 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.reactive.DispatcherHandler#initStrategies()}
 		 */
-		public SmartReactiveHandlerMapping(@Nullable String[] basePackages, @Nullable Predicate<Class<?>>[] includeFilters,
+		public SmartReactiveHandlerMapping(@Nullable Predicate<Class<?>>[] includeFilters,
 				@Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
-			// Merge predicate for basePackages and includeFilters.
-			Predicate<Class<?>> basePackagesFilter = beanType -> true;
-			if (!isEmptyArray(basePackages)) {
-				basePackagesFilter = beanType -> startsWithAny(getPackageName(beanType), basePackages);
-			}
-			this.mergedIncludeFilter = basePackagesFilter.and(Predicates.or(safeArrayToList(includeFilters)));
+			// Merge predicate for includeFilters.
+			this.mergedIncludeFilter = Predicates.or(safeArrayToList(includeFilters));
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -173,6 +160,10 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
+			// Ignore spring internal bean?
+			if (startsWithAny(beanType.getName(), EXCLUDE_BASE_PACKAGES)) {
+				return false;
+			}
 			return mergedIncludeFilter.test(beanType);
 		}
 
@@ -407,4 +398,8 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 	}
 
+	/**
+	 * Excludes bean class base packages.
+	 */
+	public static final String[] EXCLUDE_BASE_PACKAGES = { "org.springframework", "java.", "javax." };
 }

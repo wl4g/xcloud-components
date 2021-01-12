@@ -24,7 +24,7 @@ import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfigur
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
-import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeSelfFeignClientsFilter;
+import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeExportFeignServicesFilter;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
@@ -48,8 +48,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@EnableSmartMappingConfiguration(includeFilters = ExcludeSelfFeignClientsFilter.class)
-@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class,
+@EnableSmartMappingConfiguration(includeFilters = ExcludeExportFeignServicesFilter.class)
+@Import({ SpringBootFeignClientsRegistrar.class, SpringBootFeignAutoConfiguration.class,
 		BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
@@ -114,12 +114,12 @@ public @interface EnableSpringBootFeignClients {
 	 */
 	public static final String DEFAULT_CONFIGURATION = "defaultConfiguration";
 
-	public static class ExcludeSelfFeignClientsFilter extends DefaultMappingHandlerFilter {
+	public static class ExcludeExportFeignServicesFilter extends DefaultMappingHandlerFilter {
 		private static String[] scanBasePackages = {};
 
 		public static void setScanBasePackages(String[] scanBasePackages) {
 			if (nonNull(scanBasePackages)) {
-				ExcludeSelfFeignClientsFilter.scanBasePackages = scanBasePackages;
+				ExcludeExportFeignServicesFilter.scanBasePackages = scanBasePackages;
 			}
 		}
 

@@ -70,7 +70,7 @@ import static java.util.Objects.nonNull;
  * @see
  */
 @ConditionalOnProperty(name = KEY_SMART_PROXY + ".enable", matchIfMissing = true)
-@Order(Ordered.LOWEST_PRECEDENCE - 5)
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostProcessor {
 	protected final SmartLogger log = getLogger(getClass());
 
@@ -203,7 +203,7 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 	 * @return
 	 */
 	protected boolean skipNoShouldProxy(Object bean, String beanName) {
-		// Spring internal bean?
+		// Ignore spring internal bean?
 		if (startsWithAny(bean.getClass().getName(), EXCLUDE_BASE_PACKAGES)) {
 			return true;
 		}

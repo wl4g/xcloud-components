@@ -19,9 +19,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.wl4g.component.common.log.SmartLogger;
 
-import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 
@@ -90,9 +88,6 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private String[] basePackages;
-
-	@Nullable
 	private Predicate<Class<?>>[] includeFilters;
 
 	@Lazy // Resolving cyclic dependency injection
@@ -101,10 +96,6 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	private List<ServletHandlerMappingSupport> handlerMappings;
 
 	private boolean overrideAmbiguousByOrder;
-
-	public void setBasePackages(String[] scanBasePackages) {
-		this.basePackages = scanBasePackages;
-	}
 
 	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
 		this.includeFilters = includeFilters;
@@ -126,7 +117,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartServletHandlerMapping(basePackages, includeFilters, handlerMappings);
+		return new SmartServletHandlerMapping(includeFilters, handlerMappings);
 	}
 
 	/**
@@ -156,16 +147,12 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public SmartServletHandlerMapping(@Nullable String[] basePackages, @Nullable Predicate<Class<?>>[] includeFilters,
+		public SmartServletHandlerMapping(@Nullable Predicate<Class<?>>[] includeFilters,
 				@Nullable List<ServletHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
-			// Merge predicate for basePackages and includeFilters.
-			Predicate<Class<?>> basePackagesFilter = beanType -> true;
-			if (!isEmptyArray(basePackages)) {
-				basePackagesFilter = beanType -> startsWithAny(getPackageName(beanType), basePackages);
-			}
-			this.mergedIncludeFilter = basePackagesFilter.and(Predicates.or(safeArrayToList(includeFilters)));
+			// Merge predicate for includeFilters.
+			this.mergedIncludeFilter = Predicates.or(safeArrayToList(includeFilters));
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -183,6 +170,10 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 
 		@Override
 		protected boolean isHandler(Class<?> beanType) {
+			// Ignore spring internal bean?
+			if (startsWithAny(beanType.getName(), EXCLUDE_BASE_PACKAGES)) {
+				return false;
+			}
 			return mergedIncludeFilter.test(beanType);
 		}
 
@@ -407,4 +398,8 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 
 	}
 
+	/**
+	 * Excludes bean class base packages.
+	 */
+	public static final String[] EXCLUDE_BASE_PACKAGES = { "org.springframework", "java.", "javax." };
 }

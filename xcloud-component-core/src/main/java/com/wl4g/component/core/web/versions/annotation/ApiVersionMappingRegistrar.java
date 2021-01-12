@@ -16,6 +16,7 @@
 package com.wl4g.component.core.web.versions.annotation;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
 import static org.springframework.util.StringUtils.hasText;
@@ -47,8 +48,6 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 import com.wl4g.component.core.web.versions.reactive.ApiVersionRequestHandlerMapping;
 
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGE_CLASSES;
 import static com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement.*;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
@@ -117,7 +116,7 @@ public class ApiVersionMappingRegistrar
 		SimpleVersionComparator versionComparator = (SimpleVersionComparator) beanFactory
 				.getBean(attrs.getClass(VERSION_COMPARATOR));
 
-		ApiVersionManagementWrapper versionConfig = new ApiVersionManagementWrapper(getBasePackages(metadata, attrs),
+		ApiVersionManagementWrapper versionConfig = new ApiVersionManagementWrapper(resolveBasePackages(metadata, attrs),
 				attrs.getBoolean(SENSITIVE_PARAMS), versionParams, groupParams, versionComparator);
 		builder.addPropertyValue(VERSION_CONFIG, versionConfig);
 
@@ -172,6 +171,11 @@ public class ApiVersionMappingRegistrar
 			beanNameGenerator = new AnnotationBeanNameGenerator();
 		}
 		return beanNameGenerator;
+	}
+
+	private Set<String> resolveBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
+		return getBasePackages(metadata, attrs).stream().filter(v -> !isBlank(v))
+				.map(v -> environment.resolveRequiredPlaceholders(v)).collect(toSet());
 	}
 
 	private Set<String> getBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {

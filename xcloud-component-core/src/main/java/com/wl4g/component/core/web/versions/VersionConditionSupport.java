@@ -27,7 +27,6 @@ import javax.validation.constraints.NotNull;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMappingWrapper;
-import com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionManagementWrapper;
 
 /**

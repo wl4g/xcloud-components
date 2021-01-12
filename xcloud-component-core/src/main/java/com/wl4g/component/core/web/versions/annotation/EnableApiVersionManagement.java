@@ -16,7 +16,6 @@
 package com.wl4g.component.core.web.versions.annotation;
 
 import org.springframework.context.annotation.Import;
-import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
@@ -49,7 +48,6 @@ public @interface EnableApiVersionManagement {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] value() default {};
 
 	/**
@@ -57,7 +55,6 @@ public @interface EnableApiVersionManagement {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
 	String[] basePackages() default {};
 
 	/**
@@ -65,7 +62,6 @@ public @interface EnableApiVersionManagement {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGE_CLASSES)
 	Class<?>[] basePackageClasses() default {};
 
 	/**
@@ -120,12 +116,12 @@ public @interface EnableApiVersionManagement {
 	/**
 	 * Refer: {@link #basePackages()}
 	 */
-	public static final String BASE_PACKAGES = EnableSmartMappingConfiguration.BASE_PACKAGES;
+	public static final String BASE_PACKAGES = "basePackages";
 
 	/**
 	 * Refer: {@link #basePackageClasses()}
 	 */
-	public static final String BASE_PACKAGE_CLASSES = EnableSmartMappingConfiguration.BASE_PACKAGE_CLASSES;
+	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
 
 	/**
 	 * Refer: {@link #sensitiveParams()}
