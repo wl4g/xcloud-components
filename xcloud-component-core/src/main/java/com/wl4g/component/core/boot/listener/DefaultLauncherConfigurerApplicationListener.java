@@ -16,13 +16,13 @@
 package com.wl4g.component.core.boot.listener;
 
 import static com.google.common.base.Charsets.UTF_8;
+import static com.wl4g.component.common.collection.CollectionUtils2.extractFirst;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArray;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.mustAssignableFrom;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static java.lang.System.getProperty;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
@@ -119,45 +119,45 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	 * @throws Exception
 	 */
 	protected void presetSpringApplication(ApplicationStartingEvent event, SpringApplication application) throws Exception {
-		if (isTrue(getProperty("disable.launcher-configurer"), false)) { // Skip?
+		// Parse command-line arguments.
+		ApplicationArguments args = new DefaultApplicationArguments(event.getArgs());
+
+		// Disable skip?
+		String disable = extractFirst(args.getOptionValues("disable.spring-launcher-configurer"), "false");
+		if (isTrue(disable, false)) {
 			return;
 		}
-		// Create launcher configurer.
+
+		// Load spring launcher configurer.
 		ISpringLauncherConfigurer configurer = loadClassAndInstantiateSpringLauncherConfigurer();
 		if (nonNull(configurer)) {
-			presetDefaultProperties(event, application, configurer);
-			presetAdditionalProfiles(event, application, configurer);
-			presetOtherProperties(event, application, configurer);
+			presetDefaultProperties(args, event, application, configurer);
+			presetAdditionalProfiles(args, event, application, configurer);
+			presetOtherProperties(args, event, application, configurer);
 		}
 	}
 
-	protected void presetDefaultProperties(ApplicationStartingEvent event, SpringApplication application,
-			ISpringLauncherConfigurer configurer) throws Exception {
-		Properties defaultProperties = new Properties();
-		// defaultProperties.put("spring.main.allow-bean-definition-overriding",
-		// "true");
+	protected void presetDefaultProperties(ApplicationArguments args, ApplicationStartingEvent event,
+			SpringApplication application, ISpringLauncherConfigurer configurer) throws Exception {
+		Properties presetProperties = new Properties();
+		// defaultProperties.put("spring.main.allow-bean-definition-overriding","true");
 		if (nonNull(configurer.defaultProperties())) {
 			safeMap(configurer.defaultProperties()).forEach((key, value) -> {
-				defaultProperties.put(key, defaultSafeCommClear.apply(defaultTrim2EmptyClear.apply((String) value)));
+				presetProperties.put(key, defaultSafeCommClear.apply(defaultTrim2EmptyClear.apply((String) value)));
 			});
 		}
 
 		// Command-line arguments are preferred.
-		ApplicationArguments args = new DefaultApplicationArguments(event.getArgs());
 		for (String argName : args.getOptionNames()) {
-			defaultProperties.remove(argName);
-			// List<String> values = args.getOptionValues(argName);
-			// if (!CollectionUtils.isEmpty(values)) {
-			// defaultProperties.put(argName, values);
-			// }
+			presetProperties.remove(argName);
 		}
 
-		log.info("Preset SpringApplication default properties: {}", defaultProperties);
-		application.setDefaultProperties(defaultProperties);
+		log.debug("Preset spring application default properties: {}", presetProperties);
+		application.setDefaultProperties(presetProperties);
 	}
 
-	protected void presetAdditionalProfiles(ApplicationStartingEvent event, SpringApplication application,
-			ISpringLauncherConfigurer configurer) throws Exception {
+	protected void presetAdditionalProfiles(ApplicationArguments args, ApplicationStartingEvent event,
+			SpringApplication application, ISpringLauncherConfigurer configurer) throws Exception {
 		if (nonNull(configurer.additionalProfiles())) {
 			String[] additionalProfiles = safeArrayToList(configurer.additionalProfiles()).stream()
 					.map(p -> defaultTrim2EmptyClear.apply(p)).toArray(String[]::new);
@@ -165,7 +165,7 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 		}
 	}
 
-	protected void presetOtherProperties(ApplicationStartingEvent event, SpringApplication application,
+	protected void presetOtherProperties(ApplicationArguments args, ApplicationStartingEvent event, SpringApplication application,
 			ISpringLauncherConfigurer configurer) throws Exception {
 		if (nonNull(configurer.headless())) {
 			application.setHeadless(configurer.headless());

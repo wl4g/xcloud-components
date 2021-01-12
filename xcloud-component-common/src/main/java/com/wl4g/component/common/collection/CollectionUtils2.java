@@ -15,6 +15,8 @@
  */
 package com.wl4g.component.common.collection;
 
+import static com.wl4g.component.common.lang.Assert2.isTrue;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -698,14 +700,53 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	/**
 	 * Remove duplicate collection elements.
 	 * 
-	 * @param list
+	 * @param collection
 	 * @return
 	 */
-	public static <T> Collection<T> disDupCollection(Collection<T> list) {
-		Set<T> disDupSet = new HashSet<>(list);
-		list.clear();
-		list.addAll(disDupSet);
-		return list;
+	public static <T> Collection<T> disDupCollection(Collection<T> collection) {
+		Set<T> disSet = new HashSet<>(collection);
+		collection.clear();
+		collection.addAll(disSet);
+		return collection;
+	}
+
+	/**
+	 * Extract iterable element by iterations(index).
+	 * 
+	 * @param iter
+	 * @param defaultValue
+	 * @return
+	 */
+	@Nullable
+	public static <T> T extractFirst(@Nullable Iterable<T> iter, @Nullable T defaultValue) {
+		return extractElement(iter, 0, defaultValue);
+	}
+
+	/**
+	 * Extract iterable element by iterations(index).
+	 * 
+	 * @param iter
+	 * @param iterations
+	 * @param defaultValue
+	 * @return
+	 */
+	@Nullable
+	public static <T> T extractElement(@Nullable Iterable<T> iter, int iterations, @Nullable T defaultValue) {
+		isTrue(iterations >= 0, format("iterations[%s] must >= 0", iterations));
+		if (isNull(iter)) {
+			return defaultValue;
+		}
+
+		int i = 0;
+		Iterator<T> it = iter.iterator();
+		while (it.hasNext()) {
+			T t = it.next();
+			if (iterations == i++) {
+				return t;
+			}
+		}
+
+		return defaultValue;
 	}
 
 }
