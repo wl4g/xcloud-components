@@ -58,7 +58,7 @@ import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
-import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
+import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
 import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
@@ -73,7 +73,7 @@ import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
-import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration.BEAN_FEIGN_CLIENT;
+import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.BEAN_FEIGN_CLIENT;
 import static feign.Util.UTF_8;
 import static feign.Util.toByteArray;
 import static feign.Util.valuesOrEmpty;
@@ -261,7 +261,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 
 	private Contract obtainDefaultSpringMvcContract() {
 		return (defaultContract = (Contract) applicationContext
-				.getBean(SpringBootFeignAutoConfiguration.BEAN_SPRINGMVC_CONTRACT));
+				.getBean(SpringBootFeignConfigurer.BEAN_SPRINGMVC_CONTRACT));
 	}
 
 	private SpringBootFeignProperties obtainFeignConfigProperties() {
@@ -337,7 +337,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	private String buildRequestUrl() {
 		String url = trimToEmpty(isBlank(this.url) ? config.getDefaultUrl() : this.url);
 		hasText(url, "Feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
-				SpringBootFeignAutoConfiguration.KEY_PREFIX, SpringBootFeignClient.class.getSimpleName());
+				SpringBootFeignConfigurer.KEY_PREFIX, SpringBootFeignClient.class.getSimpleName());
 		return url + cleanPath();
 	}
 

@@ -19,12 +19,14 @@
  */
 package com.wl4g.component.rpc.springcloud.feign.config;
 
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+
 /**
- * {@link CircuitBreakerAutoConfiguration}
+ * {@link EnableHystrixStreamAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-11
@@ -32,7 +34,17 @@ import org.springframework.context.annotation.Configuration;
  * @see
  */
 @Configuration
-@EnableCircuitBreaker
-@EnableHystrix
-public class CircuitBreakerAutoConfiguration {
+public class EnableHystrixStreamAutoConfiguration {
+
+	@Bean
+	public ServletRegistrationBean<HystrixMetricsStreamServlet> hystrixMetricsStreamServlet() {
+		HystrixMetricsStreamServlet hystrixStreamServlet = new HystrixMetricsStreamServlet();
+		ServletRegistrationBean<HystrixMetricsStreamServlet> registrationBean = new ServletRegistrationBean<>(
+				hystrixStreamServlet);
+		registrationBean.setLoadOnStartup(1);
+		registrationBean.addUrlMappings("/hystrix.stream");
+		registrationBean.setName(HystrixMetricsStreamServlet.class.getSimpleName());
+		return registrationBean;
+	}
+
 }

@@ -107,11 +107,14 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 						.collect(toSet());
 				ExcludeExportFeignServicesFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
 
-				if (hasSpringCloudFeignClass()) { // SpringCloud + feign
+				// Spring Cloud + feign
+				if (hasSpringCloudFeignClass()) {
 					log.info("The current classpath contains springcloud feign, "
 							+ "which automatically enables the SpringCloud + Feign architecture. "
 							+ "SpringBoot + Feign has been ignored");
-				} else {// SpringBoot + feign
+				}
+				// Spring Boot + feign
+				else {
 					registerSpringBootFeignClients(metadata, registry, attrs, scanBasePackages);
 				}
 			} else {

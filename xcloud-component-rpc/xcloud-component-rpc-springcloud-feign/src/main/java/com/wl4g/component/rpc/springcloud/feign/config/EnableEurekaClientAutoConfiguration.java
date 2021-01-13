@@ -19,32 +19,22 @@
  */
 package com.wl4g.component.rpc.springcloud.feign.config;
 
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
-
 /**
- * {@link HystrixStreamAutoConfiguration}
+ * Just for downward compatibility, In the new version of spring cloud, it will
+ * automatically enable configuration.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-11
  * @sine v1.0
- * @see
+ * @see https://blog.csdn.net/boling_cavalry/article/details/82668480
+ * @see https://blog.csdn.net/qq_28893679/article/details/78395572
  */
 @Configuration
-public class HystrixStreamAutoConfiguration {
-
-	@Bean
-	public ServletRegistrationBean<HystrixMetricsStreamServlet> hystrixMetricsStreamServlet() {
-		HystrixMetricsStreamServlet hystrixStreamServlet = new HystrixMetricsStreamServlet();
-		ServletRegistrationBean<HystrixMetricsStreamServlet> registrationBean = new ServletRegistrationBean<>(
-				hystrixStreamServlet);
-		registrationBean.setLoadOnStartup(1);
-		registrationBean.addUrlMappings("/hystrix.stream");
-		registrationBean.setName(HystrixMetricsStreamServlet.class.getSimpleName());
-		return registrationBean;
-	}
-
+@EnableDiscoveryClient
+@EnableEurekaClient // Just for downward compatibility
+public class EnableEurekaClientAutoConfiguration {
 }

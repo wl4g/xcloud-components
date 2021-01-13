@@ -21,7 +21,6 @@ import org.springframework.core.annotation.AliasFor;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.DefaultMappingHandlerFilter;
-import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeExportFeignServicesFilter;
@@ -49,7 +48,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 @EnableSmartMappingConfiguration(filters = ExcludeExportFeignServicesFilter.class)
-@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class,
+@Import({ SpringBootFeignConfigurerRegistrar.class, SpringBootFeignClientsRegistrar.class,
 		BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 

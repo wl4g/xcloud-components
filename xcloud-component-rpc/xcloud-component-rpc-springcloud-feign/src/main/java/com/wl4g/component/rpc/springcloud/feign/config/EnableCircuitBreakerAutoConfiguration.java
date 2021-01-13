@@ -19,22 +19,20 @@
  */
 package com.wl4g.component.rpc.springcloud.feign.config;
 
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Just for downward compatibility, In the new version of spring cloud, it will
- * automatically enable configuration.
+ * {@link EnableCircuitBreakerAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-11
  * @sine v1.0
- * @see https://blog.csdn.net/boling_cavalry/article/details/82668480
- * @see https://blog.csdn.net/qq_28893679/article/details/78395572
+ * @see
  */
 @Configuration
-@EnableDiscoveryClient
-@EnableEurekaClient // Just for downward compatibility
-public class EurekaClientAutoConfiguration {
+@EnableCircuitBreaker
+@EnableHystrix
+public class EnableCircuitBreakerAutoConfiguration {
 }
