@@ -27,11 +27,13 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Indexed;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
+
 import feign.Logger;
 import feign.Retryer;
 
 /**
- * {@link SpringBootFeignClient}
+ * {@link SpringBootFeignClient} and {@link FeignClient} mutual equivalence.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-23
@@ -43,9 +45,13 @@ import feign.Retryer;
 @Documented
 @Indexed
 @Inherited
-@FeignClient // for compatibility with springCloud annotation
+@FeignClient // for compatibility with springcloud-feign annotation
 @ResponseBody // If use the springMVC annotation, will auto enable responseBody
 public @interface SpringBootFeignClient {
+
+	// ---------------------------------------------------------------------
+	// It works in both spring boot feign and spring cloud feign frameworks.
+	// ---------------------------------------------------------------------
 
 	/**
 	 * The name of the service with optional protocol prefix. Synonym for
@@ -92,6 +98,86 @@ public @interface SpringBootFeignClient {
 	Class<?>[] configuration() default {};
 
 	/**
+	 * Whether to mark the feign proxy as a primary bean. Defaults to true.</br>
+	 * </br>
+	 * Notes: Valid when the current environment is running in the springcloud
+	 * environment.
+	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "primary")
+	boolean primary() default true;
+
+	// ---------------------------------------------------------
+	// --- It can only work in spring boot feign frameworks. ---
+	// ---------------------------------------------------------
+
+	/**
+	 * Feign request {@link Logger.Level}
+	 * 
+	 * @return
+	 */
+	Logger.Level logLevel() default Logger.Level.NONE;
+
+	/**
+	 * The request connect timeout(ms)</br>
+	 * for example: ${myapp.springboot.feign.connectTimeout:3000}
+	 * 
+	 * @return
+	 */
+	String connectTimeout() default SpringBootFeignProperties.DEFAULT_CONNECT_TIMEOUT + "";
+
+	/**
+	 * The request read timeout(ms)</br>
+	 * for example: ${myapp.springboot.feign.readTimeout:3000}
+	 * 
+	 * @return
+	 */
+	String readTimeout() default SpringBootFeignProperties.DEFAULT_READ_TIMEOUT + "";
+
+	/**
+	 * The request write timeout(ms)</br>
+	 * for example: ${myapp.springboot.feign.writeTimeout:3000}
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	String writeTimeout() default SpringBootFeignProperties.DEFAULT_WRITE_TIMEOUT + "";
+
+	/**
+	 * The request support 3xx redirection.</br>
+	 * for example: ${myapp.springboot.feign.followRedirects:true}
+	 * 
+	 * @return
+	 */
+	String followRedirects() default SpringBootFeignProperties.DEFAULT_FOLLOWREDIRECTS + "";
+
+	// ----------------------------------------------------------
+	// --- It can only work in spring cloud feign frameworks. ---
+	// ----------------------------------------------------------
+
+	/**
+	 * The service id with optional protocol prefix. Synonym for {@link #value()
+	 * value}.
+	 *
+	 * @deprecated use {@link #name() name} instead
+	 */
+	@Deprecated
+	@AliasFor(annotation = FeignClient.class, attribute = "serviceId")
+	String serviceId() default "";
+
+	/**
+	 * @return path prefix to be used by all method-level mappings. Can be used
+	 *         with or without <code>@RibbonClient</code>.
+	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "path")
+	String path() default "";
+
+	/**
+	 * The <code>@Qualifier</code> value for the feign client.
+	 */
+	@AliasFor(annotation = FeignClient.class, attribute = "qualifier")
+	String qualifier() default "";
+
+	/**
 	 * Fallback class for the specified Feign client interface. The fallback
 	 * class must implement the interface annotated by this annotation and be a
 	 * valid spring bean.</br>
@@ -118,50 +204,5 @@ public @interface SpringBootFeignClient {
 	 */
 	@AliasFor(annotation = FeignClient.class, attribute = "fallbackFactory")
 	Class<?> fallbackFactory() default void.class;
-
-	/**
-	 * Whether to mark the feign proxy as a primary bean. Defaults to true.</br>
-	 * </br>
-	 * Notes: Valid when the current environment is running in the springcloud
-	 * environment.
-	 */
-	@AliasFor(annotation = FeignClient.class, attribute = "primary")
-	boolean primary() default true;
-
-	/**
-	 * Feign request {@link Logger.Level}
-	 * 
-	 * @return
-	 */
-	Logger.Level logLevel() default Logger.Level.NONE;
-
-	/**
-	 * The request connect timeout(ms)
-	 * 
-	 * @return
-	 */
-	long connectTimeout() default -1;
-
-	/**
-	 * The request read timeout(ms)
-	 * 
-	 * @return
-	 */
-	long readTimeout() default -1;
-
-	/**
-	 * The request write timeout(ms)
-	 * 
-	 * @return
-	 */
-	@Deprecated
-	long writeTimeout() default -1;
-
-	/**
-	 * The request support 3xx redirection.
-	 * 
-	 * @return
-	 */
-	boolean followRedirects() default true;
 
 }

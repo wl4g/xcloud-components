@@ -23,7 +23,7 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToL
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.INCLUDE_FILTERS;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.FILTERS;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.OVERRIDE_AMBIGUOUS;
 import static java.util.Objects.isNull;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
@@ -108,7 +108,7 @@ public class SmartHandlerMappingRegistrar
 			BeanDefinitionRegistry registry, Class<?> beanClass, BeanNameGenerator beanNameGenerator) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
 
-		builder.addPropertyValue(INCLUDE_FILTERS, resolveIncludeFilters(attrs, registry));
+		builder.addPropertyValue(FILTERS, resolveIncludeFilters(attrs, registry));
 		builder.addPropertyValue(OVERRIDE_AMBIGUOUS, attrs.getBoolean(OVERRIDE_AMBIGUOUS));
 
 		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
@@ -118,7 +118,7 @@ public class SmartHandlerMappingRegistrar
 
 	@SuppressWarnings("unchecked")
 	private Predicate<Class<?>>[] resolveIncludeFilters(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-		return safeArrayToList(annoAttrs.getClassArray(INCLUDE_FILTERS)).stream().map(c -> ObjectInstantiators.newInstance(c))
+		return safeArrayToList(annoAttrs.getClassArray(FILTERS)).stream().map(c -> ObjectInstantiators.newInstance(c))
 				.toArray(Predicate[]::new);
 	}
 
@@ -142,9 +142,8 @@ public class SmartHandlerMappingRegistrar
 			beanNameGenerator = (BeanNameGenerator) singletonBeanRegistry.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
 		}
 		if (beanNameGenerator == null) {
-			log.warn(
-					"BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR + "]");
-			log.warn("BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
+			log.warn("BeanNameGenerator bean can't be found in BeanFactory with name [" + CONFIGURATION_BEAN_NAME_GENERATOR
+					+ "], BeanNameGenerator will be a instance of " + AnnotationBeanNameGenerator.class.getName()
 					+ " , it maybe a potential problem on bean name generation.");
 			beanNameGenerator = new AnnotationBeanNameGenerator();
 		}

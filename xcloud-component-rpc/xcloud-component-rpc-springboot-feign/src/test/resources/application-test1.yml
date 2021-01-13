@@ -9,4 +9,6 @@ spring:
         connect-timeout: 11000
         read-timeout: 12000
 
-github.api-url: https://api.github.com
+github.api:
+  url: https://api.github.com
+  user-path: /users

@@ -19,6 +19,9 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 
 import org.springframework.context.annotation.Bean;
+
+import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -51,6 +54,11 @@ public class SpringBootFeignAutoConfiguration {
 		return new SpringBootFeignProperties();
 	}
 
+	@Bean(BEAN_SPRINGMVC_CONTRACT)
+	public SpringMvcContract springMvcContract() {
+		return new SpringMvcContract();
+	}
+
 	@Bean
 	public ConnectionPool okHttp3ConnectionPool(SpringBootFeignProperties config) {
 		return new ConnectionPool(config.getMaxIdleConnections(), config.getKeepAliveDuration(), MINUTES);
@@ -77,6 +85,7 @@ public class SpringBootFeignAutoConfiguration {
 	// }
 
 	public static final String BEAN_FEIGN_CLIENT = "springBootFeignClient";
+	public static final String BEAN_SPRINGMVC_CONTRACT = "springBootFeignMvcContract";
 	public static final String KEY_PREFIX = "spring.boot.xcloud.feign";
 	public static final String KEY_CLIENT_EXPRESSION = "'okhttp3'.equalsIgnoreCase('${" + KEY_PREFIX
 			+ ".client-provider:okhttp3}')";

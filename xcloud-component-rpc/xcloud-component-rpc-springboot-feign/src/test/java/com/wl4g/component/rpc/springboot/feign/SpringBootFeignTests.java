@@ -18,7 +18,6 @@ package com.wl4g.component.rpc.springboot.feign;
 import com.google.gson.Gson;
 import com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.GithubService1.GitHubContributor;
-import com.wl4g.component.rpc.springboot.feign.GithubService2.GitHubRepo;
 import com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients;
 import com.wl4g.component.rpc.springboot.feign.SpringBootFeignTests.SampleRetryer;
 
@@ -54,6 +53,9 @@ public class SpringBootFeignTests {
 	@Autowired
 	private GithubService2 githubService2;
 
+	@Autowired
+	private GithubService3 githubService3;
+
 	@Test
 	public void test1() {
 		List<GitHubContributor> contributors = githubService1.getContributors("wl4g", "xcloud-components");
@@ -63,7 +65,14 @@ public class SpringBootFeignTests {
 
 	@Test
 	public void test2() {
-		List<GitHubRepo> repos = githubService2.getRepos("wl4g");
+		List<GitHubRepoModel> repos = githubService2.getRepos("wl4g");
+		log.info(">>> Result:");
+		log.info("repos={}", new Gson().toJson(repos));
+	}
+
+	@Test
+	public void test3() {
+		List<GitHubRepoModel> repos = githubService3.getRepos("wl4g");
 		log.info(">>> Result:");
 		log.info("repos={}", new Gson().toJson(repos));
 	}

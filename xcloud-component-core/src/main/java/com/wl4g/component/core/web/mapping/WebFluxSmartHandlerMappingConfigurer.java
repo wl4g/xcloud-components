@@ -78,10 +78,11 @@ import reactor.core.publisher.Mono;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @AutoConfigureAfter(WebFluxAutoConfiguration.class)
 public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistrations {
+
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private Predicate<Class<?>>[] includeFilters;
+	private Predicate<Class<?>>[] filters;
 
 	@Lazy // Resolving cyclic dependency injection
 	@Nullable
@@ -90,8 +91,8 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 	private boolean overrideAmbiguousByOrder;
 
-	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
-		this.includeFilters = includeFilters;
+	public void setIncludeFilters(Predicate<Class<?>>[] filters) {
+		this.filters = filters;
 	}
 
 	public void setOverrideAmbiguousByOrder(boolean overrideAmbiguousByOrder) {
@@ -107,7 +108,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartReactiveHandlerMapping(includeFilters, handlerMappings);
+		return new SmartReactiveHandlerMapping(filters, handlerMappings);
 	}
 
 	/**
@@ -124,7 +125,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * Merged include filter conditionals predicate used to check whether
 		 * the bean is a request handler.
 		 */
-		private final java.util.function.Predicate<Class<?>> mergedIncludeFilter;
+		private final java.util.function.Predicate<Class<?>> mergedFilter;
 
 		/**
 		 * All extensions custom request handler mappings.
@@ -137,12 +138,12 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.reactive.DispatcherHandler#initStrategies()}
 		 */
-		public SmartReactiveHandlerMapping(@Nullable Predicate<Class<?>>[] includeFilters,
+		public SmartReactiveHandlerMapping(@Nullable Predicate<Class<?>>[] filters,
 				@Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
 			// Merge predicate for includeFilters.
-			this.mergedIncludeFilter = Predicates.or(safeArrayToList(includeFilters));
+			this.mergedFilter = Predicates.or(safeArrayToList(filters));
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -164,7 +165,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 			if (startsWithAny(beanType.getName(), EXCLUDE_BASE_PACKAGES)) {
 				return false;
 			}
-			return mergedIncludeFilter.test(beanType);
+			return mergedFilter.test(beanType);
 		}
 
 		@Override

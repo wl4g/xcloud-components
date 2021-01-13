@@ -50,13 +50,16 @@ public class SpringBootFeignProperties {
 	private long keepAliveDuration = 5;
 
 	/** The connect timeout default is 10 seconds. */
-	private long connectTimeout = 10 * 1000;
+	private long connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
 	/** The read timeout default is 10 seconds. */
-	private long readTimeout = 10 * 1000;
+	private long readTimeout = DEFAULT_READ_TIMEOUT;
 
 	/** The write timeout default is 10 seconds. */
-	private long writeTimeout = 10 * 1000;
+	private long writeTimeout = DEFAULT_WRITE_TIMEOUT;
+
+	/** follow Redirects. */
+	private boolean followRedirects;
 
 	public String getDefaultUrl() {
 		return defaultUrl;
@@ -113,5 +116,18 @@ public class SpringBootFeignProperties {
 	public void setWriteTimeout(long writeTimeout) {
 		this.writeTimeout = writeTimeout;
 	}
+
+	public boolean isFollowRedirects() {
+		return followRedirects;
+	}
+
+	public void setFollowRedirects(boolean followRedirects) {
+		this.followRedirects = followRedirects;
+	}
+
+	public static final long DEFAULT_CONNECT_TIMEOUT = 3 * 1000L;
+	public static final long DEFAULT_READ_TIMEOUT = 6 * 1000L;
+	public static final long DEFAULT_WRITE_TIMEOUT = 6 * 1000L;
+	public static final boolean DEFAULT_FOLLOWREDIRECTS = true;
 
 }

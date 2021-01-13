@@ -47,6 +47,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,6 +104,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
  * {@link SpringBootFeignFactoryBean}
  * 
@@ -122,21 +125,31 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 
 	private ApplicationContext applicationContext;
 	private SpringBootFeignProperties config;
+	private Contract defaultContract;
 	private Client client;
 	private List<RequestInterceptor> requestInterceptors;
 
-	private Class<T> proxyInterface;
-	private String baseUrl;
-	@Deprecated
-	private String path; // Contract will be append auto
-	private boolean decode404;
+	@Nullable
+	private Class<T> targetClass;
+	@Nullable
+	private String url;
+	@Nullable
+	private String path;
+	@Nullable
+	private Boolean decode404;
+	@Nullable
 	private Logger.Level logLevel;
+	@Nullable
 	private Class<?>[] configuration;
-	private long connectTimeout;
-	private long readTimeout;
+	@Nullable
+	private Long connectTimeout;
+	@Nullable
+	private Long readTimeout;
 	@Deprecated
-	private long writeTimeout;
-	private boolean followRedirects;
+	@Nullable
+	private Long writeTimeout;
+	@Nullable
+	private Boolean followRedirects;
 
 	// Fallback default configuration.
 	private Class<?>[] defaultConfiguration;
@@ -146,19 +159,19 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		this.applicationContext = applicationContext;
 	}
 
-	public void setProxyInterface(Class<T> proxyInterface) {
-		this.proxyInterface = proxyInterface;
+	public void setTargetClass(Class<T> targetClass) {
+		this.targetClass = targetClass;
 	}
 
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public void setPath(String path) {
 		this.path = path;
 	}
 
-	public void setDecode404(boolean decode404) {
+	public void setDecode404(Boolean decode404) {
 		this.decode404 = decode404;
 	}
 
@@ -170,19 +183,19 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		this.configuration = configuration;
 	}
 
-	public void setConnectTimeout(long connectTimeout) {
+	public void setConnectTimeout(Long connectTimeout) {
 		this.connectTimeout = connectTimeout;
 	}
 
-	public void setReadTimeout(long readTimeout) {
+	public void setReadTimeout(Long readTimeout) {
 		this.readTimeout = readTimeout;
 	}
 
-	public void setWriteTimeout(long writeTimeout) {
+	public void setWriteTimeout(Long writeTimeout) {
 		this.writeTimeout = writeTimeout;
 	}
 
-	public void setFollowRedirects(boolean followRedirects) {
+	public void setFollowRedirects(Boolean followRedirects) {
 		this.followRedirects = followRedirects;
 	}
 
@@ -192,7 +205,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 
 	@Override
 	public Class<?> getObjectType() {
-		return proxyInterface;
+		return targetClass;
 	}
 
 	@Override
@@ -204,6 +217,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	public T getObject() throws Exception {
 		// 注意顺序，不能在InitializingBean#afterPropertiesSet()的时候获取bean？
 		this.config = obtainFeignConfigProperties();
+		this.defaultContract = obtainDefaultSpringMvcContract();
 		this.client = obtainFeignHttpClientInstance();
 		this.requestInterceptors = obtainFeignRequestInterceptors();
 
@@ -216,7 +230,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		}
 
 		// Sets decode404
-		if (decode404) {
+		if (nonNull(decode404) && decode404) {
 			builder.decode404();
 		}
 
@@ -229,7 +243,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		// Sets configuration with merge.
 		mergeConfigurationSet(builder);
 
-		return builder.target(proxyInterface, buildBaseUrl());
+		return builder.target(targetClass, buildRequestUrl());
 	}
 
 	private List<RequestInterceptor> obtainFeignRequestInterceptors() {
@@ -243,6 +257,11 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 		} catch (BeansException e) {
 			return emptyList();
 		}
+	}
+
+	private Contract obtainDefaultSpringMvcContract() {
+		return (defaultContract = (Contract) applicationContext
+				.getBean(SpringBootFeignAutoConfiguration.BEAN_SPRINGMVC_CONTRACT));
 	}
 
 	private SpringBootFeignProperties obtainFeignConfigProperties() {
@@ -265,7 +284,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	}
 
 	private Logger.Level getLogLevel() {
-		return (logLevel != Logger.Level.NONE) ? logLevel : (logLevel = config.getDefaultLogLevel());
+		return (nonNull(logLevel) && logLevel != Logger.Level.NONE) ? logLevel : (logLevel = config.getDefaultLogLevel());
 	}
 
 	private void mergeConfigurationSet(Feign.Builder builder) throws Exception {
@@ -309,22 +328,30 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	}
 
 	private void mergeRequestOptionSet(Feign.Builder builder) {
-		long connectTimeout0 = connectTimeout > 0 ? connectTimeout : config.getConnectTimeout();
-		long readTimeout0 = readTimeout > 0 ? readTimeout : config.getReadTimeout();
-		builder.options(new Options(connectTimeout0, MILLISECONDS, readTimeout0, MILLISECONDS, followRedirects));
+		long connectTimeout0 = (nonNull(connectTimeout) && connectTimeout > 0) ? connectTimeout : config.getConnectTimeout();
+		long readTimeout0 = (nonNull(readTimeout) && readTimeout > 0) ? readTimeout : config.getReadTimeout();
+		builder.options(new Options(connectTimeout0, MILLISECONDS, readTimeout0, MILLISECONDS,
+				(nonNull(followRedirects) ? followRedirects : config.isFollowRedirects())));
 	}
 
-	private String buildBaseUrl() {
-		String _baseUrl = trimToEmpty(isBlank(baseUrl) ? config.getDefaultUrl() : baseUrl);
-		hasText(_baseUrl, "Feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
+	private String buildRequestUrl() {
+		String url = trimToEmpty(isBlank(this.url) ? config.getDefaultUrl() : this.url);
+		hasText(url, "Feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
 				SpringBootFeignAutoConfiguration.KEY_PREFIX, SpringBootFeignClient.class.getSimpleName());
-		// Contract will be append auto
-		// String path0 = trimToEmpty(path);
-		// if (!baseUrl0.endsWith("/") && !path0.startsWith("/")) {
-		// baseUrl0 += "/";
-		// }
-		// return baseUrl0 + path0;
-		return _baseUrl;
+		return url + cleanPath();
+	}
+
+	private String cleanPath() {
+		String path = trimToEmpty(this.path);
+		if (StringUtils.hasLength(path)) {
+			if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
+		}
+		return path;
 	}
 
 	class DelegateFeignEncoder implements Encoder {
@@ -551,7 +578,6 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	private static final Encoder defaultEncoder = new JacksonEncoder(
 			new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL));
 	private static final Decoder defaultDecoder = new JacksonDecoder();
-	private static final Contract defaultContract = new SpringMvcContract();
 	private static final Retryer defaultRetryer = new Retryer.Default();
 	private static final Logger defaultLogger = new Slf4jLogger();
 

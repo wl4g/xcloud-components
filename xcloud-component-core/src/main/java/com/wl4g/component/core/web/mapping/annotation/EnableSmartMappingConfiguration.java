@@ -57,15 +57,15 @@ public @interface EnableSmartMappingConfiguration {
 	 * 
 	 * @return
 	 */
-	@AliasFor(INCLUDE_FILTERS)
+	@AliasFor(FILTERS)
 	Class<? extends Predicate<Class<?>>>[] value() default { DefaultMappingHandlerFilter.class };
 
 	/**
-	 * Include handler filters.
+	 * Method mapping handler filters.
 	 * 
 	 * @return
 	 */
-	Class<? extends Predicate<Class<?>>>[] includeFilters() default { DefaultMappingHandlerFilter.class };
+	Class<? extends Predicate<Class<?>>>[] filters() default { DefaultMappingHandlerFilter.class };
 
 	/**
 	 * When the same handler mapping appears, whether to enable overlay in bean
@@ -73,12 +73,12 @@ public @interface EnableSmartMappingConfiguration {
 	 * 
 	 * @return
 	 */
-	boolean overrideAmbiguousByOrder() default false;
+	boolean overrideAmbiguousByOrder() default true;
 
 	/**
 	 * Refer: {@link #basePackages()}
 	 */
-	public static final String INCLUDE_FILTERS = "includeFilters";
+	public static final String FILTERS = "filters";
 
 	/**
 	 * Refer: {@link #overrideAmbiguousByOrder()}

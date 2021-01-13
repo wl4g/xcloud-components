@@ -73,21 +73,13 @@ import static org.springframework.core.annotation.AnnotatedElementUtils.findMerg
 public class SpringMvcContract extends Contract.BaseContract implements ResourceLoaderAware {
 
 	private static final String ACCEPT = "Accept";
-
 	private static final String CONTENT_TYPE = "Content-Type";
-
 	private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
-
 	private static final TypeDescriptor ITERABLE_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Iterable.class);
-
 	private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
-
 	private final Map<Class<? extends Annotation>, AnnotatedParameterProcessor> annotatedArgumentProcessors;
-
 	private final Map<String, Method> processedMethods = new HashMap<>();
-
 	private final ConversionService conversionService;
-
 	private final ConvertingExpanderFactory convertingExpanderFactory;
 
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();

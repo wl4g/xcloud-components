@@ -25,8 +25,7 @@ import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
  * @see
  */
 @SuppressWarnings("unused")
-@SpringBootFeignClient(name = "github", url = "${github.api-url}", configuration = { Contract.Default.class })
- @RequestMapping("/abc") // append to url suffix
+@SpringBootFeignClient(name = "github", url = "${github.api.url}", configuration = { Contract.Default.class })
 public interface GithubService1 {
 
 	@RequestLine("GET /repos/{owner}/{repo}/contributors")

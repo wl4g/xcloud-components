@@ -48,8 +48,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@EnableSmartMappingConfiguration(includeFilters = ExcludeExportFeignServicesFilter.class)
-@Import({ SpringBootFeignClientsRegistrar.class, SpringBootFeignAutoConfiguration.class,
+@EnableSmartMappingConfiguration(filters = ExcludeExportFeignServicesFilter.class)
+@Import({ SpringBootFeignAutoConfiguration.class, SpringBootFeignClientsRegistrar.class,
 		BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 

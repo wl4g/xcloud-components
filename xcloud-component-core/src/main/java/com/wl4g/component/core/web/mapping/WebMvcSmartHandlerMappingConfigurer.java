@@ -85,10 +85,11 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations {
+
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private Predicate<Class<?>>[] includeFilters;
+	private Predicate<Class<?>>[] filters;
 
 	@Lazy // Resolving cyclic dependency injection
 	@Nullable
@@ -97,8 +98,8 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 
 	private boolean overrideAmbiguousByOrder;
 
-	public void setIncludeFilters(Predicate<Class<?>>[] includeFilters) {
-		this.includeFilters = includeFilters;
+	public void setFilters(Predicate<Class<?>>[] filters) {
+		this.filters = filters;
 	}
 
 	public void setOverrideAmbiguousByOrder(boolean overrideAmbiguousByOrder) {
@@ -117,7 +118,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartServletHandlerMapping(includeFilters, handlerMappings);
+		return new SmartServletHandlerMapping(filters, handlerMappings);
 	}
 
 	/**
@@ -134,7 +135,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 * Merged include filter conditionals predicate used to check whether
 		 * the bean is a request handler.
 		 */
-		private final java.util.function.Predicate<Class<?>> mergedIncludeFilter;
+		private final java.util.function.Predicate<Class<?>> mergedFilter;
 
 		/**
 		 * All extensions custom request handler mappings.
@@ -147,12 +148,12 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public SmartServletHandlerMapping(@Nullable Predicate<Class<?>>[] includeFilters,
+		public SmartServletHandlerMapping(@Nullable Predicate<Class<?>>[] filters,
 				@Nullable List<ServletHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
 			// Merge predicate for includeFilters.
-			this.mergedIncludeFilter = Predicates.or(safeArrayToList(includeFilters));
+			this.mergedFilter = Predicates.or(safeArrayToList(filters));
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.
@@ -174,7 +175,7 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 			if (startsWithAny(beanType.getName(), EXCLUDE_BASE_PACKAGES)) {
 				return false;
 			}
-			return mergedIncludeFilter.test(beanType);
+			return mergedFilter.test(beanType);
 		}
 
 		@Override
