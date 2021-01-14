@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -45,6 +45,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
 
+import static com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ServletSmartErrorAutoConfiguration;
+import static com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ReactiveSmartErrorAutoConfiguration;
 import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport;
 
 /**
@@ -55,6 +57,7 @@ import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport;
  * @since
  */
 @ConditionalOnProperty(value = KEY_WEB_GLOBAL_ERROR + ".enable", matchIfMissing = true)
+@ImportAutoConfiguration({ ReactiveSmartErrorAutoConfiguration.class, ServletSmartErrorAutoConfiguration.class })
 public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean
@@ -80,8 +83,7 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 	@ConditionalOnClass(ViewResolver.class)
-	@ConditionalOnBean(ErrorHandlerProperties.class)
-	public static class ReactiveSmartErrorAutoConfiguration {
+	static class ReactiveSmartErrorAutoConfiguration {
 		/**
 		 * @see {@link org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration#errorWebExceptionHandler}
 		 */
@@ -100,8 +102,7 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 	}
 
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-	@ConditionalOnBean(ErrorHandlerProperties.class)
-	public static class ServletSmartErrorAutoConfiguration {
+	static class ServletSmartErrorAutoConfiguration {
 		/**
 		 * {@link ServletErrorHandlerAutoConfirguation}
 		 * 

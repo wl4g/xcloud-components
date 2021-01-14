@@ -56,6 +56,17 @@ public abstract class TypeConverts {
 	 *            字节数组。
 	 * @return 整数形式。
 	 */
+	public static int byte2short(byte[] b) {
+		return (b[1] & 0xff) | ((b[0] & 0xff) << 8);
+	}
+
+	/**
+	 * 字节数组转换成整型。(网络字节序，高字节在前)
+	 * 
+	 * @param b
+	 *            字节数组。
+	 * @return 整数形式。
+	 */
 	public static int byte2int(byte[] b) {
 		return (b[3] & 0xff) | ((b[2] & 0xff) << 8) | ((b[1] & 0xff) << 16) | ((b[0] & 0xff) << 24);
 	}

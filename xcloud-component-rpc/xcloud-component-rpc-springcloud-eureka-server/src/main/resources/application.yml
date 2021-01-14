@@ -55,9 +55,15 @@ spring:
 # https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 eureka:
   datacenter: 'cn-south-sz1' # Default by default
+  # see: org.springframework.cloud.netflix.eureka.EurekaClientConfigBean
+  client:
+  # see: org.springframework.cloud.netflix.eureka.server.EurekaServerConfigBean
   server:
-    enable-self-preservation: true # Default by true
-    eviction-interval-timer-in-ms: 4000 # Default by 60_000ms
+    enableSelfPreservation: true # Default by true
+    evictionIntervalTimerInMs: 4000 # Default by 60_000ms
+    responseCacheUpdateIntervalMs: 30_000 # Default by 30_000ms
+    waitTimeInMsWhenSyncEmpty: 300_000 # Default by 5min
+    peerNodeReadTimeoutMs: 200 # Default by 200ms
   instance:
     leaseRenewalIntervalInSeconds: 10 # Default by 30sec
     leaseExpirationDurationInSeconds: 30 # Default by 90sec
