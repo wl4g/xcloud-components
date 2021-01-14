@@ -131,6 +131,7 @@
 		<!-- 3Thirdparty library -->
 		<aliyun-sdk-dysmsapi.version>2.1.0</aliyun-sdk-dysmsapi.version>
 		<aliyun-sdk-core.version>4.4.0</aliyun-sdk-core.version>
+		<flexmark-all.version>0.62.2</flexmark-all.version>
 		<!-- AI/NLP -->
 		<belerweb.pinyin4j.version>2.5.1</belerweb.pinyin4j.version>
 		<!-- testing -->
@@ -674,6 +675,11 @@
 				<groupId>com.aliyun</groupId>
 				<artifactId>aliyun-java-sdk-core</artifactId>
 				<version>${aliyun-sdk-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vladsch.flexmark</groupId>
+				<artifactId>flexmark-all</artifactId>
+				<version>${flexmark-all.version}</version>
 			</dependency>
 			<!-- AI. -->
 			<!-- NLP (pinyin) -->
