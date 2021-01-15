@@ -30,14 +30,14 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 /**
- * {@link DubboRpcContextHolder}
+ * {@link SpringCloudDubboRpcContextHolder}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17
  * @sine v1.0
  * @see
  */
-class DubboRpcContextHolder extends RpcContextHolder {
+class SpringCloudDubboRpcContextHolder extends RpcContextHolder {
 
 	@Override
 	public String getAttachment(String key) {
@@ -74,7 +74,7 @@ class DubboRpcContextHolder extends RpcContextHolder {
 	static class DubboRpcContextHolderAutoConfiguration {
 		@Bean
 		public RpcContextHolder dubboRpcContextHolder() {
-			return new DubboRpcContextHolder();
+			return new SpringCloudDubboRpcContextHolder();
 		}
 	}
 

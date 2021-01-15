@@ -45,9 +45,9 @@ import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
  * @sine v1.0
  * @see
  */
-class SpringCloudFeignHystrixRpcContextHolder extends RpcContextHolder implements Closeable {
+class SpringCloudHystrixFeignRpcContextHolder extends RpcContextHolder implements Closeable {
 
-	private static final HystrixRequestVariableDefault<SpringCloudFeignHystrixRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
+	private static final HystrixRequestVariableDefault<SpringCloudHystrixFeignRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
 
 	// Notes: Since feignclient ignores case when setting header, it should be
 	// unified here.
@@ -89,11 +89,11 @@ class SpringCloudFeignHystrixRpcContextHolder extends RpcContextHolder implement
 
 	@Override
 	protected RpcContextHolder current() {
-		SpringCloudFeignHystrixRpcContextHolder current = LOCAL.get();
+		SpringCloudHystrixFeignRpcContextHolder current = LOCAL.get();
 		// Initializes hystrix request context in the current thread.
 		if (isNull(current) && !HystrixRequestContext.isCurrentThreadInitialized()) {
 			HystrixRequestContext.initializeContext();
-			LOCAL.set(current = new SpringCloudFeignHystrixRpcContextHolder());
+			LOCAL.set(current = new SpringCloudHystrixFeignRpcContextHolder());
 		}
 		return current;
 	}
@@ -104,7 +104,7 @@ class SpringCloudFeignHystrixRpcContextHolder extends RpcContextHolder implement
 	static class HytrixFeignRpcContextHolderAutoConfiguration {
 		@Bean
 		public RpcContextHolder hytrixFeignRpcContextHolder() {
-			return new SpringCloudFeignHystrixRpcContextHolder();
+			return new SpringCloudHystrixFeignRpcContextHolder();
 		}
 	}
 

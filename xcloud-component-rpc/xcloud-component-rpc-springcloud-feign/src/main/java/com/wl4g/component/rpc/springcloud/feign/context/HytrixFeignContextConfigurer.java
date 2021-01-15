@@ -76,7 +76,7 @@ public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
-			((SpringCloudFeignHystrixRpcContextHolder) RpcContextHolder.get()).close();
+			((SpringCloudHystrixFeignRpcContextHolder) RpcContextHolder.get()).close();
 		}
 	}
 

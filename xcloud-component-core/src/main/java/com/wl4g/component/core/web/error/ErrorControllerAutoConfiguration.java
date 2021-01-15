@@ -17,7 +17,7 @@ package com.wl4g.component.core.web.error;
 
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.serialize.JacksonUtils.convertBean;
-import static com.wl4g.component.core.constant.ConfigConstant.KEY_WEB_GLOBAL_ERROR;
+import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_GLOBAL_ERROR;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Documented;
