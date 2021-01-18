@@ -15,32 +15,11 @@
  */
 package com.wl4g.component.rpc.springboot.feign.config;
 
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
-
 import org.springframework.context.annotation.Bean;
-
-import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.OkhttpFeignClientAutoConfiguration;
-import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.Http2FeignClientAutoConfiguration;
-import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
-
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-//import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-//import org.springframework.boot.autoconfigure.condition.ConditionalOnJava;
-//import org.springframework.boot.system.JavaVersion;
-//
-//import feign.http2client.Http2Client;
-import feign.Client;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-
-//import java.net.http.HttpClient;
-//import java.time.Duration;
+import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 
 /**
  * {@link SpringBootFeignConfigurer}
@@ -50,7 +29,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * @sine v1.0
  * @see
  */
-@ImportAutoConfiguration({ OkhttpFeignClientAutoConfiguration.class, Http2FeignClientAutoConfiguration.class })
+@ImportAutoConfiguration({ OkhttpFeignClientConfiguration.class, Http2FeignClientConfiguration.class })
 public class SpringBootFeignConfigurer {
 
 	@Bean
@@ -62,38 +41,6 @@ public class SpringBootFeignConfigurer {
 	@Bean(BEAN_SPRINGMVC_CONTRACT)
 	public SpringMvcContract springMvcContract() {
 		return new SpringMvcContract();
-	}
-
-	@ConditionalOnExpression(KEY_OKHTTP_EXPRESSION)
-	@ConditionalOnClass(OkHttpClient.class)
-	public static class OkhttpFeignClientAutoConfiguration {
-		@Bean
-		public ConnectionPool okHttp3ConnectionPool(SpringBootFeignProperties config) {
-			return new ConnectionPool(config.getMaxIdleConnections(), config.getKeepAliveDuration(), MINUTES);
-		}
-
-		@Bean(BEAN_FEIGN_CLIENT)
-		public Client okHttpFeignClient(SpringBootFeignProperties config, ConnectionPool pool) {
-			OkHttpClient delegate = new OkHttpClient().newBuilder().connectionPool(pool)
-					.connectTimeout(config.getConnectTimeout(), MILLISECONDS).readTimeout(config.getReadTimeout(), MILLISECONDS)
-					.writeTimeout(config.getWriteTimeout(), MILLISECONDS).build();
-			return new feign.okhttp.OkHttpClient(delegate);
-		}
-	}
-
-	@ConditionalOnExpression(KEY_HTTP2_EXPRESSION)
-	// @ConditionalOnClass(HttpClient.class)
-	public static class Http2FeignClientAutoConfiguration {
-		// @Bean(BEAN_FEIGN_CLIENT)
-		// @ConditionalOnJava(JavaVersion.ELEVEN)
-		// @ConditionalOnExpression(KEY_CLIENT_EXPRESSION)
-		// @ConditionalOnClass(HttpClient.class)
-		// public Client http2FeignClient() {
-		// HttpClient httpClient =
-		// HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS)
-		// .version(HttpClient.Version.HTTP_2).connectTimeout(Duration.ofMillis(config.getConnectTimeout())).build();
-		// return new Http2Client(httpClient);
-		// }
 	}
 
 	public static final String BEAN_FEIGN_CLIENT = "springBootFeignClient";
