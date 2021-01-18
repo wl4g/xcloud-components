@@ -24,7 +24,6 @@ import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConf
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.Http2FeignClientAutoConfiguration;
 import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -66,7 +65,6 @@ public class SpringBootFeignConfigurer {
 	}
 
 	@ConditionalOnExpression(KEY_OKHTTP_EXPRESSION)
-	@AutoConfigureAfter(SpringBootFeignConfigurer.class)
 	@ConditionalOnClass(OkHttpClient.class)
 	public static class OkhttpFeignClientAutoConfiguration {
 		@Bean
@@ -84,7 +82,6 @@ public class SpringBootFeignConfigurer {
 	}
 
 	@ConditionalOnExpression(KEY_HTTP2_EXPRESSION)
-	@AutoConfigureAfter(SpringBootFeignConfigurer.class)
 	// @ConditionalOnClass(HttpClient.class)
 	public static class Http2FeignClientAutoConfiguration {
 		// @Bean(BEAN_FEIGN_CLIENT)
