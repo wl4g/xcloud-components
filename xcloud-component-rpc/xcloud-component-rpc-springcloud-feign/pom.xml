@@ -91,6 +91,18 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<exclusions>
+				<!-- Because it is not mature enough at present, it is not recommended to use it for the time being. spring-cloud-ribbon should continue 
+					to be used. -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.springframework.cloud</groupId> -->
+				<!-- <artifactId>spring-cloud-starter-loadbalancer</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

@@ -33,4 +33,6 @@ public interface SpringCloudConfigConstant extends EnvConstant {
 
 	public static final String KEY_LOADBALANCER_RANDOM = "spring.cloud.xcloud.component.rpc.spring-cloud.loadbalancer.random";
 
+	public static final String KEY_LOADBALANCER_GRAY = "spring.cloud.xcloud.component.rpc.spring-cloud.loadbalancer.gray";
+
 }
