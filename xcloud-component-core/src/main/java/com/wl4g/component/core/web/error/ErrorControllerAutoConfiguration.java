@@ -32,6 +32,7 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -81,6 +82,7 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 		return super.newPrefixHandlerMapping("/", ErrorController.class);
 	}
 
+	@ConditionalOnBean(ErrorHandlerProperties.class)
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 	@ConditionalOnClass(ViewResolver.class)
 	static class ReactiveSmartErrorAutoConfiguration {
@@ -101,6 +103,7 @@ public class ErrorControllerAutoConfiguration extends PrefixHandlerMappingSuppor
 		}
 	}
 
+	@ConditionalOnBean(ErrorHandlerProperties.class)
 	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 	static class ServletSmartErrorAutoConfiguration {
 		/**
