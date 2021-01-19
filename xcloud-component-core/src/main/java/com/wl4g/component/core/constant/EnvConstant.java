@@ -37,6 +37,6 @@ public interface EnvConstant {
 	 * by default
 	 */
 	public static final long RPC_ATTACTMENT_MAX_BYTES = parseLong(
-			getProperty("spring.boot.xcloud.rpc.attachment.max-bytes", "4096"));
+			getProperty("spring.xcloud.rpc.attachment.max-bytes", "4096"));
 
 }

@@ -15,25 +15,24 @@ spring:
     name: hystrix-dashboard
   profiles:
     active: dev # for default
-  boot:
-    xcloud:
-      component:
-        framework:
-          default-boot-configurer:
-            enable: false
-          naming-prototype-factory:
-            enable: false
-          generic-operator:
-            enable: false
-          smart-proxy:
-            enable: false
-        web:
-          embedded-webapps:
-            enable: false
-          human-date-converter:
-            enable: false
-          global-error:
-            enable: false
+  xcloud:
+    component:
+      framework:
+        default-boot-configurer:
+          enable: false
+        naming-prototype-factory:
+          enable: false
+        generic-operator:
+          enable: false
+        smart-proxy:
+          enable: false
+      web:
+        embedded-webapps:
+          enable: false
+        human-date-converter:
+          enable: false
+        global-error:
+          enable: false
 
 management:
 #  port: 8099

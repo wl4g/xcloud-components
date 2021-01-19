@@ -29,18 +29,18 @@ package com.wl4g.component.core.constant;
  */
 public interface CoreConfigConstant extends EnvConstant {
 
-	public static final String KEY_BOOT_DEFAULT = "spring.boot.xcloud.component.framework.default-boot-configurer";
+	public static final String KEY_BOOT_DEFAULT = "spring.xcloud.component.framework.default-boot-configurer";
 
-	public static final String KEY_NAMING_PROTOYPE_FACTORY = "spring.boot.xcloud.component.framework.naming-prototype-factory";
+	public static final String KEY_NAMING_PROTOYPE_FACTORY = "spring.xcloud.component.framework.naming-prototype-factory";
 
-	public static final String KEY_GENERIC_OPERATOR = "spring.boot.xcloud.component.framework.generic-operator";
+	public static final String KEY_GENERIC_OPERATOR = "spring.xcloud.component.framework.generic-operator";
 
-	public static final String KEY_SMART_PROXY = "spring.boot.xcloud.component.framework.smart-proxy";
+	public static final String KEY_SMART_PROXY = "spring.xcloud.component.framework.smart-proxy";
 
-	public static final String KEY_WEB_HUMAN_DATE_CONVERTER = "spring.boot.xcloud.component.web.human-date-converter";
+	public static final String KEY_WEB_HUMAN_DATE_CONVERTER = "spring.xcloud.component.web.human-date-converter";
 
-	public static final String KEY_WEB_GLOBAL_ERROR = "spring.boot.xcloud.component.web.global-error";
+	public static final String KEY_WEB_GLOBAL_ERROR = "spring.xcloud.component.web.global-error";
 
-	public static final String KEY_WEB_EMBEDDED_WEBAPP = "spring.boot.xcloud.component.web.embedded-webapps";
+	public static final String KEY_WEB_EMBEDDED_WEBAPP = "spring.xcloud.component.web.embedded-webapps";
 
 }

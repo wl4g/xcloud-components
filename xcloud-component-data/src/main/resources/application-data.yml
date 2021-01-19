@@ -9,9 +9,9 @@
 #
 
 spring:
-   boot:
-      xcloud:
-         components:
-            data:
-               mybatis-loader:
-                  enable: false # Default by auto mode (i.e. debug mode or not)
+  cloud:
+    components:
+      data:
+        mybatis-loader:
+          enable: false # Default by auto mode (i.e. debug mode or not)
+        
