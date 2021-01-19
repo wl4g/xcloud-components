@@ -61,14 +61,13 @@ import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.utils.expression.SpelExpressions;
-import static com.wl4g.component.rpc.springcloud.feign.constant.SpringCloudConfigConstant.*;
+import static com.wl4g.component.rpc.springcloud.feign.constant.SpringCloudFeignConstant.*;
 
 import reactor.core.publisher.Mono;
 
@@ -83,7 +82,6 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("deprecation")
 @LoadBalancerClients
 @ConditionalOnDiscoveryEnabled
-@Configuration(proxyBeanMethods = false)
 public class EnhanceSpringCloudLoadbalancerAutoConfiguration {
 
 	// [FIXED] Override default LoadBalancerClientFactory.
@@ -245,7 +243,6 @@ public class EnhanceSpringCloudLoadbalancerAutoConfiguration {
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnReactiveDiscoveryEnabled
 	@Order(REACTIVE_SERVICE_INSTANCE_SUPPLIER_ORDER)
 	public static class ReactiveSupportConfiguration {
@@ -292,7 +289,6 @@ public class EnhanceSpringCloudLoadbalancerAutoConfiguration {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnBlockingDiscoveryEnabled
 	@Order(REACTIVE_SERVICE_INSTANCE_SUPPLIER_ORDER + 1)
 	public static class BlockingSupportConfiguration {

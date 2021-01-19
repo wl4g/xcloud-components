@@ -22,17 +22,16 @@ package com.wl4g.component.rpc.springcloud.feign.constant;
 import com.wl4g.component.core.constant.EnvConstant;
 
 /**
- * {@link SpringCloudConfigConstant}
+ * {@link SpringCloudFeignConstant}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-14
  * @sine v1.0
  * @see
  */
-public interface SpringCloudConfigConstant extends EnvConstant {
+public interface SpringCloudFeignConstant extends EnvConstant {
 
-	public static final String KEY_LOADBALANCER_RANDOM = "spring.cloud.xcloud.component.rpc.spring-cloud.loadbalancer.random";
-
-	public static final String KEY_LOADBALANCER_GRAY = "spring.cloud.xcloud.component.rpc.spring-cloud.loadbalancer.gray";
+	public static final String KEY_LOADBALANCER_RANDOM = "spring.xcloud.component.spring-cloud-feign.lb.random";
+	public static final String KEY_LOADBALANCER_GRAY = "spring.xcloud.component.spring-cloud-feign.lb.gray";
 
 }

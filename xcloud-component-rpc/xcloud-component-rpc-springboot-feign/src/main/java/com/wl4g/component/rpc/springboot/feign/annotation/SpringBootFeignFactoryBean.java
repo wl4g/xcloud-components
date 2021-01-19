@@ -74,6 +74,7 @@ import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.BEAN_FEIGN_CLIENT;
+import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.KEY_CONFIG_PREFIX;
 import static feign.Util.UTF_8;
 import static feign.Util.toByteArray;
 import static feign.Util.valuesOrEmpty;
@@ -260,8 +261,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 	}
 
 	private Contract obtainDefaultSpringMvcContract() {
-		return (defaultContract = (Contract) applicationContext
-				.getBean(SpringBootFeignConfigurer.BEAN_SPRINGMVC_CONTRACT));
+		return (defaultContract = (Contract) applicationContext.getBean(SpringBootFeignConfigurer.BEAN_SPRINGMVC_CONTRACT));
 	}
 
 	private SpringBootFeignProperties obtainFeignConfigProperties() {
@@ -336,8 +336,8 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 
 	private String buildRequestUrl() {
 		String url = trimToEmpty(isBlank(this.url) ? config.getDefaultUrl() : this.url);
-		hasText(url, "Feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()",
-				SpringBootFeignConfigurer.KEY_PREFIX, SpringBootFeignClient.class.getSimpleName());
+		hasText(url, "Feign base url is required, please check configuration: %s.defaultUrl or use @%s#url()", KEY_CONFIG_PREFIX,
+				SpringBootFeignClient.class.getSimpleName());
 		return url + cleanPath();
 	}
 

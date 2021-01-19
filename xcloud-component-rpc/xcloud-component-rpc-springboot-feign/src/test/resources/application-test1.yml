@@ -1,7 +1,7 @@
 spring:
-  boot:
-    xcloud:
-      feign:
+  xcloud:
+    component:
+      spring-boot-feign:
         default-url: https://api.github.com
         default-log-level: BASIC # NONE|BASIC|HEADERS|FULL
         client-provider: okhttp3 # http2Client|okhttp3, default to okhttp3

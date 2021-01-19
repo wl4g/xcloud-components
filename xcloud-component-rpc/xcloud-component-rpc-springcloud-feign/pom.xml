@@ -108,6 +108,18 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 		</dependency>
+		<!-- spring-cloud-loadbalancer-2.2.6.RELEASE.jar Retrying is not supported at this time -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.springframework.retry</groupId> -->
+		<!-- <artifactId>spring-retry</artifactId> -->
+		<!-- <scope>compile</scope> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <artifactId>spring-core</artifactId> -->
+		<!-- <groupId>org.springframework</groupId> -->
+		<!-- </exclusion> -->
+		<!-- </exclusions> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>

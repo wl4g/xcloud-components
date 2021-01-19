@@ -16,8 +16,8 @@ spring:
     basic:
       enabled: true
     user:
-      name: eureka
-      password: wl4g.com
+      name: ${SPRING_SECURITY_USER_NAME:eureka}
+      password: ${SPRING_SECURITY_USER_NAME:wl4g.com}
 
 # https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 eureka:

@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 
 import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.*;
+import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.KEY_CONFIG_PREFIX;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -15,9 +16,10 @@ import feign.Client;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-@ConditionalOnExpression(KEY_OKHTTP_EXPRESSION)
+@ConditionalOnExpression("'okhttp3'.equalsIgnoreCase('${" + KEY_CONFIG_PREFIX + ".client-provider:okhttp3}')")
 @ConditionalOnClass(OkHttpClient.class)
 public class OkhttpFeignClientConfiguration {
+
 	@Bean
 	public ConnectionPool okHttp3ConnectionPool(SpringBootFeignProperties config) {
 		return new ConnectionPool(config.getMaxIdleConnections(), config.getKeepAliveDuration(), MINUTES);
@@ -30,4 +32,5 @@ public class OkhttpFeignClientConfiguration {
 				.writeTimeout(config.getWriteTimeout(), MILLISECONDS).build();
 		return new feign.okhttp.OkHttpClient(delegate);
 	}
+
 }

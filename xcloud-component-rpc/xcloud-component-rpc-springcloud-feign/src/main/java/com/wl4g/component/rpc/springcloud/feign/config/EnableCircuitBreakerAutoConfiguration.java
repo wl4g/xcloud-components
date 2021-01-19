@@ -21,7 +21,6 @@ package com.wl4g.component.rpc.springcloud.feign.config;
 
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * {@link EnableCircuitBreakerAutoConfiguration}
@@ -31,7 +30,6 @@ import org.springframework.context.annotation.Configuration;
  * @sine v1.0
  * @see
  */
-@Configuration
 @EnableCircuitBreaker
 @EnableHystrix
 public class EnableCircuitBreakerAutoConfiguration {

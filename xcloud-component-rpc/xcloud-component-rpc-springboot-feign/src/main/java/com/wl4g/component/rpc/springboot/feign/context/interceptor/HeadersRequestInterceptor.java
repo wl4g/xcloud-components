@@ -41,7 +41,7 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
 /**
- * {@link SettableHeadersRequestInterceptor}
+ * {@link HeadersRequestInterceptor}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-04
@@ -49,7 +49,7 @@ import feign.RequestTemplate;
  * @see
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
-public class SettableHeadersRequestInterceptor implements RequestInterceptor {
+public class HeadersRequestInterceptor implements RequestInterceptor {
 
 	private final Map<Method, List<List<Annotation>>> knownMethodAnnotations = new ConcurrentHashMap<>(64);
 

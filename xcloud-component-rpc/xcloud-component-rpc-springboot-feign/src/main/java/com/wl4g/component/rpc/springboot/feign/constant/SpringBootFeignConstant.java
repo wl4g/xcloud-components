@@ -17,22 +17,20 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springcloud.feign.config;
+package com.wl4g.component.rpc.springboot.feign.constant;
 
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import com.wl4g.component.core.constant.EnvConstant;
 
 /**
- * Just for downward compatibility, In the new version of spring cloud, it will
- * automatically enable configuration.
+ * {@link SpringBootFeignConstant}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2021-01-11
+ * @version v1.0 2021-01-14
  * @sine v1.0
- * @see https://blog.csdn.net/boling_cavalry/article/details/82668480
- * @see https://blog.csdn.net/qq_28893679/article/details/78395572
+ * @see
  */
-@EnableDiscoveryClient
-@EnableEurekaClient // Just for downward compatibility
-public class EnableEurekaClientAutoConfiguration {
+public interface SpringBootFeignConstant extends EnvConstant {
+
+	public static final String KEY_CONFIG_PREFIX = "spring.xcloud.component.spring-boot-feign";
+
 }

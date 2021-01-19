@@ -30,8 +30,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  * @sine v1.0
  * @see
  */
-@FeignClient(name = "github", path = "${github.api.user-path}abcd1234") // Invalid
-@RequestMapping("${github.api.user-path}") // Priority
+@FeignClient(name = "github", path = "${github.api.user-path}abcd1234") // 'path' invalid, 
+@RequestMapping("${github.api.user-path}") // Priority, covered @FeignClient#path
 public interface GithubService3 {
 
 	@RequestMapping(method = GET, path = "/{owner}/repos")

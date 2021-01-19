@@ -17,8 +17,8 @@ spring:
     basic:
       enabled: false
     user:
-      name: eureka
-      password: wl4g.com
+      name: ${SPRING_SECURITY_USER_NAME:eureka}
+      password: ${SPRING_SECURITY_USER_NAME:wl4g.com}
 
 # Default eureka (local)configuration.
 eureka:

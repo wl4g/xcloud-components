@@ -1,3 +1,4 @@
+package feign.hystrix;
 /**
  * Copyright 2012-2020 The Feign Authors
  *
@@ -11,7 +12,6 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package feign.hystrix;
 
 import feign.FeignException;
 import java.util.logging.Level;

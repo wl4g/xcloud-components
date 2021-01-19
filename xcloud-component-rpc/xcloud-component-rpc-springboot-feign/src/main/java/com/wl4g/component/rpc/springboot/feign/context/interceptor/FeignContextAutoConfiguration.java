@@ -69,8 +69,8 @@ public class FeignContextAutoConfiguration {
 	}
 
 	@Bean
-	public SettableHeadersRequestInterceptor settableHeadersRequestInterceptor() {
-		return new SettableHeadersRequestInterceptor();
+	public HeadersRequestInterceptor headersRequestInterceptor() {
+		return new HeadersRequestInterceptor();
 	}
 
 	@Bean

@@ -1,6 +1,6 @@
 package com.wl4g.component.rpc.springboot.feign.config;
 
-import static com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer.*;
+import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.KEY_CONFIG_PREFIX;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 
@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 //
 //import feign.http2client.Http2Client;
 
-@ConditionalOnExpression(KEY_HTTP2_EXPRESSION)
+@ConditionalOnExpression("'http2'.equalsIgnoreCase('${" + KEY_CONFIG_PREFIX + ".client-provider:http2}')")
 // @ConditionalOnClass(HttpClient.class)
 public class Http2FeignClientConfiguration {
 

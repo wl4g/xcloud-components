@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
+import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.*;
 
 /**
  * {@link SpringBootFeignConfigurer}
@@ -33,7 +34,7 @@ import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 public class SpringBootFeignConfigurer {
 
 	@Bean
-	@ConfigurationProperties(prefix = KEY_PREFIX)
+	@ConfigurationProperties(prefix = KEY_CONFIG_PREFIX)
 	public SpringBootFeignProperties springBootFeignProperties() {
 		return new SpringBootFeignProperties();
 	}
@@ -45,9 +46,5 @@ public class SpringBootFeignConfigurer {
 
 	public static final String BEAN_FEIGN_CLIENT = "springBootFeignClient";
 	public static final String BEAN_SPRINGMVC_CONTRACT = "springBootFeignMvcContract";
-	public static final String KEY_PREFIX = "spring.boot.xcloud.feign";
-	public static final String KEY_OKHTTP_EXPRESSION = "'okhttp3'.equalsIgnoreCase('${" + KEY_PREFIX
-			+ ".client-provider:okhttp3}')";
-	public static final String KEY_HTTP2_EXPRESSION = "'http2'.equalsIgnoreCase('${" + KEY_PREFIX + ".client-provider:http2}')";
 
 }

@@ -21,7 +21,6 @@ package com.wl4g.component.rpc.springcloud.feign.config;
 
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 
@@ -33,7 +32,6 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServl
  * @sine v1.0
  * @see
  */
-@Configuration
 public class EnableHystrixStreamAutoConfiguration {
 
 	@Bean

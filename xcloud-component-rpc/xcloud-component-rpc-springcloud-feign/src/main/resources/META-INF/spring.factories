@@ -1,0 +1,9 @@
+# Application Auto Configuration.
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.wl4g.component.rpc.springcloud.feign.config.EnableCircuitBreakerAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.config.EnableEurekaClientAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.config.EnableHystrixStreamAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.config.EnhanceSpringCloudLoadbalancerAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.config.EnhanceSpringCloudLoadbalancerAutoConfiguration.ReactiveSupportConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.config.EnhanceSpringCloudLoadbalancerAutoConfiguration.BlockingSupportConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.config.EnableFeignOkHttpAutoConfiguration
