@@ -32,7 +32,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.support.redis.locks.JedisLockManager;
@@ -53,7 +52,6 @@ import redis.clients.jedis.exceptions.JedisException;
  * @version v1.0 2018年9月16日
  * @since
  */
-@Configuration
 public class JedisAutoConfiguration {
 
 	// Optional

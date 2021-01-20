@@ -16,6 +16,12 @@ spring:
     component:
       #support:
       #  cli.enable: false # Default by false
+      #  jedis:
+      #    enable: false # Default by true
+      #    #passwd: ""
+      #    connect-timeout: 10000
+      #    max-attempts: 10
+      #    nodes: ${IAM_REDIS_NODES:owner-node5:6379,owner-node5:6380,owner-node5:6381,owner-node3:7379,owner-node3:7380,owner-node3:7381}
       #  notification:
       #    mail:
       #      enable: false # Default[false]

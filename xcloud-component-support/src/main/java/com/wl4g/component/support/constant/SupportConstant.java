@@ -35,9 +35,6 @@ public abstract class SupportConstant extends BaseConstant {
 
 	public static final String KEY_SUPPORT_NOTIFY_PREFIX = "spring.xcloud.component.support.notification";
 
-	// TODO
-	// public static final String
-	// KEY_SUPPORT_JEDIS_PREFIX="spring.xcloud.component.support.jedis";
-	public static final String KEY_SUPPORT_JEDIS_PREFIX = "jedis";
+	public static final String KEY_SUPPORT_JEDIS_PREFIX = "spring.xcloud.component.support.jedis";
 
 }
