@@ -22,7 +22,7 @@ import static java.util.Collections.singletonList;
 import org.junit.Test;
 
 import com.wl4g.component.support.redis.jedis.JedisOperator;
-import com.wl4g.component.support.redis.jedis.JedisOperatorFactory;
+import com.wl4g.component.support.redis.jedis.JedisOperatorBeanFactory;
 import com.wl4g.component.support.redis.jedis.JedisAutoConfiguration.JedisProperties;
 import com.wl4g.component.support.redis.jedis.JedisOperator.RedisProtoUtil;
 
@@ -60,7 +60,7 @@ public class JedisOperatorFactoryTests {
 		config.setNodes(singletonList("127.0.0.1:6379"));
 
 		out.println("Instantiating composite operators adapter with single ...");
-		JedisOperatorFactory factory = new JedisOperatorFactory(config);
+		JedisOperatorBeanFactory factory = new JedisOperatorBeanFactory(config);
 		factory.afterPropertiesSet();
 		JedisOperator operator = factory.getJedisOperator();
 
@@ -77,7 +77,7 @@ public class JedisOperatorFactoryTests {
 		config.setPasswd("123456");
 
 		out.println("Instantiating composite operators adapter with cluster ...");
-		JedisOperatorFactory factory = new JedisOperatorFactory(config);
+		JedisOperatorBeanFactory factory = new JedisOperatorBeanFactory(config);
 		factory.afterPropertiesSet();
 		JedisOperator operator = factory.getJedisOperator();
 

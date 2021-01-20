@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 
 import com.wl4g.component.common.log.SmartLogger;
@@ -46,17 +49,17 @@ import redis.clients.jedis.exceptions.JedisException;
 /**
  * Jedis auto configuration, Support automatic adaptation to current
  * environment, use jedis singleton, jedis cluster, and then create
- * {@link JedisOperatorFactory} and {@link JedisOperator}
+ * {@link JedisOperatorBeanFactory} and {@link JedisOperator}
  * 
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2018年9月16日
  * @since
  */
-public class JedisAutoConfiguration {
+@ConditionalOnProperty(name = KEY_SUPPORT_JEDIS_PREFIX + ".enable", matchIfMissing = true)
+public class JedisAutoConfiguration implements ApplicationContextAware {
 
 	// Optional
 	@Bean
-	@ConditionalOnProperty(name = KEY_SUPPORT_JEDIS_PREFIX + ".enable", matchIfMissing = true)
 	@ConfigurationProperties(prefix = KEY_SUPPORT_JEDIS_PREFIX)
 	@ConditionalOnClass({ JedisCluster.class, JedisPool.class }) // or-relationship
 	@ConditionalOnMissingBean({ JedisCluster.class, JedisPool.class }) // or-relationship
@@ -66,15 +69,15 @@ public class JedisAutoConfiguration {
 
 	// Requires
 	@Bean
-	public JedisOperatorFactory jedisOperatorFactory(@Autowired(required = false) JedisProperties config,
+	public JedisOperatorBeanFactory jedisOperatorBeanFactory(@Autowired(required = false) JedisProperties config,
 			@Autowired(required = false) JedisCluster jedisCluster, @Autowired(required = false) JedisPool jedisPool) {
-		return new JedisOperatorFactory(config, jedisCluster, jedisPool);
+		return new JedisOperatorBeanFactory(config, jedisCluster, jedisPool);
 	}
 
 	// Requires
 	@Bean(BEAN_NAME_REDIS)
-	public JedisService jedisService(JedisOperatorFactory jedisFactory) {
-		return new JedisService(jedisFactory.getJedisOperator());
+	public JedisService jedisService(JedisOperatorBeanFactory factory) {
+		return new JedisService(factory.getJedisOperator());
 	}
 
 	// Requires
@@ -219,5 +222,11 @@ public class JedisAutoConfiguration {
 	 * Resolving spring byName injection conflict.
 	 */
 	public static final String BEAN_NAME_REDIS = "JedisAutoConfiguration.JedisService.Bean";
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

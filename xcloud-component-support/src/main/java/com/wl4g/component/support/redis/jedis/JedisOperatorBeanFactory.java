@@ -40,7 +40,7 @@ import redis.clients.jedis.JedisPool;
  * @date 2018年11月13日
  * @since
  */
-public class JedisOperatorFactory implements InitializingBean {
+public class JedisOperatorBeanFactory implements InitializingBean {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -63,7 +63,7 @@ public class JedisOperatorFactory implements InitializingBean {
 	 */
 	private JedisOperator jedisOperator;
 
-	public JedisOperatorFactory(JedisCluster jedisCluster, JedisPool jedisPool) {
+	public JedisOperatorBeanFactory(JedisCluster jedisCluster, JedisPool jedisPool) {
 		notNullOf(jedisCluster, "jedisCluster");
 		notNullOf(jedisPool, "jedisPool");
 		this.config = null;
@@ -71,14 +71,14 @@ public class JedisOperatorFactory implements InitializingBean {
 		this.jedisPool = jedisPool;
 	}
 
-	public JedisOperatorFactory(JedisProperties config) {
+	public JedisOperatorBeanFactory(JedisProperties config) {
 		notNullOf(config, "jedisProperties");
 		this.config = config;
 		this.jedisCluster = null;
 		this.jedisPool = null;
 	}
 
-	public JedisOperatorFactory(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
+	public JedisOperatorBeanFactory(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
 		// notNullOf(config, "jedisProperties");
 		// notNullOf(jedisCluster, "jedisCluster");
 		// notNullOf(jedisPool, "jedisPool");
