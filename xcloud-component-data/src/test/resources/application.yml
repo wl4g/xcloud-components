@@ -15,8 +15,7 @@ mybatis:
   typeAliasesPackage: com.wl4g.components.data.sample.bean.*
 
 spring:
-  application:
-    name: componentsDataAppTests
+  application.name: componentDataAppTests
   # Spring datasource configuration.
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource

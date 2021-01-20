@@ -19,7 +19,7 @@ import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_GENERIC_OPERATOR;
+import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_GENERIC_OPERATOR;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

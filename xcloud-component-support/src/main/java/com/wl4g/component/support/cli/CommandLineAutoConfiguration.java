@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 
 import com.wl4g.component.support.cli.repository.DefaultProcessRepository;
 import com.wl4g.component.support.cli.repository.ProcessRepository;
+import static com.wl4g.component.support.constant.SupportConstant.KEY_SUPPORT_CLI_PREFIX;
 
 /**
  * Command-line support auto configuration.
@@ -28,7 +29,7 @@ import com.wl4g.component.support.cli.repository.ProcessRepository;
  * @version v1.0.0 2019-10-20
  * @since
  */
-@ConditionalOnProperty(name = "spring.xcloud.support.cli.enable", matchIfMissing = false)
+@ConditionalOnProperty(name = KEY_SUPPORT_CLI_PREFIX + ".enable", matchIfMissing = false)
 public class CommandLineAutoConfiguration {
 
 	@Bean

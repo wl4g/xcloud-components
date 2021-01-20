@@ -41,7 +41,7 @@ import com.wl4g.component.common.lang.period.PeriodFormatter;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.core.bean.BaseBean;
 import com.wl4g.component.core.framework.proxy.SmartProxyProcessor;
-import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_HUMAN_DATE_CONVERTER;
+import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_WEB_HUMAN_DATE_CONVERTER;
 
 /**
  * {@link HumanDateConversionProcessor}

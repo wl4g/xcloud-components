@@ -17,26 +17,24 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.core.constant;
+package com.wl4g.component.rpc.springboot.feign.constant;
 
-import static java.lang.Long.parseLong;
-import static java.lang.System.getProperty;
+import com.wl4g.component.core.constant.BaseConstant;
 
 /**
- * {@link EnvConstant}
+ * {@link RpcContextConstant}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2021-01-05
+ * @version v1.0 2021-01-20
  * @sine v1.0
  * @see
  */
-public interface EnvConstant {
+public abstract class RpcContextConstant extends BaseConstant {
 
 	/**
 	 * For example, Tomcat 8.0 allows a maximum of 8KB of HTTP request headers
 	 * by default
 	 */
-	public static final long RPC_ATTACTMENT_MAX_BYTES = parseLong(
-			getProperty("spring.xcloud.rpc.attachment.max-bytes", "4096"));
+	public static final long RPC_ATTACTMENT_MAX_BYTES = getLongProperty("spring.xcloud.rpc.attachment.max-bytes", 4096L);
 
 }

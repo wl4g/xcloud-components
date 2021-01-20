@@ -17,22 +17,27 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springcloud.feign.constant;
+package com.wl4g.component.support.constant;
 
-import com.wl4g.component.rpc.springboot.feign.constant.RpcContextConstant;
+import com.wl4g.component.core.constant.BaseConstant;
 
 /**
- * {@link SpringCloudFeignConstant}
+ * {@link SupportConstant}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2021-01-14
+ * @version v1.0 2021-01-20
  * @sine v1.0
  * @see
  */
-public abstract class SpringCloudFeignConstant extends RpcContextConstant {
+public abstract class SupportConstant extends BaseConstant {
 
-	public static final String KEY_LOADBALANCER_RANDOM = "spring.xcloud.component.spring-cloud-feign.lb.random";
+	public static final String KEY_SUPPORT_CLI_PREFIX = "spring.xcloud.component.support.cli";
 
-	public static final String KEY_LOADBALANCER_GRAY = "spring.xcloud.component.spring-cloud-feign.lb.gray";
+	public static final String KEY_SUPPORT_NOTIFY_PREFIX = "spring.xcloud.component.support.notification";
+
+	// TODO
+	// public static final String
+	// KEY_SUPPORT_JEDIS_PREFIX="spring.xcloud.component.support.jedis";
+	public static final String KEY_SUPPORT_JEDIS_PREFIX = "jedis";
 
 }

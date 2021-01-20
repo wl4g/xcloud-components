@@ -16,6 +16,7 @@
 package com.wl4g.component.support.notification;
 
 import static com.wl4g.component.support.notification.NoOpMessageNotifier.*;
+import static com.wl4g.component.support.constant.SupportConstant.KEY_SUPPORT_NOTIFY_PREFIX;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -60,71 +61,71 @@ public class NotificationAutoConfiguration {
 	// --- Notify properties. ---
 
 	@Bean(name = "apnsNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".apns.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".apns")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".apns.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".apns")
 	public ApnsNotifyProperties apnsNotifyProperties() {
 		return new ApnsNotifyProperties();
 	}
 
 	@Bean(name = "barkNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".bark.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".bark")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".bark.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".bark")
 	public BarkNotifyProperties barkNotifyProperties() {
 		return new BarkNotifyProperties();
 	}
 
 	@Bean(name = "dingtalkNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".dingtalk.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".dingtalk")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".dingtalk.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".dingtalk")
 	public DingtalkNotifyProperties dingtalkNotifyProperties() {
 		return new DingtalkNotifyProperties();
 	}
 
 	@Bean(name = "facebookNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".facebook.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".facebook")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".facebook.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".facebook")
 	public FacebookNotifyProperties facebookNotifyProperties() {
 		return new FacebookNotifyProperties();
 	}
 
 	@Bean(name = "mailNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".mail.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".mail")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".mail.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".mail")
 	public MailNotifyProperties mailNotifyProperties() {
 		return new MailNotifyProperties();
 	}
 
 	@Bean(name = "qqNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".qq.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".qq")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".qq.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".qq")
 	public QqNotifyProperties qqNotifyProperties() {
 		return new QqNotifyProperties();
 	}
 
 	@Bean(name = "smsNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".sms.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".sms")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".sms.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".sms")
 	public SmsNotifyProperties smsNotifyProperties() {
 		return new SmsNotifyProperties();
 	}
 
 	@Bean(name = "vmsNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".vms.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".vms")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".vms.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".vms")
 	public VmsNotifyProperties vmsNotifyProperties() {
 		return new VmsNotifyProperties();
 	}
 
 	@Bean(name = "wechatNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".wechat.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".wechat")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".wechat.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".wechat")
 	public WechatNotifyProperties wechatNotifyProperties() {
 		return new WechatNotifyProperties();
 	}
 
 	@Bean(name = "twitterNotifyProperties")
-	@ConditionalOnProperty(name = KEY_NOTIFY_PREFIX + ".twitter.enable", matchIfMissing = false)
-	@ConfigurationProperties(prefix = KEY_NOTIFY_PREFIX + ".twitter")
+	@ConditionalOnProperty(name = KEY_SUPPORT_NOTIFY_PREFIX + ".twitter.enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_NOTIFY_PREFIX + ".twitter")
 	public TwitterNotifyProperties twitterNotifyProperties() {
 		return new TwitterNotifyProperties();
 	}
@@ -246,8 +247,6 @@ public class NotificationAutoConfiguration {
 
 	}
 
-	final public static String BEAN_NOTIFIER_ADAPTER = "compositeMessageNotifierAdapter";
-
-	final public static String KEY_NOTIFY_PREFIX = "spring.cloud.devops.support.notification";
+	public static final String BEAN_NOTIFIER_ADAPTER = "compositeMessageNotifierAdapter";
 
 }

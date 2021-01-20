@@ -19,8 +19,6 @@
  */
 package com.wl4g.component.rpc.springboot.feign.constant;
 
-import com.wl4g.component.core.constant.EnvConstant;
-
 /**
  * {@link SpringBootFeignConstant}
  * 
@@ -29,7 +27,7 @@ import com.wl4g.component.core.constant.EnvConstant;
  * @sine v1.0
  * @see
  */
-public interface SpringBootFeignConstant extends EnvConstant {
+public abstract class SpringBootFeignConstant extends RpcContextConstant {
 
 	public static final String KEY_CONFIG_PREFIX = "spring.xcloud.component.spring-boot-feign";
 

@@ -19,7 +19,7 @@ import com.wl4g.component.common.log.SmartLogger;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_NAMING_PROTOYPE_FACTORY;
+import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_NAMING_PROTOYPE_FACTORY;
 import static java.util.Objects.nonNull;
 
 import java.util.List;

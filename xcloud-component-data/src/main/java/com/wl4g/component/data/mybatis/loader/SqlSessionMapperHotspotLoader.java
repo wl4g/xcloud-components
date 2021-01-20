@@ -300,7 +300,7 @@ public final class SqlSessionMapperHotspotLoader implements ApplicationRunner {
 	 * @since
 	 */
 	public static class HotspotLoaderProperties implements Serializable {
-		private static final long serialVersionUID = -2662416556401160389L;
+		private static final long serialVersionUID = -1L;
 
 		/** {@link SqlSessionFactory} watching intervalMs. */
 		private long monitorLoaderIntervalMs = 1000L;

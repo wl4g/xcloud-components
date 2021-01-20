@@ -35,6 +35,8 @@ import com.wl4g.component.data.mybatis.loader.SqlSessionMapperHotspotLoader;
 import com.wl4g.component.data.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoaderProperties;
 import com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor;
 import com.wl4g.component.data.mybatis.mapper.IdGenerator;
+import static com.wl4g.component.data.constant.DataComponentConstant.KEY_MYBATIS_PREFIX;
+import static com.wl4g.component.data.constant.DataComponentConstant.KEY_HOTSPOT_LOADER_PREFIX;
 
 /**
  * {@link SqlSessionMapperHotspotLoader} auto configuration.
@@ -110,9 +112,6 @@ public class MybatisAutoConfiguration {
 	public PreparedBeanMapperInterceptor preparedBeanMapperInterceptor() {
 		return new PreparedBeanMapperInterceptor();
 	}
-
-	final public static String KEY_MYBATIS_PREFIX = "mybatis";
-	final public static String KEY_HOTSPOT_LOADER_PREFIX = "spring.xcloud.components.data.mybatis-loader";
 
 	/**
 	 * Make sure that the prepared bean mapper interceptor is executed the

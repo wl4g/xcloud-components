@@ -17,6 +17,7 @@ package com.wl4g.component.support.redis.jedis;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
+import static com.wl4g.component.support.constant.SupportConstant.KEY_SUPPORT_JEDIS_PREFIX;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -57,8 +58,8 @@ public class JedisAutoConfiguration {
 
 	// Optional
 	@Bean
-	@ConditionalOnProperty(name = KEY_JEDIS_PREFIX + ".enable", matchIfMissing = true)
-	@ConfigurationProperties(prefix = KEY_JEDIS_PREFIX)
+	@ConditionalOnProperty(name = KEY_SUPPORT_JEDIS_PREFIX + ".enable", matchIfMissing = true)
+	@ConfigurationProperties(prefix = KEY_SUPPORT_JEDIS_PREFIX)
 	@ConditionalOnClass({ JedisCluster.class, JedisPool.class }) // or-relationship
 	@ConditionalOnMissingBean({ JedisCluster.class, JedisPool.class }) // or-relationship
 	public JedisProperties jedisProperties() {
@@ -217,13 +218,8 @@ public class JedisAutoConfiguration {
 	}
 
 	/**
-	 * That jedis configuration property key.
-	 */
-	final public static String KEY_JEDIS_PREFIX = "redis";
-
-	/**
 	 * Resolving spring byName injection conflict.
 	 */
-	final public static String BEAN_NAME_REDIS = "JedisAutoConfiguration.JedisService.Bean";
+	public static final String BEAN_NAME_REDIS = "JedisAutoConfiguration.JedisService.Bean";
 
 }

@@ -9,9 +9,10 @@
 #
 
 spring:
-  cloud:
-    components:
+  xcloud:
+    component:
       data:
-        mybatis-loader:
-          enable: false # Default by auto mode (i.e. debug mode or not)
-        
+        #mybatis-loader:
+        #  enable: false # Default by auto(currently running in JVM jdwp mode?)
+        #  fastFail: false # Default by false
+        #  monitorLoaderIntervalMs: 1000 # Default by 1000ms

@@ -15,7 +15,7 @@
  */
 package com.wl4g.component.core.boot;
 
-import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_BOOT_DEFAULT;
+import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_BOOT_DEFAULT;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
