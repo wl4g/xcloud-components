@@ -61,17 +61,17 @@ public class SimpleEmbedWebappEndpoint extends BaseController {
 	/**
 	 * {@link DefaultWebAppControllerProperties}
 	 */
-	final protected SimpleEmbedWebappProperties config;
+	protected final SimpleEmbedWebappProperties config;
 
 	/**
 	 * Web file buffer cache
 	 */
-	final protected WebResourceCache cache;
+	protected final WebResourceCache cache;
 
 	/**
 	 * {@link ResourcePatternResolver}
 	 */
-	final protected ResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
+	protected final ResourcePatternResolver resolver = new ClassPathResourcePatternResolver();
 
 	public SimpleEmbedWebappEndpoint(SimpleEmbedWebappProperties config) {
 		this(config, new DefaultWebappsGuavaCache());

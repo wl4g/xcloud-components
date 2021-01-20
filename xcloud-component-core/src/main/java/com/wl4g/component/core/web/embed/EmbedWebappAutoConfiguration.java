@@ -40,8 +40,7 @@ import java.util.Properties;
 public class EmbedWebappAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean(BEAN_DEFAULT_PROPERTIES)
-	@ConfigurationProperties(prefix = KEY_EMBEDDED_WEBAPP_BASE)
-	@ConditionalOnProperty(value = KEY_EMBEDDED_WEBAPP_BASE + ".enable", matchIfMissing = false)
+	@ConfigurationProperties(prefix = KEY_WEB_EMBEDDED_WEBAPP)
 	public SimpleEmbedWebappProperties defaultEmbedWebappEndpointProperties() {
 		return new SimpleEmbedWebappProperties();
 	}
@@ -177,6 +176,5 @@ public class EmbedWebappAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	public static final String BEAN_DEFAULT_PROPERTIES = "defaultSimpleEmbeddedWebappsProperties";
 	public static final String BEAN_DEFAULT_ENDPOINT = "defaultSimpleEmbeddedWebappsEndpoint";
-	public static final String KEY_EMBEDDED_WEBAPP_BASE = "spring.xcloud.embedded-webapps";
 
 }
