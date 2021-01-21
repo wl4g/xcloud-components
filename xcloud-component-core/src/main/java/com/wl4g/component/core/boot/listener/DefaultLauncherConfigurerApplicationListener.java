@@ -208,7 +208,6 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	private ISpringLauncherConfigurer loadClassAndInstantiateSpringLauncherConfigurer() throws Exception {
 		// Load launcher classes.
 		List<Class<?>> classes = emptyList();
@@ -225,9 +224,15 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 		}
 
 		if (!CollectionUtils2.isEmpty(classes)) {
-			AnnotationAwareOrderComparator.sort(classes);
-			Class<ISpringLauncherConfigurer> bestClass = (Class<ISpringLauncherConfigurer>) classes.get(0);
-			return ReflectionUtils.accessibleConstructor(bestClass).newInstance();
+			List<Object> candidates = classes.stream().map(cls -> {
+				try {
+					return ReflectionUtils.accessibleConstructor(cls).newInstance();
+				} catch (Exception e) {
+					throw new IllegalStateException(e);
+				}
+			}).collect(toList());
+			AnnotationAwareOrderComparator.sort(candidates);
+			return (ISpringLauncherConfigurer) candidates.get(0); // Using best
 		}
 
 		return null;
