@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.core.web.error;
+package com.wl4g.component.core.web.error.servlet;
 
 import java.util.Map;
 
@@ -43,9 +43,11 @@ import com.wl4g.component.common.jvm.JvmRuntimeKit;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.component.common.web.rest.RespBase;
+import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorController;
+import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.component.core.web.error.CompositeErrorConfigurer;
+import com.wl4g.component.core.web.error.ErrorConfigurer;
 import com.wl4g.component.core.web.error.ErrorConfigurer.RenderingErrorHandler;
-import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorController;
-import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 /**
  * Servlet smart global error controller.
@@ -54,10 +56,10 @@ import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorH
  * @version v1.0 2019年1月10日
  * @since
  */
-@ErrorController
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@ErrorController
 @ControllerAdvice
-@ConditionalOnBean(ErrorControllerAutoConfiguration.class)
+@ConditionalOnBean(ServletErrorAutoConfiguration.class)
 public class ServletSmartErrorHandler extends AbstractErrorController {
 	protected final SmartLogger log = getLogger(getClass());
 

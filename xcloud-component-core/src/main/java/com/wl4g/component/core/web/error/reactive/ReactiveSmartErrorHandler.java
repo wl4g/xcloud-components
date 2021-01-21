@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.core.web.error;
+package com.wl4g.component.core.web.error.reactive;
 
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
@@ -36,6 +37,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -47,8 +49,11 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.CookieUtils;
 import com.wl4g.component.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.component.common.web.rest.RespBase;
+import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorController;
+import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.component.core.web.error.CompositeErrorConfigurer;
+import com.wl4g.component.core.web.error.ErrorConfigurer;
 import com.wl4g.component.core.web.error.ErrorConfigurer.RenderingErrorHandler;
-import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
 
 import static com.wl4g.component.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
 
@@ -62,8 +67,9 @@ import reactor.core.publisher.Mono;
  * @sine v1.0.0
  * @see https://blog.csdn.net/keets1992/article/details/85077874
  */
-// @ErrorController
-// @ControllerAdvice
+@ErrorController
+@ControllerAdvice
+@ConditionalOnBean(ReactiveErrorAutoConfiguration.class)
 public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler implements InitializingBean {
 
 	protected final SmartLogger log = getLogger(getClass());

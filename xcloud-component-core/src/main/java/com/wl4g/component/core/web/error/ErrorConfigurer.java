@@ -49,7 +49,7 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.view.Freemarkers;
 import com.wl4g.component.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.component.common.web.rest.RespBase;
-import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorHandlerProperties;
 
 import static com.wl4g.component.common.web.rest.RespBase.RetCode.newCode;
 
@@ -279,7 +279,7 @@ public abstract class ErrorConfigurer implements InitializingBean {
 	/**
 	 * {@link RenderingErrorHandler}
 	 */
-	static interface RenderingErrorHandler {
+	public static interface RenderingErrorHandler {
 
 		default Object renderingWithJson(Map<String, Object> model, RespBase<Object> resp) throws Exception {
 			throw new UnsupportedOperationException();

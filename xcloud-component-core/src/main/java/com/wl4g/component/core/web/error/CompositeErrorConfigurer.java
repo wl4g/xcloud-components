@@ -18,7 +18,7 @@ package com.wl4g.component.core.web.error;
 import org.springframework.core.annotation.Order;
 
 import com.wl4g.component.common.collection.RegisteredUnmodifiableList;
-import com.wl4g.component.core.web.error.ErrorControllerAutoConfiguration.ErrorHandlerProperties;
+import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorHandlerProperties;
 
 import java.util.ArrayList;
 import java.util.List;
