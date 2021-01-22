@@ -24,6 +24,9 @@ import static com.wl4g.component.common.lang.TypeConverts.parseLongOrNull;
 import static java.lang.System.getProperty;
 import static java.util.Objects.nonNull;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -36,6 +39,14 @@ import javax.validation.constraints.NotNull;
  * @see
  */
 public abstract class BaseConstant {
+
+	/** OS environment map cache. */
+	public static final Map<String, String> ENV = Collections.unmodifiableMap(System.getenv());
+
+	/**
+	 * Controlling Spring-enabled Unified Exception Handling Stack Information
+	 */
+	public static final String PARAM_STACK_TRACE = ENV.getOrDefault("spring.error.stack.trace", "_stacktrace");
 
 	public static String getStringProperty(@NotNull String key, @Nullable String defaultValue) {
 		return getProperty(key, defaultValue);
