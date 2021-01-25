@@ -50,6 +50,8 @@ import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
+import feign.Target;
+
 /***
  * {@link FeignContextAutoConfiguration}
  *
@@ -102,27 +104,38 @@ public class FeignContextAutoConfiguration {
 
 		@Override
 		public Object[] preHandle(@NotNull Object target, @NotNull Method method, Object[] parameters) {
-			HttpServletRequest request = currentServletRequest();
-			// When receiving RPC requests, the attachment info should be
-			// extracted and bound to the local context.
-			FeignContextBinders.bindAttachmentsFromRequest(request);
+			if (isNeedIntercepting(target, method, parameters)) {
+				HttpServletRequest request = currentServletRequest();
+				// When receiving RPC requests, the attachment info should be
+				// extracted and bound to the local context.
+				FeignContextBinders.bindAttachmentsFromRequest(request);
+			}
 			return parameters;
 		}
 
 		@Override
 		public Object postHandle(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result,
 				@NotNull Throwable ex) {
-			try {
-				HttpServletResponse response = currentServletResponse();
-				// When responding to RPC, the attachment information returned
-				// should be added.
-				FeignContextBinders.writeAttachemntsToResponse(response);
-			} finally {
-				// After responding to RPC, should cleanup the context
-				// attachment info.
-				RpcContextHolder.get().clearAttachments();
+			if (isNeedIntercepting(target, method, parameters)) {
+				try {
+					HttpServletResponse response = currentServletResponse();
+					// When responding to RPC, the attachment information
+					// returned should be added.
+					FeignContextBinders.writeAttachemntsToResponse(response);
+				} finally {
+					// After responding to RPC, should cleanup the context
+					// attachment info.
+					RpcContextHolder.get().clearAttachments();
+				}
 			}
 			return result;
+		}
+
+		public static boolean isNeedIntercepting(@NotNull Object target, @NotNull Method method, Object[] parameters) {
+			// Only the feign remote instance is processed, ignore local
+			// instance. For example, in the provider layer, there is no request
+			// object when the applicationrunner # run() executes the task
+			return target instanceof Target;
 		}
 
 		public static boolean checkSupportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
