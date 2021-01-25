@@ -50,8 +50,6 @@ import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
-import feign.Target;
-
 /***
  * {@link FeignContextAutoConfiguration}
  *
@@ -104,8 +102,11 @@ public class FeignContextAutoConfiguration {
 
 		@Override
 		public Object[] preHandle(@NotNull Object target, @NotNull Method method, Object[] parameters) {
-			if (isNeedIntercepting(target, method, parameters)) {
-				HttpServletRequest request = currentServletRequest();
+			// [FIX] Only the feign remote instance is processed, ignore local
+			// instance. For example, in the provider layer, there is no request
+			// object when the ApplicationRunner#run() executes the task
+			HttpServletRequest request = currentServletRequest();
+			if (nonNull(request)) {
 				// When receiving RPC requests, the attachment info should be
 				// extracted and bound to the local context.
 				FeignContextBinders.bindAttachmentsFromRequest(request);
@@ -116,7 +117,11 @@ public class FeignContextAutoConfiguration {
 		@Override
 		public Object postHandle(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result,
 				@NotNull Throwable ex) {
-			if (isNeedIntercepting(target, method, parameters)) {
+			// [FIX] Only the feign remote instance is processed, ignore local
+			// instance. For example, in the provider layer, there is no request
+			// object when the ApplicationRunner#run() executes the task
+			HttpServletRequest request = currentServletRequest();
+			if (nonNull(request)) {
 				try {
 					HttpServletResponse response = currentServletResponse();
 					// When responding to RPC, the attachment information
@@ -129,13 +134,6 @@ public class FeignContextAutoConfiguration {
 				}
 			}
 			return result;
-		}
-
-		public static boolean isNeedIntercepting(@NotNull Object target, @NotNull Method method, Object[] parameters) {
-			// Only the feign remote instance is processed, ignore local
-			// instance. For example, in the provider layer, there is no request
-			// object when the applicationrunner # run() executes the task
-			return target instanceof Target;
 		}
 
 		public static boolean checkSupportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
