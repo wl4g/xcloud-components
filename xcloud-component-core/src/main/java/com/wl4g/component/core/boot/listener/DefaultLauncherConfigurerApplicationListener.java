@@ -23,6 +23,7 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.mustAssignableFrom;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
@@ -121,23 +122,22 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	protected void presetSpringApplication(ApplicationStartingEvent event, SpringApplication application) throws Exception {
 		// Parse command-line arguments.
 		ApplicationArguments args = new DefaultApplicationArguments(event.getArgs());
-
-		// Disable skip?
-		String disable = extractFirst(args.getOptionValues("disable.spring-launcher-configurer"), "false");
-		if (isTrue(disable, false)) {
+		// Skip disable configurer?
+		if (isTrue(extractFirst(args.getOptionValues(PROPERTY_DISABLE)), false)) {
 			return;
 		}
 
 		// Load spring launcher configurer.
+		boolean isDebug = isTrue(extractFirst(args.getOptionValues(PROPERTY_DEBUG)), false);
 		ISpringLauncherConfigurer configurer = loadClassAndInstantiateSpringLauncherConfigurer();
 		if (nonNull(configurer)) {
-			presetDefaultProperties(args, event, application, configurer);
-			presetAdditionalProfiles(args, event, application, configurer);
-			presetOtherProperties(args, event, application, configurer);
+			presetDefaultProperties(isDebug, args, event, application, configurer);
+			presetAdditionalProfiles(isDebug, args, event, application, configurer);
+			presetOtherProperties(isDebug, args, event, application, configurer);
 		}
 	}
 
-	protected void presetDefaultProperties(ApplicationArguments args, ApplicationStartingEvent event,
+	protected void presetDefaultProperties(boolean isDebug, ApplicationArguments args, ApplicationStartingEvent event,
 			SpringApplication application, ISpringLauncherConfigurer configurer) throws Exception {
 		Properties presetProperties = new Properties();
 		// defaultProperties.put("spring.main.allow-bean-definition-overriding","true");
@@ -152,52 +152,92 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 			presetProperties.remove(argName);
 		}
 
-		log.debug("Preset spring application default properties: {}", presetProperties);
+		if (isDebug) {
+			log.debug("Preset SpringApplication#setDefaultProperties: {}", presetProperties);
+		}
 		application.setDefaultProperties(presetProperties);
 	}
 
-	protected void presetAdditionalProfiles(ApplicationArguments args, ApplicationStartingEvent event,
+	protected void presetAdditionalProfiles(boolean isDebug, ApplicationArguments args, ApplicationStartingEvent event,
 			SpringApplication application, ISpringLauncherConfigurer configurer) throws Exception {
 		if (nonNull(configurer.additionalProfiles())) {
 			String[] additionalProfiles = safeArrayToList(configurer.additionalProfiles()).stream()
 					.map(p -> defaultTrim2EmptyClear.apply(p)).toArray(String[]::new);
+
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setAdditionalProfiles: {}", asList(additionalProfiles));
+			}
 			application.setAdditionalProfiles(additionalProfiles);
 		}
 	}
 
-	protected void presetOtherProperties(ApplicationArguments args, ApplicationStartingEvent event, SpringApplication application,
-			ISpringLauncherConfigurer configurer) throws Exception {
+	protected void presetOtherProperties(boolean isDebug, ApplicationArguments args, ApplicationStartingEvent event,
+			SpringApplication application, ISpringLauncherConfigurer configurer) throws Exception {
 		if (nonNull(configurer.headless())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setHeadless: {}", configurer.headless());
+			}
 			application.setHeadless(configurer.headless());
 		}
 		if (nonNull(configurer.logStartupInfo())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setLogStartupInfo: {}", configurer.logStartupInfo());
+			}
 			application.setLogStartupInfo(configurer.logStartupInfo());
 		}
 		if (nonNull(configurer.banner())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setBanner: {}", configurer.banner());
+			}
 			application.setBanner(configurer.banner());
 		}
 		if (nonNull(configurer.bannerMode())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setBannerMode: {}", configurer.bannerMode());
+			}
 			application.setBannerMode(configurer.bannerMode());
 		}
 		if (nonNull(configurer.allowBeanDefinitionOverriding())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setAllowBeanDefinitionOverriding: {}",
+						configurer.allowBeanDefinitionOverriding());
+			}
 			application.setAllowBeanDefinitionOverriding(configurer.allowBeanDefinitionOverriding());
 		}
 		if (nonNull(configurer.addCommandLineProperties())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setAddCommandLineProperties: {}", configurer.addCommandLineProperties());
+			}
 			application.setAddCommandLineProperties(configurer.addCommandLineProperties());
 		}
 		if (nonNull(configurer.lazyInitialization())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setLazyInitialization: {}", configurer.lazyInitialization());
+			}
 			application.setLazyInitialization(configurer.lazyInitialization());
 		}
 		if (nonNull(configurer.applicationContextClass())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setApplicationContextClass: {}", configurer.applicationContextClass());
+			}
 			application.setApplicationContextClass(configurer.applicationContextClass());
 		}
 		if (nonNull(configurer.initializers())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setInitializers: {}", configurer.initializers());
+			}
 			application.setInitializers(configurer.initializers());
 		}
 		if (nonNull(configurer.listeners())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#setListeners: {}", configurer.listeners());
+			}
 			application.setListeners(configurer.listeners());
 		}
 		if (nonNull(configurer.addListeners())) {
+			if (isDebug) {
+				log.debug("Preset SpringApplication#addListeners: {}", asList(configurer.addListeners()));
+			}
 			application.addListeners(configurer.addListeners());
 		}
 	}
@@ -257,14 +297,16 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	}
 
 	// Standard java class name converter.
-	public static final Function<String, String> defaultClassNameConverter = filename -> replaceEach(filename,
+	private static final Function<String, String> defaultClassNameConverter = filename -> replaceEach(filename,
 			new String[] { "!", "@", "#", "-", "&", "*" }, new String[] { "_", "_", "_", "_", "_", "_" });
 	// Newline and invalid char clear.
-	public static final Function<String, String> defaultTrim2EmptyClear = value -> replaceAll(value, "\\s*| |\t|\r|\\r|\n|\\n",
+	private static final Function<String, String> defaultTrim2EmptyClear = value -> replaceAll(value, "\\s*| |\t|\r|\\r|\n|\\n",
 			"");
 	// Spring boot config end comm clear.
-	public static final Function<String, String> defaultSafeCommClear = value -> join(split(trimToEmpty(value), ","), ",");
+	private static final Function<String, String> defaultSafeCommClear = value -> join(split(trimToEmpty(value), ","), ",");
+	private static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/spring-launcher.groovy";
+	private static final String PROPERTY_DISABLE = "spring-launcher-configurer.disable";
+	private static final String PROPERTY_DEBUG = "spring-launcher-configurer.debug";
 
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
-	public static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/spring-launcher.groovy";
 }

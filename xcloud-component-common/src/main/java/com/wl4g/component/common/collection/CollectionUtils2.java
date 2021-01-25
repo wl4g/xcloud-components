@@ -718,6 +718,18 @@ public abstract class CollectionUtils2 extends CollectionUtils {
 	 * @return
 	 */
 	@Nullable
+	public static <T> T extractFirst(@Nullable Iterable<T> iter) {
+		return extractElement(iter, 0, null);
+	}
+
+	/**
+	 * Extract iterable element by iterations(index).
+	 * 
+	 * @param iter
+	 * @param defaultValue
+	 * @return
+	 */
+	@Nullable
 	public static <T> T extractFirst(@Nullable Iterable<T> iter, @Nullable T defaultValue) {
 		return extractElement(iter, 0, defaultValue);
 	}
