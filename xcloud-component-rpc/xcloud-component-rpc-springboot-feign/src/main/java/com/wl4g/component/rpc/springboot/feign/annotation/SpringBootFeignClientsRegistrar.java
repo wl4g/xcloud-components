@@ -44,6 +44,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.wl4g.component.common.log.SmartLogger;
+import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.KEY_CONFIG_ENABLE;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
@@ -75,7 +76,7 @@ import javax.annotation.Nullable;
  * @see
  */
 class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
-	protected final SmartLogger log = getLogger(getClass());
+	private static final SmartLogger log = getLogger(SpringBootFeignClientsRegistrar.class);
 
 	@SuppressWarnings("unused")
 	private ResourceLoader resourceLoader;
@@ -93,6 +94,12 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		// Check enabled configuration
+		if (!isEnableSpringFeignConfiguration(environment)) {
+			log.warn("No enabled Spring Boot/Cloud Feign configuration!");
+			return;
+		}
+
 		AnnotationAttributes attrs = AnnotationAttributes
 				.fromMap(metadata.getAnnotationAttributes(EnableSpringBootFeignClients.class.getName()));
 		if (nonNull(attrs)) {
@@ -218,6 +225,15 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 
 	public static boolean hasSpringCloudFeignClass() {
 		return isPresent("org.springframework.cloud.openfeign.FeignClientsRegistrar");
+	}
+
+	/**
+	 * Check enabled Spring Boot/Cloud Feign configuration.
+	 * 
+	 * @return
+	 */
+	public static boolean isEnableSpringFeignConfiguration(Environment environment) {
+		return environment.getProperty(KEY_CONFIG_ENABLE, boolean.class, true);
 	}
 
 	/**

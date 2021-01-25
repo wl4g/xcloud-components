@@ -23,8 +23,10 @@ import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 /**
@@ -35,9 +37,15 @@ import org.springframework.core.type.AnnotationMetadata;
  * @sine v1.0
  * @see
  */
-class SpringBootFeignConfigurerRegistrar implements ImportBeanDefinitionRegistrar {
-
+class SpringBootFeignConfigurerRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 	protected final SmartLogger log = getLogger(getClass());
+
+	private Environment environment;
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
 
 	/**
 	 * Spring cloud auto configuration should not be affected.
@@ -48,6 +56,12 @@ class SpringBootFeignConfigurerRegistrar implements ImportBeanDefinitionRegistra
 	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		// Check enabled configuration
+		if (!SpringBootFeignClientsRegistrar.isEnableSpringFeignConfiguration(environment)) {
+			log.warn("No enabled Spring Boot/Cloud Feign configuration!");
+			return;
+		}
+
 		// Not Spring Cloud + feign
 		if (!SpringBootFeignClientsRegistrar.hasSpringCloudFeignClass()) {
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SpringBootFeignConfigurer.class);

@@ -31,4 +31,7 @@ public abstract class SpringBootFeignConstant extends RpcContextConstant {
 
 	public static final String KEY_CONFIG_PREFIX = "spring.xcloud.component.spring-boot-feign";
 
+	// Default by true.
+	public static final String KEY_CONFIG_ENABLE = KEY_CONFIG_PREFIX + ".enable";
+
 }
