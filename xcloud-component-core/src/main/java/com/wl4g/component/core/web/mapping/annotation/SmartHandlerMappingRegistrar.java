@@ -23,10 +23,18 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToL
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGE_CLASSES;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.BASE_PACKAGES_FOR_INCLUDE;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.FILTERS;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.OVERRIDE_AMBIGUOUS;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
+import static org.springframework.util.StringUtils.hasText;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -47,6 +55,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.ClassUtils;
 
 import com.google.common.base.Predicate;
 import com.wl4g.component.common.log.SmartLogger;
@@ -108,6 +117,8 @@ public class SmartHandlerMappingRegistrar
 			BeanDefinitionRegistry registry, Class<?> beanClass, BeanNameGenerator beanNameGenerator) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
 
+		builder.addPropertyValue(BASE_PACKAGES, resolveBasePackages(metadata, attrs));
+		builder.addPropertyValue(BASE_PACKAGES_FOR_INCLUDE, attrs.getBoolean(BASE_PACKAGES_FOR_INCLUDE));
 		builder.addPropertyValue(FILTERS, resolveIncludeFilters(attrs, registry));
 		builder.addPropertyValue(OVERRIDE_AMBIGUOUS, attrs.getBoolean(OVERRIDE_AMBIGUOUS));
 
@@ -148,6 +159,32 @@ public class SmartHandlerMappingRegistrar
 			beanNameGenerator = new AnnotationBeanNameGenerator();
 		}
 		return beanNameGenerator;
+	}
+
+	private String[] resolveBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
+		return getBasePackages(metadata, attrs).stream().filter(v -> !isBlank(v))
+				.map(v -> environment.resolveRequiredPlaceholders(v)).toArray(String[]::new);
+	}
+
+	private Set<String> getBasePackages(AnnotationMetadata metadata, AnnotationAttributes attrs) {
+		Set<String> basePackages = new HashSet<>();
+		for (String pkg : (String[]) attrs.get("value")) {
+			if (hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (String pkg : (String[]) attrs.get(BASE_PACKAGES)) {
+			if (hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (Class<?> clazz : (Class[]) attrs.get(BASE_PACKAGE_CLASSES)) {
+			basePackages.add(ClassUtils.getPackageName(clazz));
+		}
+		if (basePackages.isEmpty()) {
+			basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+		}
+		return basePackages;
 	}
 
 }

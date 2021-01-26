@@ -112,6 +112,7 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 				 */
 				Set<String> scanBasePackages = getScanBasePackages(metadata, attrs).stream().filter(pkg -> !isBlank(pkg))
 						.collect(toSet());
+				ExcludeExportFeignServicesFilter.setScanBasePackages(scanBasePackages.toArray(new String[0]));
 
 				// Spring Cloud + feign
 				if (hasSpringCloudFeignClass()) {

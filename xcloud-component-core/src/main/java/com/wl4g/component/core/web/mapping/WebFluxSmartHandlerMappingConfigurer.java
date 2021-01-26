@@ -19,12 +19,17 @@
  */
 package com.wl4g.component.core.web.mapping;
 
+import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.or;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
+import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
@@ -58,7 +63,6 @@ import org.springframework.web.reactive.result.method.annotation.RequestMappingH
 import org.springframework.web.server.ServerWebExchange;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.log.SmartLogger;
 
@@ -78,20 +82,29 @@ import reactor.core.publisher.Mono;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @AutoConfigureAfter(WebFluxAutoConfiguration.class)
 public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistrations {
-
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
+	private String[] basePackages;
+	private boolean basePackagesUseForInclude;
+	@Nullable
 	private Predicate<Class<?>>[] filters;
+	private boolean overrideAmbiguousByOrder;
 
 	@Lazy // Resolving cyclic dependency injection
 	@Nullable
 	@Autowired(required = false)
 	private List<ReactiveHandlerMappingSupport> handlerMappings;
 
-	private boolean overrideAmbiguousByOrder;
+	public void setBasePackages(String[] basePackages) {
+		this.basePackages = basePackages;
+	}
 
-	public void setIncludeFilters(Predicate<Class<?>>[] filters) {
+	public void setBasePackagesUseForInclude(boolean basePackagesUseForInclude) {
+		this.basePackagesUseForInclude = basePackagesUseForInclude;
+	}
+
+	public void setFilters(Predicate<Class<?>>[] filters) {
 		this.filters = filters;
 	}
 
@@ -108,7 +121,7 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartReactiveHandlerMapping(filters, handlerMappings);
+		return new SmartReactiveHandlerMapping(basePackages, basePackagesUseForInclude, filters, handlerMappings);
 	}
 
 	/**
@@ -138,12 +151,21 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * Notes: Must take precedence, otherwise invalid. refer:
 		 * {@link org.springframework.web.reactive.DispatcherHandler#initStrategies()}
 		 */
-		public SmartReactiveHandlerMapping(@Nullable Predicate<Class<?>>[] filters,
-				@Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
+		public SmartReactiveHandlerMapping(@Nullable String[] basePackages, boolean basePackagesUseForInclude,
+				@Nullable Predicate<Class<?>>[] filters, @Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
-			// Merge predicate for includeFilters.
-			this.mergedFilter = Predicates.or(safeArrayToList(filters));
+			// Merge predicate for filter condidtions.
+			if (nonNull(basePackages) && basePackages.length > 0) {// If-necessary
+				Predicate<Class<?>> basePackagesFilter = beanType -> startsWithAny(getPackageName(beanType), basePackages);
+				if (basePackagesUseForInclude) {
+					this.mergedFilter = and(basePackagesFilter, or(safeArrayToList(filters)));
+				} else {
+					this.mergedFilter = and(not(basePackagesFilter), or(safeArrayToList(filters)));
+				}
+			} else {
+				this.mergedFilter = or(safeArrayToList(filters));
+			}
 
 			// The multiple custom handlers to adjust the execution
 			// priority, must sorted.

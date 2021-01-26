@@ -53,12 +53,53 @@ import com.google.common.base.Predicate;
 public @interface EnableSmartMappingConfiguration {
 
 	/**
-	 * Refer to {@link #basePackages()}
+	 * Base packages to scan for annotated components.
 	 * 
 	 * @return
 	 */
-	@AliasFor(FILTERS)
-	Class<? extends Predicate<Class<?>>>[] value() default { DefaultMappingHandlerFilter.class };
+	@AliasFor(BASE_PACKAGES)
+	String[] value() default {};
+
+	/**
+	 * Base packages to scan for annotated components.</br>
+	 * </br>
+	 * <font color=red> <b> Notes: When there is a value, the 'and' operation
+	 * will be performed with the filter. When it is empty, this condition will
+	 * be ignored. </b></font> </br>
+	 * </br>
+	 * And condition {@link #basePackageClasses()} will eventually merge. refer
+	 * to:
+	 * {@link com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping#SmartServletHandlerMapping}
+	 * {@link com.wl4g.component.core.web.mapping.WebFluxSmartHandlerMappingConfigurer.SmartReactiveHandlerMapping#SmartReactiveHandlerMapping}
+	 * 
+	 * @return
+	 */
+	@AliasFor("value")
+	String[] basePackages() default {};
+
+	/**
+	 * Base packages to scan for annotated components.</br>
+	 * </br>
+	 * <font color=red> <b> Notes: When there is a value, the 'and' operation
+	 * will be performed with the filter. When it is empty, this condition will
+	 * be ignored. </b></font></br>
+	 * </br>
+	 * And condition {@link #basePackages()} will eventually merge. refer to:
+	 * {@link com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping#SmartServletHandlerMapping}
+	 * {@link com.wl4g.component.core.web.mapping.WebFluxSmartHandlerMappingConfigurer.SmartReactiveHandlerMapping#SmartReactiveHandlerMapping}
+	 * 
+	 * @return
+	 */
+	Class<?>[] basePackageClasses() default {};
+
+	/**
+	 * When {@link #basePackages()} or {@link #basePackageClasses()} is set, it
+	 * indicates whether to execute inclusion logic (true: inclusion, false:
+	 * exclusion)
+	 * 
+	 * @return
+	 */
+	boolean basePackagesUseForInclude() default true;
 
 	/**
 	 * Method mapping handler filters.
@@ -74,6 +115,21 @@ public @interface EnableSmartMappingConfiguration {
 	 * @return
 	 */
 	boolean overrideAmbiguousByOrder() default true;
+
+	/**
+	 * Refer: {@link #basePackages()}
+	 */
+	public static final String BASE_PACKAGES = "basePackages";
+
+	/**
+	 * Refer: {@link #basePackageClasses()}
+	 */
+	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
+
+	/**
+	 * Refer: {@link #basePackagesUseForInclude()}
+	 */
+	public static final String BASE_PACKAGES_FOR_INCLUDE = "basePackagesUseForInclude";
 
 	/**
 	 * Refer: {@link #basePackages()}

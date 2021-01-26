@@ -19,6 +19,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration.DefaultMappingHandlerFilter;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
+import static com.wl4g.component.rpc.springboot.feign.annotation.EnableSpringBootFeignClients.ExcludeExportFeignServicesFilter;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
 import feign.Logger;
 import feign.Retryer;
@@ -40,8 +47,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-// 排除被@SpringBootFeignClient包含的接口,如:service(facade)层启动，需注入的是data(dao)层的feign实例这个场景(而不需要创建service接口的feign实例).
-@EnableSmartMappingConfiguration(basePackagesUseForInclude = false)
+@EnableSmartMappingConfiguration(filters = ExcludeExportFeignServicesFilter.class)
 @Import({ SpringBootFeignConfigurerRegistrar.class, SpringBootFeignClientsRegistrar.class,
 		BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
@@ -107,5 +113,22 @@ public @interface EnableSpringBootFeignClients {
 	 * Refer: {@link #defaultConfiguration()}
 	 */
 	public static final String DEFAULT_CONFIGURATION = "defaultConfiguration";
+
+	public static class ExcludeExportFeignServicesFilter extends DefaultMappingHandlerFilter {
+		private static String[] scanBasePackages = {};
+
+		public static void setScanBasePackages(String[] scanBasePackages) {
+			if (nonNull(scanBasePackages)) {
+				ExcludeExportFeignServicesFilter.scanBasePackages = scanBasePackages;
+			}
+		}
+
+		@Override
+		public boolean apply(@Nullable Class<?> beanType) {
+			// 排除被 @SpringBootFeignClient 包含的接口，如，service(facade)层启动，需注入
+			// 的是data(dao)层的feign实例这个场景(而不需要创建service接口的feign实例).
+			return !startsWithAny(getPackageName(beanType), scanBasePackages) && super.apply(beanType);
+		}
+	}
 
 }
