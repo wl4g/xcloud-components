@@ -102,7 +102,7 @@ public class EnhanceSpringCloudLoadbalancerAutoConfiguration {
 	 * {@link org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient#choose}
 	 */
 	@Bean
-	@ConditionalOnProperty(name = KEY_LOADBALANCER_RANDOM + ".enable", matchIfMissing = false)
+	@ConditionalOnProperty(name = KEY_LOADBALANCER_RANDOM + ".enabled", matchIfMissing = false)
 	@ConditionalOnMissingClass("org.springframework.cloud.loadbalancer.core.RandomLoadBalancer") // spring-cloud-loadbalancer-3.0.0.jar
 	public RandomLoadBalancer randomReactorServiceInstanceLoadBalancer(Environment environment,
 			LoadBalancerClientFactory loadBalancerClientFactory) {
@@ -115,7 +115,7 @@ public class EnhanceSpringCloudLoadbalancerAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean({ RandomLoadBalancer.class })
-	@ConditionalOnProperty(name = KEY_LOADBALANCER_GRAY + ".enable", matchIfMissing = false)
+	@ConditionalOnProperty(name = KEY_LOADBALANCER_GRAY + ".enabled", matchIfMissing = false)
 	public GrayLoadBalancer grayReactorServiceInstanceLoadBalancer(Environment environment,
 			LoadBalancerClientFactory loadBalancerClientFactory) {
 		String name = environment.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);
