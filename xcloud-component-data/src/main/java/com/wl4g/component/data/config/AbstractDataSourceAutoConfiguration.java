@@ -75,7 +75,7 @@ public abstract class AbstractDataSourceAutoConfiguration {
 		factory.setDataSource(dataSource);
 		factory.setTypeAliases(getTypeAliases(resolver, config));
 		factory.setConfigLocation(new ClassPathResource(config.getConfigLocation()));
-		factory.setMapperLocations(getDaoMappers(resolver, config));
+		factory.setMapperLocations(getMapperResources(resolver, config));
 
 		// Plugin interceptors sorting.
 		AnnotationAwareOrderComparator.sort(interceptors);
@@ -112,24 +112,25 @@ public abstract class AbstractDataSourceAutoConfiguration {
 	}
 
 	/**
-	 * Gets scanning load DAO mappers configuration.
+	 * Gets DAO mappers resources.
 	 * 
 	 * @param resolver
 	 * @param config
 	 * @return
 	 * @throws Exception
 	 */
-	private Resource[] getDaoMappers(PathMatchingResourcePatternResolver resolver, MybatisProperties config) throws Exception {
+	private Resource[] getMapperResources(PathMatchingResourcePatternResolver resolver, MybatisProperties config)
+			throws Exception {
 		// Scanning load mappers all
-		List<Resource> ress = new ArrayList<>(16);
-		for (String location : safeList(config.getMapperLocations())) {
+		List<Resource> resources = new ArrayList<>(32);
+		for (String pattern : safeList(config.getMapperLocations())) {
 			try {
-				ress.addAll(asList(resolver.getResources(location)));
+				resources.addAll(asList(resolver.getResources(pattern)));
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			}
 		}
-		return ress.toArray(new Resource[] {});
+		return resources.toArray(new Resource[] {});
 	}
 
 }
