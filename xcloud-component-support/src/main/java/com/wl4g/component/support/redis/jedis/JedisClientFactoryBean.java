@@ -16,32 +16,32 @@
 package com.wl4g.component.support.redis.jedis;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
-import static com.wl4g.component.common.lang.Assert2.*;
+import static com.wl4g.component.common.lang.Assert2.notEmpty;
+import static com.wl4g.component.common.lang.Assert2.notNull;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.wl4g.component.support.redis.jedis.JedisAutoConfiguration.JedisProperties;
+import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.support.redis.jedis.cluster.JedisClusterJedisClient;
+import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration.JedisProperties;
+import com.wl4g.component.support.redis.jedis.cluster.ConfigurableJedisClusterJedisClient;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 
 /**
- * Bean factory of {@link JedisOperator}.
- * 
- * @author Wangl.sir <983708408@qq.com>
- * @version v1.0
- * @date 2018年11月13日
- * @since
+ * Bean factory of {@link JedisClient}.
  */
-public class JedisOperatorBeanFactory implements InitializingBean {
-	protected final Logger log = LoggerFactory.getLogger(getClass());
+public class JedisClientFactoryBean implements FactoryBean<JedisClient>, InitializingBean {
+	protected final SmartLogger log = getLogger(getClass());
 
 	/**
 	 * {@link JedisProperties}
@@ -59,26 +59,23 @@ public class JedisOperatorBeanFactory implements InitializingBean {
 	protected final JedisPool jedisPool;
 
 	/**
-	 * {@link JedisOperator}
+	 * {@link JedisClient}
 	 */
-	private JedisOperator jedisOperator;
+	private JedisClient jedisClient;
 
-	public JedisOperatorBeanFactory(JedisCluster jedisCluster, JedisPool jedisPool) {
-		notNullOf(jedisCluster, "jedisCluster");
-		notNullOf(jedisPool, "jedisPool");
+	public JedisClientFactoryBean(JedisCluster jedisCluster, JedisPool jedisPool) {
 		this.config = null;
-		this.jedisCluster = jedisCluster;
-		this.jedisPool = jedisPool;
+		this.jedisCluster = notNullOf(jedisCluster, "jedisCluster");
+		this.jedisPool = notNullOf(jedisPool, "jedisPool");
 	}
 
-	public JedisOperatorBeanFactory(JedisProperties config) {
-		notNullOf(config, "jedisProperties");
-		this.config = config;
+	public JedisClientFactoryBean(JedisProperties config) {
+		this.config = notNullOf(config, "jedisProperties");
 		this.jedisCluster = null;
 		this.jedisPool = null;
 	}
 
-	public JedisOperatorBeanFactory(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
+	public JedisClientFactoryBean(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
 		// notNullOf(config, "jedisProperties");
 		// notNullOf(jedisCluster, "jedisCluster");
 		// notNullOf(jedisPool, "jedisPool");
@@ -87,71 +84,72 @@ public class JedisOperatorBeanFactory implements InitializingBean {
 		this.jedisPool = jedisPool;
 	}
 
-	/**
-	 * Gets {@link JedisOperator}
-	 * 
-	 * @return
-	 */
-	public JedisOperator getJedisOperator() {
-		return jedisOperator;
+	@Override
+	public JedisClient getObject() throws Exception {
+		return jedisClient;
+	}
+
+	@Override
+	public Class<?> getObjectType() {
+		return JedisClient.class;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		init();
-		log.info("Initialized jedis of: {}", jedisOperator);
+		log.info("Instantiated jedis client: {}", jedisClient);
 	}
 
 	/**
-	 * Create a new {@link JedisOperator} instance in a composite way.
+	 * Build a {@link JedisClient} with existing jedis or via configuration.
 	 * 
 	 * @throws Exception
 	 */
 	private void init() throws Exception {
+		// Wrapper with existing jedis.
 		if (nonNull(jedisCluster)) {
-			jedisOperator = new DelegateJedisCluster(jedisCluster);
-			log.info("Use already initialized jedis cluster: {}, finally auto adapt instantiation as: {}", jedisCluster,
-					jedisOperator);
+			jedisClient = new JedisClusterJedisClient(jedisCluster);
+			log.info("Instantiated JedisClient: {} via existing JedisCluster: {}", jedisClient, jedisCluster);
 		} else if (nonNull(jedisPool)) {
-			jedisOperator = new DelegateJedis(jedisPool, false);
-			log.info("Use already initialized jedis pool: {}, finally auto adapt instantiation as: {}", jedisPool, jedisOperator);
-		} else {
+			jedisClient = new SingletonJedisClient(jedisPool, false);
+			log.info("Instantiated JedisClient: {} via existing JedisPool: {}", jedisClient, jedisPool);
+		}
+		// New instantiate via configuration.
+		else {
 			notNull(config,
 					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
-					JedisOperator.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
+					JedisClient.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
 					JedisProperties.class.getSimpleName());
-			initForConfiguration(config);
+			createWithConfiguration(config);
 		}
 	}
 
 	/**
-	 * New create {@link JedisOperator} instance with {@link JedisProperties}
+	 * New instantiate {@link JedisClient} via {@link JedisProperties}
 	 * 
 	 * @param config
 	 * @throws Exception
 	 */
-	private void initForConfiguration(JedisProperties config) throws Exception {
-		// Parse cluster node's
+	private void createWithConfiguration(JedisProperties config) throws Exception {
 		Set<HostAndPort> nodes = config.parseHostAndPort();
 		notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
 		// nodes.forEach(n -> log.info("Connecting to redis node: {}", n));
-		log.info("Connecting to redis nodes configuration: {}", config.toString());
+		log.info("Connecting to redis nodes..., config: {}", config.toString());
 
 		try {
-			if (isCluster()) { // cluster?
-				jedisOperator = new EnhancedJedisCluster(nodes, config.getConnTimeout(), config.getSoTimeout(),
+			if (isCluster()) { // cluster
+				jedisClient = new ConfigurableJedisClusterJedisClient(nodes, config.getConnTimeout(), config.getSoTimeout(),
 						config.getMaxAttempts(), config.getPasswd(), config.getPoolConfig(), config.isSafeMode());
 			} else { // single
 				HostAndPort hap = nodes.iterator().next();
 				JedisPool pool = new JedisPool(config.getPoolConfig(), hap.getHost(), hap.getPort(), config.getConnTimeout(),
 						config.getSoTimeout(), config.getPasswd(), 0, config.getClientName(), false, null, null, null);
-				jedisOperator = new DelegateJedis(pool, config.isSafeMode());
+				jedisClient = new SingletonJedisClient(pool, config.isSafeMode());
 			}
-			log.info("Use jedis configuration initialized instantiation as: {}", jedisOperator);
+			log.info("Instantiated jedis client via configuration. {}", jedisClient);
 		} catch (Exception e) {
 			throw new IllegalStateException(format("Cannot connect to redis nodes: %s", nodes), e);
 		}
-
 	}
 
 	/**

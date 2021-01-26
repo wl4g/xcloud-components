@@ -73,7 +73,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	final private Logger log = LoggerFactory.getLogger(getClass());
 	final private ScanParams params;
 	final private Class<?> valueType;
-	final private JedisOperator adapter;
+	final private JedisClient adapter;
 	final private List<JedisPool> nodePools;
 
 	private CursorWrapper cursor;
@@ -84,7 +84,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * Crates new {@link ScanCursor} with {@code id=0} and
 	 * {@link ScanParams#NONE}
 	 */
-	public ScanCursor(JedisOperator adapter, Class<?> valueType) {
+	public ScanCursor(JedisClient adapter, Class<?> valueType) {
 		this(adapter, valueType, NONE_PARAMS);
 	}
 
@@ -93,7 +93,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * 
 	 * @param params
 	 */
-	public ScanCursor(JedisOperator adapter, ScanParams params) {
+	public ScanCursor(JedisClient adapter, ScanParams params) {
 		this(adapter, new CursorWrapper(), null, params);
 	}
 
@@ -102,7 +102,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * 
 	 * @param params
 	 */
-	public ScanCursor(JedisOperator adapter, Class<?> valueType, ScanParams params) {
+	public ScanCursor(JedisClient adapter, Class<?> valueType, ScanParams params) {
 		this(adapter, new CursorWrapper(), valueType, params);
 	}
 
@@ -111,7 +111,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * 
 	 * @param cursor
 	 */
-	public ScanCursor(JedisOperator adapter, CursorWrapper cursor, Class<?> valueType) {
+	public ScanCursor(JedisClient adapter, CursorWrapper cursor, Class<?> valueType) {
 		this(adapter, cursor, valueType, NONE_PARAMS);
 	}
 
@@ -124,7 +124,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * @param param
 	 *            Defaulted to {@link ScanParams#NONE} if nulled.
 	 */
-	public ScanCursor(JedisOperator adapter, CursorWrapper cursor, Class<?> valueType, ScanParams param) {
+	public ScanCursor(JedisClient adapter, CursorWrapper cursor, Class<?> valueType, ScanParams param) {
 		notNull(adapter, "jedisCluster must not be null");
 		if (isNull(valueType)) {
 			valueType = ResolvableType.forClass(getClass()).getSuperType().getGeneric(0).resolve();

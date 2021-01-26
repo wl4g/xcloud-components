@@ -18,7 +18,7 @@ package com.wl4g.component.support.cli;
 import static com.wl4g.component.common.lang.Exceptions.getRootCausesString;
 import static com.wl4g.component.common.lang.ThreadUtils2.sleepRandom;
 import static com.wl4g.component.support.cli.destroy.DestroySignalMessage.DestroyState.*;
-import static com.wl4g.component.support.redis.jedis.JedisOperator.RedisProtoUtil.*;
+import static com.wl4g.component.support.redis.jedis.JedisClient.RedisProtoUtil.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 

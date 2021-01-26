@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.jedis;
+package com.wl4g.component.support.redis.jedis.cluster;
 
 import static org.springframework.util.Assert.notNull;
 
@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.wl4g.component.support.redis.jedis.JedisClient;
+
 import java.util.Set;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
@@ -45,19 +48,19 @@ import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
 /**
- * {@link DelegateJedisCluster}
+ * {@link JedisCluster} jedis client wrapper.
  *
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2020-08-03
  * @since
  */
 @SuppressWarnings("deprecation")
-public class DelegateJedisCluster implements JedisOperator {
+public class JedisClusterJedisClient implements JedisClient {
 
 	/** {@link JedisCluster} */
 	protected final JedisCluster jedisCluster;
 
-	public DelegateJedisCluster(JedisCluster jedisCluster) {
+	public JedisClusterJedisClient(JedisCluster jedisCluster) {
 		notNull(jedisCluster, "jedisCluster");
 		this.jedisCluster = jedisCluster;
 	}

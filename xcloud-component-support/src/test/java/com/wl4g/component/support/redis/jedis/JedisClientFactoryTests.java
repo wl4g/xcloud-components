@@ -21,19 +21,19 @@ import static java.util.Collections.singletonList;
 
 import org.junit.Test;
 
-import com.wl4g.component.support.redis.jedis.JedisOperator;
-import com.wl4g.component.support.redis.jedis.JedisOperatorBeanFactory;
-import com.wl4g.component.support.redis.jedis.JedisAutoConfiguration.JedisProperties;
-import com.wl4g.component.support.redis.jedis.JedisOperator.RedisProtoUtil;
+import com.wl4g.component.support.redis.jedis.JedisClient;
+import com.wl4g.component.support.redis.jedis.JedisClientFactoryBean;
+import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration.JedisProperties;
+import com.wl4g.component.support.redis.jedis.JedisClient.RedisProtoUtil;
 
 /**
- * {@link JedisOperatorFactoryTests}
+ * {@link JedisClientFactoryTests}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public class JedisOperatorFactoryTests {
+public class JedisClientFactoryTests {
 
 	@Test
 	public void checkKeyFormatTest1() {
@@ -60,12 +60,12 @@ public class JedisOperatorFactoryTests {
 		config.setNodes(singletonList("127.0.0.1:6379"));
 
 		out.println("Instantiating composite operators adapter with single ...");
-		JedisOperatorBeanFactory factory = new JedisOperatorBeanFactory(config);
+		JedisClientFactoryBean factory = new JedisClientFactoryBean(config);
 		factory.afterPropertiesSet();
-		JedisOperator operator = factory.getJedisOperator();
+		JedisClient client = factory.getObject();
 
-		out.printf("\nadapter.set() result: %s", operator.set("foo", "bar"));
-		out.printf("\nadapter.get() result: %s", operator.get("foo"));
+		out.printf("\nadapter.set() result: %s", client.set("foo", "bar"));
+		out.printf("\nadapter.get() result: %s", client.get("foo"));
 
 	}
 
@@ -77,12 +77,12 @@ public class JedisOperatorFactoryTests {
 		config.setPasswd("123456");
 
 		out.println("Instantiating composite operators adapter with cluster ...");
-		JedisOperatorBeanFactory factory = new JedisOperatorBeanFactory(config);
+		JedisClientFactoryBean factory = new JedisClientFactoryBean(config);
 		factory.afterPropertiesSet();
-		JedisOperator operator = factory.getJedisOperator();
+		JedisClient client = factory.getObject();
 
-		out.printf("\nadapter.set() result: %s", operator.set("foo", "bar"));
-		out.printf("\nadapter.get() result: %s", operator.get("foo"));
+		out.printf("\nadapter.set() result: %s", client.set("foo", "bar"));
+		out.printf("\nadapter.get() result: %s", client.get("foo"));
 
 	}
 

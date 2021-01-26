@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.jedis;
+package com.wl4g.component.support.redis.jedis.cluster;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
@@ -39,18 +39,17 @@ import redis.clients.jedis.exceptions.JedisNoReachableClusterNodeException;
 import redis.clients.jedis.exceptions.JedisRedirectionException;
 
 /**
- * {@link EnhancedJedisClusterCommand}
+ * {@link ConfigurableJedisClusterCommand}
  * 
  * @param <T>
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年3月28日 v1.0.0
  * @see
  */
-public abstract class EnhancedJedisClusterCommand<T> extends JedisClusterCommand<T> {
+abstract class ConfigurableJedisClusterCommand<T> extends JedisClusterCommand<T> {
+	protected final SmartLogger log = getLogger(getClass());
 
-	final protected SmartLogger log = getLogger(getClass());
-
-	public EnhancedJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
+	public ConfigurableJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
 		super(connectionHandler, maxAttempts);
 	}
 
@@ -84,18 +83,17 @@ public abstract class EnhancedJedisClusterCommand<T> extends JedisClusterCommand
 	public abstract T doExecute(Jedis connection);
 
 	/**
-	 * Delegate enhanced Jedis cluster connection handler.
+	 * Configurable enhanced Jedis cluster connection handler.
 	 * 
 	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
 	 * @version v1.0 2020年4月17日
 	 * @since
 	 */
-	public static class EnhancedJedisClusterConntionHandler extends JedisSlotBasedConnectionHandler {
-
-		final protected SmartLogger log = getLogger(getClass());
+	static class ConfigurableJedisClusterConntionHandler extends JedisSlotBasedConnectionHandler {
+		protected final SmartLogger log = getLogger(getClass());
 
 		@SuppressWarnings("rawtypes")
-		public EnhancedJedisClusterConntionHandler(Set<HostAndPort> nodes, GenericObjectPoolConfig poolConfig,
+		public ConfigurableJedisClusterConntionHandler(Set<HostAndPort> nodes, GenericObjectPoolConfig poolConfig,
 				int connectionTimeout, int soTimeout, String password) {
 			super(nodes, poolConfig, connectionTimeout, soTimeout, password);
 		}
@@ -135,7 +133,7 @@ public abstract class EnhancedJedisClusterCommand<T> extends JedisClusterCommand
 				return super.getConnectionFromNode(node);
 			} catch (JedisException e) {
 				// Print details errors.
-				throw new JedisException(format("Couldn't get a resource of '%s'", node), e);
+				throw new JedisException(format("Can't get a resource of '%s'", node), e);
 			}
 		}
 

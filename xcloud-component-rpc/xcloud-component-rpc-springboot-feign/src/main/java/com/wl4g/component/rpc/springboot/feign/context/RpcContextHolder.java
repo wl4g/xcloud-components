@@ -61,18 +61,18 @@ public abstract class RpcContextHolder {
 	private static volatile RpcContextHolder provider;
 
 	/** References attachments repository implementation. */
-	protected final RefAttachmentRepository repository;
+	protected final ReferenceRepository repository;
 
 	/** Attachments safe codec implementation. */
-	protected final AttachmentCodec codec;
+	protected final ReferenceCodec codec;
 
 	protected RpcContextHolder() {
-		this(RefAttachmentRepository.NOOP, AttachmentCodec.DEFAULT);
+		this(ReferenceRepository.NOOP, ReferenceCodec.DEFAULT);
 	}
 
-	protected RpcContextHolder(@NotNull RefAttachmentRepository repository, @NotNull AttachmentCodec codec) {
-		this.repository = notNullOf(repository, "refAttachmentRepository");
-		this.codec = notNullOf(codec, "attachmentCodec");
+	protected RpcContextHolder(@NotNull ReferenceRepository repository, @NotNull ReferenceCodec codec) {
+		this.repository = notNullOf(repository, "referenceRepository");
+		this.codec = notNullOf(codec, "referenceCodec");
 	}
 
 	/**
@@ -146,7 +146,7 @@ public abstract class RpcContextHolder {
 			if (valStr.getBytes(UTF_8).length > RPC_ATTACTMENT_MAX_BYTES) {
 				throw new IllegalArgumentException(format(
 						"Too large (%sbytes) attachment object, It is recommended to use parameters in the form of %s. - key: %s, value: %s",
-						RPC_ATTACTMENT_MAX_BYTES, RefAttachmentKey.class.getSimpleName(), key, value));
+						RPC_ATTACTMENT_MAX_BYTES, ReferenceKey.class.getSimpleName(), key, value));
 			}
 			// Encode attachemnts value(http header safe)
 			setAttachment(key, codec.encode(valStr));
@@ -239,13 +239,13 @@ public abstract class RpcContextHolder {
 	// --- References attachemnts implementation. ---
 	//
 
-	public <T> T get(@NotBlank RefAttachmentKey key, @NotNull Class<T> valueType) {
+	public <T> T get(@NotBlank ReferenceKey key, @NotNull Class<T> valueType) {
 		notNullOf(key, "referenceKey");
 		String valueRef = get(key.getKey(), String.class);
 		return repository.doGetRefValue(valueRef, valueType);
 	}
 
-	public void set(@NotBlank RefAttachmentKey key, @Nullable Object value) {
+	public void set(@NotBlank ReferenceKey key, @Nullable Object value) {
 		notNullOf(key, "referenceKey");
 		if (nonNull(value)) {
 			set(key.getKey(), key.getValueRef());
@@ -263,32 +263,32 @@ public abstract class RpcContextHolder {
 	 * @return
 	 */
 	private static final RpcContextHolder initAvailableHolderProvider() {
-		List<RpcContextHolder> candidateHolders = safeMap(SpringContextHolder.getBeans(RpcContextHolder.class)).values().stream()
+		List<RpcContextHolder> candidates = safeMap(SpringContextHolder.getBeans(RpcContextHolder.class)).values().stream()
 				.collect(toList());
 
 		// Check holders must have only one valid.
-		if (candidateHolders.isEmpty()) {
+		if (candidates.isEmpty()) {
 			throw new Error(format("Error, shouldn't be here, No found %s instance.", RpcContextHolder.class.getSimpleName()));
-		} else if (candidateHolders.size() > 1) {
+		} else if (candidates.size() > 1) {
 			throw new IllegalStateException(format(
-					"Found multiple %s instances, multiple RPC frameworks coexistence (e.g. feign/dubbo/motan) are not supported. Please check the conflicting framework dependencies.",
+					"Found many %s instances, multiple Rpc frameworks coexistence (e.g. feign/dubbo/motan) are not supported. Please check the conflicting framework dependencies.",
 					RpcContextHolder.class.getSimpleName()));
 		} else {
-			return candidateHolders.get(0);
+			return candidates.get(0);
 		}
 	}
 
 	/**
-	 * Reference type attachment attribute key. Using this type of attachment
-	 * key, only the referenced key will be passed in the RPC context, and the
-	 * actual value object will not be passed directly. Usage scenario: it is
-	 * very useful for attachments with large object value and low frequency of
-	 * use, which can greatly improve performance.
+	 * Reference attachment attribute key. Using this type of attachment key,
+	 * only the referenced key will be passed in the RPC context, and the actual
+	 * value object will not be passed directly. Usage scenario: it is very
+	 * useful for attachments with large object value and low frequency of use,
+	 * which can greatly improve performance.
 	 */
-	public static final class RefAttachmentKey {
+	public static final class ReferenceKey {
 		private final String key;
 
-		public RefAttachmentKey(String key) {
+		public ReferenceKey(String key) {
 			this.key = hasTextOf(key, "key");
 		}
 
@@ -302,30 +302,32 @@ public abstract class RpcContextHolder {
 	}
 
 	/**
-	 * Refer to {@link RefAttachmentKey}
+	 * Reference attachment repository of {@link ReferenceKey}
 	 */
-	public static interface RefAttachmentRepository {
+	public static interface ReferenceRepository {
 		default <T> T doGetRefValue(@NotBlank String refKey, @NotNull Class<T> valueType) {
 			log.warn("Unable get reference attachments, because the not implemented! - {}", refKey);
 			return null;
 		}
 
-		default void doSetRefValue(@NotBlank String refKey, @Nullable Object value) {
+		default boolean doSetRefValue(@NotBlank String refKey, @Nullable Object value) {
 			log.warn("Unable set reference attachments, because the not implemented! - {}, {}", refKey, value);
+			return false;
 		}
 
-		default void doRemoveRefValue(@NotBlank String refKey) {
+		default boolean doRemoveRefValue(@NotBlank String refKey) {
 			log.warn("Unable remove reference attachments, because the not implemented! - {}", refKey);
+			return false;
 		}
 
-		public static final RefAttachmentRepository NOOP = new RefAttachmentRepository() {
+		public static final ReferenceRepository NOOP = new ReferenceRepository() {
 		};
 	}
 
 	/**
-	 * Attachment value safe-codec.
+	 * Reference attachment safe-codec.
 	 */
-	public static interface AttachmentCodec {
+	public static interface ReferenceCodec {
 		default String encode(String value) {
 			return new CodecSource(value).toHex();
 		}
@@ -334,7 +336,7 @@ public abstract class RpcContextHolder {
 			return CodecSource.fromHex(value).toString();
 		}
 
-		public static final AttachmentCodec DEFAULT = new AttachmentCodec() {
+		public static final ReferenceCodec DEFAULT = new ReferenceCodec() {
 		};
 	}
 

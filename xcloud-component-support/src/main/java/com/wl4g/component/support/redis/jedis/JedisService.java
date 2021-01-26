@@ -49,21 +49,19 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @since
  */
 public class JedisService {
-
-	final protected SmartLogger log = getLogger(getClass());
+	protected final SmartLogger log = getLogger(getClass());
 
 	/**
-	 * {@link JedisOperator}
+	 * {@link JedisClient}
 	 */
-	final protected JedisOperator jedisOperator;
+	protected final JedisClient jedisClient;
 
-	public JedisService(JedisOperator jedisOperator) {
-		notNullOf(jedisOperator, "jedisOperator");
-		this.jedisOperator = jedisOperator;
+	public JedisService(JedisClient jedisClient) {
+		this.jedisClient = notNullOf(jedisClient, "jedisClient");
 	}
 
-	public JedisOperator getJedisAdapter() {
-		return this.jedisOperator;
+	public JedisClient getJedisClient() {
+		return jedisClient;
 	}
 
 	// --- Basic ---
@@ -107,7 +105,7 @@ public class JedisService {
 	public <T> ScanCursor<T> scan(final String pattern, final int batch, final Class<T> valueType) {
 		byte[] match = trimToEmpty(pattern).getBytes(Charsets.UTF_8);
 		ScanParams params = new ScanParams().count(batch).match(match);
-		return new ScanCursor<T>(getJedisAdapter(), valueType, params) {
+		return new ScanCursor<T>(getJedisClient(), valueType, params) {
 		}.open();
 	}
 
@@ -128,7 +126,7 @@ public class JedisService {
 		});
 	}
 
-	public Long expire(final String key,final long milliseconds) {
+	public Long expire(final String key, final long milliseconds) {
 		return doExecuteWithRedis(adapter -> {
 			long result = adapter.pexpire(key, milliseconds);
 			log.debug("expire {} {}", key, milliseconds);
@@ -136,14 +134,13 @@ public class JedisService {
 		});
 	}
 
-	public Long expire(final byte[] key,final long milliseconds) {
+	public Long expire(final byte[] key, final long milliseconds) {
 		return doExecuteWithRedis(adapter -> {
 			long result = adapter.pexpire(key, milliseconds);
 			log.debug("expire {} {}", key, milliseconds);
 			return result;
 		});
 	}
-
 
 	public Boolean exists(final String key) {
 		return doExecuteWithRedis(adapter -> {
@@ -637,9 +634,9 @@ public class JedisService {
 	 * @param invoker
 	 * @return
 	 */
-	private <T> T doExecuteWithRedis(Function<JedisOperator, T> invoker) {
+	private <T> T doExecuteWithRedis(Function<JedisClient, T> invoker) {
 		try {
-			return invoker.apply(jedisOperator);
+			return invoker.apply(jedisClient);
 		} catch (Throwable t) {
 			log.error("Redis processing fail.", t);
 			throw t;
