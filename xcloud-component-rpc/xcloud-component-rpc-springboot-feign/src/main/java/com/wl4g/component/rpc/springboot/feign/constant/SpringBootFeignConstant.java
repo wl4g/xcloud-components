@@ -34,7 +34,7 @@ public abstract class SpringBootFeignConstant extends BaseConstant {
 	public static final String KEY_CONFIG_PREFIX = "spring.xcloud.component.rpc.feign";
 
 	// Default by true.
-	public static final String KEY_CONFIG_ENABLE = KEY_CONFIG_PREFIX + ".enable";
+	public static final String KEY_CONFIG_ENABLE = KEY_CONFIG_PREFIX + ".enabled";
 
 	/**
 	 * For example, Tomcat 8.0 allows a maximum of 8KB of HTTP request headers
