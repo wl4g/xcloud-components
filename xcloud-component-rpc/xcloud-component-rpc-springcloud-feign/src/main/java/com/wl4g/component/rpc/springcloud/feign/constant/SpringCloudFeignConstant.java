@@ -19,7 +19,7 @@
  */
 package com.wl4g.component.rpc.springcloud.feign.constant;
 
-import com.wl4g.component.rpc.springboot.feign.constant.RpcContextConstant;
+import com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant;
 
 /**
  * {@link SpringCloudFeignConstant}
@@ -29,10 +29,10 @@ import com.wl4g.component.rpc.springboot.feign.constant.RpcContextConstant;
  * @sine v1.0
  * @see
  */
-public abstract class SpringCloudFeignConstant extends RpcContextConstant {
+public abstract class SpringCloudFeignConstant extends SpringBootFeignConstant {
 
-	public static final String KEY_LOADBALANCER_RANDOM = "spring.xcloud.component.spring-cloud-feign.lb.random";
+	public static final String KEY_LOADBALANCER_RANDOM = KEY_CONFIG_PREFIX + ".loadbalancer.random";
 
-	public static final String KEY_LOADBALANCER_GRAY = "spring.xcloud.component.spring-cloud-feign.lb.gray";
+	public static final String KEY_LOADBALANCER_GRAY = KEY_CONFIG_PREFIX + ".loadbalancer.gray";
 
 }

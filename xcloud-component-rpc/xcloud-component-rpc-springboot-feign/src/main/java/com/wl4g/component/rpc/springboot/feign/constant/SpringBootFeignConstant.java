@@ -19,6 +19,8 @@
  */
 package com.wl4g.component.rpc.springboot.feign.constant;
 
+import com.wl4g.component.core.constant.BaseConstant;
+
 /**
  * {@link SpringBootFeignConstant}
  * 
@@ -27,11 +29,18 @@ package com.wl4g.component.rpc.springboot.feign.constant;
  * @sine v1.0
  * @see
  */
-public abstract class SpringBootFeignConstant extends RpcContextConstant {
+public abstract class SpringBootFeignConstant extends BaseConstant {
 
-	public static final String KEY_CONFIG_PREFIX = "spring.xcloud.component.spring-boot-feign";
+	public static final String KEY_CONFIG_PREFIX = "spring.xcloud.component.rpc.feign";
 
 	// Default by true.
 	public static final String KEY_CONFIG_ENABLE = KEY_CONFIG_PREFIX + ".enable";
+
+	/**
+	 * For example, Tomcat 8.0 allows a maximum of 8KB of HTTP request headers
+	 * by default
+	 */
+	public static final long RPC_ATTACTMENT_MAX_BYTES = getLongProperty(KEY_CONFIG_PREFIX + ".context.attachments-max-bytes",
+			4096L);
 
 }

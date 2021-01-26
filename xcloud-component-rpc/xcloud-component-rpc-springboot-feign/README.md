@@ -1,4 +1,4 @@
-# Spring Boot Feign (XCloud)
+# Spring Boot Feign Integration
 
 A better feign client library to combine with `SpringBoot`, it can be used for migration 
 from the bloated `SpringCloud` architecture to the `SpringBoot` + [istio](https://istio.io) architecture.

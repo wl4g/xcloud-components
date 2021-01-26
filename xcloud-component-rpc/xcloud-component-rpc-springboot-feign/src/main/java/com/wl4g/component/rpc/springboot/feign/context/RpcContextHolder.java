@@ -27,7 +27,7 @@ import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
-import static com.wl4g.component.rpc.springboot.feign.constant.RpcContextConstant.RPC_ATTACTMENT_MAX_BYTES;
+import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.RPC_ATTACTMENT_MAX_BYTES;
 
 import com.wl4g.component.common.codec.CodecSource;
 import com.wl4g.component.common.log.SmartLogger;
