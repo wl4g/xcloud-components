@@ -21,7 +21,7 @@ spring:
 # Logging configuration.
 logging:
   file:
-    name: ${server.tomcat.basedir}/logs/${spring.application.name}-${spring.profiles.active}.log
+    name: ${server.tomcat.basedir}/../log/${spring.application.name}/${spring.application.name}-${spring.profiles.active}.log
 
 # https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 eureka:
