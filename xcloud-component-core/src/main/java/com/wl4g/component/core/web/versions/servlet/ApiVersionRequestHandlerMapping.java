@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.wl4g.component.common.collection.CollectionUtils2;
-import com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.ServletHandlerMappingSupport;
+import com.wl4g.component.core.web.mapping.annotation.WebMvcSmartHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.component.core.web.versions.AmbiguousApiVersionMappingException;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMapping;
 import com.wl4g.component.core.web.versions.annotation.ApiVersionMappingWrapper;

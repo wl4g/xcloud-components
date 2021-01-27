@@ -18,7 +18,8 @@ package com.wl4g.component.rpc.springboot.feign.annotation;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.PACKAGE_PATTERNS;
 
 import feign.Logger;
 import feign.Retryer;
@@ -41,12 +42,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 // 排除被@SpringBootFeignClient包含的接口,如:service(facade)层启动，需注入的是data(dao)层的feign实例这个场景(而不需要创建service接口的feign实例).
-@EnableSmartMappingConfiguration(basePackagesUseForInclude = false)
+@EnableSmartRequestMapping(packagePatternsUseForInclude = false)
 @Import({ SpringBootFeignConfigurerRegistrar.class, SpringBootFeignClientsRegistrar.class,
 		BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableSpringBootFeignClients {
 
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
+	@AliasFor(annotation = EnableSmartRequestMapping.class, attribute = PACKAGE_PATTERNS)
 	String[] value() default {};
 
 	/**
@@ -54,7 +55,7 @@ public @interface EnableSpringBootFeignClients {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGES)
+	@AliasFor(annotation = EnableSmartRequestMapping.class, attribute = PACKAGE_PATTERNS)
 	String[] basePackages() default {};
 
 	/**
@@ -62,7 +63,6 @@ public @interface EnableSpringBootFeignClients {
 	 * 
 	 * @return
 	 */
-	@AliasFor(annotation = EnableSmartMappingConfiguration.class, attribute = BASE_PACKAGE_CLASSES)
 	Class<?>[] basePackageClasses() default {};
 
 	/**

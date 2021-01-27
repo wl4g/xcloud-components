@@ -19,7 +19,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Indexed;
 
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
 import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyMvcAutoConfiguration;
 
 import java.lang.annotation.*;
@@ -43,7 +43,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Indexed
-@EnableSmartMappingConfiguration
+@EnableSmartRequestMapping
 @Import({ FeignProviderProxiesRegistrar.class, FeignProxyMvcAutoConfiguration.class/*, FeignContextAutoConfiguration.class*/ })
 public @interface EnableFeignProviderProxies {
 

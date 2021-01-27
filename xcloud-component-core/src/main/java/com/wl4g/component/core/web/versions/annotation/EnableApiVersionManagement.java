@@ -18,7 +18,7 @@ package com.wl4g.component.core.web.versions.annotation;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Indexed;
 
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartMappingConfiguration;
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
 import static java.lang.annotation.ElementType.TYPE;
@@ -39,7 +39,7 @@ import java.lang.annotation.*;
 @Target({ TYPE })
 @Documented
 @Indexed
-@EnableSmartMappingConfiguration
+@EnableSmartRequestMapping
 @Import({ ApiVersionMappingRegistrar.class })
 public @interface EnableApiVersionManagement {
 

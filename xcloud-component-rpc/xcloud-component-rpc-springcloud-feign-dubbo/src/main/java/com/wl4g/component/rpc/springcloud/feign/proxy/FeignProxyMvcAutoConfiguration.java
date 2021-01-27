@@ -61,7 +61,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletCookieValueM
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wl4g.component.core.framework.HierarchyParameterNameDiscoverer;
-import com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.ServletHandlerMappingSupport;
+import com.wl4g.component.core.web.mapping.annotation.WebMvcSmartHandlerMappingConfigurer.ServletHandlerMappingSupport;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 import com.wl4g.component.rpc.springcloud.feign.proxy.FeignProxyController;
 

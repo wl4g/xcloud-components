@@ -50,59 +50,42 @@ import com.google.common.base.Predicate;
 @Documented
 @Indexed
 @Import({ SmartHandlerMappingRegistrar.class })
-public @interface EnableSmartMappingConfiguration {
+public @interface EnableSmartRequestMapping {
 
 	/**
 	 * Base packages to scan for annotated components.
 	 * 
 	 * @return
 	 */
-	@AliasFor(BASE_PACKAGES)
+	@AliasFor(PACKAGE_PATTERNS)
 	String[] value() default {};
 
 	/**
-	 * Base packages to scan for annotated components.</br>
+	 * Base package patterns (ant style) to scan for annotated components.</br>
 	 * </br>
 	 * <font color=red> <b> Notes: When there is a value, the 'and' operation
 	 * will be performed with the filter. When it is empty, this condition will
 	 * be ignored. </b></font> </br>
 	 * </br>
-	 * And condition {@link #basePackageClasses()} will eventually merge. refer
-	 * to:
-	 * {@link com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping#SmartServletHandlerMapping}
-	 * {@link com.wl4g.component.core.web.mapping.WebFluxSmartHandlerMappingConfigurer.SmartReactiveHandlerMapping#SmartReactiveHandlerMapping}
+	 * refer to:
+	 * {@link com.wl4g.component.core.web.mapping.annotation.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping#SmartServletHandlerMapping}
+	 * {@link com.wl4g.component.core.web.mapping.annotation.WebFluxSmartHandlerMappingConfigurer.SmartReactiveHandlerMapping#SmartReactiveHandlerMapping}
 	 * 
 	 * @return
 	 */
 	@AliasFor("value")
-	String[] basePackages() default {};
+	String[] packagePatterns() default {};
 
 	/**
-	 * Base packages to scan for annotated components.</br>
-	 * </br>
-	 * <font color=red> <b> Notes: When there is a value, the 'and' operation
-	 * will be performed with the filter. When it is empty, this condition will
-	 * be ignored. </b></font></br>
-	 * </br>
-	 * And condition {@link #basePackages()} will eventually merge. refer to:
-	 * {@link com.wl4g.component.core.web.mapping.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping#SmartServletHandlerMapping}
-	 * {@link com.wl4g.component.core.web.mapping.WebFluxSmartHandlerMappingConfigurer.SmartReactiveHandlerMapping#SmartReactiveHandlerMapping}
+	 * When {@link #packagePatterns()} is set, it indicates whether to execute
+	 * inclusion logic (true: inclusion, false: exclusion)
 	 * 
 	 * @return
 	 */
-	Class<?>[] basePackageClasses() default {};
+	boolean packagePatternsUseForInclude() default true;
 
 	/**
-	 * When {@link #basePackages()} or {@link #basePackageClasses()} is set, it
-	 * indicates whether to execute inclusion logic (true: inclusion, false:
-	 * exclusion)
-	 * 
-	 * @return
-	 */
-	boolean basePackagesUseForInclude() default true;
-
-	/**
-	 * Method mapping handler filters.
+	 * Request mapping handler configurer filters.
 	 * 
 	 * @return
 	 */
@@ -117,22 +100,17 @@ public @interface EnableSmartMappingConfiguration {
 	boolean overrideAmbiguousByOrder() default true;
 
 	/**
-	 * Refer: {@link #basePackages()}
+	 * Refer: {@link #packagePatterns()}
 	 */
-	public static final String BASE_PACKAGES = "basePackages";
+	public static final String PACKAGE_PATTERNS = "packagePatterns";
 
 	/**
-	 * Refer: {@link #basePackageClasses()}
+	 * Refer: {@link #packagePatternsUseForInclude()}
 	 */
-	public static final String BASE_PACKAGE_CLASSES = "basePackageClasses";
+	public static final String PACKAGE_PATTERNS_FOR_INCLUDE = "packagePatternsUseForInclude";
 
 	/**
-	 * Refer: {@link #basePackagesUseForInclude()}
-	 */
-	public static final String BASE_PACKAGES_FOR_INCLUDE = "basePackagesUseForInclude";
-
-	/**
-	 * Refer: {@link #basePackages()}
+	 * Refer: {@link #packagePatterns()}
 	 */
 	public static final String FILTERS = "filters";
 

@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2017 ~ 2025 the original author or authors.
- * <Wanglsir@gmail.com, 983708408@qq.com> Technology CO.LTD.
- * All rights reserved.
+ * Copyright 2017 ~ 2025 the original author or authors. <wanglsir@gmail.com, 983708408@qq.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.core.web.mapping;
+package com.wl4g.component.core.web.mapping.annotation;
 
-import static com.google.common.base.Predicates.and;
+import com.google.common.base.Predicate;
 import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.and;
 import static com.google.common.base.Predicates.or;
+import com.wl4g.component.common.log.SmartLogger;
+
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
-import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
-import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -43,50 +40,61 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxRegistrations;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.reactive.HandlerMapping;
-import org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping;
-import org.springframework.web.reactive.result.method.RequestMappingInfo;
-import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.google.common.base.Predicate;
-import com.wl4g.component.common.collection.CollectionUtils2;
-import com.wl4g.component.common.log.SmartLogger;
-
-import reactor.core.publisher.Mono;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 /**
- * Global delegate Web Flux {@link RequestMapping} unique handler mapping.
+ * Global delegate Web MVC {@link RequestMapping} unique handler mapping.
  * instances. (supports multi customization
  * {@link RequestMappingHandlerMapping}) </br>
  * </br>
+ * Notes: The usage scenarios and instructions of this global delegation request
+ * mapping registration program are as follows: </br>
+ * The purpose {@link ServletHandlerMappingSupport} is to use custom global
+ * delegation to uniformly register the mapping. Because when an interface
+ * annotated with {@link RequestMapping} has multiple subclass instances, spring
+ * will automatically register the mapping of two subclass instances by default,
+ * which will lead to the exception of registration conflict. For related source
+ * code analysis, please refer to:
+ * {@link AbstractHandlerMethodMapping#isHandler()}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2020-12-18
+ * @version v1.0 2020-11-27
  * @sine v1.0
- * @see
+ * @see {@link org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
+ * @see http://www.kailaisii.com/archives/%E8%87%AA%E5%AE%9A%E4%B9%89RequestMappingHandlerMapping,%E5%86%8D%E4%B9%9F%E4%B8%8D%E7%94%A8%E5%86%99url%E4%BA%86~
  */
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-@AutoConfigureAfter(WebFluxAutoConfiguration.class)
-public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistrations {
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@AutoConfigureAfter(WebMvcAutoConfiguration.class)
+public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Nullable
-	private String[] basePackages;
-	private boolean basePackagesUseForInclude;
+	private String[] packagePatterns;
+	private boolean packagePatternsUseForInclude;
 	@Nullable
 	private Predicate<Class<?>>[] filters;
 	private boolean overrideAmbiguousByOrder;
@@ -94,14 +102,14 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	@Lazy // Resolving cyclic dependency injection
 	@Nullable
 	@Autowired(required = false)
-	private List<ReactiveHandlerMappingSupport> handlerMappings;
+	private List<ServletHandlerMappingSupport> handlerMappings;
 
-	public void setBasePackages(String[] basePackages) {
-		this.basePackages = basePackages;
+	public void setPackagePatterns(String[] packagePatterns) {
+		this.packagePatterns = packagePatterns;
 	}
 
-	public void setBasePackagesUseForInclude(boolean basePackagesUseForInclude) {
-		this.basePackagesUseForInclude = basePackagesUseForInclude;
+	public void setPackagePatternsUseForInclude(boolean packagePatternsUseForInclude) {
+		this.packagePatternsUseForInclude = packagePatternsUseForInclude;
 	}
 
 	public void setFilters(Predicate<Class<?>>[] filters) {
@@ -114,23 +122,26 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 	/**
 	 * Directly new create instance, spring is automatically injected into the
-	 * container later. </br>
+	 * container later. refer:
+	 * {@link org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.EnableWebMvcConfiguration#createRequestMappingHandlerMapping()}
+	 * {@link org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport#requestMappingHandlerMapping()}
+	 * </br>
 	 * </br>
 	 * Notes: if using @ bean here will result in two instances in the ioc
 	 * container.
 	 */
 	@Override
 	public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-		return new SmartReactiveHandlerMapping(basePackages, basePackagesUseForInclude, filters, handlerMappings);
+		return new SmartServletHandlerMapping(packagePatterns, packagePatternsUseForInclude, filters, handlerMappings);
 	}
 
 	/**
-	 * Smart webflux delegate handler mapping.
+	 * Smart servlet mvc delegate handler mapping.
 	 */
-	final class SmartReactiveHandlerMapping extends RequestMappingHandlerMapping {
+	final class SmartServletHandlerMapping extends RequestMappingHandlerMapping {
 
 		/**
-		 * {@link org.springframework.web.reactive.result.method.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
+		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#mappingLookup}
 		 */
 		private final Map<RequestMappingInfo, HandlerMethod> registeredMappings = synchronizedMap(new LinkedHashMap<>(32));
 
@@ -143,25 +154,28 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		/**
 		 * All extensions custom request handler mappings.
 		 */
-		private final List<ReactiveHandlerMappingSupport> handlerMappings;
+		private final List<ServletHandlerMappingSupport> handlerMappings;
 
 		private boolean print = false;
 
 		/**
 		 * Notes: Must take precedence, otherwise invalid. refer:
-		 * {@link org.springframework.web.reactive.DispatcherHandler#initStrategies()}
+		 * {@link org.springframework.web.servlet.DispatcherServlet#initHandlerMappings()}
 		 */
-		public SmartReactiveHandlerMapping(@Nullable String[] basePackages, boolean basePackagesUseForInclude,
-				@Nullable Predicate<Class<?>>[] filters, @Nullable List<ReactiveHandlerMappingSupport> handlerMappings) {
+		public SmartServletHandlerMapping(@Nullable String[] packagePatterns, boolean packagePatternsUseForInclude,
+				@Nullable Predicate<Class<?>>[] filters, @Nullable List<ServletHandlerMappingSupport> handlerMappings) {
 			setOrder(HIGHEST_PRECEDENCE); // Highest priority.
 
 			// Merge predicate for filter condidtions.
-			if (nonNull(basePackages) && basePackages.length > 0) {// If-necessary
-				Predicate<Class<?>> basePackagesFilter = beanType -> startsWithAny(getPackageName(beanType), basePackages);
-				if (basePackagesUseForInclude) {
-					this.mergedFilter = and(basePackagesFilter, or(safeArrayToList(filters)));
+			if (nonNull(packagePatterns) && packagePatterns.length > 0) {// If-necessary
+				// Build package filter
+				Predicate<Class<?>> packagesFilter = beanType -> asList(packagePatterns).stream()
+						.anyMatch(pattern -> defaultPackagePatternMatcher.matchStart(pattern, getPackageName(beanType)));
+				// Merge filter
+				if (packagePatternsUseForInclude) {
+					this.mergedFilter = and(packagesFilter, or(safeArrayToList(filters)));
 				} else {
-					this.mergedFilter = and(not(basePackagesFilter), or(safeArrayToList(filters)));
+					this.mergedFilter = and(not(packagesFilter), or(safeArrayToList(filters)));
 				}
 			} else {
 				this.mergedFilter = or(safeArrayToList(filters));
@@ -238,18 +252,8 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * @return
 		 */
 		private RequestMappingInfo getMappingForMethod(Object handler, Method method, Class<?> handlerType) {
-			if (CollectionUtils2.isEmpty(handlerMappings)) {
-				if (!print) {
-					print = true;
-					logger.warn(
-							"Unable to execution customization request handler mappings, fallback using spring default handler mapping.");
-				}
-				// Use default handler mapping.
-				return super.getMappingForMethod(method, handlerType);
-			}
-
 			// a. Ensure the external handler mapping is performed first.
-			for (ReactiveHandlerMappingSupport hm : safeList(handlerMappings)) {
+			for (ServletHandlerMappingSupport hm : safeList(handlerMappings)) {
 				// Use supported custom handler mapping.
 				if (hm.supportsHandlerMethod(handler, handlerType, method)) {
 					logger.info(format("The method: '%s' is delegated to the request mapping handler registration: '%s'", method,
@@ -261,14 +265,16 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 			// b. Fallback, using default handler mapping.
 			if (!print) {
 				print = true;
-				logger.info(format("No suitable request handler mapping was found. all handlerMappings: %s", handlerMappings));
+				logger.info(format(
+						"No suitable request handler mapping was found, fallback using spring default handler mapping, all handlerMappings: %s",
+						handlerMappings));
 			}
 			return super.getMappingForMethod(method, handlerType);
 		}
 
 		/**
-		 * {@link AbstractHandlerMethodMapping.MappingRegistry#register()}
-		 * {@link AbstractHandlerMethodMapping.MappingRegistry#validateMethodMapping()}
+		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#register()}
+		 * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.MappingRegistry#validateMethodMapping()}
 		 * {@link org.springframework.web.method.HandlerMethod#equals()}
 		 */
 		@Override
@@ -342,11 +348,11 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	 * In order to enable global delegate of {@link RequestMapping} registration
 	 * program supporteds.
 	 */
-	public static abstract class ReactiveHandlerMappingSupport extends RequestMappingHandlerMapping {
+	public static abstract class ServletHandlerMappingSupport extends RequestMappingHandlerMapping {
 
-		private volatile SmartReactiveHandlerMapping delegate;
+		private volatile SmartServletHandlerMapping delegate;
 
-		public ReactiveHandlerMappingSupport() {
+		public ServletHandlerMappingSupport() {
 			setOrder(Ordered.HIGHEST_PRECEDENCE + 10); // By default order
 		}
 
@@ -358,15 +364,13 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 
 		/**
 		 * It can be ignored. The purpose is to reduce unnecessary execution and
-		 * improve the speed when
-		 * {@link org.springframework.web.reactive.DispatcherHandler#handle(ServerWebExchange)}
-		 * looks for mapping. (because spring will automatically add all
-		 * instances of {@link HandlerMapping} interface to the candidate list
-		 * for searching)
+		 * improve the speed when {@link DispatcherServlet#getHandler()} looks
+		 * for mapping. (because spring will automatically add all instances of
+		 * {@link HandlerMapping} interface to the candidate list for searching)
 		 */
 		@Override
-		public Mono<HandlerMethod> getHandlerInternal(ServerWebExchange exchange) {
-			return Mono.empty();
+		protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+			return null;
 		}
 
 		/**
@@ -404,11 +408,11 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		 * 
 		 * @return
 		 */
-		private final SmartReactiveHandlerMapping getDelegate() {
+		private final SmartServletHandlerMapping getDelegate() {
 			if (isNull(delegate)) {
 				synchronized (this) {
 					if (isNull(delegate)) {
-						this.delegate = getApplicationContext().getBean(SmartReactiveHandlerMapping.class);
+						this.delegate = getApplicationContext().getBean(SmartServletHandlerMapping.class);
 						// Must init.
 						if (isNull(this.delegate.getApplicationContext())) {
 							this.delegate.setApplicationContext(getApplicationContext());
@@ -424,5 +428,11 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 	/**
 	 * Excludes bean class base packages.
 	 */
-	public static final String[] EXCLUDE_BASE_PACKAGES = { "org.springframework", "java.", "javax." };
+	private static final String[] EXCLUDE_BASE_PACKAGES = { "org.springframework", "java.", "javax." };
+
+	/**
+	 * Class package patterns mapping matcher.
+	 */
+	private static final AntPathMatcher defaultPackagePatternMatcher = new AntPathMatcher(".");
+
 }
