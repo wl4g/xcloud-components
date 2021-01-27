@@ -98,7 +98,7 @@
 		<nexus-staging-maven-plugin.version>1.6.3</nexus-staging-maven-plugin.version>
 		<minify-maven-plugin.version>1.7.6</minify-maven-plugin.version>
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
-		<spring-boot-maven.version>1.5.4.RELEASE</spring-boot-maven.version>
+		<spring-boot-maven.version>2.3.8.RELEASE</spring-boot-maven.version>
 	</properties>
 	<build>
 		<pluginManagement>
