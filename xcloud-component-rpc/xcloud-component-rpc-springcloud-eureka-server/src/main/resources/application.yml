@@ -93,6 +93,7 @@ server:
   #address: 0.0.0.0
   sessionTimeout: 30
   servlet:
+    # Can only fix context path=/. If customize it, URL splicing error will appear in the management page.
     contextPath: /
   tomcat:
     uri-encoding: UTF-8

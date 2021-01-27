@@ -41,9 +41,13 @@ eureka:
   instance:
     hostname: peer1
   client:
+    # Can only fix context path=/. If customize it, URL splicing error will appear in the management page.
+    #serviceUrl.defaultZone: "\
+    #  http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002${server.servlet.contextPath}/eureka/,\
+    #  http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003${server.servlet.contextPath}/eureka/"
     serviceUrl.defaultZone: "\
-      http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002${server.servlet.contextPath}/eureka/,\
-      http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003${server.servlet.contextPath}/eureka/"
+      http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002/eureka/,\
+      http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003/eureka/"
 
 ---
 server:
@@ -55,8 +59,8 @@ eureka:
     hostname: peer2
   client:
     serviceUrl.defaultZone: "\
-      http://${spring.security.user.name}:${spring.security.user.password}@peer1:9001${server.servlet.contextPath}/eureka/,\
-      http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003${server.servlet.contextPath}/eureka/"
+      http://${spring.security.user.name}:${spring.security.user.password}@peer1:9001/eureka/,\
+      http://${spring.security.user.name}:${spring.security.user.password}@peer3:9003/eureka/"
 
 ---
 server:
@@ -68,6 +72,6 @@ eureka:
     hostname: peer3
   client:
     serviceUrl.defaultZone: "\
-      http://${spring.security.user.name}:${spring.security.user.password}@peer1:9001${server.servlet.contextPath}/eureka/,\
-      http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002${server.servlet.contextPath}/eureka/"
+      http://${spring.security.user.name}:${spring.security.user.password}@peer1:9001/eureka/,\
+      http://${spring.security.user.name}:${spring.security.user.password}@peer2:9002/eureka/"
 
