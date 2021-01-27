@@ -8,10 +8,8 @@
 # limitations under the License.
 #
 
-# #### Environment(Eureka Server) configuration. ####
+# #### Environment(Eureka Server for Local) configuration. ####
 #
-
-# Default security configuration.
 spring:
   security:
     basic:

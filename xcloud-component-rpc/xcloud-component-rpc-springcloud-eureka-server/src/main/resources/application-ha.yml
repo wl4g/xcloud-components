@@ -8,9 +8,8 @@
 # limitations under the License.
 #
 
-# #### Environment(Eureka Server for Uat) configuration. ####
+# #### Environment(Eureka Server for HA) configuration. ####
 #
-
 spring:
   security:
     basic:
@@ -18,6 +17,11 @@ spring:
     user:
       name: ${SPRING_SECURITY_USER_NAME:eureka}
       password: ${SPRING_SECURITY_USER_NAME:wl4g.com}
+
+# Logging configuration.
+logging:
+  file:
+    name: ${server.tomcat.basedir}/logs/${spring.application.name}-${spring.profiles.active}.log
 
 # https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 eureka:
