@@ -54,7 +54,6 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.util.ClassUtils;
 
 import com.google.common.base.Predicate;
 import com.wl4g.component.common.log.SmartLogger;
@@ -175,9 +174,14 @@ public class SmartHandlerMappingRegistrar
 				basePackages.add(pkg);
 			}
 		}
-		if (basePackages.isEmpty()) {
-			basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
-		}
+		/*
+		 * [Must Ignore] We must strictly handle only the specified values, so
+		 * that we can be transparent to the outside world, because the
+		 * conditions here are too sensitive.
+		 */
+		// if (basePackages.isEmpty()) {
+		// basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+		// }
 		return basePackages;
 	}
 
