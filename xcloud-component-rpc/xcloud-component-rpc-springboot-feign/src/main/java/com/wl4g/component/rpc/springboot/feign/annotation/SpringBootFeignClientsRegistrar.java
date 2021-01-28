@@ -232,7 +232,8 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 	 * @return
 	 */
 	public static boolean isEnableSpringFeignConfiguration(Environment environment) {
-		return environment.getProperty(KEY_CONFIG_ENABLE, boolean.class, false);
+		// Default by true, If want to run in standalone mode, should set false
+		return environment.getProperty(KEY_CONFIG_ENABLE, boolean.class, true);
 	}
 
 	/**
