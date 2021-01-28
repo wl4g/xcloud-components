@@ -272,7 +272,7 @@ public abstract class RpcContextHolder {
 			throw new Error(format("Error, shouldn't be here, No found %s instance.", RpcContextHolder.class.getSimpleName()));
 		} else if (candidates.size() > 1) {
 			throw new IllegalStateException(format(
-					"Found many %s instances, multiple Rpc frameworks coexistence (e.g. feign/dubbo/motan) are not supported. Please check the conflicting framework dependencies.",
+					"Found many %s instances, multiple Rpc frameworks coexistence (e.g. feign/dubbo/motan/istio) are not supported. Please check the conflicting framework dependencies.",
 					RpcContextHolder.class.getSimpleName()));
 		} else {
 			return candidates.get(0);

@@ -60,6 +60,7 @@ import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.rpc.feign.core.annotation.mvc.SpringMvcContract;
 import com.wl4g.component.rpc.feign.core.config.FeignConsumerAutoConfiguration;
 import com.wl4g.component.rpc.feign.core.config.FeignConsumerProperties;
+import com.wl4g.component.rpc.feign.core.context.FeignContextDecoder;
 import com.wl4g.component.rpc.feign.core.context.RpcContextHolder;
 import com.wl4g.component.rpc.feign.core.context.interceptor.FeignRpcContextUtils;
 
@@ -376,7 +377,8 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 		private String feignHttpProtocol;
 
 		public DelegateFeignDecoder(Decoder decoder) {
-			this.decoder = notNullOf(decoder, "decoder");
+			notNullOf(decoder, "decoder");
+			this.decoder = new FeignContextDecoder(decoder);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -392,13 +394,6 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 				boolean dumpStackTrace = (getLogLevel() != Level.NONE);
 				throw new FeignRpcException(errmsg, (log.isDebugEnabled() ? e : null), true);
 			} finally {
-				// The RPC call has responded and the attachment info should be
-				// extracted from it.
-				try {
-					FeignRpcContextUtils.bindFeignResposneAttachmentsToContext(wrapResponse);
-				} catch (Exception e2) {
-					log.warn("Cannot bind feign response attachments to current RpcContext", e2);
-				}
 				// Actual close response.
 				((RepeatableResponseBody) wrapResponse.body()).actualClose();
 			}

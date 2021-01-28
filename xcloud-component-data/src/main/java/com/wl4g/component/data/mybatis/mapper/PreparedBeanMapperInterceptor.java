@@ -15,8 +15,10 @@
  */
 package com.wl4g.component.data.mybatis.mapper;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.SqlUtil;
 
@@ -164,10 +166,10 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		 */
 		if (isNull(SqlUtil.getLocalPage())) { // No set?
 			// Obtain page from Rpc context.
-			PageHolder<?> page = PageHolder.getCurrentPage();
-			log.debug("Start current pagination of RpcContext holder. -> {}", page);
-			if (nonNull(page)) {
-				PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.getPage().isCount());
+			PageHolder<?> holder = PageHolder.getCurrentPage();
+			log.debug("Start current pagination of RpcContext holder. -> {}", holder);
+			if (nonNull(holder)) {
+				PageHelper.startPage(holder.getPageNum(), holder.getPageSize(), holder.getPage().isCount());
 			}
 			// Release current Page in Rpc context.
 			PageHolder.releasePage();
@@ -227,20 +229,18 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @return
 	 */
 	protected Object postQuery(Invocation invoc, Object result) {
-		// if (isNull(result)) {
-		// return null;
-		// }
-		// // Transform result Page to original object.
-		// if (result instanceof Page) {
-		// PageHolder<?> page = PageHolder.getCurrentPage();
-		// if (nonNull(page)) {
-		// com.github.pagehelper.Page<?> helperPage =
-		// (com.github.pagehelper.Page<?>) result;
-		// org.springframework.beans.BeanUtils.copyProperties(helperPage,
-		// page.getPage());
-		// return new java.util.ArrayList<>(helperPage);
-		// }
-		// }
+		if (isNull(result)) {
+			return null;
+		}
+		// Bind page result to rpc context.
+		if (result instanceof Page) {
+			PageHolder<?> holder = PageHolder.getCurrentPage();
+			if (nonNull(holder)) {
+				com.github.pagehelper.Page<?> helperPage = (com.github.pagehelper.Page<?>) result;
+				BeanUtils.copyProperties(helperPage, holder.getPage());
+				PageHolder.startPage(holder);
+			}
+		}
 		return result;
 	}
 

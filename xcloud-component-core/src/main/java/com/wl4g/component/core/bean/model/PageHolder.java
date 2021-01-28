@@ -21,7 +21,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.springframework.beans.BeanUtils;
+
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
@@ -30,6 +33,7 @@ import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
@@ -58,7 +62,7 @@ public class PageHolder<E> implements Serializable {
 	/**
 	 * Page of {@link Page}
 	 */
-	@JsonIgnore(true)
+	@JsonIgnore
 	private final Page<E> page = new Page<>();
 
 	/**
@@ -111,9 +115,19 @@ public class PageHolder<E> implements Serializable {
 		this(1, 10);
 	}
 
+	public PageHolder(Page<E> page) {
+		setPage(page);
+	}
+
 	public PageHolder(Integer pageNum, Integer pageSize) {
 		setPageNum(pageNum);
 		setPageSize(pageSize);
+	}
+
+	public final void setPage(Page<E> page) {
+		if (nonNull(page)) {
+			BeanUtils.copyProperties(page, getPage());
+		}
 	}
 
 	public Integer getPageNum() {
@@ -126,6 +140,11 @@ public class PageHolder<E> implements Serializable {
 		}
 	}
 
+	public PageHolder<E> withPageNum(Integer pageNum) {
+		setPageNum(pageNum);
+		return this;
+	}
+
 	public Integer getPageSize() {
 		return page.getPageSize();
 	}
@@ -134,6 +153,11 @@ public class PageHolder<E> implements Serializable {
 		if (nonNull(pageSize)) {
 			page.setPageSize(pageSize);
 		}
+	}
+
+	public PageHolder<E> withPageSize(Integer pageSize) {
+		setPageSize(pageSize);
+		return this;
 	}
 
 	public Long getTotal() {
@@ -146,6 +170,11 @@ public class PageHolder<E> implements Serializable {
 		}
 	}
 
+	public PageHolder<E> withTotal(Long total) {
+		setTotal(total);
+		return this;
+	}
+
 	public Integer getPages() {
 		return page.getPages();
 	}
@@ -156,14 +185,32 @@ public class PageHolder<E> implements Serializable {
 		}
 	}
 
+	public PageHolder<E> withPages(Integer pages) {
+		return this;
+	}
+
+	public final void setRecords(List<E> records) {
+		if (nonNull(records) && !records.isEmpty()) {
+			this.records = records;
+			// Bind result new page to this.
+			PageHolder<E> resultPageHolder = PageHolder.getCurrentPage();
+			if (nonNull(resultPageHolder)) {
+				setPage(resultPageHolder.getPage());
+			}
+		}
+	}
+
+	public PageHolder<E> count() {
+		getPage().setCount(true);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName().concat("<").concat(toJSONString(this)).concat(">");
 	}
 
-	//
-	// --- Current context page helper. ---
-	//
+	// --- Current page function methods. ---
 
 	/**
 	 * Sets page in current Rpc context.
@@ -183,14 +230,15 @@ public class PageHolder<E> implements Serializable {
 	/**
 	 * Sets page in current Rpc context.
 	 * 
-	 * @param page
+	 * @param holder
 	 */
-	public static void startPage(@Nullable PageHolder<?> page) {
+	public static void startPage(@Nullable PageHolder<?> holder) {
+		Page<?> page = isNull(holder) ? null : holder.getPage();
 		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextSetMethod)) { // Distributed?
-			Object holder = invokeMethod(rpcContextGetHolderMethod, null);
-			invokeMethod(rpcContextSetMethod, holder, new Object[] { CURRENT_PAGE_KEY, page });
+			Object rpcContextHolder = invokeMethod(rpcContextGetHolderMethod, null);
+			invokeMethod(rpcContextSetMethod, rpcContextHolder, new Object[] { CURRENT_PAGE_KEY, page });
 		} else { // fallback, use local
-			defaultLocal.set(page);
+			standaloneCurrentPage.set(page);
 		}
 	}
 
@@ -203,10 +251,12 @@ public class PageHolder<E> implements Serializable {
 	@Nullable
 	public static final <T> PageHolder<T> getCurrentPage() {
 		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextGetMethod)) { // Distributed?
-			Object holder = invokeMethod(rpcContextGetHolderMethod, null);
-			return (PageHolder<T>) invokeMethod(rpcContextGetMethod, holder, new Object[] { CURRENT_PAGE_KEY, PageHolder.class });
+			Object rpcContextHolder = invokeMethod(rpcContextGetHolderMethod, null);
+			Page<T> page = (Page<T>) invokeMethod(rpcContextGetMethod, rpcContextHolder,
+					new Object[] { CURRENT_PAGE_KEY, Page.class });
+			return new PageHolder<>(page);
 		} else { // fallback, use local
-			return (PageHolder<T>) defaultLocal.get();
+			return new PageHolder<T>((Page<T>) standaloneCurrentPage.get());
 		}
 	}
 
@@ -509,10 +559,8 @@ public class PageHolder<E> implements Serializable {
 	private static transient final Method rpcContextSetMethod = findMethodNullable(rpcContextHolderClass, "set", String.class,
 			Object.class);
 
-	// Default fallback local store.
-	private static transient final ThreadLocal<PageHolder<?>> defaultLocal = new ThreadLocal<>();
-
-	// Page storage local key.
+	// Standalone mode current page.
+	private static transient final ThreadLocal<Page<?>> standaloneCurrentPage = new ThreadLocal<>();
 	private static transient final String CURRENT_PAGE_KEY = PageHolder.class.getSimpleName().concat(".currentPage");
 
 }

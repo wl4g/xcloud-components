@@ -8,4 +8,5 @@ com.wl4g.component.rpc.feign.springcloud.config.EnhanceSpringCloudLoadbalancerAu
 com.wl4g.component.rpc.feign.springcloud.config.EnhanceSpringCloudLoadbalancerAutoConfiguration.BlockingSupportConfiguration,\
 com.wl4g.component.rpc.feign.springcloud.config.EnableFeignOkHttpAutoConfiguration,\
 com.wl4g.component.rpc.feign.springcloud.context.SpringCloudHystrixFeignContextAutoConfiguration,\
-com.wl4g.component.rpc.feign.springcloud.context.SpringCloudSentinelFeignContextAutoConfiguration
+com.wl4g.component.rpc.feign.springcloud.context.SpringCloudSentinelFeignContextAutoConfiguration,\
+com.wl4g.component.rpc.feign.springcloud.context.FeignContextDecoderAutoConfiguration
