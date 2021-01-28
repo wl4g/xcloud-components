@@ -2,4 +2,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.wl4g.component.rpc.springboot.feign.context.interceptor.FeignRpcContextAutoConfiguration,\
 com.wl4g.component.rpc.springboot.feign.context.JedisReferenceRepositoryAutoConfiguration,\
-com.wl4g.component.rpc.springboot.feign.context.SpringBootFeignContextAutoConfiguration
+com.wl4g.component.rpc.springboot.feign.context.DefaultSpringBootFeignContextAutoConfiguration
