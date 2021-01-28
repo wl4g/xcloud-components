@@ -49,13 +49,13 @@ import redis.clients.jedis.params.sortedset.ZIncrByParams;
 import redis.clients.util.Slowlog;
 
 /**
- * Singleton jedis client wrapper.
+ * Standalone mode jedis client wrapper.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public class SingletonJedisClient implements JedisClient {
+public class StandaloneJedisClient implements JedisClient {
 
 	/** Jedis single pool */
 	final protected JedisPool jedisPool;
@@ -63,7 +63,7 @@ public class SingletonJedisClient implements JedisClient {
 	/** Safety mode, validating storage key. */
 	final protected boolean safeMode;
 
-	public SingletonJedisClient(JedisPool jedisPool, boolean safeMode) {
+	public StandaloneJedisClient(JedisPool jedisPool, boolean safeMode) {
 		notNullOf(jedisPool, "jedisPool");
 		this.jedisPool = jedisPool;
 		this.safeMode = safeMode;

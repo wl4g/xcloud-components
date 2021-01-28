@@ -232,7 +232,7 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 	 * @return
 	 */
 	public static boolean isEnableSpringFeignConfiguration(Environment environment) {
-		return environment.getProperty(KEY_CONFIG_ENABLE, boolean.class, true);
+		return environment.getProperty(KEY_CONFIG_ENABLE, boolean.class, false);
 	}
 
 	/**

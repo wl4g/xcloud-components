@@ -111,7 +111,7 @@ public class JedisClientFactoryBean implements FactoryBean<JedisClient>, Initial
 			jedisClient = new JedisClusterJedisClient(jedisCluster);
 			log.info("Instantiated JedisClient: {} via existing JedisCluster: {}", jedisClient, jedisCluster);
 		} else if (nonNull(jedisPool)) {
-			jedisClient = new SingletonJedisClient(jedisPool, false);
+			jedisClient = new StandaloneJedisClient(jedisPool, false);
 			log.info("Instantiated JedisClient: {} via existing JedisPool: {}", jedisClient, jedisPool);
 		}
 		// New instantiate via configuration.
@@ -137,28 +137,20 @@ public class JedisClientFactoryBean implements FactoryBean<JedisClient>, Initial
 		log.info("Connecting to redis nodes..., config: {}", config.toString());
 
 		try {
-			if (isCluster()) { // cluster
+			// Nodes config is cluster?
+			if (safeList(config.getNodes()).size() > 1) {// auto
 				jedisClient = new ConfigurableJedisClusterJedisClient(nodes, config.getConnTimeout(), config.getSoTimeout(),
 						config.getMaxAttempts(), config.getPasswd(), config.getPoolConfig(), config.isSafeMode());
-			} else { // single
+			} else { // standalone
 				HostAndPort hap = nodes.iterator().next();
 				JedisPool pool = new JedisPool(config.getPoolConfig(), hap.getHost(), hap.getPort(), config.getConnTimeout(),
 						config.getSoTimeout(), config.getPasswd(), 0, config.getClientName(), false, null, null, null);
-				jedisClient = new SingletonJedisClient(pool, config.isSafeMode());
+				jedisClient = new StandaloneJedisClient(pool, config.isSafeMode());
 			}
 			log.info("Instantiated jedis client via configuration. {}", jedisClient);
 		} catch (Exception e) {
 			throw new IllegalStateException(format("Cannot connect to redis nodes: %s", nodes), e);
 		}
-	}
-
-	/**
-	 * Check current config in {@link JedisCluster} mode.
-	 * 
-	 * @return
-	 */
-	private final boolean isCluster() {
-		return safeList(config.getNodes()).size() > 1;
 	}
 
 }
