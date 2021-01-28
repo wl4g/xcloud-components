@@ -181,17 +181,17 @@
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-springboot-feign</artifactId>
+				<artifactId>xcloud-component-rpc-feign-core</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-springcloud-feign</artifactId>
+				<artifactId>xcloud-component-rpc-feign-springcloud</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-springcloud-feign-dubbo</artifactId>
+				<artifactId>xcloud-component-rpc-feign-springcloud-dubbo</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<!-- Third party dependency librarys -->

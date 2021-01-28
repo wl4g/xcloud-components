@@ -502,7 +502,7 @@ public class PageHolder<E> implements Serializable {
 
 	// Rpc context methods.
 	private static transient final Class<?> rpcContextHolderClass = resolveClassNameNullable(
-			"com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder");
+			"com.wl4g.component.rpc.feign.core.context.RpcContextHolder");
 	private static transient final Method rpcContextGetHolderMethod = findMethodNullable(rpcContextHolderClass, "get");
 	private static transient final Method rpcContextGetMethod = findMethodNullable(rpcContextHolderClass, "get", String.class,
 			Class.class);

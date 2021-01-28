@@ -1,2 +1,0 @@
-attachmentConsumerContextFilter=com.wl4g.component.rpc.springcloud.feign.dubbo.context.filter.ConsumerContextFilter
-attachmentProviderContextFilter=com.wl4g.component.rpc.springcloud.feign.dubbo.context.filter.ProviderContextFilter
