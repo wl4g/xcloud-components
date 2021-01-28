@@ -95,7 +95,7 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		// Check enabled configuration
-		if (!isEnableSpringFeignConfiguration(environment)) {
+		if (!isEnableConfiguration(environment)) {
 			log.warn("No enabled Spring Boot/Cloud Feign configuration!");
 			return;
 		}
@@ -231,7 +231,7 @@ class SpringBootFeignClientsRegistrar implements ImportBeanDefinitionRegistrar, 
 	 * 
 	 * @return
 	 */
-	public static boolean isEnableSpringFeignConfiguration(Environment environment) {
+	public static boolean isEnableConfiguration(Environment environment) {
 		// Default by true, If want to run in standalone mode, should set false
 		return environment.getProperty(KEY_CONFIG_ENABLE, boolean.class, true);
 	}

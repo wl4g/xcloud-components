@@ -66,7 +66,7 @@ class BridgeSpringCloudFeignClientsRegistrar implements ImportBeanDefinitionRegi
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		// Check enabled configuration
-		if (!SpringBootFeignClientsRegistrar.isEnableSpringFeignConfiguration(environment)) {
+		if (!SpringBootFeignClientsRegistrar.isEnableConfiguration(environment)) {
 			log.warn("No enabled SpringBoot and SpringCloud feign auto configurer!");
 			return;
 		}

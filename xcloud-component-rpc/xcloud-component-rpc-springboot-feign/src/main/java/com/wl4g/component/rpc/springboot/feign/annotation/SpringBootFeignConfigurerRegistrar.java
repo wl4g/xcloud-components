@@ -16,7 +16,7 @@
 package com.wl4g.component.rpc.springboot.feign.annotation;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer;
+import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignAutoConfiguration;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
@@ -57,14 +57,14 @@ class SpringBootFeignConfigurerRegistrar implements ImportBeanDefinitionRegistra
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		// Check enabled configuration
-		if (!SpringBootFeignClientsRegistrar.isEnableSpringFeignConfiguration(environment)) {
+		if (!SpringBootFeignClientsRegistrar.isEnableConfiguration(environment)) {
 			log.warn("No enabled SpringBoot and SpringCloud feign auto configurer!");
 			return;
 		}
 
 		// Not SpringCloud + feign
 		if (!SpringBootFeignClientsRegistrar.hasSpringCloudFeignClass()) {
-			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SpringBootFeignConfigurer.class);
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SpringBootFeignAutoConfiguration.class);
 			AbstractBeanDefinition definition = builder.getBeanDefinition();
 			String beanName = AnnotationBeanNameGenerator.INSTANCE.generateBeanName(definition, registry);
 			registry.registerBeanDefinition(beanName, definition);

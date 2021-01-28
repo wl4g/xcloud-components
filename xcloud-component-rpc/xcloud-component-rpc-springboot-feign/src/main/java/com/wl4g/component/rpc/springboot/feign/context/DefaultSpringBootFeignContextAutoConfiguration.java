@@ -29,14 +29,15 @@ import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 import static java.lang.ThreadLocal.withInitial;
 
 /**
- * Auto configuration of client|server
+ * Default springboot-feign {@link RpcContextHolder} auto configuration. (Both
+ * the consumer side and the production side should be configured)
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-01
  * @sine v1.0
  * @see
  */
-public class SpringBootFeignContextAutoConfiguration {
+public class DefaultSpringBootFeignContextAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean // Lower priority

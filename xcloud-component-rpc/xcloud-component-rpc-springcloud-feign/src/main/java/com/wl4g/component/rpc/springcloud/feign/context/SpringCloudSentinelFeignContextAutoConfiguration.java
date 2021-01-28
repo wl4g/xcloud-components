@@ -37,7 +37,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.alibaba.cloud.sentinel.custom.SentinelAutoConfiguration;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
-import com.wl4g.component.rpc.springboot.feign.context.SpringBootFeignContextAutoConfiguration;
+import com.wl4g.component.rpc.springboot.feign.context.DefaultSpringBootFeignContextAutoConfiguration;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -52,7 +52,7 @@ import feign.RequestTemplate;
  */
 @ConditionalOnClass({ SentinelAutoConfiguration.class, SpringBootFeignClient.class, FeignClient.class })
 @ConditionalOnWebApplication(type = Type.SERVLET)
-@AutoConfigureBefore(SpringBootFeignContextAutoConfiguration.class)
+@AutoConfigureBefore(DefaultSpringBootFeignContextAutoConfiguration.class)
 public class SpringCloudSentinelFeignContextAutoConfiguration implements WebMvcConfigurer {
 	protected final SmartLogger log = getLogger(getClass());
 

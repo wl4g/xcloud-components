@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 
 @ConditionalOnExpression("'http2'.equalsIgnoreCase('${" + KEY_CONFIG_PREFIX + ".client-provider:http2}')")
 // @ConditionalOnClass(HttpClient.class)
-public class Http2FeignClientConfiguration {
+public class Http2FeignClientAutoConfiguration {
 
 	// @Bean(BEAN_FEIGN_CLIENT)
 	// @ConditionalOnJava(JavaVersion.ELEVEN)

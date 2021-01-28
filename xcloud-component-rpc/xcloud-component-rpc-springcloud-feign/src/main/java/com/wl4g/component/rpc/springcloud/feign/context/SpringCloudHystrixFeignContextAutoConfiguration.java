@@ -45,7 +45,7 @@ import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableDefault;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
-import com.wl4g.component.rpc.springboot.feign.context.SpringBootFeignContextAutoConfiguration;
+import com.wl4g.component.rpc.springboot.feign.context.DefaultSpringBootFeignContextAutoConfiguration;
 
 /**
  * SpringCloud hystrix feign context holder auto configuration.
@@ -57,7 +57,7 @@ import com.wl4g.component.rpc.springboot.feign.context.SpringBootFeignContextAut
  */
 @ConditionalOnClass({ HystrixAutoConfiguration.class, SpringBootFeignClient.class, FeignClient.class })
 @ConditionalOnWebApplication(type = Type.SERVLET)
-@AutoConfigureBefore(SpringBootFeignContextAutoConfiguration.class)
+@AutoConfigureBefore(DefaultSpringBootFeignContextAutoConfiguration.class)
 public class SpringCloudHystrixFeignContextAutoConfiguration {
 
 	@Bean

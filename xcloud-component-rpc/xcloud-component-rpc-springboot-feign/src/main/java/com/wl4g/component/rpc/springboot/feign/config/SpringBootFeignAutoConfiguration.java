@@ -23,15 +23,15 @@ import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 import static com.wl4g.component.rpc.springboot.feign.constant.SpringBootFeignConstant.*;
 
 /**
- * {@link SpringBootFeignConfigurer}
+ * {@link SpringBootFeignAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-23
  * @sine v1.0
  * @see
  */
-@ImportAutoConfiguration({ OkhttpFeignClientConfiguration.class, Http2FeignClientConfiguration.class })
-public class SpringBootFeignConfigurer {
+@ImportAutoConfiguration({ OkhttpFeignClientAutoConfiguration.class, Http2FeignClientAutoConfiguration.class })
+public class SpringBootFeignAutoConfiguration {
 
 	@Bean
 	@ConfigurationProperties(prefix = KEY_CONFIG_PREFIX)
