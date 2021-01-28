@@ -60,8 +60,8 @@ import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.rpc.springboot.feign.annotation.mvc.SpringMvcContract;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignConfigurer;
 import com.wl4g.component.rpc.springboot.feign.config.SpringBootFeignProperties;
-import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
+import com.wl4g.component.rpc.springboot.feign.context.interceptor.FeignRpcContextUtils;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
@@ -395,7 +395,7 @@ class SpringBootFeignFactoryBean<T> implements FactoryBean<T>, ApplicationContex
 				// The RPC call has responded and the attachment info should be
 				// extracted from it.
 				try {
-					FeignContextBinders.bindFeignResposneAttachmentsToContext(wrapResponse);
+					FeignRpcContextUtils.bindFeignResposneAttachmentsToContext(wrapResponse);
 				} catch (Exception e2) {
 					log.warn("Cannot bind feign response attachments to current RpcContext", e2);
 				}

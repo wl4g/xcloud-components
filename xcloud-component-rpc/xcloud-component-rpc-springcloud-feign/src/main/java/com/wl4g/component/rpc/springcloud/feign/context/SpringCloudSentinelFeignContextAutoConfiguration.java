@@ -19,65 +19,76 @@
  */
 package com.wl4g.component.rpc.springcloud.feign.context;
 
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
-import org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
+import com.alibaba.cloud.sentinel.custom.SentinelAutoConfiguration;
+import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
+import com.wl4g.component.rpc.springboot.feign.context.SpringBootFeignContextAutoConfiguration;
+
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
 
 /***
- * {@link HytrixFeignContextConfigurer}
+ * SpringCloud sentinel feign context holder auto configuration.
  *
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-07
  * @sine v1.0
  * @see
  */
-@Configuration
-@ConditionalOnClass(HystrixAutoConfiguration.class)
-@ConditionalOnBean(HystrixAutoConfiguration.class)
+@ConditionalOnClass({ SentinelAutoConfiguration.class, SpringBootFeignClient.class, FeignClient.class })
 @ConditionalOnWebApplication(type = Type.SERVLET)
-public class HytrixFeignContextConfigurer implements WebMvcConfigurer {
+@AutoConfigureBefore(SpringBootFeignContextAutoConfiguration.class)
+public class SpringCloudSentinelFeignContextAutoConfiguration implements WebMvcConfigurer {
+	protected final SmartLogger log = getLogger(getClass());
 
 	@Bean
-	public HytrixFeignContextServletInterceptor hytrixFeignContextServletInterceptor() {
-		return new HytrixFeignContextServletInterceptor();
+	public SentinelFeignContextServletInterceptor sentinelFeignContextServletInterceptor() {
+		return new SentinelFeignContextServletInterceptor();
 	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(hytrixFeignContextServletInterceptor()).addPathPatterns("/**");
+		registry.addInterceptor(sentinelFeignContextServletInterceptor()).addPathPatterns("/**");
 	}
 
 	/**
-	 * hytrix Servlet request context parameters interceptor. </br>
-	 * </br>
-	 * Refer to <a href=
-	 * "https://blog.csdn.net/luliuliu1234/article/details/96472893">HystrixInterceptor</a>
+	 * Sentinel servlet request context handler interceptor.
 	 */
-	static class HytrixFeignContextServletInterceptor implements HandlerInterceptor {
+	static class SentinelFeignContextServletInterceptor implements RequestInterceptor, HandlerInterceptor {
+
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			// RpcContextHolder holder = RpcContextHolder.get();
-			// isInstanceOf(HytrixFeignRpcContextHolder.class, holder);
+			// TODO Auto-generated method stub
 			return true;
 		}
 
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
-			((SpringCloudHystrixFeignRpcContextHolder) RpcContextHolder.get()).close();
+			// TODO Auto-generated method stub
 		}
+
+		@Override
+		public void apply(RequestTemplate template) {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
 }

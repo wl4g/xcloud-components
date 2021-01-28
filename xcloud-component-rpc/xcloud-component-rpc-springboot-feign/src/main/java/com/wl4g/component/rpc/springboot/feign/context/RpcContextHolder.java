@@ -80,7 +80,8 @@ public abstract class RpcContextHolder {
 	 * 
 	 * @return
 	 */
-	public static final RpcContextHolder get() {
+	@SuppressWarnings("unchecked")
+	public static final <T extends RpcContextHolder> T get() {
 		if (isNull(provider)) {
 			synchronized (RpcContextHolder.class) {
 				if (isNull(provider)) {
@@ -88,7 +89,7 @@ public abstract class RpcContextHolder {
 				}
 			}
 		}
-		return provider.current();
+		return (T) provider.current();
 	}
 
 	/**

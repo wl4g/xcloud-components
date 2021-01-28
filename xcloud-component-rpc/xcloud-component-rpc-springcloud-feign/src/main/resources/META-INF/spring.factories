@@ -6,4 +6,6 @@ com.wl4g.component.rpc.springcloud.feign.config.EnableHystrixStreamAutoConfigura
 com.wl4g.component.rpc.springcloud.feign.config.EnhanceSpringCloudLoadbalancerAutoConfiguration,\
 com.wl4g.component.rpc.springcloud.feign.config.EnhanceSpringCloudLoadbalancerAutoConfiguration.ReactiveSupportConfiguration,\
 com.wl4g.component.rpc.springcloud.feign.config.EnhanceSpringCloudLoadbalancerAutoConfiguration.BlockingSupportConfiguration,\
-com.wl4g.component.rpc.springcloud.feign.config.EnableFeignOkHttpAutoConfiguration
+com.wl4g.component.rpc.springcloud.feign.config.EnableFeignOkHttpAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.context.SpringCloudHystrixFeignContextAutoConfiguration,\
+com.wl4g.component.rpc.springcloud.feign.context.SpringCloudSentinelFeignContextAutoConfiguration

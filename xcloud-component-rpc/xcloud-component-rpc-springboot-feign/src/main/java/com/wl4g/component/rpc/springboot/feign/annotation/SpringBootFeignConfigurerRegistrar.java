@@ -58,11 +58,11 @@ class SpringBootFeignConfigurerRegistrar implements ImportBeanDefinitionRegistra
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		// Check enabled configuration
 		if (!SpringBootFeignClientsRegistrar.isEnableSpringFeignConfiguration(environment)) {
-			log.warn("No enabled Spring Boot/Cloud Feign configuration!");
+			log.warn("No enabled SpringBoot and SpringCloud feign auto configurer!");
 			return;
 		}
 
-		// Not Spring Cloud + feign
+		// Not SpringCloud + feign
 		if (!SpringBootFeignClientsRegistrar.hasSpringCloudFeignClass()) {
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SpringBootFeignConfigurer.class);
 			AbstractBeanDefinition definition = builder.getBeanDefinition();

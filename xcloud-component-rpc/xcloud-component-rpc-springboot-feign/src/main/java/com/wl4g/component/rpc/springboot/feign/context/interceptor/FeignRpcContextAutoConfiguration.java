@@ -30,10 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
@@ -47,25 +44,21 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.framework.proxy.SmartProxyProcessor;
 import com.wl4g.component.rpc.springboot.feign.annotation.SpringBootFeignClient;
-import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 /***
- * {@link FeignContextAutoConfiguration}
+ * Auto-configuration(client|server)
  *
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-07
  * @sine v1.0
  * @see
  */
-@Configuration // auto-configuration(client|server)
-@ConditionalOnWebApplication(type = Type.SERVLET)
-public class FeignContextAutoConfiguration {
-	protected final SmartLogger log = getLogger(getClass());
+public class FeignRpcContextAutoConfiguration {
 
 	@Bean
-	public FeignContextRequestInterceptor feignContextRequestInterceptor() {
-		return new FeignContextRequestInterceptor();
+	public FeignRpcContextRequestInterceptor feignRpcContextRequestInterceptor() {
+		return new FeignRpcContextRequestInterceptor();
 	}
 
 	@Bean
@@ -74,8 +67,8 @@ public class FeignContextAutoConfiguration {
 	}
 
 	@Bean
-	public FeignContextProxyProcessor feignContextProxyProcessor() {
-		return new FeignContextProxyProcessor();
+	public FeignRpcContextProcessor feignRpcContextProcessor() {
+		return new FeignRpcContextProcessor();
 	}
 
 	/**
@@ -83,7 +76,8 @@ public class FeignContextAutoConfiguration {
 	 * request parameters are in the request.body , which may not perform
 	 * binding to {@link RpcContextHolder}
 	 */
-	public static final class FeignContextProxyProcessor implements SmartProxyProcessor {
+	public static final class FeignRpcContextProcessor implements SmartProxyProcessor {
+		protected final SmartLogger log = getLogger(getClass());
 
 		@Override
 		public int getOrder() {
@@ -109,7 +103,7 @@ public class FeignContextAutoConfiguration {
 			if (nonNull(request)) {
 				// When receiving RPC requests, the attachment info should be
 				// extracted and bound to the local context.
-				FeignContextBinders.bindAttachmentsFromRequest(request);
+				FeignRpcContextUtils.bindAttachmentsFromRequest(request);
 			}
 			return parameters;
 		}
@@ -126,7 +120,7 @@ public class FeignContextAutoConfiguration {
 					HttpServletResponse response = currentServletResponse();
 					// When responding to RPC, the attachment information
 					// returned should be added.
-					FeignContextBinders.writeAttachemntsToResponse(response);
+					FeignRpcContextUtils.writeAttachemntsToResponse(response);
 				} finally {
 					// After responding to RPC, should cleanup the context
 					// attachment info.

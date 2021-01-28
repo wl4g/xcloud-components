@@ -25,14 +25,13 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.rpc.springboot.feign.context.FeignContextBinders;
 import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
 /**
- * {@link FeignContextRequestInterceptor}
+ * {@link FeignRpcContextRequestInterceptor}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-26
@@ -40,7 +39,7 @@ import feign.RequestTemplate;
  * @see
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
-public class FeignContextRequestInterceptor implements RequestInterceptor {
+public class FeignRpcContextRequestInterceptor implements RequestInterceptor {
 	protected final SmartLogger log = getLogger(getClass());
 
 	/**
@@ -51,7 +50,7 @@ public class FeignContextRequestInterceptor implements RequestInterceptor {
 		try {
 			// Before calling RPC, the current context attachment info should be
 			// added to the request header.
-			FeignContextBinders.writeAttachmentsToFeignRequest(template);
+			FeignRpcContextUtils.writeAttachmentsToFeignRequest(template);
 		} finally {
 			// The RPC has been called and the local context should be
 			// cleaned up immediately.

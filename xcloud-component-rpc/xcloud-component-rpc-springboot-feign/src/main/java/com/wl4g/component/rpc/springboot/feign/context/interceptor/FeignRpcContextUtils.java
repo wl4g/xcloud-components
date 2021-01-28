@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springboot.feign.context;
+package com.wl4g.component.rpc.springboot.feign.context.interceptor;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
@@ -33,17 +33,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import com.wl4g.component.rpc.springboot.feign.context.RpcContextHolder;
+
 import feign.RequestTemplate;
 
 /**
- * {@link FeignContextBinders}
+ * {@link FeignRpcContextUtils}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-04
  * @sine v1.0
  * @see
  */
-public abstract class FeignContextBinders {
+public final class FeignRpcContextUtils {
 
 	// --- Feign Servers(provider). ---
 
