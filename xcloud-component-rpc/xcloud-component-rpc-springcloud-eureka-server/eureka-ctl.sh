@@ -25,8 +25,13 @@ function start() {
 }
 
 function stop(){
+  PIDS=$(ps -ef|grep java|grep -v grep|grep ${BASE_DIR})
+  if [ ! -n "$PIDS" ]; then
+    echo "No running eureka server!"
+    exit 0
+  fi
   echo "Stopping eureka server all nodes ..."
-  ps -ef|grep -v grep|grep ${BASE_DIR}|cut -c 9-15|xargs kill -s TERM
+  ps -ef|grep java|grep -v grep|grep ${BASE_DIR}|cut -c 9-15|xargs kill -s TERM
   echo "Stopped eureka server successfully!"
 }
 
