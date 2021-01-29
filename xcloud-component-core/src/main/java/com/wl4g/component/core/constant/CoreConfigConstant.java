@@ -20,14 +20,14 @@
 package com.wl4g.component.core.constant;
 
 /**
- * {@link CoreConfigurationConstant}
+ * {@link CoreConfigConstant}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-31
  * @sine v1.0
  * @see
  */
-public abstract class CoreConfigurationConstant extends BaseConstant {
+public abstract class CoreConfigConstant extends BaseConstant {
 
 	public static final String KEY_BOOT_DEFAULT = "spring.xcloud.component.framework.default-boot-configurer";
 

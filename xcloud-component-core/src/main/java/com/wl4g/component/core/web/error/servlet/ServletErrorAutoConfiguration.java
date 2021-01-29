@@ -15,7 +15,7 @@
  */
 package com.wl4g.component.core.web.error.servlet;
 
-import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_WEB_GLOBAL_ERROR;
+import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_GLOBAL_ERROR;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;

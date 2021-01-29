@@ -54,7 +54,7 @@ import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullabl
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.findFieldNullable;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.getField;
-import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_SMART_PROXY;
+import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_SMART_PROXY;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

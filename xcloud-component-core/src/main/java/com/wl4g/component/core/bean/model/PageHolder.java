@@ -16,7 +16,6 @@
 package com.wl4g.component.core.bean.model;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -27,13 +26,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wl4g.component.common.bridge.RpcContextHolderBridgeUtils;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -234,9 +231,8 @@ public class PageHolder<E> implements Serializable {
 	 */
 	public static void startPage(@Nullable PageHolder<?> holder) {
 		Page<?> page = isNull(holder) ? null : holder.getPage();
-		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextSetMethod)) { // Distributed?
-			Object rpcContextHolder = invokeMethod(rpcContextGetHolderMethod, null);
-			invokeMethod(rpcContextSetMethod, rpcContextHolder, new Object[] { CURRENT_PAGE_KEY, page });
+		if (RpcContextHolderBridgeUtils.hasRpcContextHolderClass()) { // Distributed?
+			RpcContextHolderBridgeUtils.invokeSet(CURRENT_PAGE_KEY, page);
 		} else { // fallback, use local
 			standaloneCurrentPage.set(page);
 		}
@@ -250,10 +246,8 @@ public class PageHolder<E> implements Serializable {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public static final <T> PageHolder<T> currentPage() {
-		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextGetMethod)) { // Distributed?
-			Object rpcContextHolder = invokeMethod(rpcContextGetHolderMethod, null);
-			Page<T> page = (Page<T>) invokeMethod(rpcContextGetMethod, rpcContextHolder,
-					new Object[] { CURRENT_PAGE_KEY, Page.class });
+		if (RpcContextHolderBridgeUtils.hasRpcContextHolderClass()) { // Distributed?
+			Page<T> page = (Page<T>) RpcContextHolderBridgeUtils.invokeGet(CURRENT_PAGE_KEY, Page.class);
 			return nonNull(page) ? new PageHolder<>(page) : null;
 		} else { // fallback, use local
 			return new PageHolder<T>((Page<T>) standaloneCurrentPage.get());
@@ -547,17 +541,7 @@ public class PageHolder<E> implements Serializable {
 					+ ", orderBy='" + orderBy + '\'' + ", orderByOnly=" + orderByOnly + ", reasonable=" + reasonable
 					+ ", pageSizeZero=" + pageSizeZero + '}';
 		}
-
 	}
-
-	// Rpc context methods.
-	private static transient final Class<?> rpcContextHolderClass = resolveClassNameNullable(
-			"com.wl4g.component.rpc.feign.core.context.RpcContextHolder");
-	private static transient final Method rpcContextGetHolderMethod = findMethodNullable(rpcContextHolderClass, "get");
-	private static transient final Method rpcContextGetMethod = findMethodNullable(rpcContextHolderClass, "get", String.class,
-			Class.class);
-	private static transient final Method rpcContextSetMethod = findMethodNullable(rpcContextHolderClass, "set", String.class,
-			Object.class);
 
 	// Standalone mode current page.
 	private static transient final ThreadLocal<Page<?>> standaloneCurrentPage = new ThreadLocal<>();

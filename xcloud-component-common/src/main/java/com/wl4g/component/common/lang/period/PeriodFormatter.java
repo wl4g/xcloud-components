@@ -15,21 +15,14 @@
  */
 package com.wl4g.component.common.lang.period;
 
-import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
-import static com.wl4g.component.common.lang.ClassUtils2.forName;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Locale.US;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-
-import java.lang.reflect.Method;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
-import static java.lang.Thread.currentThread;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -37,6 +30,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.wl4g.component.common.bridge.IamSecurityHolderBridgeUtils;
 import com.wl4g.component.common.log.SmartLogger;
 
 /**
@@ -166,8 +160,8 @@ public abstract class PeriodFormatter {
 	protected String getLocalizedMessage(String localizedKey) {
 		String loc = null;
 		try {
-			if (nonNull(iamSecurityHolderGetBindValueMethod)) {
-				loc = (String) invokeMethod(iamSecurityHolderGetBindValueMethod, null, "langAttrName");
+			if (IamSecurityHolderBridgeUtils.hasIamSecurityHolderClass()) {
+				loc = (String) IamSecurityHolderBridgeUtils.invokeGetBindValue("langAttrName");
 			}
 		} catch (Exception e) {
 			log.warn(format("Cannot get IAM session locale, fallback use '%s'", locale), e);
@@ -214,24 +208,7 @@ public abstract class PeriodFormatter {
 	 */
 	private static final Map<Class<? extends PeriodFormatter>, PeriodFormatter> registers = synchronizedMap(new HashMap<>());
 
-	/**
-	 * IAM security holder method.
-	 * 
-	 * @see {@link com.wl4g.iam.core.utils.IamSecurityHolder#getBindValue(Object)}
-	 */
-	private static final Method iamSecurityHolderGetBindValueMethod;
-
 	static {
-		Method getBindValueMethod = null;
-		try {
-			getBindValueMethod = findMethod(
-					forName("com.wl4g.iam.core.utils.IamSecurityHolder", currentThread().getContextClassLoader()), "getBindValue",
-					Object.class);
-		} catch (ClassNotFoundException | LinkageError e) {
-			getLogger(PeriodFormatter.class).warn("Cannot load class iam security holder method. - {}", e.getMessage());
-		}
-		iamSecurityHolderGetBindValueMethod = getBindValueMethod;
-
 		registers.put(JodaPeriodFormatter.class, new JodaPeriodFormatter());
 		registers.put(SamplePeriodFormatter.class, new SamplePeriodFormatter());
 	}

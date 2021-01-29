@@ -18,7 +18,7 @@ package com.wl4g.component.core.web.error;
 import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.serialize.JacksonUtils.convertBean;
-import static com.wl4g.component.core.constant.CoreConfigurationConstant.KEY_WEB_GLOBAL_ERROR;
+import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_GLOBAL_ERROR;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
