@@ -53,7 +53,7 @@ import com.wl4g.component.rpc.feign.core.context.RpcContextHolder;
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17
  * @sine v1.0
- * @see
+ * @see https://blog.csdn.net/zhouyuhhu/article/details/103719825/
  */
 @ConditionalOnClass({ HystrixAutoConfiguration.class, FeignConsumer.class, FeignClient.class })
 @ConditionalOnWebApplication(type = Type.SERVLET)
