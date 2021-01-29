@@ -4,6 +4,12 @@ EXEC_FILE="eureka-server-master-bin.jar"
 BASE_DIR="/mnt/disk1/eureka/"
 
 function start() {
+  # Check already running
+  if [ -n "$(getPids)" ]; then
+    echo "Already running eureka server!"
+    exit 0
+  fi
+
   JVM_OPTS="--server.tomcat.basedir=${BASE_DIR}"
   if [ "$1" == "--standalone" ]; then
     nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=standalone >/dev/null 2>&1 &
@@ -25,15 +31,20 @@ function start() {
   echo "Please goto dir: '${BASE_DIR}../log/eureka/' for the logs."
 }
 
-function stop(){
-  PIDS=$(ps -ef|grep java|grep -v grep|grep ${BASE_DIR})
-  if [ ! -n "$PIDS" ]; then
+function stop() {
+  # Check already running
+  if [ -z "$(getPids)" ]; then
     echo "No running eureka server!"
     exit 0
   fi
   echo "Stopping eureka server all nodes ..."
   ps -ef|grep java|grep -v grep|grep ${BASE_DIR}|cut -c 9-15|xargs kill -s TERM
   echo "Stopped eureka server successfully!"
+}
+
+function getPids() {
+  PIDS=$(ps -ef|grep java|grep -v grep|grep ${BASE_DIR})
+  echo $PIDS
 }
 
 CMD=$1
