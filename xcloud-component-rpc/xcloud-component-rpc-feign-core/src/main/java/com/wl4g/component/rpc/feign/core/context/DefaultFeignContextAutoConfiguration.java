@@ -44,16 +44,16 @@ public class DefaultFeignContextAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean // Lower priority
 	public RpcContextHolder springBootFeignRpcContextHolder() {
-		return new SpringBootFeignRpcContextHolder();
+		return new DefaultFeignRpcContextHolder();
 	}
 
-	static class SpringBootFeignRpcContextHolder extends RpcContextHolder {
-		private static final ThreadLocal<SpringBootFeignRpcContextHolder> LOCAL = withInitial(
-				() -> new SpringBootFeignRpcContextHolder());
+	public static class DefaultFeignRpcContextHolder extends RpcContextHolder {
+		private static final ThreadLocal<DefaultFeignRpcContextHolder> LOCAL = withInitial(
+				() -> new DefaultFeignRpcContextHolder());
 
 		// Notes: Since feignclient ignores case when setting header, it should
-		// be
-		// unified here.
+		// be unified here.
+
 		/**
 		 * Feign request context attachments store. Thread isolation, thread
 		 * safety

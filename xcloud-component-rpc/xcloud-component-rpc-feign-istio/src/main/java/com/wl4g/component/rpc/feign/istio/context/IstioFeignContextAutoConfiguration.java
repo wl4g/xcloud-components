@@ -19,16 +19,12 @@
  */
 package com.wl4g.component.rpc.feign.istio.context;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.springframework.context.annotation.Bean;
 
+import com.wl4g.component.rpc.feign.core.context.DefaultFeignContextAutoConfiguration.DefaultFeignRpcContextHolder;
 import com.wl4g.component.rpc.feign.core.context.RpcContextHolder;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-
-import static java.lang.ThreadLocal.withInitial;
 
 /**
  * Istio SpringBoot feign {@link RpcContextHolder} auto configuration. (Both the
@@ -43,52 +39,11 @@ public class IstioFeignContextAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean // Lower priority
-	public RpcContextHolder springBootFeignRpcContextHolder() {
-		return new SpringBootFeignRpcContextHolder();
+	public RpcContextHolder istioSpringBootFeignRpcContextHolder() {
+		return new IstioSpringBootFeignRpcContextHolder();
 	}
 
-	static class SpringBootFeignRpcContextHolder extends RpcContextHolder {
-		private static final ThreadLocal<SpringBootFeignRpcContextHolder> LOCAL = withInitial(
-				() -> new SpringBootFeignRpcContextHolder());
-
-		// Notes: Since feignclient ignores case when setting header, it should
-		// be
-		// unified here.
-		/**
-		 * Feign request context attachments store. Thread isolation, thread
-		 * safety
-		 */
-		private final Map<String, String> attachments = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		@Override
-		public String getAttachment(String key) {
-			return attachments.get(key);
-		}
-
-		@Override
-		public Map<String, String> getAttachments() {
-			return attachments;
-		}
-
-		@Override
-		public void setAttachment(String key, String value) {
-			attachments.put(key, value);
-		}
-
-		@Override
-		public void removeAttachment(String key) {
-			attachments.remove(key);
-		}
-
-		@Override
-		public void clearAttachments() {
-			attachments.clear();
-		}
-
-		@Override
-		protected RpcContextHolder current() {
-			return LOCAL.get();
-		}
+	static class IstioSpringBootFeignRpcContextHolder extends DefaultFeignRpcContextHolder {
 	}
 
 }
