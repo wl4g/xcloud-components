@@ -18,10 +18,11 @@ function start() {
     echo "Starting for peer3..."
     nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=ha,peer3 >/dev/null 2>&1 &
 
-    echo "Starting eureka(peer1,peer2,peer3) completed! Please goto dir: '${BASE_DIR}../log/eureka/' for the logs."
+    echo "Starting eureka(peer1,peer2,peer3) completed!"
   else
     echo "Please specify eureka startup mode! For example: --standalone | --cluster"
   fi
+  echo "Please goto dir: '${BASE_DIR}../log/eureka/' for the logs."
 }
 
 function stop(){
