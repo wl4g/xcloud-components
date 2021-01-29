@@ -53,7 +53,7 @@ import io.swagger.annotations.ApiParam;
  * @since
  * @see https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/Interceptor.md
  */
-@ApiModel("Pagination wrapper")
+@ApiModel("Pagination records info")
 @Getter
 @Setter
 public class PageHolder<E> implements Serializable {
@@ -193,7 +193,7 @@ public class PageHolder<E> implements Serializable {
 		if (nonNull(records) && !records.isEmpty()) {
 			this.records = records;
 			// Bind result new page to this.
-			PageHolder<E> resultPageHolder = PageHolder.getCurrentPage();
+			PageHolder<E> resultPageHolder = PageHolder.currentPage();
 			if (nonNull(resultPageHolder)) {
 				setPage(resultPageHolder.getPage());
 			}
@@ -243,13 +243,13 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	/**
-	 * Gets {@link PageHolder} from Rpc context.
+	 * Gets current {@link PageHolder} from (RPC)context.
 	 * 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
-	public static final <T> PageHolder<T> getCurrentPage() {
+	public static final <T> PageHolder<T> currentPage() {
 		if (nonNull(rpcContextGetHolderMethod) && nonNull(rpcContextGetMethod)) { // Distributed?
 			Object rpcContextHolder = invokeMethod(rpcContextGetHolderMethod, null);
 			Page<T> page = (Page<T>) invokeMethod(rpcContextGetMethod, rpcContextHolder,
