@@ -2,7 +2,7 @@
 
 EXEC_FILE="eureka-server-master-bin.jar"
 JVM_OPTS="--server.tomcat.basedir=/mnt/disk1/eureka/"
-if [ "$1" == "--local" ]; then
+if [ "$1" == "--standalone" ]; then
   nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=local --logging.file.name=/mnt/disk1/log/eureka/eureka.log 2>&1 >/dev/null &
   echo "Started eureka(local) successfully!"
 elif [ "$1" == "--cluster" ]; then
@@ -19,7 +19,7 @@ elif [ "$1" == "--cluster" ]; then
 
   echo "Starting eureka(peer1,peer2,peer3) completed!"
 else
-  echo "Please specify eureka startup mode! For example: --local | --cluster"
+  echo "Please specify eureka startup mode! For example: --standalone | --cluster"
 fi
 
 exit 0

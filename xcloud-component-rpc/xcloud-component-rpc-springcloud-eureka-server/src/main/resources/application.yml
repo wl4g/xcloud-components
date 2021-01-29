@@ -15,7 +15,7 @@ spring:
   application:
     name: eureka
   profiles:
-    active: local # for default
+    active: standalone # for default
   xcloud:
     component:
       framework:

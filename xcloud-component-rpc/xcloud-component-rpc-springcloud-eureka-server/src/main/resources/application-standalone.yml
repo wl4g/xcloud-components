@@ -8,7 +8,7 @@
 # limitations under the License.
 #
 
-# #### Environment(Eureka Server for Local) configuration. ####
+# #### Environment(Eureka Server for Standalone) configuration. ####
 #
 spring:
   security:
