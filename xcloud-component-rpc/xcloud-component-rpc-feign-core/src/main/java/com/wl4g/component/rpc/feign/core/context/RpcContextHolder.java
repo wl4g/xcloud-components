@@ -45,6 +45,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 /**
  * {@link RpcContextHolder}
@@ -61,16 +62,15 @@ public abstract class RpcContextHolder {
 	private static volatile RpcContextHolder provider;
 
 	/** References attachments repository implementation. */
-	protected final ReferenceRepository repository;
+	private volatile ReferenceRepository repository;
 
-	/** Attachments safe codec implementation. */
-	protected final ReferenceCodec codec;
+	/** Attachments safe/compress codec implementation. */
+	private volatile CompressCodec codec;
 
 	protected RpcContextHolder() {
-		this(ReferenceRepository.NOOP, ReferenceCodec.DEFAULT);
 	}
 
-	protected RpcContextHolder(@NotNull ReferenceRepository repository, @NotNull ReferenceCodec codec) {
+	protected RpcContextHolder(@NotNull ReferenceRepository repository, @NotNull CompressCodec codec) {
 		this.repository = notNullOf(repository, "referenceRepository");
 		this.codec = notNullOf(codec, "referenceCodec");
 	}
@@ -113,7 +113,7 @@ public abstract class RpcContextHolder {
 		String value = getAttachment(key);
 		if (!isNull(value)) {
 			// Decode attachemnts value(http header safe)
-			String val = codec.decode(value);
+			String val = getCompressCodec().decode(value);
 			if (String.class.isAssignableFrom(valueType)) {
 				return (T) val;
 			} else if (isSimpleType(valueType)) {
@@ -150,7 +150,7 @@ public abstract class RpcContextHolder {
 						RPC_ATTACTMENT_MAX_BYTES, ReferenceKey.class.getSimpleName(), key, value));
 			}
 			// Encode attachemnts value(http header safe)
-			setAttachment(key, codec.encode(valStr));
+			setAttachment(key, getCompressCodec().encode(valStr));
 		} else { // Remove attachment
 			removeAttachment(key);
 		}
@@ -243,18 +243,54 @@ public abstract class RpcContextHolder {
 	public <T> T get(@NotBlank ReferenceKey key, @NotNull Class<T> valueType) {
 		notNullOf(key, "referenceKey");
 		String valueRef = get(key.getKey(), String.class);
-		return repository.doGetRefValue(valueRef, valueType);
+		return getReferenceRepository().doGetRefValue(valueRef, valueType);
 	}
 
 	public void set(@NotBlank ReferenceKey key, @Nullable Object value) {
 		notNullOf(key, "referenceKey");
 		if (nonNull(value)) {
 			set(key.getKey(), key.getValueRef());
-			repository.doSetRefValue(key.getValueRef(), value);
+			getReferenceRepository().doSetRefValue(key.getValueRef(), value);
 		} else { // Remove attachment
 			removeAttachment(key.getKey());
-			repository.doRemoveRefValue(key.getKey());
+			getReferenceRepository().doRemoveRefValue(key.getKey());
 		}
+	}
+
+	private final ReferenceRepository getReferenceRepository() {
+		if (isNull(repository)) {
+			synchronized (this) {
+				if (isNull(repository)) {
+					List<ReferenceRepository> candidates = safeMap(SpringContextHolder.getBeans(ReferenceRepository.class))
+							.values().stream().collect(toList());
+					if (!candidates.isEmpty()) {
+						AnnotationAwareOrderComparator.sort(candidates);
+						this.repository = candidates.get(0);
+					} else {
+						this.repository = ReferenceRepository.NOOP;
+					}
+				}
+			}
+		}
+		return this.repository;
+	}
+
+	private final CompressCodec getCompressCodec() {
+		if (isNull(codec)) {
+			synchronized (this) {
+				if (isNull(codec)) {
+					List<CompressCodec> candidates = safeMap(SpringContextHolder.getBeans(CompressCodec.class)).values().stream()
+							.collect(toList());
+					if (!candidates.isEmpty()) {
+						AnnotationAwareOrderComparator.sort(candidates);
+						this.codec = candidates.get(0);
+					} else {
+						this.codec = CompressCodec.DEFAULT;
+					}
+				}
+			}
+		}
+		return this.codec;
 	}
 
 	/**
@@ -326,9 +362,9 @@ public abstract class RpcContextHolder {
 	}
 
 	/**
-	 * Reference attachment safe-codec.
+	 * Reference attachment safe/compress codec.
 	 */
-	public static interface ReferenceCodec {
+	public static interface CompressCodec {
 		default String encode(String value) {
 			return new CodecSource(value).toHex();
 		}
@@ -337,7 +373,7 @@ public abstract class RpcContextHolder {
 			return CodecSource.fromHex(value).toString();
 		}
 
-		public static final ReferenceCodec DEFAULT = new ReferenceCodec() {
+		public static final CompressCodec DEFAULT = new CompressCodec() {
 		};
 	}
 

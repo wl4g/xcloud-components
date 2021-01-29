@@ -41,6 +41,6 @@ public abstract class FeignConsumerConstant extends BaseConstant {
 	 * by default
 	 */
 	public static final long RPC_ATTACTMENT_MAX_BYTES = getLongProperty(KEY_CONFIG_PREFIX + ".context.attachments-max-bytes",
-			4096L);
+			6144L);
 
 }
