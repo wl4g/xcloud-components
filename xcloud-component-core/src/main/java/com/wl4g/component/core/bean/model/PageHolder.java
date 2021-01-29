@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
@@ -125,9 +126,8 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	public final void setPage(Page<E> page) {
-		if (nonNull(page)) {
-			BeanUtils.copyProperties(page, getPage());
-		}
+		notNullOf(page, "page");
+		BeanUtils.copyProperties(page, getPage());
 	}
 
 	public Integer getPageNum() {
@@ -254,7 +254,7 @@ public class PageHolder<E> implements Serializable {
 			Object rpcContextHolder = invokeMethod(rpcContextGetHolderMethod, null);
 			Page<T> page = (Page<T>) invokeMethod(rpcContextGetMethod, rpcContextHolder,
 					new Object[] { CURRENT_PAGE_KEY, Page.class });
-			return new PageHolder<>(page);
+			return nonNull(page) ? new PageHolder<>(page) : null;
 		} else { // fallback, use local
 			return new PageHolder<T>((Page<T>) standaloneCurrentPage.get());
 		}
