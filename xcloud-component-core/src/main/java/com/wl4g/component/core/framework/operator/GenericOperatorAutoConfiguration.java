@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Bean;
  * @version v1.0 2020年2月20日
  * @since
  */
-@ConditionalOnProperty(name = KEY_GENERIC_OPERATOR + ".enable", matchIfMissing = true)
+@ConditionalOnProperty(name = KEY_GENERIC_OPERATOR + ".enabled", matchIfMissing = true)
 public class GenericOperatorAutoConfiguration {
 
 	@Bean

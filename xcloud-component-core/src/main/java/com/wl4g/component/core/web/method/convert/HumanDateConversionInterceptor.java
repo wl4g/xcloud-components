@@ -40,18 +40,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.wl4g.component.common.lang.period.PeriodFormatter;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.core.bean.BaseBean;
-import com.wl4g.component.core.framework.proxy.SmartProxyProcessor;
+import com.wl4g.component.core.framework.proxy.SmartProxyInterceptor;
 import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_HUMAN_DATE_CONVERTER;
 
 /**
- * {@link HumanDateConversionProcessor}
+ * {@link HumanDateConversionInterceptor}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-21
  * @sine v1.0
  * @see
  */
-public class HumanDateConversionProcessor implements SmartProxyProcessor {
+public class HumanDateConversionInterceptor implements SmartProxyInterceptor {
 
 	@Override
 	public int getOrder() {
@@ -129,11 +129,11 @@ public class HumanDateConversionProcessor implements SmartProxyProcessor {
 	private static final PeriodFormatter defaultFormatter = PeriodFormatter.getDefault().ignoreLowerDate(true);
 
 	@Configuration
-	@ConditionalOnProperty(name = KEY_WEB_HUMAN_DATE_CONVERTER + ".enable", matchIfMissing = true)
+	@ConditionalOnProperty(name = KEY_WEB_HUMAN_DATE_CONVERTER + ".enabled", matchIfMissing = true)
 	static class HumanDateConversionAutoConfiguration {
 		@Bean
-		public HumanDateConversionProcessor humanDateConversionProcessor() {
-			return new HumanDateConversionProcessor();
+		public HumanDateConversionInterceptor humanDateConversionProcessor() {
+			return new HumanDateConversionInterceptor();
 		}
 	}
 

@@ -19,20 +19,20 @@ spring:
     component:
       framework:
         default-boot-configurer:
-          enable: false
+          enabled: false
         naming-prototype-factory:
-          enable: false
+          enabled: false
         generic-operator:
-          enable: false
+          enabled: false
         smart-proxy:
-          enable: false
+          enabled: false
       web:
         embedded-webapps:
-          enable: false
+          enabled: false
         human-date-converter:
-          enable: false
+          enabled: false
         global-error:
-          enable: false
+          enabled: false
 
 management:
 #  port: 8099

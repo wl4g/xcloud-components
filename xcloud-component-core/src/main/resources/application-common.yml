@@ -22,23 +22,23 @@ spring:
     #component:
     #  framework:
     #    default-boot-configurer:
-    #      enable: true # Default true
+    #      enabled: true # Default true
     #    naming-prototype-factory:
-    #      enable: true # Default true
+    #      enabled: true # Default true
     #    generic-operator:
-    #      enable: true # Default true
+    #      enabled: true # Default true
     #    smart-proxy:
-    #      enable: true # Default true
+    #      enabled: true # Default true
     #      base-packages: # Default ALL
     #  web:
     #    human-date-converter:
-    #      enable: true # Default by true
+    #      enabled: true # Default by true
     #    embedded-webapps:
-    #      enable: false # Default by false
+    #      enabled: false # Default by false
     #      base-uri: /default-view
     #      webapp-location: classpath*:/default-webapps
     #    global-error:
-    #      enable: true # Default true
+    #      enabled: true # Default true
     #      base-path: /default-error-view/
     #      # Default for empty, The default is to intercept the domain name of the browser address bar.
     #      home-uri: 'javascript:location.href=location.origin'

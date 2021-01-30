@@ -41,7 +41,7 @@ import com.wl4g.component.core.logging.TraceLoggingMDCFilter;
  * @version v1.0 2020年2月20日
  * @since
  */
-@ConditionalOnProperty(name = KEY_BOOT_DEFAULT + ".enable", matchIfMissing = true)
+@ConditionalOnProperty(name = KEY_BOOT_DEFAULT + ".enabled", matchIfMissing = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)

@@ -36,7 +36,7 @@ import java.util.Properties;
  * @since
  */
 @Configuration
-@ConditionalOnProperty(value = KEY_WEB_EMBEDDED_WEBAPP + ".enable", matchIfMissing = false)
+@ConditionalOnProperty(value = KEY_WEB_EMBEDDED_WEBAPP + ".enabled", matchIfMissing = false)
 public class EmbedWebappAutoConfiguration extends PrefixHandlerMappingSupport {
 
 	@Bean(BEAN_DEFAULT_PROPERTIES)

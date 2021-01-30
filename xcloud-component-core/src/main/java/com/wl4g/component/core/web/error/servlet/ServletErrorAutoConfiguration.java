@@ -32,7 +32,7 @@ import com.wl4g.component.core.web.error.CompositeErrorConfigurer;
  * @version v1.0 2019年1月10日
  * @since
  */
-@ConditionalOnProperty(value = KEY_WEB_GLOBAL_ERROR + ".enable", matchIfMissing = true)
+@ConditionalOnProperty(value = KEY_WEB_GLOBAL_ERROR + ".enabled", matchIfMissing = true)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class ServletErrorAutoConfiguration extends AbstractErrorAutoConfiguration {
 

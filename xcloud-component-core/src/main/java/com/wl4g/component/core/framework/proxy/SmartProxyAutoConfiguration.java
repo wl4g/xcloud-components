@@ -69,12 +69,12 @@ import static java.util.Objects.nonNull;
  * @sine v1.0
  * @see
  */
-@ConditionalOnProperty(name = KEY_SMART_PROXY + ".enable", matchIfMissing = true)
+@ConditionalOnProperty(name = KEY_SMART_PROXY + ".enabled", matchIfMissing = true)
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostProcessor {
 	protected final SmartLogger log = getLogger(getClass());
 
-	private final Map<Class<?>, List<SmartProxyProcessor>> knownProxiedMapping = new ConcurrentHashMap<>(4);
+	private final Map<Class<?>, List<SmartProxyInterceptor>> knownProxiedMapping = new ConcurrentHashMap<>(4);
 
 	@Value("${" + KEY_SMART_PROXY + ".base-packages:}")
 	private String[] basePackages;
@@ -83,7 +83,7 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 	private DefaultListableBeanFactory beanFactory;
 
 	@Autowired(required = false)
-	private List<SmartProxyProcessor> processors;
+	private List<SmartProxyInterceptor> processors;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -113,7 +113,7 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 		}
 
 		boolean hasSupportProxied = false;
-		for (SmartProxyProcessor p : processors) {
+		for (SmartProxyInterceptor p : processors) {
 			if (p.supportTypeProxy(bean, targetClass)) {
 				hasSupportProxied = true;
 				// Add proxies handler mapping.
@@ -169,13 +169,13 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 	}
 
 	/**
-	 * Addidition known proxied and {@link SmartProxyProcessor} mappings.
+	 * Addidition known proxied and {@link SmartProxyInterceptor} mappings.
 	 * 
 	 * @param targetClass
 	 * @param processor
 	 */
-	private void addKnownProxiedMapping(Class<?> targetClass, SmartProxyProcessor processor) {
-		List<SmartProxyProcessor> processors = knownProxiedMapping.get(targetClass);
+	private void addKnownProxiedMapping(Class<?> targetClass, SmartProxyInterceptor processor) {
+		List<SmartProxyInterceptor> processors = knownProxiedMapping.get(targetClass);
 		if (isNull(processors)) {
 			processors = new ArrayList<>(4);
 		}
@@ -186,12 +186,12 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 	}
 
 	/**
-	 * Gets known proxied and {@link SmartProxyProcessor} processor.
+	 * Gets known proxied and {@link SmartProxyInterceptor} processor.
 	 * 
 	 * @param targetClass
 	 * @return
 	 */
-	final List<SmartProxyProcessor> getProcessors(Class<?> targetClass) {
+	final List<SmartProxyInterceptor> getProcessors(Class<?> targetClass) {
 		return safeList(knownProxiedMapping.get(targetClass));
 	}
 

@@ -41,7 +41,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @sine v1.0
  * @see
  */
-public interface SmartProxyProcessor extends Ordered {
+public interface SmartProxyInterceptor extends Ordered {
 
 	/**
 	 * Check whether the current class proxy is supported.

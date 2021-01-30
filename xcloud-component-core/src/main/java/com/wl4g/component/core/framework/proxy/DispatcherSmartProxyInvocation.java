@@ -66,10 +66,10 @@ public class DispatcherSmartProxyInvocation extends AbstractDispatcherProxyInvoc
 		}
 
 		// Gets proxies handlers.
-		List<SmartProxyProcessor> processors = configurer.getProcessors(targetClass);
+		List<SmartProxyInterceptor> processors = configurer.getProcessors(targetClass);
 
 		// Prepared process
-		for (SmartProxyProcessor p : processors) {
+		for (SmartProxyInterceptor p : processors) {
 			if (p.supportMethodProxy(target, method, targetClass, args)) {
 				args = p.preHandle(target, method, args);
 			}
@@ -85,7 +85,7 @@ public class DispatcherSmartProxyInvocation extends AbstractDispatcherProxyInvoc
 		}
 
 		// Post process
-		for (SmartProxyProcessor p : processors) {
+		for (SmartProxyInterceptor p : processors) {
 			if (p.supportMethodProxy(target, method, targetClass, args)) {
 				result = p.postHandle(target, method, args, result, ex);
 			}

@@ -53,7 +53,7 @@ import org.springframework.util.MultiValueMap;
  * @version v1.0.0 2019-10-09
  * @since
  */
-@ConditionalOnProperty(name = KEY_NAMING_PROTOYPE_FACTORY + ".enable", matchIfMissing = true)
+@ConditionalOnProperty(name = KEY_NAMING_PROTOYPE_FACTORY + ".enabled", matchIfMissing = true)
 public class NamingPrototypeBeanAutoConfiguration {
 
 	@Bean
