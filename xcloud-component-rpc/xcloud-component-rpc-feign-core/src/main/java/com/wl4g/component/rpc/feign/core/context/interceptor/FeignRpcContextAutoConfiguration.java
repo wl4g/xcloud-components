@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.framework.proxy.SmartProxyProcessor;
+import com.wl4g.component.core.framework.proxy.SmartProxyInterceptor;
 import com.wl4g.component.rpc.feign.core.annotation.FeignConsumer;
 import com.wl4g.component.rpc.feign.core.context.RpcContextHolder;
 
@@ -76,7 +76,7 @@ public class FeignRpcContextAutoConfiguration {
 	 * request parameters are in the request.body , which may not perform
 	 * binding to {@link RpcContextHolder}
 	 */
-	public static final class FeignRpcContextProcessor implements SmartProxyProcessor {
+	public static final class FeignRpcContextProcessor implements SmartProxyInterceptor {
 		protected final SmartLogger log = getLogger(getClass());
 
 		@Override
