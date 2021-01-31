@@ -189,17 +189,9 @@ public class PageHolder<E> implements Serializable {
 	public final void setRecords(List<E> records) {
 		if (nonNull(records) && !records.isEmpty()) {
 			this.records = records;
-			// Bind result new page to this.
-			PageHolder<E> resultPageHolder = PageHolder.current();
-			if (nonNull(resultPageHolder)) {
-				setPage(resultPageHolder.getPage());
-			}
+			// Refresh rebind result.
+			refresh();
 		}
-	}
-
-	public PageHolder<E> count() {
-		getPage().setCount(true);
-		return this;
 	}
 
 	@Override
@@ -208,6 +200,24 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	// --- Current page function methods. ---
+
+	public PageHolder<E> count() {
+		getPage().setCount(true);
+		return this;
+	}
+
+	/**
+	 * Refresh rebind current processed result page to self.
+	 * 
+	 * @return
+	 */
+	public PageHolder<E> refresh() {
+		PageHolder<E> resultPageHolder = PageHolder.current();
+		if (nonNull(resultPageHolder)) {
+			setPage(resultPageHolder.getPage());
+		}
+		return this;
+	}
 
 	/**
 	 * Sets page in current Rpc context.
