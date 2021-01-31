@@ -66,17 +66,18 @@ public abstract class FeignRpcContextProcessorBridgeUtils {
 	}
 
 	public static boolean hasFeignRpcContextProcessorClass() {
-		return nonNull(feignRpcContextProcessorClass);
+		return nonNull(rpcContextProviderProxyInterceptorClass);
 	}
 
-	public static final String feignRpcContextProcessorClassName = "com.wl4g.component.rpc.feign.core.context.interceptor.FeignRpcContextAutoConfiguration.FeignRpcContextProcessor";
-	public static final Class<?> feignRpcContextProcessorClass = resolveClassNameNullable(feignRpcContextProcessorClassName);
+	public static final String rpcContextProviderProxyInterceptorClassName = "com.wl4g.component.rpc.feign.core.context.interceptor.RpcContextProviderProxyInterceptor";
+	public static final Class<?> rpcContextProviderProxyInterceptorClass = resolveClassNameNullable(
+			rpcContextProviderProxyInterceptorClassName);
 
-	public static final Method checkSupportTypeProxyMethod = findMethodNullable(feignRpcContextProcessorClass,
+	public static final Method checkSupportTypeProxyMethod = findMethodNullable(rpcContextProviderProxyInterceptorClass,
 			"checkSupportTypeProxy", Object.class, Class.class);
-	public static final Method checkSupportMethodProxyMethod = findMethodNullable(feignRpcContextProcessorClass,
+	public static final Method checkSupportMethodProxyMethod = findMethodNullable(rpcContextProviderProxyInterceptorClass,
 			"checkSupportMethodProxy", Object.class, Method.class, Class.class, Object[].class);
 
-	public static final Field ORDER_FIELD = findFieldNullable(feignRpcContextProcessorClass, "ORDER", int.class);
+	public static final Field ORDER_FIELD = findFieldNullable(rpcContextProviderProxyInterceptorClass, "ORDER", int.class);
 
 }

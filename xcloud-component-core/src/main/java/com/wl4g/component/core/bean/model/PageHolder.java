@@ -218,13 +218,6 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	/**
-	 * Release remove current Rpc context page.
-	 */
-	public static void releasePage() {
-		startPage(null);
-	}
-
-	/**
 	 * Sets page in current Rpc context.
 	 * 
 	 * @param holder

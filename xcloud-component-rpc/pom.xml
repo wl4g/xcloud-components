@@ -70,14 +70,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<dubbo-spring-boot-starter.version>0.2.0</dubbo-spring-boot-starter.version>
+		<apache-dubbo-starter.version>2.7.0</apache-dubbo-starter.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.alibaba.boot</groupId>
+				<groupId>org.apache.dubbo</groupId>
 				<artifactId>dubbo-spring-boot-starter</artifactId>
-				<version>${dubbo-spring-boot-starter.version}</version>
+				<version>${apache-dubbo-starter.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

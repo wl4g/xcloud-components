@@ -43,7 +43,7 @@ public class DefaultFeignContextAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean // Lower priority
-	public RpcContextHolder springBootFeignRpcContextHolder() {
+	public RpcContextHolder defaultFeignRpcContextHolder() {
 		return new DefaultFeignRpcContextHolder();
 	}
 

@@ -31,7 +31,7 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
 /**
- * {@link FeignRpcContextRequestInterceptor}
+ * {@link RpcContextConsumerRequestInterceptor}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-26
@@ -39,7 +39,7 @@ import feign.RequestTemplate;
  * @see
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
-public class FeignRpcContextRequestInterceptor implements RequestInterceptor {
+public class RpcContextConsumerRequestInterceptor implements RequestInterceptor {
 	protected final SmartLogger log = getLogger(getClass());
 
 	/**

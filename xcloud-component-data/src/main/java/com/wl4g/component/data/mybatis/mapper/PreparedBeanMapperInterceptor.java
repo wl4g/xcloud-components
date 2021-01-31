@@ -167,12 +167,10 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		if (isNull(SqlUtil.getLocalPage())) { // No set?
 			// Obtain page from Rpc context.
 			PageHolder<?> holder = PageHolder.currentPage();
-			log.debug("Start current pagination of RpcContext holder. -> {}", holder);
 			if (nonNull(holder)) {
+				log.debug("Start current pagination of: {}", holder);
 				PageHelper.startPage(holder.getPageNum(), holder.getPageSize(), holder.getPage().isCount());
 			}
-			// Release current Page in Rpc context.
-			PageHolder.releasePage();
 		}
 	}
 
@@ -232,11 +230,11 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		if (isNull(result)) {
 			return null;
 		}
-		// Update result to (RPC)context page holder.
+		// Update page result to (RPC)context holder.
 		if (result instanceof Page) {
+			com.github.pagehelper.Page<?> helperPage = (com.github.pagehelper.Page<?>) result;
 			PageHolder<?> holder = PageHolder.currentPage();
 			if (nonNull(holder)) {
-				com.github.pagehelper.Page<?> helperPage = (com.github.pagehelper.Page<?>) result;
 				BeanUtils.copyProperties(helperPage, holder.getPage());
 				PageHolder.startPage(holder);
 			}
