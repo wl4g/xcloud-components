@@ -190,7 +190,7 @@ public class PageHolder<E> implements Serializable {
 		if (nonNull(records) && !records.isEmpty()) {
 			this.records = records;
 			// Bind result new page to this.
-			PageHolder<E> resultPageHolder = PageHolder.currentPage();
+			PageHolder<E> resultPageHolder = PageHolder.current();
 			if (nonNull(resultPageHolder)) {
 				setPage(resultPageHolder.getPage());
 			}
@@ -238,13 +238,14 @@ public class PageHolder<E> implements Serializable {
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
-	public static final <T> PageHolder<T> currentPage() {
+	public static final <T> PageHolder<T> current() {
+		Page<T> page = null;
 		if (RpcContextHolderBridgeUtils.hasRpcContextHolderClass()) { // Distributed?
-			Page<T> page = (Page<T>) RpcContextHolderBridgeUtils.invokeGet(CURRENT_PAGE_KEY, Page.class);
-			return nonNull(page) ? new PageHolder<>(page) : null;
+			page = (Page<T>) RpcContextHolderBridgeUtils.invokeGet(CURRENT_PAGE_KEY, Page.class);
 		} else { // fallback, use local
-			return new PageHolder<T>((Page<T>) standaloneCurrentPage.get());
+			page = (Page<T>) standaloneCurrentPage.get();
 		}
+		return nonNull(page) ? new PageHolder<>(page) : null;
 	}
 
 	/**
@@ -536,8 +537,13 @@ public class PageHolder<E> implements Serializable {
 		}
 	}
 
-	// Standalone mode current page.
-	private static transient final ThreadLocal<Page<?>> standaloneCurrentPage = new ThreadLocal<>();
+	/**
+	 * Cluster mode current page key.
+	 */
 	private static transient final String CURRENT_PAGE_KEY = PageHolder.class.getSimpleName().concat(".currentPage");
+	/**
+	 * Standalone mode current page.
+	 */
+	private static transient final ThreadLocal<Page<?>> standaloneCurrentPage = new ThreadLocal<>();
 
 }
