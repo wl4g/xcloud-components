@@ -22,9 +22,9 @@ package com.wl4g.component.rpc.codec;
 import java.lang.reflect.Field;
 
 import com.wl4g.component.rpc.codec.CodecConfig.EndianType;
-import com.wl4g.component.rpc.codec.coder.FinalEncodeQueue;
-import com.wl4g.component.rpc.codec.coder.cache.Cache;
 import com.wl4g.component.rpc.codec.helper.StringHelper;
+import com.wl4g.component.rpc.codec.internal.FinalEncodeQueue;
+import com.wl4g.component.rpc.codec.internal.cache.Cache;
 
 /**
  * Codec parameter. The parameter will be available in current flow. It's not

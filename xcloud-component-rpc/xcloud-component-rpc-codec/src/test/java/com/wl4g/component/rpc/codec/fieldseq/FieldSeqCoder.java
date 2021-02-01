@@ -42,6 +42,7 @@ public class FieldSeqCoder {
 		msg.command.setValue("running");
 		byte[] bytes = coder.encode(msg);
 		System.out.println(ByteHelper.toHexString(bytes));
+
 		FieldCodecMsg result = new FieldCodecMsg();
 		coder.decode(bytes, result);
 		System.out.println("ID:" + result.id);

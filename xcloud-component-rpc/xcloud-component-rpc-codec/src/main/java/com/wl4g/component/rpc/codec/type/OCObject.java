@@ -25,11 +25,11 @@ import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Decoder;
 import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.annotations.CodecType;
-import com.wl4g.component.rpc.codec.coder.cache.Cache;
 import com.wl4g.component.rpc.codec.exception.DecodingException;
 import com.wl4g.component.rpc.codec.helper.ReflectHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.internal.cache.Cache;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * Indicate that coding java object

@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder.cache;
+package com.wl4g.component.rpc.codec.internal.cache;
 
 import java.lang.reflect.Field;
 

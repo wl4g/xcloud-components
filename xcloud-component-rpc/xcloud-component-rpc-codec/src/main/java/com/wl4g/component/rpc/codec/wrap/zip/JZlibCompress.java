@@ -24,7 +24,7 @@ import java.io.OutputStream;
 
 import com.jcraft.jzlib.GZIPInputStream;
 import com.jcraft.jzlib.GZIPOutputStream;
-import com.wl4g.component.rpc.codec.helper.IoHelper;
+import com.wl4g.component.rpc.codec.helper.IOHelper;
 
 /**
  * JZlib compress,It needs jzlib-1.1-up support.
@@ -51,7 +51,7 @@ public class JZlibCompress extends ZipCompress {
 			}
 			gzipOut.flush();
 		} finally {
-			IoHelper.closeIO(gzipOut);
+			IOHelper.closeIO(gzipOut);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class JZlibCompress extends ZipCompress {
 			}
 			out.flush();
 		} finally {
-			IoHelper.closeIO(gzipIn);
+			IOHelper.closeIO(gzipIn);
 		}
 
 	}

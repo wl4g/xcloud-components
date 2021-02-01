@@ -17,37 +17,38 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder.cache;
+package com.wl4g.component.rpc.codec.internal.cache;
 
 import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Cache strategy.
  * 
- * StrongRefStrategy.java
+ * CacheStrategy.java
  * 
+ * @see Cache
+ * @see SoftRefStrategy
+ * @see StrongRefStrategy
  * @version 1.0.0
  * @author Wanglsir
  */
-public class StrongRefStrategy implements CacheStrategy {
-
-	private Map<Class<?>, Field[]> fieldsMap = new ConcurrentHashMap<Class<?>, Field[]>();
+public interface CacheStrategy {
+	/**
+	 * Get object's fields from cache.
+	 * 
+	 * @param clazz
+	 *            Target class.
+	 * @return Fields arrays.
+	 */
+	public Field[] getCacheFields(Class<?> clazz);
 
 	/**
-	 * {@inheritDoc}
+	 * Put object's fields to cache.
+	 * 
+	 * @param clazz
+	 *            Target class
+	 * @param fields
+	 *            Class's mapping fields.
 	 */
-	@Override
-	public Field[] getCacheFields(Class<?> clazz) {
-		return fieldsMap.get(clazz);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void putCacheFields(Class<?> clazz, Field[] fields) {
-		fieldsMap.put(clazz, fields);
-	}
-
+	public void putCacheFields(Class<?> clazz, Field[] fields);
 }

@@ -35,8 +35,8 @@ import com.wl4g.component.rpc.codec.exception.DecodingException;
 import com.wl4g.component.rpc.codec.exception.OCException;
 import com.wl4g.component.rpc.codec.helper.ReflectHelper;
 import com.wl4g.component.rpc.codec.helper.StringHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * ListMap can store value like HashMap. It also can store multiply values in

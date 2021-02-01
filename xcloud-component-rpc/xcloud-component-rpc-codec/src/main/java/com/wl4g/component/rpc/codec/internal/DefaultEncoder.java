@@ -17,112 +17,104 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder;
+package com.wl4g.component.rpc.codec.internal;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.rpc.codec.CodecParameter;
-import com.wl4g.component.rpc.codec.Decoder;
+import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.basetype.BaseType;
 import com.wl4g.component.rpc.codec.basetype.BaseTypeFactory;
 import com.wl4g.component.rpc.codec.exception.OCException;
 import com.wl4g.component.rpc.codec.helper.ReflectHelper;
 import com.wl4g.component.rpc.codec.helper.StringHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 import com.wl4g.component.rpc.codec.type.OCInt32;
 import com.wl4g.component.rpc.codec.type.OCInteger;
 import com.wl4g.component.rpc.codec.type.OCObject;
 import com.wl4g.component.rpc.codec.type.OCType;
 
 /**
- * Default decoder in
- * {@linkplain com.wl4g.component.rpc.codec.coder.DefaultCodec DefaultCodec}.
+ * Default encoder in
+ * {@linkplain com.wl4g.component.rpc.codec.internal.DefaultCodec DefaultCodec}.
  * 
- * DefaultDecoder.java
+ * DefaultEncoder.java
  * 
+ * @see Encoder
  * @version 1.0.0
  * @author Wanglsir
  */
-public class DefaultDecoder extends Decoder {
+public class DefaultEncoder extends Encoder {
 
-	private static final SmartLogger log = getLogger(DefaultDecoder.class);
+	private static final SmartLogger log = getLogger(DefaultEncoder.class);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object decodeObject(BytesInputStream in, Object obj, CodecParameter param) throws Exception {
+	public void encodeObject(BytesOutputStream out, Object obj, CodecParameter param) throws Exception {
 		BaseType baseType = BaseTypeFactory.getCodec(obj, param);
 		if (baseType != null) {
 			if (log.isDebugEnabled()) {
-				log.debug(StringHelper.buffer("Decode base type:[", ReflectHelper.getClass(obj, param), "] ", obj));
+				log.debug(StringHelper.buffer("Encode base type:[", ReflectHelper.getClass(obj, param), "] ", obj));
 			}
-			return baseType.decode(this, in, obj, param);
+			baseType.encode(this, out, obj, param);
 		} else if (ReflectHelper.isDefaultType(obj)) {
-			decodeDefault(in, (OCType) obj, param);
+			encodeDefault(out, (OCType) obj, param);
 		} else {
-			return decodeOther(in, obj, param);
+			encodeOther(out, obj, param);
 		}
-		return null;
 	}
 
 	/**
-	 * Decoding default type which inherit {@inheritDoc darks.codec.type.OCType
+	 * Encoding default type which inherit {@inheritDoc darks.codec.type.OCType
 	 * OCType}.
 	 * 
-	 * @param in
-	 *            Decoding IO stream.
+	 * @param out
+	 *            Encoding IO stream.
 	 * @param type
 	 *            Default type object.
 	 * @param param
 	 *            Codec parameter.
 	 */
-	private void decodeDefault(BytesInputStream in, OCType type, CodecParameter param) throws Exception {
+	private void encodeDefault(BytesOutputStream out, OCType type, CodecParameter param) throws Exception {
 		try {
 			if (log.isDebugEnabled()) {
-				log.debug(StringHelper.buffer("Decode default:[", ReflectHelper.getClass(type, param), "] ", type));
+				log.debug(StringHelper.buffer("Encode default object:[", ReflectHelper.getClass(type, param), "] ", type));
 			}
 			if (type == null && param.getCurrentfield() != null) {
 				type = (OCType) ReflectHelper.newInstance(param.getCurrentfield().getType());
 			}
 			if (type != null) {
-				type.readObject(this, in, param);
+				type.writeObject(this, out, param);
 			}
 		} catch (Exception e) {
-			throw new OCException("Fail to decode default object. Cause " + e.getMessage(), e);
+			throw new OCException("Fail to encode default object. Cause " + e.getMessage(), e);
 		}
 	}
 
 	/**
-	 * Decoding java object.
+	 * Encoding java object.
 	 * 
 	 * @param out
-	 *            Decoding IO stream.
+	 *            Encoding IO stream.
 	 * @param object
 	 *            Java object.
 	 * @param param
 	 *            Codec parameter
 	 * @throws Exception
 	 *             exception
-	 * @return If object is null, return new Object;
 	 */
-	private Object decodeOther(BytesInputStream in, Object object, CodecParameter param) throws Exception {
+	private void encodeOther(BytesOutputStream out, Object object, CodecParameter param) throws Exception {
 		if (log.isDebugEnabled()) {
-			log.debug(StringHelper.buffer("Decode default:[", ReflectHelper.getClass(object, param), "] ", object));
+			log.debug(StringHelper.buffer("Encode other object:[", ReflectHelper.getClass(object, param), "] ", object));
 		}
-		OCInteger lenType = null;
 		if (object == null && param.isAutoLength() && !param.isIgnoreObjectAutoLength()) {
-			lenType = new OCInt32();
-			lenType.readObject(this, in, param);
-			int lenVal = lenType.getValue(0);
-			if (lenVal != 0) {
-				object = ReflectHelper.newInstance(param.getCurrentfield().getType());
-				new OCObject(object, lenType).readObject(this, in, param);
-				return object;
-			}
+			OCInteger lenType = new OCInt32(0);
+			lenType.writeObject(this, out, param);
 		} else {
-			new OCObject(object).readObject(this, in, param);
+			new OCObject(object).writeObject(this, out, param);
 		}
-		return null;
 	}
+
 }

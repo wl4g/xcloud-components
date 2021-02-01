@@ -26,8 +26,8 @@ import com.wl4g.component.rpc.codec.Decoder;
 import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.basetype.BaseType;
 import com.wl4g.component.rpc.codec.helper.ReflectHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * 
@@ -36,52 +36,41 @@ import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
  * @version 1.0.0
  * @author Wanglsir
  */
-public class ObjectArrayType extends BaseType
-{
+public class ObjectArrayType extends BaseType {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void encode(Encoder encoder, BytesOutputStream out, Object obj, CodecParameter param)
-            throws Exception
-    {
-    	if (obj == null)
-    	{
-    		out.writeInt(0);
-    	}
-    	else
-    	{
-            Object[] array = (Object[]) obj;
-    		out.writeInt(array.length);
-            for (Object o : array)
-            {
-            	encoder.encodeObject(out, o, param);
-            }
-    	}
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void encode(Encoder encoder, BytesOutputStream out, Object obj, CodecParameter param) throws Exception {
+		if (obj == null) {
+			out.writeInt(0);
+		} else {
+			Object[] array = (Object[]) obj;
+			out.writeInt(array.length);
+			for (Object o : array) {
+				encoder.encodeObject(out, o, param);
+			}
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object decode(Decoder decoder, BytesInputStream in, Object obj, CodecParameter param)
-            throws Exception
-    {
-    	int arrayLen = in.readInt();
-    	if (arrayLen <= 0)
-    	{
-    		return null;
-    	}
-    	Class<?> targetClass = param.getCurrentfield().getType().getComponentType();
-    	Object array = Array.newInstance(targetClass, arrayLen);
-    	for (int i = 0; i < arrayLen; i++)
-    	{
-    		Object o = ReflectHelper.newInstance(targetClass);
-    		decoder.decodeObject(in, o, param);
-    		Array.set(array, i, o);
-    	}
-    	return array;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object decode(Decoder decoder, BytesInputStream in, Object obj, CodecParameter param) throws Exception {
+		int arrayLen = in.readInt();
+		if (arrayLen <= 0) {
+			return null;
+		}
+		Class<?> targetClass = param.getCurrentfield().getType().getComponentType();
+		Object array = Array.newInstance(targetClass, arrayLen);
+		for (int i = 0; i < arrayLen; i++) {
+			Object o = ReflectHelper.newInstance(targetClass);
+			decoder.decodeObject(in, o, param);
+			Array.set(array, i, o);
+		}
+		return array;
+	}
 
 }

@@ -23,8 +23,8 @@ import com.wl4g.component.rpc.codec.CodecConfig;
 import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Decoder;
 import com.wl4g.component.rpc.codec.Encoder;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * Coding wrapper will be called before and after encoding or decoding.

@@ -25,8 +25,8 @@ import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.annotations.CodecType;
 import com.wl4g.component.rpc.codec.exception.EncodingException;
 import com.wl4g.component.rpc.codec.helper.ByteHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * Kust like long type.

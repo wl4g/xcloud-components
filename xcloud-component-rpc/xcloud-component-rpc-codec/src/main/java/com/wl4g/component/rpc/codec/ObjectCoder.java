@@ -19,12 +19,12 @@
  */
 package com.wl4g.component.rpc.codec;
 
-import com.wl4g.component.rpc.codec.coder.DefaultCodec;
+import com.wl4g.component.rpc.codec.internal.DefaultCodec;
 import com.wl4g.component.rpc.codec.type.OCObject;
 
 /**
  * ObjectCoder is the main API class for developer. It uses
- * {@linkplain com.wl4g.component.rpc.codec.coder.DefaultCodec DefaultCodec} as
+ * {@linkplain com.wl4g.component.rpc.codec.internal.DefaultCodec DefaultCodec} as
  * default codec. Developer can customize own codec for the coder. Developer can
  * use {@linkplain com.wl4g.component.rpc.codec.CodecConfig CodecConfig} to
  * configure codec parameters.<br>
@@ -65,7 +65,7 @@ public class ObjectCoder {
 
 	/**
 	 * Construct ObjectCoder by
-	 * {@linkplain com.wl4g.component.rpc.codec.coder.DefaultCodec
+	 * {@linkplain com.wl4g.component.rpc.codec.internal.DefaultCodec
 	 * DefaultCodec}.
 	 */
 	public ObjectCoder() {
@@ -75,7 +75,7 @@ public class ObjectCoder {
 
 	/**
 	 * Construct ObjectCoder by
-	 * {@linkplain com.wl4g.component.rpc.codec.coder.DefaultCodec
+	 * {@linkplain com.wl4g.component.rpc.codec.internal.DefaultCodec
 	 * DefaultCodec}.
 	 * 
 	 * @param codecConfig

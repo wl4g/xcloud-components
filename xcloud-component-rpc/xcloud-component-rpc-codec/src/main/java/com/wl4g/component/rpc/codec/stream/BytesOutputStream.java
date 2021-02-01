@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.iostream;
+package com.wl4g.component.rpc.codec.stream;
 
 import java.io.IOException;
 import java.io.OutputStream;

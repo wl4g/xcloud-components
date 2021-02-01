@@ -17,13 +17,13 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder;
+package com.wl4g.component.rpc.codec.internal;
 
 import java.util.LinkedList;
 
 import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Encoder;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 import com.wl4g.component.rpc.codec.wrap.Wrapper;
 
 /**

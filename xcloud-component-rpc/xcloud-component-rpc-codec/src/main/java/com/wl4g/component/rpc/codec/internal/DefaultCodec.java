@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder;
+package com.wl4g.component.rpc.codec.internal;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
@@ -28,9 +28,9 @@ import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Decoder;
 import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.CodecConfig.TotalLengthType;
-import com.wl4g.component.rpc.codec.coder.cache.Cache;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.internal.cache.Cache;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 import com.wl4g.component.rpc.codec.type.OCInt32;
 import com.wl4g.component.rpc.codec.type.OCObject;
 import com.wl4g.component.rpc.codec.wrap.TotalLengthWrapper;

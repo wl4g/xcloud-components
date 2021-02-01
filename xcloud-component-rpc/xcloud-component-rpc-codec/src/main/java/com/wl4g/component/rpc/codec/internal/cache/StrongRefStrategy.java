@@ -17,35 +17,29 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder.cache;
+package com.wl4g.component.rpc.codec.internal.cache;
 
-import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
- * SoftRefStrategy.java
+ * StrongRefStrategy.java
  * 
- * @see CacheStrategy
  * @version 1.0.0
  * @author Wanglsir
  */
-public class SoftRefStrategy implements CacheStrategy {
+public class StrongRefStrategy implements CacheStrategy {
 
-	private Map<Class<?>, SoftReference<Field[]>> fieldsMap = new ConcurrentHashMap<Class<?>, SoftReference<Field[]>>();
+	private Map<Class<?>, Field[]> fieldsMap = new ConcurrentHashMap<Class<?>, Field[]>();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Field[] getCacheFields(Class<?> clazz) {
-		SoftReference<Field[]> ref = fieldsMap.get(clazz);
-		if (ref == null) {
-			return null;
-		}
-		return ref.get();
+		return fieldsMap.get(clazz);
 	}
 
 	/**
@@ -53,8 +47,7 @@ public class SoftRefStrategy implements CacheStrategy {
 	 */
 	@Override
 	public void putCacheFields(Class<?> clazz, Field[] fields) {
-		SoftReference<Field[]> ref = new SoftReference<Field[]>(fields);
-		fieldsMap.put(clazz, ref);
+		fieldsMap.put(clazz, fields);
 	}
 
 }

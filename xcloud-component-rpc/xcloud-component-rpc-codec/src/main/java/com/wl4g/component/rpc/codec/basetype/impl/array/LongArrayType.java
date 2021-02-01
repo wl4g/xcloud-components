@@ -23,8 +23,8 @@ import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Decoder;
 import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.basetype.BaseType;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * 
@@ -33,87 +33,66 @@ import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
  * @version 1.0.0
  * @author Wanglsir
  */
-public class LongArrayType extends BaseType
-{
-	
+public class LongArrayType extends BaseType {
+
 	BaseTypeBox typeBox;
 
-	public LongArrayType(BaseTypeBox typeBox)
-	{
+	public LongArrayType(BaseTypeBox typeBox) {
 		this.typeBox = typeBox;
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void encode(Encoder encoder, BytesOutputStream out, Object obj, CodecParameter param)
-            throws Exception
-    {
-        if (obj != null)
-        {
-        	if (typeBox == BaseTypeBox.BOX)
-        	{
-                Long[] vs = (Long[]) obj;
-                out.writeInt(vs.length);
-                for (Long v : vs)
-                {
-                	if (v == null)
-                	{
-                		v = 0l;
-                	}
-                	out.writeLong(v);
-                }
-        	}
-        	else
-        	{
-        		long[] vs = (long[]) obj;
-                out.writeInt(vs.length);
-                for (long v : vs)
-                {
-                	out.writeLong(v);
-                }
-        	}
-        }
-        else
-        {
-            out.writeInt(0);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void encode(Encoder encoder, BytesOutputStream out, Object obj, CodecParameter param) throws Exception {
+		if (obj != null) {
+			if (typeBox == BaseTypeBox.BOX) {
+				Long[] vs = (Long[]) obj;
+				out.writeInt(vs.length);
+				for (Long v : vs) {
+					if (v == null) {
+						v = 0l;
+					}
+					out.writeLong(v);
+				}
+			} else {
+				long[] vs = (long[]) obj;
+				out.writeInt(vs.length);
+				for (long v : vs) {
+					out.writeLong(v);
+				}
+			}
+		} else {
+			out.writeInt(0);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object decode(Decoder decoder, BytesInputStream in, Object obj, CodecParameter param)
-            throws Exception
-    {
-        int len = in.readInt();
-        if (len <= 0)
-        {
-        	return null;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object decode(Decoder decoder, BytesInputStream in, Object obj, CodecParameter param) throws Exception {
+		int len = in.readInt();
+		if (len <= 0) {
+			return null;
+		}
 
-    	if (typeBox == BaseTypeBox.BOX)
-    	{
-    		Long[] vs = new Long[len];
-            for (int i = 0; i < len; i++)
-            {
-            	long v = in.readLong();
-            	vs[i] = v;
-            }
-            return vs;
-    	}
-    	else
-    	{
-    		long[] vs = new long[len];
-            for (int i = 0; i < len; i++)
-            {
-            	long v = in.readLong();
-            	vs[i] = v;
-            }
-            return vs;
-    	}
-    }
+		if (typeBox == BaseTypeBox.BOX) {
+			Long[] vs = new Long[len];
+			for (int i = 0; i < len; i++) {
+				long v = in.readLong();
+				vs[i] = v;
+			}
+			return vs;
+		} else {
+			long[] vs = new long[len];
+			for (int i = 0; i < len; i++) {
+				long v = in.readLong();
+				vs[i] = v;
+			}
+			return vs;
+		}
+	}
 
 }

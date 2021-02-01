@@ -19,7 +19,7 @@
  */
 package com.wl4g.component.rpc.codec;
 
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * Encoder is the interface to encode message object in codec. Developer can

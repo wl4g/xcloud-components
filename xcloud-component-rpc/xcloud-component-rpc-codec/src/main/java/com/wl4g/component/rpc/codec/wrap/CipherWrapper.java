@@ -25,8 +25,8 @@ import com.wl4g.component.rpc.codec.CodecConfig;
 import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Decoder;
 import com.wl4g.component.rpc.codec.Encoder;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 import com.wl4g.component.rpc.codec.wrap.cipher.AESCipher;
 import com.wl4g.component.rpc.codec.wrap.cipher.OCCipher;
 

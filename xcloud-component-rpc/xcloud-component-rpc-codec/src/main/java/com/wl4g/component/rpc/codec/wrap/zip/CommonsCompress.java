@@ -27,7 +27,7 @@ import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
-import com.wl4g.component.rpc.codec.helper.IoHelper;
+import com.wl4g.component.rpc.codec.helper.IOHelper;
 
 /**
  * Common compress. It needs common-compress 1.x support.
@@ -68,7 +68,7 @@ public class CommonsCompress extends ZipCompress {
 		} catch (CompressorException e) {
 			throw new Exception("Fail to compress data by commons compress. Cause " + e.getMessage(), e);
 		} finally {
-			IoHelper.closeIO(cos);
+			IOHelper.closeIO(cos);
 		}
 	}
 
@@ -89,7 +89,7 @@ public class CommonsCompress extends ZipCompress {
 		} catch (CompressorException e) {
 			throw new Exception("Fail to decompress data by commons compress. Cause " + e.getMessage(), e);
 		} finally {
-			IoHelper.closeIO(cin);
+			IOHelper.closeIO(cin);
 		}
 
 	}

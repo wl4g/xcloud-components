@@ -17,38 +17,44 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.codec.coder.cache;
+package com.wl4g.component.rpc.codec.internal.cache;
 
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Cache strategy.
  * 
- * CacheStrategy.java
+ * SoftRefStrategy.java
  * 
- * @see Cache
- * @see SoftRefStrategy
- * @see StrongRefStrategy
+ * @see CacheStrategy
  * @version 1.0.0
  * @author Wanglsir
  */
-public interface CacheStrategy {
-	/**
-	 * Get object's fields from cache.
-	 * 
-	 * @param clazz
-	 *            Target class.
-	 * @return Fields arrays.
-	 */
-	public Field[] getCacheFields(Class<?> clazz);
+public class SoftRefStrategy implements CacheStrategy {
+
+	private Map<Class<?>, SoftReference<Field[]>> fieldsMap = new ConcurrentHashMap<Class<?>, SoftReference<Field[]>>();
 
 	/**
-	 * Put object's fields to cache.
-	 * 
-	 * @param clazz
-	 *            Target class
-	 * @param fields
-	 *            Class's mapping fields.
+	 * {@inheritDoc}
 	 */
-	public void putCacheFields(Class<?> clazz, Field[] fields);
+	@Override
+	public Field[] getCacheFields(Class<?> clazz) {
+		SoftReference<Field[]> ref = fieldsMap.get(clazz);
+		if (ref == null) {
+			return null;
+		}
+		return ref.get();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void putCacheFields(Class<?> clazz, Field[] fields) {
+		SoftReference<Field[]> ref = new SoftReference<Field[]>(fields);
+		fieldsMap.put(clazz, ref);
+	}
+
 }

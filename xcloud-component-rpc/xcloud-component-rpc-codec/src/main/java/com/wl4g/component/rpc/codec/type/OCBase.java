@@ -26,8 +26,8 @@ import com.wl4g.component.rpc.codec.annotations.CodecType;
 import com.wl4g.component.rpc.codec.basetype.BaseType;
 import com.wl4g.component.rpc.codec.basetype.BaseTypeFactory;
 import com.wl4g.component.rpc.codec.helper.ReflectHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * 

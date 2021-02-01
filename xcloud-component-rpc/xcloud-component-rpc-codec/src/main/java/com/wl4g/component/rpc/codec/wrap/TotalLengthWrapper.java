@@ -27,7 +27,7 @@ import com.wl4g.component.rpc.codec.CodecConfig;
 import com.wl4g.component.rpc.codec.CodecParameter;
 import com.wl4g.component.rpc.codec.Encoder;
 import com.wl4g.component.rpc.codec.CodecConfig.TotalLengthType;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 /**
  * Calculate bytes total length in final encoding handle.

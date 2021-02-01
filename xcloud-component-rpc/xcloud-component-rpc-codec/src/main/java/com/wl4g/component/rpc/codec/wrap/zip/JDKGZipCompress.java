@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.wl4g.component.rpc.codec.helper.IoHelper;
+import com.wl4g.component.rpc.codec.helper.IOHelper;
 
 /**
  * Use JDK ZIP compress.
@@ -51,7 +51,7 @@ public class JDKGZipCompress extends ZipCompress {
 			}
 			gzipOut.flush();
 		} finally {
-			IoHelper.closeIO(gzipOut);
+			IOHelper.closeIO(gzipOut);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class JDKGZipCompress extends ZipCompress {
 			}
 			out.flush();
 		} finally {
-			IoHelper.closeIO(gzipIn);
+			IOHelper.closeIO(gzipIn);
 		}
 
 	}

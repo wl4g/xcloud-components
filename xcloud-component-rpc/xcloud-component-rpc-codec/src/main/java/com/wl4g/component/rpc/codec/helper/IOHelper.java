@@ -37,10 +37,10 @@ import com.wl4g.component.common.log.SmartLogger;
  * @version 1.0.0
  * @author Wanglsir
  */
-public final class IoHelper {
-	private static final SmartLogger log = getLogger(IoHelper.class);
+public final class IOHelper {
+	private static final SmartLogger log = getLogger(IOHelper.class);
 
-	private IoHelper() {
+	private IOHelper() {
 	}
 
 	public static void closeIO(InputStream ins) {
@@ -92,7 +92,7 @@ public final class IoHelper {
 			oos.flush();
 			return baos.toByteArray();
 		} finally {
-			IoHelper.closeIO(oos);
+			IOHelper.closeIO(oos);
 		}
 	}
 }

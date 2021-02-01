@@ -28,8 +28,8 @@ import com.wl4g.component.rpc.codec.annotations.CodecType;
 import com.wl4g.component.rpc.codec.exception.DecodingException;
 import com.wl4g.component.rpc.codec.helper.ByteHelper;
 import com.wl4g.component.rpc.codec.helper.StringHelper;
-import com.wl4g.component.rpc.codec.iostream.BytesInputStream;
-import com.wl4g.component.rpc.codec.iostream.BytesOutputStream;
+import com.wl4g.component.rpc.codec.stream.BytesInputStream;
+import com.wl4g.component.rpc.codec.stream.BytesOutputStream;
 
 import java.io.UnsupportedEncodingException;
 
