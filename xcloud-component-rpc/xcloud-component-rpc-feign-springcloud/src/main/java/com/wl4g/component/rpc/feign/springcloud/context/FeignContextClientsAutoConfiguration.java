@@ -27,6 +27,7 @@ import java.util.List;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -61,6 +62,7 @@ import org.springframework.format.support.FormattingConversionService;
 import com.fasterxml.jackson.databind.Module;
 import com.netflix.hystrix.HystrixCommand;
 import com.wl4g.component.rpc.feign.core.context.FeignContextDecoder;
+import com.wl4g.component.rpc.feign.springcloud.config.EnhanceSpringCloudFeignAutoConfiguration;
 
 import feign.Contract;
 import feign.Feign;
@@ -74,26 +76,16 @@ import feign.hystrix.HystrixFeign;
 import feign.optionals.OptionalDecoder;
 
 /**
- * {@link FeignContextDecoderAutoConfiguration}
+ * {@link FeignContextClientsAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-28
  * @sine v1.0
  * @see
  */
+@AutoConfigureAfter(EnhanceSpringCloudFeignAutoConfiguration.class)
 @AutoConfigureBefore(FeignClientsConfiguration.class)
-public class FeignContextDecoderAutoConfiguration {
-
-	//
-	// Enhance customization decoder
-	//
-
-	@Bean
-	@Primary
-	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public Decoder feignDecoder(ObjectFactory<HttpMessageConverters> messageConverters) {
-		return new FeignContextDecoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(messageConverters))));
-	}
+public class FeignContextClientsAutoConfiguration {
 
 	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
@@ -113,6 +105,13 @@ public class FeignContextDecoderAutoConfiguration {
 	//
 	// Override default SpringDecoder
 	//
+
+	@Bean
+	@Primary
+	@Order(Ordered.HIGHEST_PRECEDENCE)
+	public Decoder feignDecoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+		return new FeignContextDecoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(messageConverters))));
+	}
 
 	// @Bean
 	// @ConditionalOnMissingBean
@@ -197,7 +196,6 @@ public class FeignContextDecoderAutoConfiguration {
 
 	private Encoder springEncoder(ObjectProvider<AbstractFormWriter> formWriterProvider) {
 		AbstractFormWriter formWriter = formWriterProvider.getIfAvailable();
-
 		if (formWriter != null) {
 			return new SpringEncoder(new SpringPojoFormEncoder(formWriter), this.messageConverters);
 		} else {
@@ -223,7 +221,6 @@ public class FeignContextDecoderAutoConfiguration {
 
 		SpringPojoFormEncoder(AbstractFormWriter formWriter) {
 			super();
-
 			MultipartFormContentProcessor processor = (MultipartFormContentProcessor) getContentProcessor(MULTIPART);
 			processor.addFirstWriter(formWriter);
 		}
