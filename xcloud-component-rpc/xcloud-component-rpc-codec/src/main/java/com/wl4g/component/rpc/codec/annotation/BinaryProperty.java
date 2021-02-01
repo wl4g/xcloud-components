@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * {@link BytesProperty}
+ * {@link BinaryProperty}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-14
@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(FIELD)
 @Inherited
-public @interface BytesProperty {
+public @interface BinaryProperty {
 
 	/**
 	 * A unique position order identifier used to identify a field resolved from
@@ -55,6 +55,13 @@ public @interface BytesProperty {
 	int bytes() default UNKNOWN_INT;
 
 	/**
+	 * Custom read write field mapping and binary process class.
+	 * 
+	 * @return
+	 */
+	Class<?> customCodec() default void.class;
+
+	/**
 	 * The number of bytes occupied by this field, which is obtained from the
 	 * value of the previous field. </br>
 	 * Refer to {@link #bytes()}
@@ -62,13 +69,6 @@ public @interface BytesProperty {
 	 * @return
 	 */
 	int bytesWithPosition() default UNKNOWN_INT;
-
-	/**
-	 * Custom read write field mapping and binary process class.
-	 * 
-	 * @return
-	 */
-	Class<?> customBytesProcecssClass() default None.class;
 
 	/**
 	 * Is left padding used when bytes are under filled? Otherwise, fill from
@@ -96,11 +96,5 @@ public @interface BytesProperty {
 	public static final short UNKNOWN_SHROT = -1;
 	public static final int UNKNOWN_INT = UNKNOWN_SHROT;
 	public static final long UNKNOWN_LONG = UNKNOWN_SHROT;
-
-	/**
-	 * None custom read write field mapping and binary class.
-	 */
-	public static class None {
-	}
 
 }
