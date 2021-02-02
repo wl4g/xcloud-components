@@ -21,6 +21,9 @@ import static com.wl4g.component.common.io.FileIOUtils.ensureFile;
 import static com.wl4g.component.common.io.FileIOUtils.readLines;
 import static com.wl4g.component.common.io.FileIOUtils.seekReadLines;
 import static com.wl4g.component.common.io.FileIOUtils.seekReadString;
+import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
+import static java.lang.String.format;
+import static java.lang.System.out;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.SystemUtils.USER_DIR;
 
@@ -28,6 +31,8 @@ import java.io.File;
 import java.io.RandomAccessFile;
 
 import org.apache.commons.lang3.SystemUtils;
+
+import com.wl4g.component.common.io.FileIOUtils.ReadTailFrame;
 
 public class FileIOUtilsTests {
 
@@ -38,16 +43,17 @@ public class FileIOUtilsTests {
 	public static void main(String[] args) {
 		// seekReadTest1();
 		// ensureFileTest2();
-		radomAccessFilePointerTest3();
+		// randomAccessFilePointerTest3();
+		deserializeReadTailFrameTest4();
 	}
 
 	public static void seekReadTest1() {
-		System.out.println(SystemUtils.LINE_SEPARATOR);
-		System.out.println(readLines("C:\\Users\\Administrator\\Desktop\\aaa.txt", 2, 12));
-		System.out.println("--------------------");
-		System.out.println(seekReadString("C:\\Users\\Administrator\\Desktop\\aaa.txt", 3L, 12));
-		System.out.println("--------------------");
-		System.out.println(seekReadLines("C:\\Users\\Administrator\\Desktop\\aaa.txt", 13L, 6, line -> {
+		out.println(SystemUtils.LINE_SEPARATOR);
+		out.println(readLines("C:\\Users\\Administrator\\Desktop\\aaa.txt", 2, 12));
+		out.println("--------------------");
+		out.println(seekReadString("C:\\Users\\Administrator\\Desktop\\aaa.txt", 3L, 12));
+		out.println("--------------------");
+		out.println(seekReadLines("C:\\Users\\Administrator\\Desktop\\aaa.txt", 13L, 6, line -> {
 			return line.equalsIgnoreCase("EOF"); // End if 'EOF'
 		}));
 	}
@@ -56,7 +62,7 @@ public class FileIOUtilsTests {
 		ensureFile(new File("c:\\mydir1\\a.txt"));
 	}
 
-	public static void radomAccessFilePointerTest3() {
+	public static void randomAccessFilePointerTest3() {
 		int startPos = 1;
 		int aboutLimit = 100;
 
@@ -67,17 +73,21 @@ public class FileIOUtilsTests {
 				String line = raf.readLine();
 				if (nonNull(line)) {
 					line = new String(line.getBytes(ISO_8859_1), UTF_8);
-					System.out.println(String.format("startPos=%s, length=%s, pointer=%s, line=%s", startPos, raf.length(),
+					out.println(String.format("startPos=%s, length=%s, pointer=%s, line=%s", startPos, raf.length(),
 							raf.getFilePointer(), line));
 				} else {
-					System.out.println(
-							String.format("startPos=%s, length=%s, pointer=%s", startPos, raf.length(), raf.getFilePointer()));
+					out.println(format("startPos=%s, length=%s, pointer=%s", startPos, raf.length(), raf.getFilePointer()));
 					break;
 				}
 			}
 		} catch (Throwable ex) {
 			throw new IllegalStateException(ex);
 		}
+	}
+
+	public static void deserializeReadTailFrameTest4() {
+		String s = "{\"startPos\":1,\"endPos\":2,\"length\":4,\"lines\":[\"aa\"],\"hasNext\":true}";
+		out.println(parseJSON(s, ReadTailFrame.class));
 	}
 
 }

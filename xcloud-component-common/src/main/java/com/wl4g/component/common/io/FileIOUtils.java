@@ -15,16 +15,27 @@
  */
 package com.wl4g.component.common.io;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.io.Resources;
-import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.FileWriterWithEncoding;
-import org.apache.commons.lang3.SystemUtils;
+import static com.google.common.base.Charsets.ISO_8859_1;
+import static com.google.common.base.Charsets.UTF_8;
+import static com.wl4g.component.common.lang.Assert2.hasText;
+import static com.wl4g.component.common.lang.Assert2.hasTextOf;
+import static com.wl4g.component.common.lang.Assert2.isTrue;
+import static com.wl4g.component.common.lang.Assert2.notNull;
+import static com.wl4g.component.common.lang.Assert2.state;
+import static java.lang.Math.min;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.SystemUtils.LINE_SEPARATOR;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.Serializable;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +43,17 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Function;
 
-import static com.google.common.base.Charsets.ISO_8859_1;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.wl4g.component.common.lang.Assert2.*;
-import static java.lang.Math.min;
-import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.SystemUtils.LINE_SEPARATOR;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.FileWriterWithEncoding;
+import org.apache.commons.lang3.SystemUtils;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.io.Resources;
 
 /**
  * Enhanced files IO operation implements.</br>
@@ -259,7 +274,7 @@ public abstract class FileIOUtils extends FileUtils {
 	 *            true, the read ends.
 	 * @return
 	 */
-	public static ReadResult seekReadLines(String filename, long startPos, int aboutLimit, Function<String, Boolean> stopper) {
+	public static ReadTailFrame seekReadLines(String filename, long startPos, int aboutLimit, Function<String, Boolean> stopper) {
 		hasText(filename, "Read seek filename must not be empty.");
 		isTrue(startPos >= 0, "Read start position must be greater than or equal to 0");
 		isTrue(aboutLimit > 0, "Read about limit must be greater than to 0");
@@ -283,7 +298,7 @@ public abstract class FileIOUtils extends FileUtils {
 				}
 			}
 			long fileBytes = raf.length();
-			return new ReadResult(startPos, min(raf.getFilePointer(), fileBytes), fileBytes, lines, hasNext);
+			return new ReadTailFrame(startPos, min(raf.getFilePointer(), fileBytes), fileBytes, lines, hasNext);
 		} catch (Throwable ex) {
 			throw new IllegalStateException(ex);
 		}
@@ -393,23 +408,28 @@ public abstract class FileIOUtils extends FileUtils {
 	}
 
 	/**
-	 * Read result.
+	 * Real-read logs frame wrapper.
 	 * 
 	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
 	 * @version v1.0 2019年10月14日
 	 * @since
 	 */
-	public final static class ReadResult {
+	public final static class ReadTailFrame implements Serializable {
+		private static final long serialVersionUID = 6707381846818407702L;
+
 		private long startPos;
 		private long endPos;
 		private long length;
 		private List<String> lines;
-
 		/** Is there a next line? */
 		@JsonProperty
 		private Boolean hasNext;
 
-		public ReadResult(long startPos, long endPos, long length, List<String> lines, boolean hasNext) {
+		// @ConstructorProperties({"startPos","endPos","length","lines","hasNext"})
+		@JsonCreator
+		public ReadTailFrame(@JsonProperty("startPos") long startPos, @JsonProperty("endPos") long endPos,
+				@JsonProperty("length") long length, @JsonProperty("lines") List<String> lines,
+				@JsonProperty("hasNext") boolean hasNext) {
 			this.startPos = startPos;
 			this.endPos = endPos;
 			this.length = length;
@@ -435,8 +455,8 @@ public abstract class FileIOUtils extends FileUtils {
 
 		@Override
 		public String toString() {
-			return "ReadResult [startPos=" + startPos + ", endPos=" + endPos + ", length=" + length + ", lines=" + lines
-					+ ", hasNext=" + hasNext + "]";
+			return ReadTailFrame.class.getName().concat(" (startPos=" + startPos + ", endPos=" + endPos + ", length=" + length
+					+ ", lines=" + lines + ", hasNext=" + hasNext + ")");
 		}
 
 	}
