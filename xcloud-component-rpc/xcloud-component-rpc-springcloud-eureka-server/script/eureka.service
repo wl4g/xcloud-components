@@ -16,60 +16,53 @@
 # * limitations under the License.
 # */
 
-EXEC_FILE="eureka-server-master-bin.jar"
-BASE_DIR="/mnt/disk1/eureka/"
+[ -z "$APP_HOME" ] && APP_HOME="/opt/apps/acm/eureka-server-package/eureka-server-master-bin"
+[ -z "$BASE_DIR" ] && BASE_DIR="/mnt/disk1/eureka/"
+[ -z "$LOG_DIR" ] && LOG_DIR="/mnt/disk1/log/eureka"
 
 function start() {
   # Check already running
   if [ -n "$(getPids)" ]; then
-    echo "Already running eureka server!"
-    exit 0
+    echo "Already running eureka server!"; exit 0
   fi
-
-  JVM_OPTS="--server.tomcat.basedir=${BASE_DIR}"
-  if [ "$1" == "--standalone" ]; then
-    nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=standalone >/dev/null 2>&1 &
-    echo "Started eureka(standalone) successfully!"
-  elif [ "$1" == "--cluster" ]; then
-    echo "Starting for peer1..."
-    nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=ha,peer1 >/dev/null 2>&1 &
-
-    echo "Starting for peer2..."
-    nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=ha,peer2 >/dev/null 2>&1 &
-
-    echo "Starting for peer3..."
-    nohup java -jar ${EXEC_FILE} ${JVM_OPTS} --spring.profiles.active=ha,peer3 >/dev/null 2>&1 &
-
-    echo "Starting eureka(peer1,peer2,peer3) completed!"
-  else
-    echo "Please specify eureka startup mode! For example: --standalone | --cluster"
-  fi
-  echo "Please goto dir: '${BASE_DIR}../log/eureka/' for the logs."
+  local active=$1
+  local execFile="${APP_HOME}/eureka-server-master-bin.jar"
+  local jvmOpts="--server.tomcat.basedir=${BASE_DIR}"
+  local logFile="$LOG_DIR/eureka-server.log"
+  echo "Starting eureka server for active=\"$active\" ..."
+  nohup java -jar ${execFile} ${jvmOpts} --spring.profiles.active=${active} --logging.file.name=${logFile} >/dev/null 2>&1 &
+  echo "Starting eureka(peer1,peer2,peer3) completed! logs see: ${logFile}"
 }
 
 function stop() {
+  local active=$1
   # Check already running
   if [ -z "$(getPids)" ]; then
-    echo "No running eureka server!"; exit 0
+    echo "No running eureka server !"; exit 0
   fi
-  echo "Stopping eureka server all nodes ..."
-  ps -ef|grep java|grep -v grep|grep ${BASE_DIR}|cut -c 9-15|xargs kill -s TERM
+  echo "Stopping eureka server ..."
+  ps -ef|grep java|grep -v grep|grep ${APP_HOME}|grep ${active}|cut -c 9-15|xargs kill -s TERM
   echo "Stopped eureka server successfully!"
 }
 
 function getPids() {
-  PIDS=$(ps -ef|grep java|grep -v grep|grep ${BASE_DIR})
-  echo $PIDS
+  local pids=$(ps -ef|grep java|grep -v grep|grep ${BASE_DIR})
+  echo $pids
 }
 
-CMD=$1
-ARG1=$2
-if [ "$CMD" == "--start" ]; then
-  start "$ARG1"
-elif [ "$CMD" == "--stop" ]; then
-  stop "$ARG1"
-else
-  echo "Bad command args! For example: --start --standalone or --start --cluster or --stop"
+# ----- Main call. -----
+cmd=$1
+arg1=$2
+if [ -n "$arg1" ]; then
+  active=$(echo "$arg1"|sed 's/--active=//g')
+  if [ "$cmd" == "start" ]; then
+    start "$active"
+  elif [ "$cmd" == "stop" ]; then
+    stop "$active"
+  elif [ "$cmd" == "restart" ]; then
+    stop "$active"
+    start "$active"
+  fi
+  exit 0
 fi
-
-exit 0
+echo "Bad command args! Usage: {start --active=standalone|restart --active=ha,peer1,peer2,peer3|stop}"
