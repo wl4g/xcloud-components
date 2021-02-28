@@ -31,7 +31,7 @@ function start() {
   local logFile="$LOG_DIR/eureka-server.log"
   echo "Starting eureka server for active=\"$active\" ..."
   nohup java -jar ${execFile} ${jvmOpts} --spring.profiles.active=${active} --logging.file.name=${logFile} >/dev/null 2>&1 &
-  echo "Starting eureka(peer1,peer2,peer3) completed! logs see: ${logFile}"
+  echo "Starting eureka(peer1,peer2,peer3) completed! log writing to: ${logFile}"
 }
 
 function stop() {
@@ -41,12 +41,12 @@ function stop() {
     echo "No running eureka server !"; exit 0
   fi
   echo "Stopping eureka server ..."
-  ps -ef|grep java|grep -v grep|grep ${APP_HOME}|grep ${active}|cut -c 9-15|xargs kill -s TERM
+  ps -ef|grep java|grep -v grep|grep "$APP_HOME"|grep "$active"|cut -c 9-15|xargs kill -s TERM
   echo "Stopped eureka server successfully!"
 }
 
 function getPids() {
-  local pids=$(ps -ef|grep java|grep -v grep|grep ${BASE_DIR})
+  local pids=$(ps -ef|grep java|grep -v grep|grep ${APP_HOME})
   echo $pids
 }
 
