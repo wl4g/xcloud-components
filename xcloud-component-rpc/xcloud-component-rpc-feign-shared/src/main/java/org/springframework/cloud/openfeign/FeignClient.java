@@ -25,11 +25,10 @@ import java.lang.annotation.Target;
 
 import org.springframework.core.annotation.AliasFor;
 
-import com.wl4g.component.rpc.feign.core.annotation.FeignConsumer;
-
 /**
- * {@link FeignClient} and {@link FeignConsumer} mutual equivalence.
- * </br>
+ * {@link FeignClient} and
+ * {@link com.wl4g.component.rpc.feign.core.annotation.FeignConsumer} mutual
+ * equivalence. </br>
  * Annotation for interfaces declaring that a REST client with that interface
  * should be created (e.g. for autowiring into another component). If ribbon is
  * available it will be used to load balance the backend requests, and the load

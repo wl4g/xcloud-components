@@ -13,10 +13,10 @@ package feign.hystrix;
  * the License.
  */
 
-import feign.FeignException;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static feign.Util.checkNotNull;
 
 /**
  * Used to control the fallback given its cause.
@@ -66,8 +66,8 @@ public interface FallbackFactory<T> {
 		}
 
 		Default(T constant, Logger logger) {
-			this.constant = checkNotNull(constant, "fallback");
-			this.logger = checkNotNull(logger, "logger");
+			this.constant = notNullOf(constant, "fallback");
+			this.logger = notNullOf(logger, "logger");
 		}
 
 		@Override
@@ -83,4 +83,5 @@ public interface FallbackFactory<T> {
 			return constant.toString();
 		}
 	}
+
 }
