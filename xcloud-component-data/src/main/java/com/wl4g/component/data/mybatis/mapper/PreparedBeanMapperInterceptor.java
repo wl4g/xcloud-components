@@ -15,30 +15,34 @@
  */
 package com.wl4g.component.data.mybatis.mapper;
 
+import static com.wl4g.component.common.lang.ClassUtils2.isPresent;
+import static com.wl4g.component.common.lang.TypeConverts.parseLongOrNull;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import java.util.Properties;
+
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Plugin;
+import org.apache.ibatis.plugin.Signature;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.SqlUtil;
-
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.plugin.*;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
-
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.bean.BaseBean;
 import com.wl4g.component.core.bean.model.PageHolder;
-
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.Properties;
+import com.wl4g.iam.common.utils.RpcContextSecurityUtils;
 
 /**
  * General {@link BaseBean} property functions handle interceptors in a unified
@@ -213,6 +217,20 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 				}
 				if (isInsertSettable(bean)) {
 					bean.preInsert();
+					if (isRpcContextSecurityUtilsClass) {
+						long currentPrincipalId = BaseBean.UNKNOWN_USER_ID;
+						try {
+							currentPrincipalId = parseLongOrNull(RpcContextSecurityUtils.currentIamPrincipalId());
+						} catch (Exception e) {
+							log.warn("Cannot get currentIamPrincipalId! - {}, {}", e.getMessage(), bean);
+						}
+						bean.setCreateBy(currentPrincipalId);
+						bean.setUpdateBy(currentPrincipalId);
+					} else {
+						log.warn(
+								"Skip set inserting currentIamPrincipalId! Please check 'xcloud-iam-common' module dependency exists! - {}",
+								bean);
+					}
 				}
 				break;
 			}
@@ -282,5 +300,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	protected boolean isUpdateSettable(BaseBean bean) {
 		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
 	}
+
+	private static final boolean isRpcContextSecurityUtilsClass = isPresent("com.wl4g.iam.common.utils.RpcContextSecurityUtils");
 
 }
