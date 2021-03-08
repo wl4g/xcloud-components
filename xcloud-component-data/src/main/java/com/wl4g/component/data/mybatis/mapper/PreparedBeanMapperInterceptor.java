@@ -191,13 +191,12 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 				BaseBean bean = (BaseBean) arg;
 				if (isUpdateSettable(bean)) {
 					bean.preUpdate();
+					bean.setUpdateBy(getCurrentPrincipalId());
 				}
 				break;
 			}
 		}
 	}
-
-	// --- Post SQL processing. ---
 
 	/**
 	 * Pre insertion properties set.(if necessary)
@@ -217,25 +216,16 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 				}
 				if (isInsertSettable(bean)) {
 					bean.preInsert();
-					if (isRpcContextSecurityUtilsClass) {
-						long currentPrincipalId = BaseBean.UNKNOWN_USER_ID;
-						try {
-							currentPrincipalId = parseLongOrNull(RpcContextSecurityUtils.currentIamPrincipalId());
-						} catch (Exception e) {
-							log.warn("Cannot get currentIamPrincipalId! - {}, {}", e.getMessage(), bean);
-						}
-						bean.setCreateBy(currentPrincipalId);
-						bean.setUpdateBy(currentPrincipalId);
-					} else {
-						log.warn(
-								"Skip set inserting currentIamPrincipalId! Please check 'xcloud-iam-common' module dependency exists! - {}",
-								bean);
-					}
+					Long currentPrincipalId = getCurrentPrincipalId();
+					bean.setCreateBy(currentPrincipalId);
+					bean.setUpdateBy(currentPrincipalId);
 				}
 				break;
 			}
 		}
 	}
+
+	// --- Post SQL processing. ---
 
 	/**
 	 * Post query properties set. (if necessary)
@@ -299,6 +289,24 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 */
 	protected boolean isUpdateSettable(BaseBean bean) {
 		return isNull(bean.getUpdateDate()) || isNull(bean.getUpdateBy());
+	}
+
+	/**
+	 * Gets current login principalId.
+	 * 
+	 * @return
+	 */
+	protected Long getCurrentPrincipalId() {
+		if (isRpcContextSecurityUtilsClass) {
+			try {
+				return parseLongOrNull(RpcContextSecurityUtils.currentIamPrincipalId());
+			} catch (Exception e) {
+				log.warn("Cannot get currentIamPrincipalId! - {}", e.getMessage());
+			}
+		} else {
+			log.warn("Skip set inserting currentIamPrincipalId! Please check 'xcloud-iam-common' module dependency exists!");
+		}
+		return BaseBean.UNKNOWN_USER_ID;
 	}
 
 	private static final boolean isRpcContextSecurityUtilsClass = isPresent("com.wl4g.iam.common.utils.RpcContextSecurityUtils");

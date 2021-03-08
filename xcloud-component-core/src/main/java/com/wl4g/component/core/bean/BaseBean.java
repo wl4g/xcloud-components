@@ -15,6 +15,12 @@
  */
 package com.wl4g.component.core.bean;
 
+import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import java.io.Serializable;
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,12 +31,6 @@ import io.swagger.annotations.ApiModelProperty.AccessMode;
 import io.swagger.annotations.ApiParam;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
-import java.util.Date;
-
-import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * DB based bean entity.
@@ -144,6 +144,7 @@ public abstract class BaseBean implements Serializable {
 	 * @return return current preparing insert generated id.
 	 */
 	public Long preInsert() {
+		// setCreateBy(UNKNOWN_USER_ID);
 		setCreateDate(new Date());
 		setUpdateDate(getCreateDate());
 		setDelFlag(DEL_FLAG_NORMAL);
@@ -168,8 +169,8 @@ public abstract class BaseBean implements Serializable {
 	 * Execute method before update, need to call manually
 	 */
 	public void preUpdate() {
-		setUpdateDate(new Date());
 		// setUpdateBy(UNKNOWN_USER_ID);
+		setUpdateDate(new Date());
 	}
 
 	public BaseBean withId(Long id) {
