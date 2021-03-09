@@ -28,17 +28,14 @@ import static java.util.Objects.nonNull;
 import java.lang.reflect.Method;
 
 /**
- * This tool class is specially used for reflection call
- * {@link #rpcContextHolderClass}, which provides very good stickiness for
- * supporting different framework architecture running environments to switch
- * between each other.
+ * {@link com.wl4g.iam.core.utils.IamSecurityHolder}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-29
  * @sine v1.0
- * @see
+ * @see https://blog.csdn.net/zoinsung_lee/article/details/82529624
  */
-public abstract class IamSecurityHolderBridgeUtils {
+public abstract class IamSecurityHolderBridges {
 
 	public static Object invokeGetPrincipalInfo() {
 		if (nonNull(getPrincipalInfoMethod)) {
@@ -83,12 +80,12 @@ public abstract class IamSecurityHolderBridgeUtils {
 	}
 
 	public static final String iamSecurityHolderClassName = "com.wl4g.iam.core.utils.IamSecurityHolder";
-	public static final Class<?> iamSecurityHolderClass = resolveClassNameNullable(iamSecurityHolderClassName);
+	private static final Class<?> iamSecurityHolderClass = resolveClassNameNullable(iamSecurityHolderClassName);
 
-	public static final Method getPrincipalInfoMethod = findMethodNullable(iamSecurityHolderClass, "getPrincipalInfo");
-	public static final Method getBindValueMethod = findMethodNullable(iamSecurityHolderClass, "getBindValue", Object.class);
-	public static final Method bindMethod = findMethodNullable(iamSecurityHolderClass, "bind",
+	private static final Method getPrincipalInfoMethod = findMethodNullable(iamSecurityHolderClass, "getPrincipalInfo");
+	private static final Method getBindValueMethod = findMethodNullable(iamSecurityHolderClass, "getBindValue", Object.class);
+	private static final Method bindMethod = findMethodNullable(iamSecurityHolderClass, "bind",
 			new Class[] { Object.class, Object.class });
-	public static final Method unBindMethod = findMethodNullable(iamSecurityHolderClass, "bind", Object.class);
+	private static final Method unBindMethod = findMethodNullable(iamSecurityHolderClass, "bind", Object.class);
 
 }

@@ -31,14 +31,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * {@link FeignRpcContextProcessorBridgeUtils}
+ * {@link RpcContextProviderInterceptorBridges}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-29
  * @sine v1.0
- * @see
+ * @see https://blog.csdn.net/zoinsung_lee/article/details/82529624
  */
-public abstract class FeignRpcContextProcessorBridgeUtils {
+public abstract class RpcContextProviderInterceptorBridges {
 
 	public static int invokeFieldOrder() {
 		if (nonNull(ORDER_FIELD)) {
@@ -70,14 +70,14 @@ public abstract class FeignRpcContextProcessorBridgeUtils {
 	}
 
 	public static final String rpcContextProviderProxyInterceptorClassName = "com.wl4g.component.rpc.feign.core.context.interceptor.RpcContextProviderProxyInterceptor";
-	public static final Class<?> rpcContextProviderProxyInterceptorClass = resolveClassNameNullable(
+	private static final Class<?> rpcContextProviderProxyInterceptorClass = resolveClassNameNullable(
 			rpcContextProviderProxyInterceptorClassName);
 
-	public static final Method checkSupportTypeProxyMethod = findMethodNullable(rpcContextProviderProxyInterceptorClass,
+	private static final Method checkSupportTypeProxyMethod = findMethodNullable(rpcContextProviderProxyInterceptorClass,
 			"checkSupportTypeProxy", Object.class, Class.class);
-	public static final Method checkSupportMethodProxyMethod = findMethodNullable(rpcContextProviderProxyInterceptorClass,
+	private static final Method checkSupportMethodProxyMethod = findMethodNullable(rpcContextProviderProxyInterceptorClass,
 			"checkSupportMethodProxy", Object.class, Method.class, Class.class, Object[].class);
 
-	public static final Field ORDER_FIELD = findFieldNullable(rpcContextProviderProxyInterceptorClass, "ORDER", int.class);
+	private static final Field ORDER_FIELD = findFieldNullable(rpcContextProviderProxyInterceptorClass, "ORDER", int.class);
 
 }

@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import com.wl4g.component.common.bridge.IamSecurityHolderBridgeUtils;
+import com.wl4g.component.common.bridge.IamSecurityHolderBridges;
 import com.wl4g.component.common.log.SmartLogger;
 
 /**
@@ -160,8 +160,8 @@ public abstract class PeriodFormatter {
 	protected String getLocalizedMessage(String localizedKey) {
 		String loc = null;
 		try {
-			if (IamSecurityHolderBridgeUtils.hasIamSecurityHolderClass()) {
-				loc = (String) IamSecurityHolderBridgeUtils.invokeGetBindValue("langAttrName");
+			if (IamSecurityHolderBridges.hasIamSecurityHolderClass()) {
+				loc = (String) IamSecurityHolderBridges.invokeGetBindValue("langAttrName");
 			}
 		} catch (Exception e) {
 			log.warn(format("Cannot get IAM session locale, fallback use '%s'", locale), e);

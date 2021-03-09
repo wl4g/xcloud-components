@@ -98,12 +98,6 @@
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.wl4g</groupId>
-			<artifactId>xcloud-iam-common</artifactId>
-			<version>master</version>
-			<optional>true</optional>
-		</dependency>
 		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

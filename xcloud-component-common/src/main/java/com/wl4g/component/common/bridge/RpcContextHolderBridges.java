@@ -33,7 +33,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * This tool class is specially used for reflection call
+ * This tools class is specially used for reflection call
  * {@link #rpcContextHolderClass}, which provides very good stickiness for
  * supporting different framework architecture running environments to switch
  * between each other.
@@ -41,9 +41,9 @@ import javax.validation.constraints.NotNull;
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-29
  * @sine v1.0
- * @see
+ * @see https://blog.csdn.net/zoinsung_lee/article/details/82529624
  */
-public abstract class RpcContextHolderBridgeUtils {
+public abstract class RpcContextHolderBridges {
 
 	public static Object invokeStaticGet() {
 		if (nonNull(staticGetMethod)) {
@@ -164,24 +164,24 @@ public abstract class RpcContextHolderBridgeUtils {
 	public static final String rpcContextHolderClassName = "com.wl4g.component.rpc.feign.core.context.RpcContextHolder";
 	public static final String rpcContextHolderReferenceKeyClassName = "com.wl4g.component.rpc.feign.core.context.RpcContextHolder.ReferenceKey";
 
-	public static final Class<?> rpcContextHolderClass = resolveClassNameNullable(rpcContextHolderClassName);
-	public static final Class<?> referenceKeyClass = resolveClassNameNullable(rpcContextHolderReferenceKeyClassName);
+	private static final Class<?> rpcContextHolderClass = resolveClassNameNullable(rpcContextHolderClassName);
+	private static final Class<?> referenceKeyClass = resolveClassNameNullable(rpcContextHolderReferenceKeyClassName);
 
-	public static final Method staticGetMethod = findMethodNullable(rpcContextHolderClass, "get");
+	private static final Method staticGetMethod = findMethodNullable(rpcContextHolderClass, "get");
 
-	public static final Method getMethod = findMethodNullable(rpcContextHolderClass, "get", String.class, Class.class);
-	public static final Method setMethod = findMethodNullable(rpcContextHolderClass, "set", String.class, Object.class);
+	private static final Method getMethod = findMethodNullable(rpcContextHolderClass, "get", String.class, Class.class);
+	private static final Method setMethod = findMethodNullable(rpcContextHolderClass, "set", String.class, Object.class);
 
-	public static final Method getAttachmentMethod = findMethodNullable(rpcContextHolderClass, "getAttachment", String.class);
-	public static final Method setAttachmentMethod = findMethodNullable(rpcContextHolderClass, "setAttachment", String.class,
+	private static final Method getAttachmentMethod = findMethodNullable(rpcContextHolderClass, "getAttachment", String.class);
+	private static final Method setAttachmentMethod = findMethodNullable(rpcContextHolderClass, "setAttachment", String.class,
 			String.class);
-	public static final Method getAttachmentsMethod = findMethodNullable(rpcContextHolderClass, "getAttachments");
-	public static final Method removeAttachmentMethod = findMethodNullable(rpcContextHolderClass, "removeAttachment");
-	public static final Method clearAttachmentsMethod = findMethodNullable(rpcContextHolderClass, "clearAttachments");
+	private static final Method getAttachmentsMethod = findMethodNullable(rpcContextHolderClass, "getAttachments");
+	private static final Method removeAttachmentMethod = findMethodNullable(rpcContextHolderClass, "removeAttachment");
+	private static final Method clearAttachmentsMethod = findMethodNullable(rpcContextHolderClass, "clearAttachments");
 
-	public static final Method getReferenceMethod = findMethodNullable(rpcContextHolderClass, "get", referenceKeyClass,
+	private static final Method getReferenceMethod = findMethodNullable(rpcContextHolderClass, "get", referenceKeyClass,
 			Class.class);
-	public static final Method setReferenceMethod = findMethodNullable(rpcContextHolderClass, "set", referenceKeyClass,
+	private static final Method setReferenceMethod = findMethodNullable(rpcContextHolderClass, "set", referenceKeyClass,
 			Object.class);
 
 }

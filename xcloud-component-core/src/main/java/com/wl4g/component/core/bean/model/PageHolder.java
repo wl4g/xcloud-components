@@ -15,6 +15,12 @@
  */
 package com.wl4g.component.core.bean.model;
 
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,22 +28,16 @@ import javax.annotation.Nullable;
 
 import org.springframework.beans.BeanUtils;
 
-import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wl4g.component.common.bridge.RpcContextHolderBridgeUtils;
+import com.wl4g.component.common.bridge.RpcContextHolderBridges;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
+import io.swagger.annotations.ApiParam;
 import lombok.Getter;
 import lombok.Setter;
-import io.swagger.annotations.ApiParam;
 
 /**
  * The original intention of the integrated paging packaging model is that
@@ -234,8 +234,8 @@ public class PageHolder<E> implements Serializable {
 	 */
 	public static void startPage(@Nullable PageHolder<?> holder) {
 		Page<?> page = isNull(holder) ? null : holder.getPage();
-		if (RpcContextHolderBridgeUtils.hasRpcContextHolderClass()) { // Distributed?
-			RpcContextHolderBridgeUtils.invokeSet(CURRENT_PAGE_KEY, page);
+		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed?
+			RpcContextHolderBridges.invokeSet(CURRENT_PAGE_KEY, page);
 		} else { // fallback, use local
 			standaloneCurrentPage.set(page);
 		}
@@ -250,8 +250,8 @@ public class PageHolder<E> implements Serializable {
 	@Nullable
 	public static final <T> PageHolder<T> current() {
 		Page<T> page = null;
-		if (RpcContextHolderBridgeUtils.hasRpcContextHolderClass()) { // Distributed?
-			page = (Page<T>) RpcContextHolderBridgeUtils.invokeGet(CURRENT_PAGE_KEY, Page.class);
+		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed?
+			page = (Page<T>) RpcContextHolderBridges.invokeGet(CURRENT_PAGE_KEY, Page.class);
 		} else { // fallback, use local
 			page = (Page<T>) standaloneCurrentPage.get();
 		}

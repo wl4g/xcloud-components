@@ -15,7 +15,6 @@
  */
 package com.wl4g.component.data.mybatis.mapper;
 
-import static com.wl4g.component.common.lang.ClassUtils2.isPresent;
 import static com.wl4g.component.common.lang.TypeConverts.parseLongOrNull;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.isNull;
@@ -39,10 +38,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.SqlUtil;
+import com.wl4g.component.common.bridge.RpcContextIamSecurityBridges;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.bean.BaseBean;
 import com.wl4g.component.core.bean.model.PageHolder;
-import com.wl4g.iam.common.utils.RpcContextSecurityUtils;
 
 /**
  * General {@link BaseBean} property functions handle interceptors in a unified
@@ -297,18 +296,17 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 	 * @return
 	 */
 	protected Long getCurrentPrincipalId() {
-		if (isRpcContextSecurityUtilsClass) {
+		if (RpcContextIamSecurityBridges.hasRpcContextIamSecurityUtilsClass()) {
 			try {
-				return parseLongOrNull(RpcContextSecurityUtils.currentIamPrincipalId());
+				// TODO remove parse, direct use string principalId.
+				return parseLongOrNull(RpcContextIamSecurityBridges.currentIamPrincipalId());
 			} catch (Exception e) {
-				log.warn("Cannot get currentIamPrincipalId! - {}", e.getMessage());
+				log.warn("Cannot get currentIamPrincipalId. - {}", e.getMessage());
 			}
 		} else {
-			log.warn("Skip set inserting currentIamPrincipalId! Please check 'xcloud-iam-common' module dependency exists!");
+			log.warn("Saving unable to set currentIamPrincipalId! Please check if 'xcloud-iam-common' dependency exists!");
 		}
 		return BaseBean.UNKNOWN_USER_ID;
 	}
-
-	private static final boolean isRpcContextSecurityUtilsClass = isPresent("com.wl4g.iam.common.utils.RpcContextSecurityUtils");
 
 }
