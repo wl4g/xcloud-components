@@ -15,7 +15,9 @@
  */
 package com.wl4g.component.core.kit.access;
 
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.ThreadLocal.withInitial;
+import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -26,12 +28,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
-import static java.util.regex.Pattern.compile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
+
+import com.wl4g.component.common.log.SmartLogger;
 
 /**
  * IP access white list control
@@ -41,34 +42,34 @@ import org.springframework.util.Assert;
  * @date 2018年11月30日
  * @since
  */
+@SuppressWarnings("unused")
 public class IPAccessControl {
-	final private static String[] LOCAL = { "127.0.0.1", "localhost", "0:0:0:0:0:0:0:1" };
-	final public static String IPV6 = "^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:)|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}(:[0-9A-Fa-f]{1,4}){1,2})|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){1,3})|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){1,4})|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){1,5})|([0-9A-Fa-f]{1,4}:(:[0-9A-Fa-f]{1,4}){1,6})|(:(:[0-9A-Fa-f]{1,4}){1,7})|(([0-9A-Fa-f]{1,4}:){6}(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){5}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){0,1}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){0,2}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){0,3}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|([0-9A-Fa-f]{1,4}:(:[0-9A-Fa-f]{1,4}){0,4}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(:(:[0-9A-Fa-f]{1,4}){0,5}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}))$";
-	final public static String IPV4 = new StringBuffer("^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.")
+	private static final String[] LOCAL = { "127.0.0.1", "localhost", "0:0:0:0:0:0:0:1" };
+	private static final String IPV6 = "^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:)|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}(:[0-9A-Fa-f]{1,4}){1,2})|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){1,3})|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){1,4})|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){1,5})|([0-9A-Fa-f]{1,4}:(:[0-9A-Fa-f]{1,4}){1,6})|(:(:[0-9A-Fa-f]{1,4}){1,7})|(([0-9A-Fa-f]{1,4}:){6}(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){5}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){0,1}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){0,2}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){0,3}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|([0-9A-Fa-f]{1,4}:(:[0-9A-Fa-f]{1,4}){0,4}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})|(:(:[0-9A-Fa-f]{1,4}){0,5}:(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}))$";
+	private static final String IPV4 = new StringBuffer("^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.")
 			.append("(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.").append("(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.")
 			.append("(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$").toString();
-
-	final public static String IPV4_QUAD = "(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2(?:[0-4][0-9]|5[0-5]))";
+	private static final String IPV4_QUAD = "(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2(?:[0-4][0-9]|5[0-5]))";
 
 	/**
 	 * 10.0.0.0 - 10.255.255.255
 	 */
-	final public static String OWN_A = "10\\.(?:" + IPV4_QUAD + "\\.){2}" + IPV4_QUAD + "$";
+	private static final String OWN_A = "10\\.(?:" + IPV4_QUAD + "\\.){2}" + IPV4_QUAD + "$";
 
 	/**
 	 * 172.16.0.0 - 172.31.255.255
 	 */
-	final public static String OWN_B = "172\\.(?:1[6-9]|2[0-9]|3[0-1])\\." + IPV4_QUAD + "\\." + IPV4_QUAD + "$";
+	private static final String OWN_B = "172\\.(?:1[6-9]|2[0-9]|3[0-1])\\." + IPV4_QUAD + "\\." + IPV4_QUAD + "$";
 
 	/**
 	 * 192.168.0.0 - 192.168.255.255
 	 */
-	final public static String OWN_C = "192\\.168\\." + IPV4_QUAD + "\\." + IPV4_QUAD + "$";
+	private static final String OWN_C = "192\\.168\\." + IPV4_QUAD + "\\." + IPV4_QUAD + "$";
 
 	/**
 	 * Thread local pattern cache.
 	 */
-	final private static ThreadLocal<Pattern[]> DEFAULT_PATTERN_CACHE = withInitial(
+	private static final ThreadLocal<Pattern[]> DEFAULT_PATTERN_CACHE = withInitial(
 			() -> new Pattern[] { compile(OWN_A), compile(OWN_B), compile(OWN_C) });
 
 	private IPAccessProperties config;
@@ -564,7 +565,7 @@ public class IPAccessControl {
 	 * @since
 	 */
 	public static class IPAccessProperties implements InitializingBean {
-		final private Logger log = LoggerFactory.getLogger(getClass());
+		private final SmartLogger log = getLogger(getClass());
 
 		/**
 		 * When the protection mode is enabled, the remote client IP must be
@@ -582,10 +583,7 @@ public class IPAccessControl {
 		 */
 		private List<String> denyIpRange = new ArrayList<>();
 
-		//
-		// Temporary.
-		//
-
+		// Temporary fields.
 		private Set<IPRange> allowList = new HashSet<>();
 		private Set<IPRange> denyList = new HashSet<>();
 
@@ -676,18 +674,6 @@ public class IPAccessControl {
 			return contains(range, "{") && contains(range, "}");
 		}
 
-	}
-
-	public static void main(String[] args) throws Exception {
-		IPAccessProperties config = new IPAccessProperties();
-		// config.getAllowIp().add("10.0.0.160");
-		config.getAllowIpRange().add("0.0.0.0/0");
-		config.afterPropertiesSet();
-		IPAccessControl ctl = new IPAccessControl(config);
-		System.out.println(ctl.isIPRangePermitted("10.0.0.160"));
-		System.out.println(ctl.isIPRangePermitted("10.0.0.161"));
-		System.out.println(ctl.isAnyNetIPOwnPermitted("10.0.0.161"));
-		System.out.println(ctl.isAnyNetIPOwnPermitted("121.47.108.77"));
 	}
 
 }
