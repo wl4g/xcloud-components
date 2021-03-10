@@ -23,6 +23,8 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.mustAssignableFrom;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findField;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.getField;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
@@ -32,9 +34,15 @@ import static org.apache.commons.lang3.StringUtils.replaceAll;
 import static org.apache.commons.lang3.StringUtils.replaceEach;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.ACTIVE_PROFILES_PROPERTY;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_ADDITIONAL_LOCATION_PROPERTY;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.CONFIG_NAME_PROPERTY;
+import static org.springframework.boot.context.config.ConfigFileApplicationListener.INCLUDE_PROFILES_PROPERTY;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 
@@ -142,18 +150,33 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 		Properties presetProperties = new Properties();
 		// defaultProperties.put("spring.main.allow-bean-definition-overriding","true");
 		if (nonNull(configurer.defaultProperties())) {
-			safeMap(configurer.defaultProperties()).forEach((key, value) -> {
-				presetProperties.put(key, defaultSafeCommClear.apply(defaultTrim2EmptyClear.apply((String) value)));
-			});
+			safeMap(configurer.defaultProperties()).forEach((key, value) -> presetProperties.put(key,
+					defaultSafeCommClear.apply(defaultTrim2EmptyClear.apply((String) value))));
 		}
 
-		// Command-line arguments are preferred.
+		// Priority order: 1 start args properties, 2 existing properties, 3
+		// script automatically read properties.
+
+		// Command-line args preferred.
 		for (String argName : args.getOptionNames()) {
 			presetProperties.remove(argName);
 		}
 
+		// Merge existing properties(key-values).
+		Map<String, Object> existingDefaultProperties = getField(
+				findField(SpringApplication.class, "defaultProperties", Map.class), application, true);
+		safeMap(existingDefaultProperties).forEach((key, value) -> {
+			if (DEFAULT_PROPERTIES_MERGE_KEYS.contains(key)) { // Merge(if-necessary)
+				String presetValue = presetProperties.getProperty(key);
+				if (nonNull(presetValue)) {
+					value = value + "," + presetValue;
+				}
+			}
+			presetProperties.put(key, value);
+		});
+
 		if (isDebug) {
-			log.debug("Preset SpringApplication#setDefaultProperties: {}", presetProperties);
+			log.debug("Preset SpringApplication#setDefaultProperties(Final): {}", presetProperties);
 		}
 		application.setDefaultProperties(presetProperties);
 	}
@@ -307,6 +330,8 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	private static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/spring-launcher.groovy";
 	private static final String PROPERTY_DISABLE = "spring-launcher-configurer.disable";
 	private static final String PROPERTY_DEBUG = "spring-launcher-configurer.debug";
+	private static final List<String> DEFAULT_PROPERTIES_MERGE_KEYS = asList(ACTIVE_PROFILES_PROPERTY, INCLUDE_PROFILES_PROPERTY,
+			CONFIG_NAME_PROPERTY, CONFIG_ADDITIONAL_LOCATION_PROPERTY, CONFIG_LOCATION_PROPERTY);
 
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
 }
