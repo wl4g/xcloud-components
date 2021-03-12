@@ -113,8 +113,7 @@ public class SpringCloudHystrixFeignContextAutoConfiguration {
 		private static final HystrixRequestVariableDefault<SpringCloudHystrixFeignRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
 
 		// Notes: Since feignclient ignores case when setting header, it should
-		// be
-		// unified here.
+		// be unified here.
 		/** Feign request context attachments store. */
 		private final Map<String, String> attachments = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

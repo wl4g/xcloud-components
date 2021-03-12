@@ -37,7 +37,7 @@ import feign.RequestTemplate;
  * @sine v1.0
  * @see
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 30)
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
 public class TracingFeignRequestInterceptor implements RequestInterceptor {
 
 	@Override

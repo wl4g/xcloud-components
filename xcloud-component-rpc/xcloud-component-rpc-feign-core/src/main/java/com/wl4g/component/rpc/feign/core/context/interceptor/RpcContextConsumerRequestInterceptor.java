@@ -38,7 +38,7 @@ import feign.RequestTemplate;
  * @sine v1.0
  * @see
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 10)
+@Order(Ordered.HIGHEST_PRECEDENCE + 100)
 public class RpcContextConsumerRequestInterceptor implements RequestInterceptor {
 	protected final SmartLogger log = getLogger(getClass());
 

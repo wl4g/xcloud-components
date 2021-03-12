@@ -990,7 +990,7 @@ public abstract class WebUtils2 {
 				stacktrace = ((HttpServletRequest) request).getHeader(PARAM_STACKTRACE);
 			}
 			if (isBlank(stacktrace)) {
-				stacktrace = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
+				stacktrace = CookieUtils.getCookie((HttpServletRequest) request, "x-stacktrace");
 			}
 		}
 		if (isBlank(stacktrace)) {
@@ -1297,7 +1297,7 @@ public abstract class WebUtils2 {
 	/**
 	 * Controlling enabled unified exception handling stacktrace information.
 	 */
-	public static final String PARAM_STACKTRACE = getenv().getOrDefault("spring.xcloud.error.stacktrace.name", "X-Stacktrace");
+	public static final String PARAM_STACKTRACE = getenv().getOrDefault("spring.xcloud.error.stacktrace.name", "x-stacktrace");
 
 	private static final Predicate<String> defaultStringAnyFilter = name -> true;
 

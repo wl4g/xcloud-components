@@ -96,7 +96,7 @@ public @interface EnableSmartRequestMapping {
 	 * 
 	 * @return
 	 */
-	boolean overrideAmbiguousByOrder() default true;
+	boolean overrideAmbiguousByOrder() default false;
 
 	/**
 	 * Refer: {@link #packagePatterns()}

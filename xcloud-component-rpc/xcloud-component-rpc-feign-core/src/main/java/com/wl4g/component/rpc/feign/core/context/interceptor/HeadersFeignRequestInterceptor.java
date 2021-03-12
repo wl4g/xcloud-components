@@ -48,7 +48,7 @@ import feign.RequestTemplate;
  * @sine v1.0
  * @see
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 20)
+@Order(Ordered.HIGHEST_PRECEDENCE + 50)
 public class HeadersFeignRequestInterceptor implements RequestInterceptor {
 
 	private final Map<Method, List<List<Annotation>>> knownMethodAnnotations = new ConcurrentHashMap<>(64);
