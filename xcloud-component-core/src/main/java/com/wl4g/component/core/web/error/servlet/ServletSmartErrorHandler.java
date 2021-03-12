@@ -15,6 +15,15 @@
  */
 package com.wl4g.component.core.web.error.servlet;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.web.WebUtils2.checkRequestErrorStacktrace;
+import static com.wl4g.component.common.web.WebUtils2.write;
+import static com.wl4g.component.common.web.WebUtils2.writeJson;
+import static com.wl4g.component.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -29,17 +38,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.common.web.WebUtils2.checkRequestErrorStacktrace;
-import static com.wl4g.component.common.web.WebUtils2.write;
-import static com.wl4g.component.common.web.WebUtils2.writeJson;
-import static com.wl4g.component.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
-
-import com.wl4g.component.common.jvm.JvmRuntimeKit;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.component.common.web.rest.RespBase;
@@ -161,7 +160,7 @@ public class ServletSmartErrorHandler extends AbstractErrorController {
 	 * @return
 	 */
 	private boolean isStackTrace(ServletRequest request) {
-		if (log.isDebugEnabled() || JvmRuntimeKit.isJVMDebugging) {
+		if (log.isDebugEnabled()) {
 			return true;
 		}
 		return checkRequestErrorStacktrace(request);

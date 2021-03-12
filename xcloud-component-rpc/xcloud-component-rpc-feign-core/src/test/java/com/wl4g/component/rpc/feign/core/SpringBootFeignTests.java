@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.rpc.springboot.feign;
+package com.wl4g.component.rpc.feign.core;
 
 import com.google.gson.Gson;
 import com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration;
+import com.wl4g.component.rpc.feign.core.GithubService1.GitHubContributor;
+import com.wl4g.component.rpc.feign.core.SpringBootFeignTests.SampleRetryer;
 import com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers;
-import com.wl4g.component.rpc.springboot.feign.GithubService1.GitHubContributor;
-import com.wl4g.component.rpc.springboot.feign.SpringBootFeignTests.SampleRetryer;
 
 import feign.Retryer;
 

@@ -18,13 +18,16 @@ package com.wl4g.component.core.web.error.reactive;
 import static com.wl4g.component.common.lang.StringUtils2.isTrue;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static com.wl4g.component.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
 import static java.util.Locale.US;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.http.HttpStatus.TEMPORARY_REDIRECT;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_HTML;
+import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 import java.net.URI;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,20 +36,15 @@ import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import static org.springframework.web.reactive.function.BodyInserters.fromValue;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.TEXT_HTML;
-import static org.springframework.http.HttpStatus.TEMPORARY_REDIRECT;
 
 import com.wl4g.component.common.jvm.JvmRuntimeKit;
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.common.web.CookieUtils;
 import com.wl4g.component.common.web.WebUtils2.RequestExtractor;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorController;
@@ -54,8 +52,6 @@ import com.wl4g.component.core.web.error.AbstractErrorAutoConfiguration.ErrorHan
 import com.wl4g.component.core.web.error.CompositeErrorConfigurer;
 import com.wl4g.component.core.web.error.ErrorConfigurer;
 import com.wl4g.component.core.web.error.ErrorConfigurer.RenderingErrorHandler;
-
-import static com.wl4g.component.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
 
 import reactor.core.publisher.Mono;
 
@@ -158,15 +154,17 @@ public class ReactiveSmartErrorHandler extends AbstractErrorWebExceptionHandler 
 		if (log.isDebugEnabled() || JvmRuntimeKit.isJVMDebugging) {
 			return true;
 		}
-
-		String _stacktraceVal = request.queryParam(PARAM_STACKTRACE).orElse(null);
-		if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
-			_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
+		String stacktrace = request.queryParam(PARAM_STACKTRACE).orElse(null);
+		if (isBlank(stacktrace)) {
+			stacktrace = request.headers().firstHeader(PARAM_STACKTRACE);
 		}
-		if (isBlank(_stacktraceVal)) {
+		if (isBlank(stacktrace)) {
+			stacktrace = request.cookies().getFirst(PARAM_STACKTRACE).getValue();
+		}
+		if (isBlank(stacktrace)) {
 			return false;
 		}
-		return isTrue(_stacktraceVal.toLowerCase(US), false);
+		return isTrue(stacktrace.toLowerCase(US), false);
 	}
 
 }

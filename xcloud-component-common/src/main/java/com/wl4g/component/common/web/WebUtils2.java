@@ -990,7 +990,7 @@ public abstract class WebUtils2 {
 				stacktrace = ((HttpServletRequest) request).getHeader(PARAM_STACKTRACE);
 			}
 			if (isBlank(stacktrace)) {
-				stacktrace = CookieUtils.getCookie((HttpServletRequest) request, "x-stacktrace");
+				stacktrace = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
 			}
 		}
 		if (isBlank(stacktrace)) {

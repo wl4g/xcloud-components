@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.rpc.springboot.feign.codec;
+package com.wl4g.component.rpc.feign.core.codec;
 
 import java.util.ArrayList;
 import java.util.List;

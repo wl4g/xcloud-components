@@ -1,4 +1,4 @@
-package com.wl4g.component.rpc.springboot.feign;
+package com.wl4g.component.rpc.feign.core;
 
 import feign.Contract;
 import feign.Param;
