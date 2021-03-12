@@ -15,16 +15,18 @@
  */
 package com.wl4g.component.core.web.versions.annotation;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Indexed;
 
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
 import com.wl4g.component.core.web.versions.SimpleVersionComparator;
-
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.*;
 
 /**
  * When enabled, the API multi version request control mapping processor is
@@ -39,7 +41,7 @@ import java.lang.annotation.*;
 @Target({ TYPE })
 @Documented
 @Indexed
-@EnableSmartRequestMapping
+@EnableSmartRequestMapping(overrideAmbiguousByOrder = true)
 @Import({ ApiVersionMappingRegistrar.class })
 public @interface EnableApiVersionManagement {
 
