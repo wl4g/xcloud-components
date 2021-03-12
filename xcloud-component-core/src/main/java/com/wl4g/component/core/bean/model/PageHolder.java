@@ -550,7 +550,7 @@ public class PageHolder<E> implements Serializable {
 	/**
 	 * Cluster mode current page key.
 	 */
-	private static transient final String CURRENT_PAGE_KEY = PageHolder.class.getSimpleName().concat(".currentPage");
+	private static transient final String CURRENT_PAGE_KEY = "currentPage";
 	/**
 	 * Standalone mode current page.
 	 */

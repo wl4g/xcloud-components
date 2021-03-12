@@ -99,6 +99,6 @@ public final class FeignRpcContextUtils {
 		}
 	}
 
-	public static final String ATTACHMENT_HEADER_PREFIX = "X-Rpc-Attachment-";
+	public static final String ATTACHMENT_HEADER_PREFIX = "x-rpc-attach-";
 	public static final int ATTACHMENT_HEADER_PREFIX_LEN = ATTACHMENT_HEADER_PREFIX.length();
 }
