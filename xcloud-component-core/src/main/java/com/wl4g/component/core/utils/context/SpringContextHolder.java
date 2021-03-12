@@ -168,7 +168,6 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 	 */
 	public static boolean isReactiveWebApplication(@Nullable ClassLoader classLoader, @Nullable Environment environment,
 			@Nullable ResourceLoader resourceLoader) {
-
 		if (!ClassUtils2.isPresent(REACTIVE_WEB_APPLICATION_CLASS, classLoader)) {
 			return false;
 		}

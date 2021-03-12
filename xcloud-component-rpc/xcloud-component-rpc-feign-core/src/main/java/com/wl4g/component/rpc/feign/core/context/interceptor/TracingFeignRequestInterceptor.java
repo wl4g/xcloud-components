@@ -19,36 +19,35 @@
  */
 package com.wl4g.component.rpc.feign.core.context.interceptor;
 
-import org.springframework.context.annotation.Bean;
+import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
 
-/***
- * Auto-configuration(client|server)
- *
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
+import com.wl4g.component.rpc.feign.core.context.RpcContextHolder;
+
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+
+/**
+ * {@link TracingFeignRequestInterceptor}
+ * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2020-12-07
+ * @version v1.0 2021-01-04
  * @sine v1.0
  * @see
  */
-public class FeignRpcContextAutoConfiguration {
+@Order(Ordered.HIGHEST_PRECEDENCE + 30)
+public class TracingFeignRequestInterceptor implements RequestInterceptor {
 
-	@Bean
-	public HeadersFeignRequestInterceptor headersFeignRequestInterceptor() {
-		return new HeadersFeignRequestInterceptor();
+	@Override
+	public void apply(RequestTemplate template) {
+		setStacktraceToHeaders(template);
 	}
 
-	@Bean
-	public RpcContextConsumerRequestInterceptor rpcContextFeignRequestInterceptor() {
-		return new RpcContextConsumerRequestInterceptor();
-	}
-
-	@Bean
-	public TracingFeignRequestInterceptor tracingFeignRequestInterceptor() {
-		return new TracingFeignRequestInterceptor();
-	}
-
-	@Bean
-	public RpcContextProviderProxyInterceptor rpcContextProviderProxyInterceptor() {
-		return new RpcContextProviderProxyInterceptor();
+	private void setStacktraceToHeaders(RequestTemplate template) {
+		// Pass 'stacktrace' parameter through to the next service
+		template.header(PARAM_STACKTRACE, RpcContextHolder.get().getAttachment(PARAM_STACKTRACE));
 	}
 
 }

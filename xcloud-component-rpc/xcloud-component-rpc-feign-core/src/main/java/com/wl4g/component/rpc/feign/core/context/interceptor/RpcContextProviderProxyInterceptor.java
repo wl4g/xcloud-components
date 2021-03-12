@@ -22,20 +22,21 @@ package com.wl4g.component.rpc.feign.core.context.interceptor;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
+import static com.wl4g.component.common.web.WebUtils2.checkRequestErrorStacktrace;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletRequest;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletResponse;
 import static java.util.Objects.nonNull;
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.core.Ordered;
-import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
@@ -84,6 +85,7 @@ public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor
 			// extracted and bound to the local context.
 			FeignRpcContextUtils.bindAttachmentsFromRequest(request);
 		}
+		customPreRequestHandle(request, target, method, parameters);
 		return parameters;
 	}
 
@@ -107,6 +109,14 @@ public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor
 			}
 		}
 		return result;
+	}
+
+	protected void customPreRequestHandle(HttpServletRequest request, @NotNull Object target, @NotNull Method method,
+			Object[] parameters) {
+		// Extract stacktrace parameter.
+		if (checkRequestErrorStacktrace(request)) {
+			RpcContextHolder.get().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
+		}
 	}
 
 	public static boolean checkSupportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {

@@ -22,11 +22,11 @@ package com.wl4g.component.core.web.mapping.annotation;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.core.utils.context.SpringContextHolder.isServletWebApplication;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.PACKAGE_PATTERNS;
-import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.PACKAGE_PATTERNS_FOR_INCLUDE;
+import static com.wl4g.component.core.utils.context.SpringContextHolder.isReactiveWebApplication;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.FILTERS;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.OVERRIDE_AMBIGUOUS;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.PACKAGE_PATTERNS;
+import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.PACKAGE_PATTERNS_FOR_INCLUDE;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
@@ -38,7 +38,6 @@ import java.util.Set;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -73,6 +72,7 @@ public class SmartHandlerMappingRegistrar
 
 	private ResourceLoader resourceLoader;
 	private Environment environment;
+	@SuppressWarnings("unused")
 	private BeanFactory beanFactory;
 
 	@Override
@@ -98,12 +98,11 @@ public class SmartHandlerMappingRegistrar
 			BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);
 
 			// Register rqeust handler mapping.
-			if (isServletWebApplication(getClass().getClassLoader(), (ConfigurableBeanFactory) beanFactory, environment,
-					resourceLoader)) {
-				registerSmartHandlerMappingConfigurer(metadata, attrs, registry, WebMvcSmartHandlerMappingConfigurer.class,
-						beanNameGenerator);
-			} else { // Webflux
+			if (isReactiveWebApplication(getClass().getClassLoader(), environment, resourceLoader)) { // Webflux
 				registerSmartHandlerMappingConfigurer(metadata, attrs, registry, WebFluxSmartHandlerMappingConfigurer.class,
+						beanNameGenerator);
+			} else { // Servlet-Mvc
+				registerSmartHandlerMappingConfigurer(metadata, attrs, registry, WebMvcSmartHandlerMappingConfigurer.class,
 						beanNameGenerator);
 			}
 		}

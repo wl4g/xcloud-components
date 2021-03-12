@@ -39,18 +39,15 @@ public class DependenciesJarsRuntimeChecker implements InitializingBean {
 			throw new InvalidDependsSpecificationException(
 					"Incompatible version dependency errors, requiring: validation-api-2.x and hibernate-validate-6.x, because which may result in runtime unknown errors");
 		}
-
 	}
 
 	@Configuration
-	@ConditionalOnProperty(value = "spring.cloud.devops.kit.runtime.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(value = "spring.xcloud.component.kit.runtime.depend-checker.enabled", matchIfMissing = true)
 	public static class DependencyJarRuntimeCheckerAutoConfiguration {
-
 		@Bean
 		public DependenciesJarsRuntimeChecker dependencyJarRuntimeChecker() {
 			return new DependenciesJarsRuntimeChecker();
 		}
-
 	}
 
 }

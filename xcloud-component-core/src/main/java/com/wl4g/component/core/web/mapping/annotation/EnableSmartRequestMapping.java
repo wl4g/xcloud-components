@@ -21,6 +21,7 @@ package com.wl4g.component.core.web.mapping.annotation;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -32,8 +33,6 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Indexed;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
 
 import com.google.common.base.Predicate;
 
@@ -93,7 +92,7 @@ public @interface EnableSmartRequestMapping {
 
 	/**
 	 * When the same handler mapping appears, whether to enable overlay in bean
-	 * order or not. Default: false
+	 * order or not.
 	 * 
 	 * @return
 	 */

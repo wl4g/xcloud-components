@@ -15,6 +15,30 @@
  */
 package com.wl4g.component.rpc.feign.core.annotation;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.lang.ClassUtils2.isPresent;
+import static com.wl4g.component.common.lang.TypeConverts.parseLongOrNull;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers.BASE_PACKAGES;
+import static com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers.BASE_PACKAGE_CLASSES;
+import static com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers.DEFAULT_CONFIGURATION;
+import static com.wl4g.component.rpc.feign.core.constant.FeignConsumerConstant.KEY_CONFIG_ENABLE;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.endsWithAny;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.StringUtils.hasText;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
@@ -44,28 +68,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.wl4g.component.common.log.SmartLogger;
-
-import static com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers.*;
-import static com.wl4g.component.rpc.feign.core.constant.FeignConsumerConstant.KEY_CONFIG_ENABLE;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.endsWithAny;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.StringUtils.hasText;
-import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
-import static com.wl4g.component.common.lang.ClassUtils2.isPresent;
-import static com.wl4g.component.common.lang.TypeConverts.parseLongOrNull;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import javax.annotation.Nullable;
 
 /**
  * {@link FeignConsumersRegistrar}
@@ -106,7 +108,7 @@ class FeignConsumersRegistrar implements ImportBeanDefinitionRegistrar, Resource
 			final Class<?>[] clients = isNull(attrs) ? null : attrs.getClassArray("clients");
 			if (isEmptyArray(clients)) {
 				/**
-				 * Notes：这里需手动合并，因为当@EnableSpringBootFeignClients引用了@EnableFeignClients时，
+				 * Notes：这里需手动合并，因为当@EnableFeignConsumers引用了@EnableFeignClients时，
 				 * 且没有依赖spring-cloud-openfeign包时，就不能合并属性值？
 				 * 如，配了value就只能获取value的值，而无法获取被@AliasFor的basePackages的值，稳妥起见手动合并。
 				 */

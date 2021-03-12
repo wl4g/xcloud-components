@@ -48,6 +48,7 @@ import javax.annotation.Nullable;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxRegistrations;
@@ -63,6 +64,7 @@ import org.springframework.web.reactive.result.method.AbstractHandlerMethodMappi
 import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import com.google.common.base.Predicate;
 import com.wl4g.component.common.collection.CollectionUtils2;
@@ -82,6 +84,7 @@ import reactor.core.publisher.Mono;
  * @see
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+@ConditionalOnClass(RequestMappingHandlerMapping.class)
 @AutoConfigureAfter(WebFluxAutoConfiguration.class)
 public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistrations {
 	protected final SmartLogger log = getLogger(getClass());

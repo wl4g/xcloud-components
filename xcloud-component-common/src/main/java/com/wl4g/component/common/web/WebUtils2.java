@@ -15,6 +15,36 @@
  */
 package com.wl4g.component.common.web;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
+import static com.wl4g.component.common.lang.Assert2.hasTextOf;
+import static com.wl4g.component.common.lang.Assert2.notNull;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.lang.StringUtils2.isDomain;
+import static com.wl4g.component.common.web.UserAgentUtils.isBrowser;
+import static java.lang.String.format;
+import static java.lang.System.getenv;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
+import static java.util.Locale.US;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.containsAny;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isAnyBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.replaceIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -32,14 +62,7 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.function.Predicate;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
-import static java.util.Locale.*;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toMap;
-
+import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -49,38 +72,17 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omg.CORBA.ServerRequest;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
-import javax.annotation.Nullable;
 import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.component.common.collection.multimap.MultiValueMap;
 import com.wl4g.component.common.jvm.JvmRuntimeKit;
 import com.wl4g.component.common.lang.Assert2;
 import com.wl4g.component.common.lang.StringUtils2;
-
-import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
-import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
-import static com.wl4g.component.common.lang.Assert2.*;
-import static com.wl4g.component.common.lang.StringUtils2.isDomain;
-import static com.wl4g.component.common.web.UserAgentUtils.*;
-import static java.lang.String.format;
-import static java.lang.System.getenv;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.contains;
-import static org.apache.commons.lang3.StringUtils.containsAny;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isAnyBlank;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.join;
-import static org.apache.commons.lang3.StringUtils.replaceIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.split;
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * Generic Web utilitys.
@@ -982,14 +984,19 @@ public abstract class WebUtils2 {
 		if (JvmRuntimeKit.isJVMDebugging) {
 			return true;
 		}
-		String _stacktraceVal = request.getParameter(PARAM_STACKTRACE);
-		if (isBlank(_stacktraceVal) && request instanceof HttpServletRequest) {
-			_stacktraceVal = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
+		String stacktrace = request.getParameter(PARAM_STACKTRACE);
+		if (request instanceof HttpServletRequest) {
+			if (isBlank(stacktrace)) {
+				stacktrace = ((HttpServletRequest) request).getHeader(PARAM_STACKTRACE);
+			}
+			if (isBlank(stacktrace)) {
+				stacktrace = CookieUtils.getCookie((HttpServletRequest) request, PARAM_STACKTRACE);
+			}
 		}
-		if (isBlank(_stacktraceVal)) {
+		if (isBlank(stacktrace)) {
 			return false;
 		}
-		return isTrue(_stacktraceVal.toLowerCase(US), false);
+		return isTrue(stacktrace.toLowerCase(US), false);
 	}
 
 	/**
@@ -1290,7 +1297,7 @@ public abstract class WebUtils2 {
 	/**
 	 * Controlling enabled unified exception handling stacktrace information.
 	 */
-	public static final String PARAM_STACKTRACE = getenv().getOrDefault("xcloud.error.stacktrace.param", "_stacktrace");
+	public static final String PARAM_STACKTRACE = getenv().getOrDefault("spring.xcloud.error.stacktrace.name", "X-Stacktrace");
 
 	private static final Predicate<String> defaultStringAnyFilter = name -> true;
 

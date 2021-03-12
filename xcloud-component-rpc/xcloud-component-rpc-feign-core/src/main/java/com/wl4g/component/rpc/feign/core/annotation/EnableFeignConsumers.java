@@ -15,20 +15,21 @@
  */
 package com.wl4g.component.rpc.feign.core.annotation;
 
-import org.springframework.context.annotation.Import;
-import org.springframework.core.annotation.AliasFor;
-
-import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
 import static com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping.PACKAGE_PATTERNS;
-
-import feign.Logger;
-import feign.Retryer;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.AliasFor;
+
+import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
+
+import feign.Logger;
+import feign.Retryer;
 
 /**
  * {@link EnableFeignConsumers}
@@ -41,10 +42,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-// 排除被@SpringBootFeignClient包含的接口,如:service(facade)层启动，需注入的是data(dao)层的feign实例这个场景(而不需要创建service接口的feign实例).
+// 排除@FeignConsumer的接口,如:facade层启动需注入的是data层feign实例这个场景(不需要创建facade层接口的feign实例).
 @EnableSmartRequestMapping(packagePatternsUseForInclude = false)
-@Import({ FeignConsumerConfigurerRegistrar.class, FeignConsumersRegistrar.class,
-		BridgeSpringCloudFeignClientsRegistrar.class })
+@Import({ FeignConsumerConfigurerRegistrar.class, FeignConsumersRegistrar.class, BridgeSpringCloudFeignClientsRegistrar.class })
 public @interface EnableFeignConsumers {
 
 	@AliasFor(annotation = EnableSmartRequestMapping.class, attribute = PACKAGE_PATTERNS)
