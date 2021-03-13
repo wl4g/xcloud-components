@@ -7,7 +7,6 @@ from the bloated `SpringCloud` architecture to the `SpringBoot` + [istio](https:
 ---
 
 
-
 Write [Feign](https://github.com/OpenFeign/feign) client with `annotation`, like this:
 
 
@@ -114,11 +113,13 @@ The purpose is to be compatible with the migration from `Spring Cloud + Feign` t
 ```yaml
 spring:
   xcloud:
-    feign:
-      default-url: https://api.github.com
-      default-log-level: BASIC # NONE|BASIC|HEADERS|FULL
-      client-provider: okhttp3 # http2Client|okhttp3, Default: okhttp3
-      max-idle-connections: 520
-      connect-timeout: 11000
-      read-timeout: 12000
+    rpc:
+      feign:
+        core:
+          default-url: https://api.github.com
+          default-log-level: BASIC # NONE|BASIC|HEADERS|FULL
+          client-provider: okhttp3 # http2Client|okhttp3, Default: okhttp3
+          max-idle-connections: 520
+          connect-timeout: 11000
+          read-timeout: 12000
 ```

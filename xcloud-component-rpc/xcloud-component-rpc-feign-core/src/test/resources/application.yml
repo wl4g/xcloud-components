@@ -8,20 +8,24 @@
 # limitations under the License.
 #
 
-# #### Environment(SpringBoot rpc feign core) configuration. ####
+# #### Environment configuration. ####
 #
 spring:
   xcloud:
     component:
-      rpc:
-        feign:
-          default-url: https://api.github.com
-          default-log-level: BASIC # NONE|BASIC|HEADERS|FULL
-          client-provider: okhttp3 # http2Client|okhttp3, default to okhttp3
-          max-idle-connections: 520
-          connect-timeout: 11000
-          read-timeout: 12000
-
-github.api:
-  url: https://api.github.com
-  user-path: /users
+      framework:
+        default-boot-configurer:
+          enabled: false
+        naming-prototype-factory:
+          enabled: false
+        generic-operator:
+          enabled: false
+        smart-proxy:
+          enabled: false
+      web:
+        embedded-webapps:
+          enabled: false
+        human-date-converter:
+          enabled: false
+        global-error:
+          enabled: false

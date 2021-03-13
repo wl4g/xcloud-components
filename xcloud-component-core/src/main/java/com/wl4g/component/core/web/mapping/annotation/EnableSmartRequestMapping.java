@@ -28,6 +28,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxRegistrations;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Controller;
@@ -35,9 +37,23 @@ import org.springframework.stereotype.Indexed;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.google.common.base.Predicate;
+import com.wl4g.component.core.web.mapping.annotation.WebFluxSmartHandlerMappingConfigurer.ReactiveHandlerMappingSupport;
+import com.wl4g.component.core.web.mapping.annotation.WebFluxSmartHandlerMappingConfigurer.SmartReactiveHandlerMapping;
+import com.wl4g.component.core.web.mapping.annotation.WebMvcSmartHandlerMappingConfigurer.ServletHandlerMappingSupport;
+import com.wl4g.component.core.web.mapping.annotation.WebMvcSmartHandlerMappingConfigurer.SmartServletHandlerMapping;
 
 /**
- * {@link EnableSmartHandlerMappingConfiguration}
+ * The intelligent request (mvc/webflux) mapping processing component enhances
+ * the following functions: Implement the interface of
+ * {@link WebMvcRegistrations} and {@link WebFluxRegistrations}, unify the
+ * request mapping handler. </br>
+ * support: </br>
+ * A. allow the same mapping handler to register according to priority,
+ * reference: {@link SmartServletHandlerMapping#doRegisterMapping} and
+ * {@link SmartReactiveHandlerMapping#doRegisterMapping}; </br>
+ * B. control the judgment condition of handler,reference:
+ * {@link ServletHandlerMappingSupport#isHandler} and
+ * {@link ReactiveHandlerMappingSupport#isHandler}; </br>
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-17

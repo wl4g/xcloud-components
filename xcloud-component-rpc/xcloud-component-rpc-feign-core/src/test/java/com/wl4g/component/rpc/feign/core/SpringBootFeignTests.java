@@ -15,13 +15,9 @@
  */
 package com.wl4g.component.rpc.feign.core;
 
-import com.google.gson.Gson;
-import com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration;
-import com.wl4g.component.rpc.feign.core.GithubService1.GitHubContributor;
-import com.wl4g.component.rpc.feign.core.SpringBootFeignTests.SampleRetryer;
-import com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-import feign.Retryer;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,16 +29,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import com.google.gson.Gson;
+import com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration;
+import com.wl4g.component.rpc.feign.core.GithubService1.GitHubContributor;
+import com.wl4g.component.rpc.feign.core.SpringBootFeignTests.SampleRetryer;
+import com.wl4g.component.rpc.feign.core.annotation.EnableFeignConsumers;
+import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration;
 
-import java.util.List;
+import feign.Retryer;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test1")
 @SpringBootTest(classes = SpringBootFeignTests.class)
-@EnableAutoConfiguration(exclude = { DefaultBootstrapAutoConfiguration.class })
-@EnableFeignConsumers(basePackages = "com.wl4g.component.rpc.springboot.feign", defaultConfiguration = {
-		SampleRetryer.class })
+@EnableAutoConfiguration(exclude = { DefaultBootstrapAutoConfiguration.class, JedisClientAutoConfiguration.class })
+@EnableFeignConsumers(basePackages = "com.wl4g.component.rpc.feign.core", defaultConfiguration = { SampleRetryer.class })
 public class SpringBootFeignTests {
 
 	private Logger log = LoggerFactory.getLogger(SpringBootFeignTests.class);
@@ -58,7 +58,7 @@ public class SpringBootFeignTests {
 
 	@Test
 	public void test1() {
-		List<GitHubContributor> contributors = githubService1.getContributors("wl4g", "xcloud-components");
+		List<GitHubContributor> contributors = githubService1.getContributors("wl4g", "xcloud-component");
 		log.info(">>> Result:");
 		log.info("contributors={}", new Gson().toJson(contributors));
 	}
