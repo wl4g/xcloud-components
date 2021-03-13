@@ -24,10 +24,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/actuator/**").permitAll()
 			.anyRequest()
 			.authenticated().and().httpBasic();
+
 		// Fix the error "X-Frame-Options: deny" when embedded by Devops pages.
-		http.headers()
-	    .frameOptions().sameOrigin()
-	    .httpStrictTransportSecurity().disable();
+		http.headers().disable();
+		// http.headers()
+		//.frameOptions().sameOrigin()
+		// .httpStrictTransportSecurity().disable();
 	}
 
 }
