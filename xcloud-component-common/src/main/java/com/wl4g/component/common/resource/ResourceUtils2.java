@@ -78,7 +78,7 @@ import com.wl4g.component.common.lang.ClassUtils2;
  * @see org.ClassPathStreamResource.core.io.ClassPathResource
  * @see org.FileStreamResource.core.io.FileSystemResource
  * @see org.UrlStreamResource.core.io.UrlResource
- * @see com.wl4g.devops.tool.common.resources.resolver.springframework.core.io.ResourceLoader
+ * @see com.wl4g.component.common.resource.ResourceLoader
  */
 public abstract class ResourceUtils2 {
 

@@ -23,7 +23,7 @@ import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToL
 import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
-import static com.wl4g.component.common.web.WebUtils2.checkRequestErrorStacktrace;
+import static com.wl4g.component.common.web.WebUtils2.isStacktraceRequest;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletRequest;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletResponse;
 import static java.util.Objects.nonNull;
@@ -113,8 +113,8 @@ public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor
 
 	protected void customPreRequestHandle(HttpServletRequest request, @NotNull Object target, @NotNull Method method,
 			Object[] parameters) {
-		// Extract stacktrace parameter.
-		if (checkRequestErrorStacktrace(request)) {
+		// Check stacktrace request.
+		if (isStacktraceRequest(request)) {
 			RpcContextHolder.get().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
 		}
 	}

@@ -18,7 +18,7 @@ package com.wl4g.component.core.web.error.servlet;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.common.web.WebUtils2.checkRequestErrorStacktrace;
+import static com.wl4g.component.common.web.WebUtils2.isStacktraceRequest;
 import static com.wl4g.component.common.web.WebUtils2.write;
 import static com.wl4g.component.common.web.WebUtils2.writeJson;
 import static com.wl4g.component.core.web.error.ErrorConfigurer.obtainErrorAttributeOptions;
@@ -163,7 +163,7 @@ public class ServletSmartErrorHandler extends AbstractErrorController {
 		if (log.isDebugEnabled()) {
 			return true;
 		}
-		return checkRequestErrorStacktrace(request);
+		return isStacktraceRequest(request);
 	}
 
 	private static final String DEFAULT_ERROR_PATH = "/error";

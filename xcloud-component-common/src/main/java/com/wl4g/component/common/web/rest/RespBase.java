@@ -846,7 +846,7 @@ public class RespBase<D> implements Serializable {
 		 * 
 		 * @see {@link com.wl4g.component.common.web.rest.RespBase#globalErrPrefix()}
 		 */
-		private static String errorPrompt = getProperty("spring.cloud.devops.global.respbase.error-prompt", "API");
+		private static String errorPrompt = getProperty("spring.xcloud.component.resp-base.error-prompt", "API");
 
 		/**
 		 * Building error message with prefix.
@@ -894,7 +894,7 @@ public class RespBase<D> implements Serializable {
 	 * e.g.:</font>
 	 * 
 	 * <pre>
-	 *JsonMappingException: No serializer found for class java.lang.Object and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) (through reference chain: com.wl4g.devops.common.web.RespBase["data"])
+	 *JsonMappingException: No serializer found for class java.lang.Object and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) (through reference chain: com.wl4g.component.common.web.rest.RespBase["data"])
 	 * </pre>
 	 */
 	public static final Object DEFAULT_DATA = emptyMap();

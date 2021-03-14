@@ -47,7 +47,7 @@ import com.wl4g.component.common.resource.StreamResource;
  *
  * <p>
  * This is an extension to the
- * {@link com.wl4g.devops.tool.common.resources.resolver.springframework.core.io.ResourceLoader}
+ * {@link com.wl4g.component.common.resource.resovler.ResourceLoader}
  * interface. A passed-in ResourceLoader (for example, an
  * {@link org.springframework.context.ApplicationContext} passed in via
  * {@link org.springframework.context.ResourceLoaderAware} when running in a
@@ -74,7 +74,7 @@ import com.wl4g.component.common.resource.StreamResource;
  * @author Juergen Hoeller
  * @since 1.0.2
  * @see org.StreamResource.core.io.Resource
- * @see com.wl4g.devops.tool.common.resources.resolver.springframework.core.io.ResourceLoader
+ * @see com.wl4g.component.common.resource.resovler.ResourceLoader
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
  */
@@ -86,7 +86,7 @@ public interface ResourcePatternResolver extends ResourceLoader {
 	 * that it retrieves all matching resources for a given name (e.g.
 	 * "/beans.xml"), for example in the root of all deployed JAR files.
 	 * 
-	 * @see com.wl4g.devops.tool.common.resources.resolver.springframework.core.io.ResourceLoader#CLASSPATH_URL_PREFIX
+	 * @see com.wl4g.component.common.resource.ResourceLoader#CLASSPATH_URL_PREFIX
 	 */
 	String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 

@@ -328,8 +328,8 @@ public class DefaultLauncherConfigurerApplicationListener implements GenericAppl
 	// Spring boot config end comm clear.
 	private static final Function<String, String> defaultSafeCommClear = value -> join(split(trimToEmpty(value), ","), ",");
 	private static final String DEFAULT_LAUNCHER_CLASSNAME = "classpath*:/META-INF/spring-launcher.groovy";
-	private static final String PROPERTY_DISABLE = "spring-launcher-configurer.disable";
-	private static final String PROPERTY_DEBUG = "spring-launcher-configurer.debug";
+	private static final String PROPERTY_DISABLE = "spring.launcher.configurer.disable";
+	private static final String PROPERTY_DEBUG = "spring.launcher.configurer.debug";
 	private static final List<String> DEFAULT_PROPERTIES_MERGE_KEYS = asList(ACTIVE_PROFILES_PROPERTY, INCLUDE_PROFILES_PROPERTY,
 			CONFIG_NAME_PROPERTY, CONFIG_ADDITIONAL_LOCATION_PROPERTY, CONFIG_LOCATION_PROPERTY);
 

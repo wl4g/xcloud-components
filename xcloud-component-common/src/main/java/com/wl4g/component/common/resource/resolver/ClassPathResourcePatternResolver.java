@@ -284,7 +284,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 	 * Set the PathMatcher implementation to use for this resource pattern
 	 * resolver. Default is AntPathMatcher.
 	 * 
-	 * @see com.wl4g.devops.tool.common.resources.match.springframework.util.AntPathMatcher
+	 * @see com.wl4g.component.common.matching.AntPathMatcher
 	 */
 	public void setPathMatcher(PathMatcher pathMatcher) {
 		Assert2.notNull(pathMatcher, "PathMatcher must not be null");
@@ -555,7 +555,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 	 *             in case of I/O errors
 	 * @see #doFindPathMatchingJarResources
 	 * @see #doFindPathMatchingFileResources
-	 * @see com.wl4g.devops.tool.common.resources.match.springframework.util.PathMatcher
+	 * @see com.wl4g.component.common.matching.PathMatcher
 	 */
 	protected Set<StreamResource> findPathMatchingResources(String locationPattern) throws IOException {
 		String rootDirPath = determineRootDir(locationPattern);
@@ -645,7 +645,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 	 *            the resource handle to check (usually the root directory to
 	 *            start path matching from)
 	 * @see #doFindPathMatchingJarResources
-	 * @see com.wl4g.devops.tool.common.resource.resolver.ResourceUtils2.util.ResourceUtils#isJarURL
+	 * @see com.wl4g.component.common.resource.ResourceUtils2#isJarURL
 	 */
 	protected boolean isJarResource(StreamResource resource) throws IOException {
 		return false;
@@ -666,7 +666,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 	 *             in case of I/O errors
 	 * @since 4.3
 	 * @see java.net.JarURLConnection
-	 * @see com.wl4g.devops.tool.common.resources.match.springframework.util.PathMatcher
+	 * @see com.wl4g.component.common.matching.PathMatcher
 	 */
 	protected Set<StreamResource> doFindPathMatchingJarResources(StreamResource rootDirResource, URL rootDirURL,
 			String subPattern) throws IOException {
@@ -806,7 +806,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 	 * @throws IOException
 	 *             in case of I/O errors
 	 * @see #retrieveMatchingFiles
-	 * @see com.wl4g.devops.tool.common.resources.match.springframework.util.PathMatcher
+	 * @see com.wl4g.component.common.matching.PathMatcher
 	 */
 	protected Set<StreamResource> doFindPathMatchingFileResources(StreamResource rootDirResource, String subPattern)
 			throws IOException {
@@ -835,7 +835,7 @@ public class ClassPathResourcePatternResolver implements ResourcePatternResolver
 	 * @throws IOException
 	 *             in case of I/O errors
 	 * @see #retrieveMatchingFiles
-	 * @see com.wl4g.devops.tool.common.resources.match.springframework.util.PathMatcher
+	 * @see com.wl4g.component.common.matching.PathMatcher
 	 */
 	protected Set<StreamResource> doFindMatchingFileSystemResources(File rootDir, String subPattern) throws IOException {
 		if (log.isDebugEnabled()) {

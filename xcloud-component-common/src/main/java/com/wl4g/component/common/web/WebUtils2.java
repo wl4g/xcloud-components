@@ -980,7 +980,10 @@ public abstract class WebUtils2 {
 	 * @return
 	 */
 	@Beta
-	public static boolean checkRequestErrorStacktrace(ServletRequest request) {
+	public static boolean isStacktraceRequest(@Nullable ServletRequest request) {
+		if (isNull(request)) {
+			return false;
+		}
 		if (JvmRuntimeKit.isJVMDebugging) {
 			return true;
 		}
@@ -1297,7 +1300,8 @@ public abstract class WebUtils2 {
 	/**
 	 * Controlling enabled unified exception handling stacktrace information.
 	 */
-	public static final String PARAM_STACKTRACE = getenv().getOrDefault("spring.xcloud.error.stacktrace.name", "x-stacktrace");
+	public static final String PARAM_STACKTRACE = getenv().getOrDefault("XCLOUD_COMPONENT_REQUEST_STACKTRACE_PARAM",
+			"x-stacktrace");
 
 	private static final Predicate<String> defaultStringAnyFilter = name -> true;
 

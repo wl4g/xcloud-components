@@ -28,13 +28,9 @@ eureka:
     registerWithEureka: false # Default by true, register self to other eureka
     fetchRegistry: false # Default by true
     serviceUrl:
-      #defaultZone: "\
-      #  http://eureka:wl4g.com@peer1:9001/eureka/,\
-      #  http://eureka:wl4g.com@peer2:9002/eureka/,\
-      #  http://eureka:wl4g.com@peer3:9003/eureka/"
       defaultZone: "\
-        http://eureka:wl4g.com@n1.devops.wl4gsafecloudcs.com:9001/eureka/,\
-        http://eureka:wl4g.com@n1.devops.wl4gsafecloudcs.com:9002/eureka/,\
-        http://eureka:wl4g.com@n1.devops.wl4gsafecloudcs.com:9003/eureka/"
+        http://eureka:wl4g.com@n1.eureka.wl4g.com:9001/eureka/,\
+        http://eureka:wl4g.com@n2.eureka.wl4g.com:9002/eureka/,\
+        http://eureka:wl4g.com@n3.eureka.wl4g.com:9003/eureka/"
     healthcheck:
       enabled: false

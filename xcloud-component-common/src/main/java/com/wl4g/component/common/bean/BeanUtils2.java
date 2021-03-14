@@ -216,7 +216,7 @@ public abstract class BeanUtils2 {
 
 	/**
 	 * Default field filter of {@link FieldFilter}.
-	 * @see:{@link com.wl4g.devops.common.utils.reflect.ReflectionUtils2#isGenericAccessibleModifier(int)}
+	 * @see:{@link com.wl4g.component.common.reflect.ReflectionUtils2#isGenericAccessibleModifier(int)}
 	 */
 	final public static FieldFilter DEFAULT_FIELD_FILTER = targetField -> isGenericModifier(targetField.getModifiers());
 

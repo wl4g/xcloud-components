@@ -281,6 +281,6 @@ public class NotificationAutoConfiguration {
 
 	final public static String BEAN_NOTIFIER_ADAPTER = "compositeMessageNotifierAdapter";
 
-	final public static String KEY_NOTIFY_PREFIX = "spring.cloud.devops.support.notification";
+	final public static String KEY_NOTIFY_PREFIX = "spring.xcloud.component.support.notification";
 
 }

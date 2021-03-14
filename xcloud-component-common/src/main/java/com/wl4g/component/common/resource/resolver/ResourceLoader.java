@@ -44,7 +44,7 @@ import com.wl4g.component.common.resource.StreamResource;
  * Strategy interface for loading resources (e.. class path or file system
  * resources). An {@link org.springframework.context.ApplicationContext} is
  * required to provide this functionality, plus extended
- * {@link com.wl4g.devops.tool.common.resources.resovler.springframework.core.io.support.ResourcePatternResolver}
+ * {@link com.wl4g.component.common.resource.resovler.ResourcePatternResolver}
  * support.
  *
  * <p>
@@ -59,7 +59,7 @@ import com.wl4g.component.common.resource.StreamResource;
  * @author Juergen Hoeller
  * @since 10.03.2004
  * @see StreamResource
- * @see com.wl4g.devops.tool.common.resources.resovler.springframework.core.io.support.ResourcePatternResolver
+ * @see com.wl4g.component.common.resource.resolver.ResourcePatternResolver
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
  */

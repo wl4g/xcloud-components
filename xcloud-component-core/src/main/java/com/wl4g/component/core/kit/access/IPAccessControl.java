@@ -664,7 +664,7 @@ public class IPAccessControl {
 
 		/**
 		 * Useless values that did not resolve successfully through environment
-		 * variables. e.g. spring.cloud.devops.iam.acl.denyIpRange:
+		 * variables. e.g. spring.xcloud.iam.acl.denyIpRange:
 		 * ${DEVOPS_IAM_ACL_DENY}
 		 * 
 		 * @param range

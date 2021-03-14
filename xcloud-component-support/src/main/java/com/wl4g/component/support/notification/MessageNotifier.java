@@ -136,7 +136,7 @@ public interface MessageNotifier extends Operator<NotifierKind> {
 		 * when all other message notifiers are not available solves the spring
 		 * bean injection problem.
 		 * 
-		 * @see {@link com.wl4g.devops.support.notification.NoOpMessageNotifier}
+		 * @see {@link com.wl4g.component.support.notification.NoOpMessageNotifier}
 		 */
 		NoOp,
 

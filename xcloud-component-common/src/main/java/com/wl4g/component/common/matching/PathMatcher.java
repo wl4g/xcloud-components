@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * <p>
  * Used by
- * {@link com.wl4g.devops.tool.common.ClassPathResourcePatternResolver.PatternMatchingResourceResolver.springframework.core.io.support.PathMatchingResourcePatternResolver},
+ * {@link com.wl4g.component.common.resource.resolver.ClassPathResourcePatternResolver.PatternMatchingResourceResolver.springframework.core.io.support.PathMatchingResourcePatternResolver},
  * {@link org.springframework.web.servlet.handler.AbstractUrlHandlerMapping},
  * {@link org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver},
  * and {@link org.springframework.web.servlet.mvc.WebContentInterceptor}.
