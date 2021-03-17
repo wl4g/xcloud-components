@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.core.bean.model;
+package com.wl4g.component.core.page;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
@@ -51,7 +51,7 @@ import lombok.Setter;
  * @since
  * @see https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/Interceptor.md
  */
-@ApiModel("Pagination records info")
+@ApiModel("Pagination information")
 @Getter
 @Setter
 public class PageHolder<E> implements Serializable {
@@ -201,7 +201,7 @@ public class PageHolder<E> implements Serializable {
 
 	// --- Current page function methods. ---
 
-	public PageHolder<E> count() {
+	public PageHolder<E> useCount() {
 		getPage().setCount(true);
 		return this;
 	}
@@ -222,8 +222,8 @@ public class PageHolder<E> implements Serializable {
 	/**
 	 * Sets page in current Rpc context.
 	 */
-	public PageHolder<E> startPage() {
-		startPage(this);
+	public PageHolder<E> bindPage() {
+		bindPage(this);
 		return this;
 	}
 
@@ -232,11 +232,11 @@ public class PageHolder<E> implements Serializable {
 	 * 
 	 * @param holder
 	 */
-	public static void startPage(@Nullable PageHolder<?> holder) {
+	public static void bindPage(@Nullable PageHolder<?> holder) {
 		Page<?> page = isNull(holder) ? null : holder.getPage();
-		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed?
+		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
 			RpcContextHolderBridges.invokeSet(CURRENT_PAGE_KEY, page);
-		} else { // fallback, use local
+		} else { // Standalone
 			standaloneCurrentPage.set(page);
 		}
 	}
@@ -248,14 +248,21 @@ public class PageHolder<E> implements Serializable {
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
-	public static final <T> PageHolder<T> current() {
+	public static <T> PageHolder<T> current() {
 		Page<T> page = null;
-		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed?
+		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
 			page = (Page<T>) RpcContextHolderBridges.invokeGet(CURRENT_PAGE_KEY, Page.class);
-		} else { // fallback, use local
+		} else { // Standalone
 			page = (Page<T>) standaloneCurrentPage.get();
 		}
 		return nonNull(page) ? new PageHolder<>(page) : null;
+	}
+
+	/**
+	 * Release cleanup current {@link Page} of 'standalone' mode.
+	 */
+	public static void release() {
+		standaloneCurrentPage.remove();
 	}
 
 	/**
@@ -551,6 +558,7 @@ public class PageHolder<E> implements Serializable {
 	 * Cluster mode current page key.
 	 */
 	private static transient final String CURRENT_PAGE_KEY = "currentPage";
+
 	/**
 	 * Standalone mode current page.
 	 */

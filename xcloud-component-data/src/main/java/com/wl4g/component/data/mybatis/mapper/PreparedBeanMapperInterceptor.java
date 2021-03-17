@@ -41,7 +41,7 @@ import com.github.pagehelper.SqlUtil;
 import com.wl4g.component.common.bridge.RpcContextIamSecurityBridges;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.bean.BaseBean;
-import com.wl4g.component.core.bean.model.PageHolder;
+import com.wl4g.component.core.page.PageHolder;
 
 /**
  * General {@link BaseBean} property functions handle interceptors in a unified
@@ -171,7 +171,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 			// Obtain page from Rpc context.
 			PageHolder<?> holder = PageHolder.current();
 			if (nonNull(holder)) {
-				log.debug("Start current pagination of: {}", holder);
+				log.debug("Begin current pagination of: {}", holder);
 				PageHelper.startPage(holder.getPageNum(), holder.getPageSize(), holder.getPage().isCount());
 			}
 		}
@@ -243,7 +243,8 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 			PageHolder<?> holder = PageHolder.current();
 			if (nonNull(holder)) {
 				BeanUtils.copyProperties(helperPage, holder.getPage());
-				PageHolder.startPage(holder);
+				PageHolder.bindPage(holder); // rebind(update)
+				log.debug("End current pagination of: {}", holder);
 			}
 		}
 		return result;

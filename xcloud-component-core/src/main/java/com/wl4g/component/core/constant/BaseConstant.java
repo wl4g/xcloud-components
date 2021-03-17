@@ -43,11 +43,6 @@ public abstract class BaseConstant {
 	/** OS environment map cache. */
 	public static final Map<String, String> ENV = Collections.unmodifiableMap(System.getenv());
 
-	/**
-	 * Controlling Spring-enabled Unified Exception Handling Stack Information
-	 */
-	public static final String PARAM_STACK_TRACE = ENV.getOrDefault("spring.error.stack.trace", "_stacktrace");
-
 	public static String getStringProperty(@NotNull String key, @Nullable String defaultValue) {
 		return getProperty(key, defaultValue);
 	}

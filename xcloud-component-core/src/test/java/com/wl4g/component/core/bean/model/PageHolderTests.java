@@ -20,7 +20,7 @@ import static java.lang.System.out;
 import org.junit.Test;
 
 import com.github.pagehelper.Page;
-import com.wl4g.component.core.bean.model.PageHolder;
+import com.wl4g.component.core.page.PageHolder;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
