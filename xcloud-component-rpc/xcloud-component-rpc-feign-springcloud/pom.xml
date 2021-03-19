@@ -123,12 +123,12 @@
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-			<scope>provided</scope> <!-- Auto adapt by class -->
+			<optional>true</optional><!-- Auto adapt by class -->
 		</dependency>
 		<dependency>
 			<groupId>io.github.resilience4j</groupId>
 			<artifactId>resilience4j-spring-boot2</artifactId>
-			<scope>compile</scope> <!-- Auto adapt by class -->
+			<optional>true</optional><!-- Auto adapt by class -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

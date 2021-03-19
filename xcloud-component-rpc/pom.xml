@@ -56,14 +56,14 @@
 		<version>master</version>
 	</parent>
 	<modules>
-		<module>xcloud-component-rpc-codec</module>
-		<module>xcloud-component-rpc-feign-shared</module>
+		<module>xcloud-component-rpc-feign-common</module>
 		<module>xcloud-component-rpc-feign-core</module>
 		<module>xcloud-component-rpc-feign-istio</module>
 		<module>xcloud-component-rpc-feign-springcloud</module>
 		<module>xcloud-component-rpc-feign-springcloud-dubbo</module>
 		<module>xcloud-component-rpc-springcloud-eureka-server</module>
 		<module>xcloud-component-rpc-springcloud-hystrix-turbine-server</module>
+		<module>xcloud-component-rpc-example</module>
 		<!--<module>xcloud-component-rpc-springcloud-nacos</module> -->
 		<!--<module>xcloud-component-rpc-springcloud-consul</module> -->
 		<!--<module>xcloud-component-rpc-springcloud-zookeeper</module> -->
@@ -86,7 +86,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
+				<filtering>false</filtering>
 				<includes>
 					<include>**.*</include>
 				</includes>

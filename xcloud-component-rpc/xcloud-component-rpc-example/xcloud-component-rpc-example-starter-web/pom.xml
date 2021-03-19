@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-rpc-feign-core</artifactId>
-	<packaging>jar</packaging>
-	<name>XCloud Component RPC SpringBoot Feign Integration</name>
+	<artifactId>xcloud-component-rpc-example-starter-web</artifactId>
+	<packaging>pom</packaging>
+	<name>XCloud Component RPC</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component RPC Framework based on integrating springboot + feign.</description>
+	<description>A XCloud Component RPC Examples Starter Web.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -52,24 +52,18 @@
 	</developers>
 	<parent>
 		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-component-rpc</artifactId>
+		<artifactId>xcloud-component-rpc-example</artifactId>
 		<version>master</version>
 	</parent>
+	<modules>
+		<module>xcloud-component-rpc-example-interface</module><!-- Rpc example for service interface -->
+		<module>xcloud-component-rpc-example-starter-service</module><!-- Rpc example for service starter -->
+		<module>xcloud-component-rpc-example-starter-web</module><!-- Rpc example for web starter -->
+	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-bom</artifactId>
-				<version>${project.parent.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>com.wl4g</groupId>
@@ -77,82 +71,17 @@
 		</dependency>
 		<dependency>
 			<groupId>com.wl4g</groupId>
-			<artifactId>xcloud-component-support</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.wl4g</groupId>
-			<artifactId>xcloud-component-rpc-feign-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-okhttp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-java11</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-slf4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-jackson</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-gson</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<!-- for compatibility with @FeignClient -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework.cloud</groupId> -->
-		<!-- <artifactId>spring-cloud-starter-openfeign</artifactId> -->
-		<!-- <optional>true</optional> -->
-		<!-- </dependency> -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<artifactId>xcloud-component-rpc-example-interface</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
+				<filtering>false</filtering>
 				<includes>
-					<include>**</include>
+					<include>**.*</include>
 				</includes>
 			</resource>
 		</resources>

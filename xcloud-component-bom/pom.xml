@@ -186,7 +186,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-feign-shared</artifactId>
+				<artifactId>xcloud-component-rpc-feign-common</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
