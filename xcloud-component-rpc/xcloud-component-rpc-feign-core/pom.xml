@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-rpc-feign-core</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component RPC SpringBoot Feign Integration</name>
+	<name>XCloud Component RPC for SpringBoot-Feign Core</name>
 	<url>http://xcloud.wl4g.com</url>
 	<description>A XCloud Component RPC Framework based on integrating springboot + feign.</description>
 	<organization>

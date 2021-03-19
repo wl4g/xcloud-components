@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-rpc-example-interface</artifactId>
 	<packaging>pom</packaging>
-	<name>XCloud Component RPC</name>
+	<name>XCloud Component RPC Example Interface</name>
 	<url>http://xcloud.wl4g.com</url>
 	<description>A XCloud Component RPC Examples Interface.</description>
 	<organization>
@@ -55,11 +55,6 @@
 		<artifactId>xcloud-component-rpc-example</artifactId>
 		<version>master</version>
 	</parent>
-	<modules>
-		<module>xcloud-component-rpc-example-interface</module><!-- Rpc example for service interface -->
-		<module>xcloud-component-rpc-example-starter-service</module><!-- Rpc example for service starter -->
-		<module>xcloud-component-rpc-example-starter-web</module><!-- Rpc example for web starter -->
-	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
