@@ -31,13 +31,13 @@ import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnot
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.core.Ordered;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
@@ -120,15 +120,12 @@ public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor
 	}
 
 	public static boolean checkSupportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
-		if (hasAnnotation(actualOriginalTargetClass, RequestMapping.class)
-				&& hasAnnotation(actualOriginalTargetClass, ResponseBody.class)) {
-			return true;
-		} else {
-			for (Class<?> interfaceClass : safeArrayToList(actualOriginalTargetClass.getInterfaces())) {
-				if (hasAnnotation(interfaceClass, FeignConsumer.class)
-						|| (nonNull(FEIGN_CLIENT_CLASS) && hasAnnotation(interfaceClass, FEIGN_CLIENT_CLASS))) {
-					return true;
-				}
+		List<Class<?>> interfaceClasses = safeArrayToList(actualOriginalTargetClass.getInterfaces());
+		interfaceClasses.add(actualOriginalTargetClass);
+		for (Class<?> interfaceClass : interfaceClasses) {
+			if (hasAnnotation(interfaceClass, FeignConsumer.class)
+					|| (nonNull(FEIGN_CLIENT_CLASS) && hasAnnotation(interfaceClass, FEIGN_CLIENT_CLASS))) {
+				return true;
 			}
 		}
 		return false;
