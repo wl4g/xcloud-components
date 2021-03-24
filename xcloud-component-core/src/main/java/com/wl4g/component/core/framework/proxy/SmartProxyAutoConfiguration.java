@@ -15,6 +15,33 @@
  */
 package com.wl4g.component.core.framework.proxy;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
+import static com.wl4g.component.common.lang.Assert2.isTrue;
+import static com.wl4g.component.common.lang.ClassUtils2.anyTypeOf;
+import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
+import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findFieldNullable;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.getField;
+import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_SMART_PROXY;
+import static java.lang.String.format;
+import static java.lang.reflect.Modifier.isFinal;
+import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
+import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
+import static org.springframework.util.ClassUtils.CGLIB_CLASS_SEPARATOR;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -31,33 +58,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.util.ClassUtils;
 
 import com.wl4g.component.common.log.SmartLogger;
-
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
-import static org.springframework.util.ClassUtils.CGLIB_CLASS_SEPARATOR;
-
-import static java.lang.reflect.Modifier.isFinal;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
-import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
-import static com.wl4g.component.common.lang.Assert2.isTrue;
-import static com.wl4g.component.common.lang.ClassUtils2.anyTypeOf;
-import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
-import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.findFieldNullable;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.getField;
-import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_SMART_PROXY;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * Intelligent AOP enhanced proxy configurator supports proxy creation of
@@ -78,10 +78,8 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 
 	@Value("${" + KEY_SMART_PROXY + ".base-packages:}")
 	private String[] basePackages;
-
 	@Autowired
 	private DefaultListableBeanFactory beanFactory;
-
 	@Autowired(required = false)
 	private List<SmartProxyInterceptor> processors;
 
@@ -145,23 +143,37 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 				super.setNamePrefix(targetClass.getName().concat(CGLIB_CLASS_SEPARATOR).concat(proxyClass.getSimpleName()));
 			}
 		};
-		// Sets interfaces.
-		List<Class<?>> interfaces = new ArrayList<>(4);
-		if (targetClass.isInterface()) {
-			interfaces.add(targetClass);
-		} else {
-			isTrue(!isFinal(targetClass.getModifiers()),
-					() -> format("Enhance proxy target class must a interface or not final type. - %s", targetClass));
-			enhancer.setSuperclass(targetClass);
+		// Sets enhanced interfaces or superClass.
+		List<Class<?>> enhancedInterfaces = new ArrayList<>(4);
+		if (targetClass.isInterface()) { // Is interface
+			enhancedInterfaces.add(targetClass);
+		} else { // Is class
+			// [START] extension logic.(In order to enhance the class modified
+			// by final)
+			SmartProxyFor proxyFor = findAnnotation(targetClass, SmartProxyFor.class);
+			if (nonNull(proxyFor)) {
+				// Priority is given to display defined enhanced interfaces.
+				Class<?>[] interfaces = proxyFor.interfaces();
+				if (isEmptyArray(interfaces)) {
+					// Fallback, using all interfaces of the targetClass.
+					interfaces = targetClass.getInterfaces();
+				}
+				enhancedInterfaces.addAll(asList(interfaces));
+				// [END] extension logic.
+			} else { // No interfaces
+				isTrue(!isFinal(targetClass.getModifiers()),
+						() -> format("Enhance proxy target class must a interface or not final type. - %s", targetClass));
+				enhancer.setSuperclass(targetClass);
+			}
 		}
 		if (bean instanceof FactoryBean) {
-			interfaces.add(SmartFactoryBeanProxy.class);
+			enhancedInterfaces.add(SmartFactoryBeanProxy.class);
 			enhancer.setCallback(new DispatcherFactoryBeanSmartProxyInvocation(beanFactory, this, bean, beanName, targetClass));
 		} else {
-			interfaces.add(SmartProxy.class);
+			enhancedInterfaces.add(SmartProxy.class);
 			enhancer.setCallback(new DispatcherSmartProxyInvocation(beanFactory, this, beanName, targetClass, () -> bean));
 		}
-		enhancer.setInterfaces(interfaces.toArray(new Class[0]));
+		enhancer.setInterfaces(enhancedInterfaces.toArray(new Class[0]));
 
 		final Object proxy = enhancer.create();
 		log.info("Created smart proxy: '{}' of actual original target class: '{}'", proxy, targetClass);
