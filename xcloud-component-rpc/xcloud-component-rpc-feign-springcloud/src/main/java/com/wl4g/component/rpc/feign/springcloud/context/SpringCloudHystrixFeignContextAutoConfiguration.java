@@ -105,6 +105,7 @@ public class SpringCloudHystrixFeignContextAutoConfiguration {
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
+			RpcContextHolder.get().clearAttachments();
 			((SpringCloudHystrixFeignRpcContextHolder) RpcContextHolder.get()).close();
 		}
 	}

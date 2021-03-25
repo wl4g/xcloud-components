@@ -182,6 +182,11 @@ public class WebFluxSmartHandlerMappingConfigurer implements WebFluxRegistration
 		}
 
 		@Override
+		public int getOrder() {
+			return Ordered.HIGHEST_PRECEDENCE + 10;
+		}
+
+		@Override
 		public void afterPropertiesSet() {
 			super.afterPropertiesSet();
 

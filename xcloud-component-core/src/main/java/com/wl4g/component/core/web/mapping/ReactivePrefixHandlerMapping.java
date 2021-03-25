@@ -22,16 +22,16 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.BeansException;
 import org.springframework.web.reactive.result.condition.PatternsRequestCondition;
 import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
 
 import com.wl4g.component.core.web.mapping.PrefixHandlerMappingSupport.PathUtils;
-
-import javax.annotation.Nullable;
 
 /**
  * {@link ReactivePrefixHandlerMapping}
@@ -61,6 +61,11 @@ public class ReactivePrefixHandlerMapping extends RequestMappingHandlerMapping {
 		for (Object handler : handlers) {
 			detectHandlerMethods(handler);
 		}
+	}
+
+	@Override
+	protected void initApplicationContext() throws BeansException {
+		super.initApplicationContext();
 	}
 
 	@Override

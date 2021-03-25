@@ -20,6 +20,7 @@
 package com.wl4g.component.rpc.feign.core.context.interceptor;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
 import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -35,6 +36,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import com.wl4g.component.rpc.feign.core.context.RpcContextHolder;
 
 import feign.MethodMetadata;
 import feign.RequestInterceptor;
@@ -55,10 +58,11 @@ public class HeadersFeignRequestInterceptor implements RequestInterceptor {
 
 	@Override
 	public void apply(RequestTemplate template) {
-		setContentTypeIfNecessary(template);
+		saveContentTypeIfNecessary(template);
+		saveStacktraceIfNecessary(template);
 	}
 
-	private void setContentTypeIfNecessary(RequestTemplate template) {
+	private void saveContentTypeIfNecessary(RequestTemplate template) {
 		Annotation requestBody = findMethodParametersAnnotation(template.methodMetadata(), RequestBody.class);
 		if (nonNull(requestBody)) { // POST body request?
 			// Default sets application/json
@@ -88,4 +92,8 @@ public class HeadersFeignRequestInterceptor implements RequestInterceptor {
 		return null;
 	}
 
+	private void saveStacktraceIfNecessary(RequestTemplate template) {
+		// Pass 'stacktrace' parameter through to the next service
+		template.header(PARAM_STACKTRACE, RpcContextHolder.get().getAttachment(PARAM_STACKTRACE));
+	}
 }

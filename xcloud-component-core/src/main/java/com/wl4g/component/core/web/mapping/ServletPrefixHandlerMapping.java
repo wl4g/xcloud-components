@@ -15,19 +15,21 @@
  */
 package com.wl4g.component.core.web.mapping;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.BeansException;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import javax.annotation.Nullable;
 
 /**
  * {@link ServletPrefixHandlerMapping}
@@ -57,6 +59,12 @@ public class ServletPrefixHandlerMapping extends RequestMappingHandlerMapping {
 		for (Object handler : handlers) {
 			detectHandlerMethods(handler);
 		}
+	}
+
+	@Override
+	protected void initApplicationContext() throws BeansException {
+		setInterceptors(safeMap(getApplicationContext().getBeansOfType(HandlerInterceptor.class)).values().toArray());
+		super.initApplicationContext();
 	}
 
 	@Override

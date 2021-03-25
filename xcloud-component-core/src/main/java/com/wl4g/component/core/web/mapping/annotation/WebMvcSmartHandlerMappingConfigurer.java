@@ -15,21 +15,21 @@
  */
 package com.wl4g.component.core.web.mapping.annotation;
 
-import com.google.common.base.Predicate;
-import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Predicates.or;
-import com.wl4g.component.common.log.SmartLogger;
-
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -62,9 +62,8 @@ import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
-import static org.springframework.core.annotation.AnnotationAwareOrderComparator.INSTANCE;
-import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
+import com.google.common.base.Predicate;
+import com.wl4g.component.common.log.SmartLogger;
 
 /**
  * Global delegate Web MVC {@link RequestMapping} unique handler mapping.
@@ -185,6 +184,11 @@ public class WebMvcSmartHandlerMappingConfigurer implements WebMvcRegistrations 
 			// priority, must sorted.
 			this.handlerMappings = safeList(handlerMappings);
 			sort(this.handlerMappings);
+		}
+
+		@Override
+		public int getOrder() {
+			return Ordered.HIGHEST_PRECEDENCE + 10;
 		}
 
 		@Override

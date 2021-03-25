@@ -21,6 +21,8 @@ package com.wl4g.component.rpc.feign.core.context.interceptor;
 
 import org.springframework.context.annotation.Bean;
 
+import com.wl4g.component.rpc.feign.core.context.interceptor.WebMvcRequestInterceptorConfigurer.WebMvcRequestHandlerInterceptor;
+
 /***
  * Auto-configuration(client|server)
  *
@@ -42,13 +44,19 @@ public class FeignRpcContextAutoConfiguration {
 	}
 
 	@Bean
-	public TracingFeignRequestInterceptor tracingFeignRequestInterceptor() {
-		return new TracingFeignRequestInterceptor();
+	public RpcContextProviderProxyInterceptor rpcContextProviderProxyInterceptor() {
+		return new RpcContextProviderProxyInterceptor();
 	}
 
 	@Bean
-	public RpcContextProviderProxyInterceptor rpcContextProviderProxyInterceptor() {
-		return new RpcContextProviderProxyInterceptor();
+	public WebMvcRequestHandlerInterceptor webMvcRequestHandlerInterceptor() {
+		return new WebMvcRequestHandlerInterceptor();
+	}
+
+	@Bean
+	public WebMvcRequestInterceptorConfigurer webServletRequestInterceptorConfigurer(
+			WebMvcRequestHandlerInterceptor interceptor) {
+		return new WebMvcRequestInterceptorConfigurer(interceptor);
 	}
 
 }
