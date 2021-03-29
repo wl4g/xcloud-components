@@ -36,8 +36,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
 import io.swagger.annotations.ApiParam;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * The original intention of the integrated paging packaging model is that
@@ -52,8 +50,6 @@ import lombok.Setter;
  * @see https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/Interceptor.md
  */
 @ApiModel("Pagination information")
-@Getter
-@Setter
 public class PageHolder<E> implements Serializable {
 	private static final long serialVersionUID = -7002775417254397561L;
 
@@ -122,6 +118,10 @@ public class PageHolder<E> implements Serializable {
 		setPageSize(pageSize);
 	}
 
+	public Page<E> getPage() {
+		return page;
+	}
+
 	public final void setPage(Page<E> page) {
 		notNullOf(page, "page");
 		BeanUtils.copyProperties(page, getPage());
@@ -186,12 +186,20 @@ public class PageHolder<E> implements Serializable {
 		return this;
 	}
 
+	public List<E> getRecords() {
+		return records;
+	}
+
 	public final void setRecords(List<E> records) {
 		if (nonNull(records) && !records.isEmpty()) {
 			this.records = records;
-			// Refresh rebind result.
-			refresh();
+			refresh(); // Refresh(rebind) data records.
 		}
+	}
+
+	public PageHolder<E> withRecords(List<E> records) {
+		setRecords(records);
+		return this;
 	}
 
 	@Override
@@ -199,7 +207,9 @@ public class PageHolder<E> implements Serializable {
 		return getClass().getSimpleName().concat("<").concat(toJSONString(this)).concat(">");
 	}
 
+	//
 	// --- Current page function methods. ---
+	//
 
 	public PageHolder<E> useCount() {
 		getPage().setCount(true);
@@ -222,8 +232,8 @@ public class PageHolder<E> implements Serializable {
 	/**
 	 * Sets page in current Rpc context.
 	 */
-	public PageHolder<E> bindPage() {
-		bindPage(this);
+	public PageHolder<E> bind() {
+		bind(this);
 		return this;
 	}
 
@@ -232,7 +242,7 @@ public class PageHolder<E> implements Serializable {
 	 * 
 	 * @param holder
 	 */
-	public static void bindPage(@Nullable PageHolder<?> holder) {
+	public static void bind(@Nullable PageHolder<?> holder) {
 		Page<?> page = isNull(holder) ? null : holder.getPage();
 		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
 			RpcContextHolderBridges.invokeSet(CURRENT_PAGE_KEY, page);

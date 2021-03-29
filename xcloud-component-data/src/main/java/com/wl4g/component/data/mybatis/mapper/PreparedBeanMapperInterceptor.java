@@ -243,7 +243,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 			PageHolder<?> holder = PageHolder.current();
 			if (nonNull(holder)) {
 				BeanUtils.copyProperties(helperPage, holder.getPage());
-				PageHolder.bindPage(holder); // rebind(update)
+				PageHolder.bind(holder); // rebind(update)
 				log.debug("End current pagination of: {}", holder);
 			}
 		}
