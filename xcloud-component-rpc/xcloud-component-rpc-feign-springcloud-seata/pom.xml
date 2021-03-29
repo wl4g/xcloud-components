@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-rpc</artifactId>
-	<packaging>pom</packaging>
-	<name>XCloud Component RPC</name>
+	<artifactId>xcloud-component-rpc-feign-springcloud-seata</artifactId>
+	<packaging>jar</packaging>
+	<name>xcloud-component-rpc-feign-springcloud-seata</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component RPC Integration Projects.</description>
+	<description>A XCloud Component RPC Framework integrating SpringCloud feign seata.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -52,44 +52,44 @@
 	</developers>
 	<parent>
 		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-component</artifactId>
+		<artifactId>xcloud-component-rpc</artifactId>
 		<version>master</version>
 	</parent>
-	<modules>
-		<module>xcloud-component-rpc-feign-common</module>
-		<module>xcloud-component-rpc-feign-core</module>
-		<module>xcloud-component-rpc-feign-istio</module>
-		<module>xcloud-component-rpc-feign-springcloud</module>
-		<module>xcloud-component-rpc-feign-springcloud-dubbo</module>
-		<module>xcloud-component-rpc-springcloud-eureka-server</module>
-		<module>xcloud-component-rpc-springcloud-hystrix-turbine-server</module>
-		<module>xcloud-component-rpc-example</module>
-		<module>xcloud-component-rpc-feign-springcloud-seata</module>
-		<!--<module>xcloud-component-rpc-springcloud-nacos</module> -->
-		<!--<module>xcloud-component-rpc-springcloud-consul</module> -->
-		<!--<module>xcloud-component-rpc-springcloud-zookeeper</module> -->
-	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<apache-dubbo-starter.version>2.7.0</apache-dubbo-starter.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.apache.dubbo</groupId>
-				<artifactId>dubbo-spring-boot-starter</artifactId>
-				<version>${apache-dubbo-starter.version}</version>
+				<groupId>com.wl4g</groupId>
+				<artifactId>xcloud-component-bom</artifactId>
+				<version>${project.parent.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>com.wl4g</groupId>
+			<artifactId>xcloud-component-core</artifactId>
+		</dependency>
+
+		<!-- Tests -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 	<build>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
+				<filtering>true</filtering>
 				<includes>
-					<include>**.*</include>
+					<include>**</include>
 				</includes>
 			</resource>
 		</resources>
