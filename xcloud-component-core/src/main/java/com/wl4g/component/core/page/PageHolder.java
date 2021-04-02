@@ -222,9 +222,9 @@ public class PageHolder<E> implements Serializable {
 	 * @return
 	 */
 	public PageHolder<E> refresh() {
-		PageHolder<E> resultPageHolder = PageHolder.current();
-		if (nonNull(resultPageHolder)) {
-			setPage(resultPageHolder.getPage());
+		PageHolder<E> current = PageHolder.current();
+		if (nonNull(current)) {
+			setPage(current.getPage());
 		}
 		return this;
 	}
