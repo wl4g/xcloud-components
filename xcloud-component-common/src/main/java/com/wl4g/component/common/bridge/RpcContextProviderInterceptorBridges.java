@@ -69,7 +69,7 @@ public abstract class RpcContextProviderInterceptorBridges {
 		return nonNull(rpcContextProviderProxyInterceptorClass);
 	}
 
-	public static final String rpcContextProviderProxyInterceptorClassName = "com.wl4g.component.rpc.feign.core.context.interceptor.RpcContextProviderProxyInterceptor";
+	public static final String rpcContextProviderProxyInterceptorClassName = "com.wl4g.component.integration.feign.core.context.interceptor.RpcContextProviderProxyInterceptor";
 	private static final Class<?> rpcContextProviderProxyInterceptorClass = resolveClassNameNullable(
 			rpcContextProviderProxyInterceptorClassName);
 

@@ -1,0 +1,1 @@
+eureka=com.wl4g.component.integration.feign.springcloud.dubbo.registry.EurekaDubboRegistryFactory

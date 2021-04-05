@@ -1,0 +1,1 @@
+package com.wl4g.component.integration.springboot.feign.web;

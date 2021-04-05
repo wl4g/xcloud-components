@@ -58,7 +58,7 @@
 		<module>xcloud-component-common-shade</module>
 		<module>xcloud-component-core</module>
 		<module>xcloud-component-data</module>
-		<module>xcloud-component-rpc</module>
+		<module>xcloud-component-integration</module>
 		<module>xcloud-component-support</module>
 		<module>xcloud-component-opencv</module>
 	</modules>

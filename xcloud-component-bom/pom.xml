@@ -184,27 +184,27 @@
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-codec</artifactId>
+				<artifactId>xcloud-component-integration-codec</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-feign-common</artifactId>
+				<artifactId>xcloud-component-integration-feign-common</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-feign-core</artifactId>
+				<artifactId>xcloud-component-integration-feign-core</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-feign-springcloud</artifactId>
+				<artifactId>xcloud-component-integration-feign-springcloud</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc-feign-springcloud-dubbo</artifactId>
+				<artifactId>xcloud-component-integration-feign-springcloud-dubbo</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<!-- Third party dependency librarys -->

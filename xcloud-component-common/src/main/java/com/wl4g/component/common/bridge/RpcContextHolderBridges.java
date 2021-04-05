@@ -161,8 +161,8 @@ public abstract class RpcContextHolderBridges {
 		return nonNull(rpcContextHolderClass);
 	}
 
-	public static final String rpcContextHolderClassName = "com.wl4g.component.rpc.feign.core.context.RpcContextHolder";
-	public static final String rpcContextHolderReferenceKeyClassName = "com.wl4g.component.rpc.feign.core.context.RpcContextHolder.ReferenceKey";
+	public static final String rpcContextHolderClassName = "com.wl4g.component.integration.feign.core.context.RpcContextHolder";
+	public static final String rpcContextHolderReferenceKeyClassName = "com.wl4g.component.integration.feign.core.context.RpcContextHolder.ReferenceKey";
 
 	private static final Class<?> rpcContextHolderClass = resolveClassNameNullable(rpcContextHolderClassName);
 	private static final Class<?> referenceKeyClass = resolveClassNameNullable(rpcContextHolderReferenceKeyClassName);
