@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-example-starter-service</artifactId>
 	<packaging>pom</packaging>
-	<name>XCloud Component RPC Example Starter Service</name>
+	<name>XCloud Component Integration Example Starter Service</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component RPC Examples Starter Service.</description>
+	<description>A XCloud Component Integration Examples Starter Service.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>

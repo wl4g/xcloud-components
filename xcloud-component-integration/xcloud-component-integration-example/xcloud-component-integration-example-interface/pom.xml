@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-example-interface</artifactId>
 	<packaging>pom</packaging>
-	<name>XCloud Component RPC Example Interface</name>
+	<name>XCloud Component Integration Example Interface</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component RPC Examples Interface.</description>
+	<description>A XCloud Component Integration Examples Interface.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
