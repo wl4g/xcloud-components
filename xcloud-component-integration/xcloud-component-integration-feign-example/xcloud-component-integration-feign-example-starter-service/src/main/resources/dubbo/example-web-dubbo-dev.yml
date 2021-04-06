@@ -15,7 +15,7 @@
 dubbo:
   application:
     #name: ${spring.application.name}
-    name: rpc-example-service
+    name: feign-example-service
     owner: wanglsir-dubbo
     qos:
       enable: true # Default(true)

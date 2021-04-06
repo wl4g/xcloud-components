@@ -14,7 +14,7 @@
 # #### Spring boot configuration. ####
 #
 spring:
-  application.name: rpc-example-service
+  application.name: feign-example-service
   profiles:
     active: dev
 

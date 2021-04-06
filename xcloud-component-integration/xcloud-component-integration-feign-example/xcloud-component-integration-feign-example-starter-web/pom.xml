@@ -52,7 +52,7 @@
 	</developers>
 	<parent>
 		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-component-integration-example</artifactId>
+		<artifactId>xcloud-component-integration-feign-example</artifactId>
 		<version>master</version>
 	</parent>
 	<properties>

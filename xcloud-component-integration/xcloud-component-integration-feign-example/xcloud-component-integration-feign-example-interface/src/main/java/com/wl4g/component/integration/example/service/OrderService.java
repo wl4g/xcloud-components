@@ -39,7 +39,7 @@ import com.wl4g.component.integration.feign.core.annotation.FeignConsumer;
  * @sine v1.0
  * @see
  */
-@FeignConsumer("${provider.serviceId.rpc-example-service:rpc-example-service}")
+@FeignConsumer("${provider.serviceId.feign-example-service:feign-example-service}")
 @RequestMapping("/order-service")
 public interface OrderService {
 
