@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-integration-example-interface</artifactId>
+	<artifactId>xcloud-component-integration-feign-example-starter-service</artifactId>
 	<packaging>pom</packaging>
-	<name>XCloud Component Integration Example Interface</name>
+	<name>XCloud Component Integration Example Starter Service</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Examples Interface.</description>
+	<description>A XCloud Component Integration Examples Starter Service.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -60,26 +60,11 @@
 		<java.version>1.8</java.version>
 	</properties>
 	<dependencies>
-		<!-- Here are 3 different replaceable distributed architectures:(It can only be one of them) -->
-
-		<!-- ①[SpringBoot + Feign + Istio] When turned on comments and @SpringBootFeignClients is used on the boot class, it is automatically configured. -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.wl4g</groupId> -->
-		<!-- <artifactId>xcloud-component-integration-feign-core</artifactId> -->
-		<!-- </dependency> -->
-
-		<!-- ②[SpringCloud + Feign + Netflix] When turned on comments and @FeignClients is used on the boot class, it is automatically configured. -->
 		<dependency>
 			<groupId>com.wl4g</groupId>
-			<artifactId>xcloud-component-integration-feign-springcloud</artifactId>
+			<artifactId>xcloud-component-integration-feign-example-interface</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
-
-		<!-- ③[SpringCloud + (Feign)Dubbo] When turned on comments and @FeignClients is used on the boot class, it is automatically configured. Notes: 
-			Only relying on feign's interface annotation. -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.wl4g</groupId> -->
-		<!-- <artifactId>xcloud-component-integration-feign-springcloud-dubbo</artifactId> -->
-		<!-- </dependency> -->
 	</dependencies>
 	<build>
 		<resources>

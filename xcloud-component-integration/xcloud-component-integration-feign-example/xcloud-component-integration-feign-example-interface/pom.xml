@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-integration-example</artifactId>
+	<artifactId>xcloud-component-integration-feign-example-interface</artifactId>
 	<packaging>pom</packaging>
-	<name>XCloud Component Integration Example</name>
+	<name>XCloud Component Integration Example Interface</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Examples Projects.</description>
+	<description>A XCloud Component Integration Examples Interface.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -52,29 +52,35 @@
 	</developers>
 	<parent>
 		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-component-rpc</artifactId>
+		<artifactId>xcloud-component-integration-example</artifactId>
 		<version>master</version>
 	</parent>
-	<modules>
-		<module>xcloud-component-integration-example-interface</module><!-- Rpc example for service interface -->
-		<module>xcloud-component-integration-example-starter-service</module><!-- Rpc example for service starter -->
-		<module>xcloud-component-integration-example-starter-web</module><!-- Rpc example for web starter -->
-	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-bom</artifactId>
-				<version>${project.parent.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	<dependencies>
+		<!-- Here are 3 different replaceable distributed architectures:(It can only be one of them) -->
+
+		<!-- ①[SpringBoot + Feign + Istio] When turned on comments and @SpringBootFeignClients is used on the boot class, it is automatically configured. -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.wl4g</groupId> -->
+		<!-- <artifactId>xcloud-component-integration-feign-core</artifactId> -->
+		<!-- </dependency> -->
+
+		<!-- ②[SpringCloud + Feign + Netflix] When turned on comments and @FeignClients is used on the boot class, it is automatically configured. -->
+		<dependency>
+			<groupId>com.wl4g</groupId>
+			<artifactId>xcloud-component-integration-feign-springcloud</artifactId>
+		</dependency>
+
+		<!-- ③[SpringCloud + (Feign)Dubbo] When turned on comments and @FeignClients is used on the boot class, it is automatically configured. Notes: 
+			Only relying on feign's interface annotation. -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.wl4g</groupId> -->
+		<!-- <artifactId>xcloud-component-integration-feign-springcloud-dubbo</artifactId> -->
+		<!-- </dependency> -->
+	</dependencies>
 	<build>
 		<resources>
 			<resource>
