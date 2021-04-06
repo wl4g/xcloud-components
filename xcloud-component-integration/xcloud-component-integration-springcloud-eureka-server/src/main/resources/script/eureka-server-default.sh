@@ -17,8 +17,8 @@
 # */
 
 [ -z "$APP_HOME" ] && APP_HOME="/opt/apps/acm/eureka-server-package/eureka-server-master-bin"
-[ -z "$BASE_DIR" ] && BASE_DIR="/mnt/disk1/eureka/"
-[ -z "$LOG_DIR" ] && LOG_DIR="/mnt/disk1/log/eureka"
+[ -z "$BASE_DIR" ] && BASE_DIR="/mnt/disk1/eureka-server/"
+[ -z "$LOG_DIR" ] && LOG_DIR="/mnt/disk1/log/eureka-server"
 
 function start() {
   # Check already running
@@ -31,7 +31,7 @@ function start() {
   local logFile="$LOG_DIR/eureka-server.log"
   echo "Starting eureka server for active=\"$active\" ..."
   nohup java -jar ${execFile} ${jvmOpts} --spring.profiles.active=${active} --logging.file.name=${logFile} >/dev/null 2>&1 &
-  echo "Starting eureka(peer1,peer2,peer3) completed! log writing to: ${logFile}"
+  echo "Starting eureka-server(peer1,peer2,peer3) completed! log writing to: ${logFile}"
 }
 
 function stop() {
