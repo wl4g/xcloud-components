@@ -61,10 +61,11 @@
 		<module>xcloud-component-integration-feign-istio</module>
 		<module>xcloud-component-integration-feign-springcloud</module>
 		<module>xcloud-component-integration-feign-springcloud-dubbo</module>
+		<module>xcloud-component-integration-feign-springcloud-seata</module>
 		<module>xcloud-component-integration-feign-example</module>
 		<module>xcloud-component-integration-springcloud-eureka-server</module>
 		<module>xcloud-component-integration-springcloud-hystrix-turbine-server</module>
-		<module>xcloud-component-integration-feign-springcloud-seata</module>
+		<module>xcloud-component-integration-shardingsphere-proxy-server</module>
 		<!--<module>xcloud-component-integration-springcloud-nacos</module> -->
 		<!--<module>xcloud-component-integration-springcloud-consul</module> -->
 		<!--<module>xcloud-component-integration-springcloud-zookeeper</module> -->

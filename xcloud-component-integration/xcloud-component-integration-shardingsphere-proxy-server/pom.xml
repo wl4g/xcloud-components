@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-integration-feign-springcloud-seata</artifactId>
+	<artifactId>xcloud-component-integration-shardingsphere-proxy-server</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for SpringCloud-Feign-Seata</name>
+	<name>XCloud Component Integration for Shardingsphere Proxy Server</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Framework integrating SpringCloud feign seata.</description>
+	<description>A XCloud Component Integration Framework integrating Shardingsphere Proxy Server.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -71,20 +71,10 @@
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.wl4g</groupId>
 			<artifactId>xcloud-component-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>druid-spring-boot-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.seata</groupId>
-			<artifactId>seata-spring-boot-starter</artifactId>
-		</dependency>
-
+		</dependency> -->
 		<!-- Tests -->
 		<dependency>
 			<groupId>junit</groupId>
