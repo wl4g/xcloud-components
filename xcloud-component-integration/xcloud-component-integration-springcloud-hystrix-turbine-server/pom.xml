@@ -52,7 +52,7 @@
 	</developers>
 	<parent>
 		<groupId>com.wl4g</groupId>
-		<artifactId>xcloud-component-rpc</artifactId>
+		<artifactId>xcloud-component-integration</artifactId>
 		<version>master</version>
 	</parent>
 	<properties>

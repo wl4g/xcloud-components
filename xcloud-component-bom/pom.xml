@@ -179,7 +179,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.wl4g</groupId>
-				<artifactId>xcloud-component-rpc</artifactId>
+				<artifactId>xcloud-component-integration</artifactId>
 				<version>${project.parent.version}</version>
 			</dependency>
 			<dependency>
