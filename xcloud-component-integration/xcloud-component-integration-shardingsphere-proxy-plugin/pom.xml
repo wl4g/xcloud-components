@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-integration-shardingsphere-proxy-server</artifactId>
+	<artifactId>xcloud-component-integration-shardingsphere-proxy-plugin</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for Shardingsphere Proxy Server</name>
+	<name>XCloud Component Integration for Shardingsphere Proxy Plugin</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Framework integrating Shardingsphere Proxy Server.</description>
+	<description>A XCloud Component Integration Framework integrating Shardingsphere Proxy Plugin.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -76,101 +76,10 @@
 			<groupId>com.wl4g</groupId>
 			<artifactId>xcloud-component-common</artifactId>
 		</dependency>
-		<!-- refer to: shardingsphere-bootstrap:5.0.0-alpha pom -->
 		<dependency>
 			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-db-protocol-core</artifactId>
+			<artifactId>shardingsphere-proxy-bootstrap</artifactId>
 			<version>${shardingsphere.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-db-protocol-mysql</artifactId>
-			<version>${shardingsphere.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-db-protocol-postgresql</artifactId>
-			<version>${shardingsphere.version}</version>
-		</dependency>
-		<!-- [Because it was not pushed to the central repository.] -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-proxy-common</artifactId> -->
-		<!-- <version>${shardingsphere.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-proxy-frontend-core</artifactId> -->
-		<!-- <version>${shardingsphere.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-proxy-frontend-mysql</artifactId> -->
-		<!-- <version>${shardingsphere.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-proxy-frontend-postgresql</artifactId> -->
-		<!-- <version>${shardingsphere.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-proxy-backend</artifactId> -->
-		<!-- <version>${shardingsphere.version}</version> -->
-		<!-- </dependency> -->
-
-		<dependency>
-			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-governance-core-facade</artifactId>
-			<version>${shardingsphere.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-governance-repository-zookeeper-curator</artifactId>
-			<version>${shardingsphere.version}</version>
-		</dependency>
-		<!-- Because it depends on shardingsphere test? -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-governance-core-context</artifactId> -->
-		<!-- <version>${shardingsphere.version}</version> -->
-		<!-- </dependency> -->
-
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-infra-context</artifactId> -->
-		<!-- <version>${project.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.shardingsphere</groupId> -->
-		<!-- <artifactId>shardingsphere-transaction-core</artifactId> -->
-		<!-- <version>${project.version}</version> -->
-		<!-- </dependency> -->
-		<dependency>
-			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-tracing-opentracing</artifactId>
-			<version>${shardingsphere.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.zaxxer</groupId>
-			<artifactId>HikariCP</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<!-- Tests -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>

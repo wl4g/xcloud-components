@@ -1,0 +1,96 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+schemaName: userdb
+
+dataSourceCommon:
+  username: root
+  password: root
+  connectionTimeoutMilliseconds: 30000
+  idleTimeoutMilliseconds: 60000
+  maxLifetimeMilliseconds: 1800000
+  maxPoolSize: 50
+  minPoolSize: 1
+  maintenanceIntervalMilliseconds: 30000
+
+dataSources:
+  userdb_g0db0:
+    url: jdbc:mysql://10.0.0.161:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g0db1:
+    url: jdbc:mysql://10.0.0.161:13307/userdb_g0db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g0db2:
+    url: jdbc:mysql://10.0.0.161:13308/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g1db0:
+    url: jdbc:mysql://10.0.0.161:13309/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g1db1:
+    url: jdbc:mysql://10.0.0.161:13310/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g1db2:
+    url: jdbc:mysql://10.0.0.161:13311/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+
+rules:
+ - !REPLICA_QUERY
+  dataSources:
+    userdb_g0db0:
+      name: userdb_g0db0
+      primaryDataSourceName: userdb_g0db0
+      replicaDataSourceNames:
+        - userdb_g0db1
+        - userdb_g0db2
+      loadBalancerName: my-load-balancer # 负载均衡算法名称
+    userdb_g1db0:
+      name: userdb_g1db0
+      primaryDataSourceName: userdb_g1db0
+      replicaDataSourceNames:
+        - userdb_g1db1
+        - userdb_g1db2
+      loadBalancerName: my-load-balancer # 负载均衡算法名称
+  loadBalancers:
+    my-load-balancer: 
+      type: RANDOM
+ - !SHARDING
+  tables: # Tables definitions.
+    sys_user:
+      actualDataNodes: userdb_g${0..1}_1.sys_user_${0..3}
+      tableStrategy:
+        standard:
+          shardingColumn: id
+          shardingAlgorithmName: sys_user_inline
+      keyGenerateStrategy:
+        column: id
+        keyGeneratorName: snowflake
+  bindingTables:
+    - sys_user
+  defaultDatabaseStrategy:
+    standard:
+      shardingColumn: id
+      shardingAlgorithmName: database_inline
+  defaultTableStrategy:
+    none:
+  shardingAlgorithms:
+    database_inline:
+      type: INLINE
+      props:
+        algorithm-expression: userdb_g${(id / 40000000) as int}_1
+    sys_user_inline:
+      type: INLINE
+      props:
+        algorithm-expression: sys_user_${(id % 40000000 / 10000000) as int}
+  keyGenerators:
+    snowflake:
+      type: SNOWFLAKE
+      props:
+        worker-id: 1001
