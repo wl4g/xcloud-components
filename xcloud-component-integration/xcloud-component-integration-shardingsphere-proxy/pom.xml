@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>xcloud-component-integration-shardingsphere-proxy-plugin</artifactId>
+	<artifactId>xcloud-component-integration-shardingsphere-proxy</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for Shardingsphere Proxy Plugin</name>
+	<name>XCloud Component Integration for Shardingsphere Proxy</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Framework integrating Shardingsphere Proxy Plugin.</description>
+	<description>A XCloud Component Integration Framework integrating Shardingsphere Proxy.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
@@ -68,6 +68,17 @@
 				<version>${project.parent.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- Conflict: shardingsphere-governance-repository-zookeeper-curator:5.0.0-alpha->spring-cloud-zookeeper-dependencies:2.2.4.RELEASE->curator-framework:4.0.1 -->
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-framework</artifactId>
+				<version>5.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-recipes</artifactId>
+				<version>5.1.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
