@@ -15,4 +15,5 @@
 # limitations under the License.
 #
 
-com.wl4g.component.integration.shardingsphere.sharding.algorithm.SmartModShardingDatabaseAlgorithm
+# shardingsphere-proxy:5.x SPI ShardingAlgorithm extenssion.
+com.wl4g.component.integration.shardingsphere.sharding.algorithm.SmartModShardingAlgorithm

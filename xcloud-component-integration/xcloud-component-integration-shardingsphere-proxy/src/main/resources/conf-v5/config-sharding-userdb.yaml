@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-##################### Configuration of 'userdb' by group sharding #######################
+##################### Configuration of 'userdb' by group sharding v5 #######################
 
 schemaName: userdb
 
@@ -76,9 +76,9 @@ rules:
     #      shardingColumn: SCHEMA_NAME
     #      shardingAlgorithmName: schemeta_inline
     t_user:
-      actualDataNodes: userdb_g${0..1}db${0..2}.t_user_${0..2}
+      actualDataNodes: userdb_g0db${0..2}.t_user_${0..2}
       #actualDataNodes: 'userdb_g0db0.t_user_${0..3},userdb_g0db1.t_user_${0..2},userdb_g0db2.t_user_${0..2},userdb_g1db${0..2}.t_user_${0..2}'
-      databaseStrategy:
+      #databaseStrategy:
       tableStrategy:
         standard:
           shardingColumn: id
@@ -99,7 +99,8 @@ rules:
     database_smart_mod:
       type: SMART_MOD
       props:
-        sharding-count: '10'
+        # Modular expression of all sharding (dbs/tables).
+        sharding-mod-assign-expression: '_g0db0->0,1,2,3|_g0db1->4,5,6|_g0db2->7,8,9'
     #database_boundary_range: # see:org.apache.shardingsphere.sharding.algorithm.sharding.range.BoundaryBasedRangeShardingAlgorithm
     #  type: BOUNDARY_RANGE
     #  props:
@@ -132,8 +133,8 @@ rules:
  - !SHARDING
   tables: # Tables definitions.
     t_user:
-      actualDataNodes: userdb_g${0..1}db${0..2}.t_user_${0..2}
-      databaseStrategy:
+      actualDataNodes: userdb_g1db${0..2}.t_user_${0..2}
+      #databaseStrategy:
       tableStrategy:
         standard:
           shardingColumn: id
@@ -153,7 +154,8 @@ rules:
     database_smart_mod:
       type: SMART_MOD
       props:
-        sharding-count: '10'
+        # Modular expression of all sharding (dbs/tables).
+        sharding-mod-assign-expression: '_g1db0->0,1,2|_g1db1->3,4,5|_g1db2->6,7,8'
     #database_volume_range:
     #  type: VOLUME_RANGE
     #  props:

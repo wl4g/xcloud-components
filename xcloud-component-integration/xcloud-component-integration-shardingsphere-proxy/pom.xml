@@ -58,7 +58,12 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<shardingsphere.version>5.0.0-alpha</shardingsphere.version>
+		<!-- Interagtion with 4.x -->
+		<curator.version>2.10.0</curator.version>
+		<guava.version>18.0</guava.version>
+
+		<!-- Interagtion with 5.x -->
+		<!-- <curator.version>5.1.0</curator.version> -->
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -69,16 +74,21 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
 			<!-- Conflict: shardingsphere-governance-repository-zookeeper-curator:5.0.0-alpha->spring-cloud-zookeeper-dependencies:2.2.4.RELEASE->curator-framework:4.0.1 -->
 			<dependency>
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-framework</artifactId>
-				<version>5.1.0</version>
+				<version>${curator.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-recipes</artifactId>
-				<version>5.1.0</version>
+				<version>${curator.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -87,11 +97,18 @@
 			<groupId>com.wl4g</groupId>
 			<artifactId>xcloud-component-common</artifactId>
 		</dependency>
+		<!-- Interagtion with 4.x -->
 		<dependency>
 			<groupId>org.apache.shardingsphere</groupId>
-			<artifactId>shardingsphere-proxy-bootstrap</artifactId>
-			<version>${shardingsphere.version}</version>
+			<artifactId>sharding-proxy-bootstrap</artifactId>
+			<version>4.1.1</version>
 		</dependency>
+		<!-- Interagtion with 5.x -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.shardingsphere</groupId> -->
+		<!-- <artifactId>shardingsphere-proxy-bootstrap</artifactId> -->
+		<!-- <version>5.0.0-alpha</version> -->
+		<!-- </dependency> -->
 	</dependencies>
 	<build>
 		<resources>

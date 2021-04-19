@@ -8,6 +8,7 @@
 ```
 git clone https://github.com/apache/shardingsphere.git
 cd shardingsphere
+git checkout 4.1.1
 mvn clean install -DskipTests -Dmaven.test.skip=true -T 2C
 ```
 
