@@ -40,11 +40,11 @@ import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
  * @sine v1.0
  * @see
  */
-public class WebMvcRequestInterceptorConfigurer implements WebMvcConfigurer {
+public class WebMvcPreparedRequestInterceptorConfigurer implements WebMvcConfigurer {
 
-	private final WebMvcRequestHandlerInterceptor interceptor;
+	private final WebMvcPreparedRequestHandlerInterceptor interceptor;
 
-	public WebMvcRequestInterceptorConfigurer(WebMvcRequestHandlerInterceptor interceptor) {
+	public WebMvcPreparedRequestInterceptorConfigurer(WebMvcPreparedRequestHandlerInterceptor interceptor) {
 		this.interceptor = notNullOf(interceptor, "interceptor");
 	}
 
@@ -53,7 +53,7 @@ public class WebMvcRequestInterceptorConfigurer implements WebMvcConfigurer {
 		registry.addInterceptor(interceptor).addPathPatterns("/**");
 	}
 
-	static class WebMvcRequestHandlerInterceptor implements HandlerInterceptor {
+	static class WebMvcPreparedRequestHandlerInterceptor implements HandlerInterceptor {
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 			// Check stacktrace request.

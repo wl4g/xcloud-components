@@ -15,38 +15,16 @@
  */
 package com.wl4g.component.common.io;
 
-import org.apache.commons.compress.archivers.ArchiveException;
-
+import java.io.File;
 import java.io.IOException;
+
+import org.apache.commons.compress.archivers.ArchiveException;
 
 public class CompressUtilsTests {
 
 	public static void main(String[] args) throws IOException, ArchiveException {
-//		String srcPath = "/Users/vjay/Downloads/";
-//		String fileName1 = "problem.txt";
-//		String pathInTar1 = "hello2/";
-//		String fileName2 = "sharding_sql.sql";
-//		String pathInTar2 = "ok2/";
-//		String tarName = "testtar.tar";
-
-		// 构建TarArchiveOutputStream
-		//TarArchiveOutputStream tout = CompressUtils.createTarArchiveOutputStream(srcPath+tarName);
-
-		// 写第一个文件
-		//CompressUtils.appendToTar(tout,srcPath,pathInTar1,fileName1);
-		// 写第二个文件
-		//CompressUtils.appendToTar(tout,srcPath,pathInTar2,fileName2);
-
-		// 最后关闭TarArchiveOutputStream，tar包就形成了
-		//tout.close();
-
-		// gzip压缩
-		//CompressUtils.gzip(srcPath+tarName);
-
-
-		CompressUtils.appendToTar("/Users/vjay/Downloads/base-view-master-bin.tar","/Users/vjay/Downloads/rap1.json", "rap1.json");
-
-
+		CompressUtils.appendTarArchive(new File("/Users/vjay/Downloads/base-view-master-bin.tar"),
+				new File("/Users/vjay/Downloads/rap1.json"), "rap1.json");
 	}
 
 }

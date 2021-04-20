@@ -11,7 +11,7 @@ com.wl4g.component.core.framework.operator.GenericOperatorAutoConfiguration,\
 com.wl4g.component.core.framework.proxy.SmartProxyAutoConfiguration,\
 com.wl4g.component.core.remoting.RestTemplateAutoConfiguration,\
 com.wl4g.component.core.remoting.WebClientAutoConfiguration,\
-com.wl4g.component.core.web.error.servlet.ServletErrorAutoConfiguration,\
-com.wl4g.component.core.web.error.reactive.ReactiveErrorAutoConfiguration,\
 com.wl4g.component.core.utils.context.SpringContextHolder,\
-com.wl4g.component.core.page.ReleasePageInterceptor.ReleasePageInterceptorAutoConfiguration
+com.wl4g.component.core.page.ReleasePageInterceptor.ReleasePageInterceptorAutoConfiguration,\
+com.wl4g.component.core.web.error.servlet.ServletErrorAutoConfiguration,\
+com.wl4g.component.core.web.error.reactive.ReactiveErrorAutoConfiguration

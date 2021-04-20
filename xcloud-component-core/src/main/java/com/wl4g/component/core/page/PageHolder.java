@@ -272,7 +272,13 @@ public class PageHolder<E> implements Serializable {
 	 * Release cleanup current {@link Page} of 'standalone' mode.
 	 */
 	public static void release() {
-		standaloneCurrentPage.remove();
+		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
+			// It's cleanup too:
+			// @see:com.wl4g.component.integration.feign.core.context.interceptor.RpcContextProviderProxyInterceptor#postHandle
+			RpcContextHolderBridges.invokeRemoveAttachment(CURRENT_PAGE_KEY);
+		} else {
+			standaloneCurrentPage.remove();
+		}
 	}
 
 	/**

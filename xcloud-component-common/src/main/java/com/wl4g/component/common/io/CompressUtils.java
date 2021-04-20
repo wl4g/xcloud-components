@@ -15,7 +15,42 @@
  */
 package com.wl4g.component.common.io;
 
-import org.apache.commons.compress.archivers.*;
+import static com.wl4g.component.common.io.FileIOUtils.ensureDir;
+import static com.wl4g.component.common.lang.Assert2.hasTextOf;
+import static com.wl4g.component.common.lang.Assert2.isTrue;
+import static com.wl4g.component.common.lang.Assert2.notEmptyOf;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.lang.StringUtils2.getFilenameExtension;
+import static java.io.File.separator;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -23,23 +58,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.io.*;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPOutputStream;
-
-import static com.wl4g.component.common.io.FileIOUtils.ensureDir;
-import static com.wl4g.component.common.lang.Assert2.*;
-import static com.wl4g.component.common.lang.StringUtils2.getFilenameExtension;
-import static java.io.File.separator;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * {@link CompressUtils}
@@ -213,25 +231,32 @@ public abstract class CompressUtils {
 		return filenames;
 	}
 
-	public static void appendToTar(String tarFilePath,String addFilePath,String addFileTarPath) throws IOException, ArchiveException {
-		if(!new File(tarFilePath).exists()){
-			throw new RuntimeException("file is not exist");
+	/**
+	 * Append tar file archive entry.
+	 * 
+	 * @param existingTarFile
+	 * @param appendFile
+	 * @param appendTarEntryName
+	 * @throws IOException
+	 * @throws ArchiveException
+	 */
+	public static void appendTarArchive(File existingTarFile, File appendFile, String appendTarEntryName)
+			throws IOException, ArchiveException {
+		if (!existingTarFile.exists()) {
+			throw new IllegalArgumentException("file is not exist");
 		}
+
 		ArchiveStreamFactory asf = new ArchiveStreamFactory();
-		File toAddFile = new File(addFilePath);
-		File tarFile = new File(tarFilePath);
-		File tempFile = File.createTempFile("tmp", "tar");
-		try (
-				FileInputStream fis = new FileInputStream(tarFile);
+		File tmpFile = File.createTempFile("tmp", "tar");
+		try (FileInputStream fis = new FileInputStream(existingTarFile);
 				ArchiveInputStream ais = asf.createArchiveInputStream(ArchiveStreamFactory.TAR, fis);
 
-				FileOutputStream fos = new FileOutputStream(tempFile);
-				ArchiveOutputStream aos = asf.createArchiveOutputStream(ArchiveStreamFactory.TAR, fos);
-		) {
+				FileOutputStream fos = new FileOutputStream(tmpFile);
+				ArchiveOutputStream aos = asf.createArchiveOutputStream(ArchiveStreamFactory.TAR, fos);) {
 			// copy the existing entries
 			ArchiveEntry nextEntry;
 			while ((nextEntry = ais.getNextEntry()) != null) {
-				if(nextEntry.getSize() <= 0){
+				if (nextEntry.getSize() <= 0) {
 					continue;
 				}
 				aos.putArchiveEntry(nextEntry);
@@ -239,54 +264,43 @@ public abstract class CompressUtils {
 				aos.closeArchiveEntry();
 			}
 			// create the new entry
-			TarArchiveEntry entry = new TarArchiveEntry(addFileTarPath);
-			entry.setSize(toAddFile.length());
+			TarArchiveEntry entry = new TarArchiveEntry(appendTarEntryName);
+			entry.setSize(appendFile.length());
 			aos.putArchiveEntry(entry);
-			IOUtils.copy(new FileInputStream(toAddFile), aos, (int) toAddFile.length());
+			IOUtils.copy(new FileInputStream(appendFile), aos, (int) appendFile.length());
 			aos.closeArchiveEntry();
 			aos.finish();
 		}
-		tarFile.delete();
-		tempFile.renameTo(tarFile);
+
+		isTrue(existingTarFile.delete(), "Unable remove existing old tar file. %s", existingTarFile);
+		tmpFile.renameTo(existingTarFile);
 	}
 
 	public static TarArchiveOutputStream createTarArchiveOutputStream(String tarFilePath) throws IOException {
-		FileOutputStream fileOutputStream = new FileOutputStream(tarFilePath,true);
-		//FileIOUtils.copyFile(new File(tarFilePath), fileOutputStream);
+		FileOutputStream fileOutputStream = new FileOutputStream(tarFilePath, true);
+		// FileIOUtils.copyFile(new File(tarFilePath), fileOutputStream);
 		return new TarArchiveOutputStream(fileOutputStream);
 	}
 
-	public static void appendToStream(TarArchiveOutputStream tout, String srcPath, String pathInTar, String fileName) throws IOException {
+	public static void appendToStream(TarArchiveOutputStream tout, String srcPath, String pathInTar, String fileName)
+			throws IOException {
 		byte[] b = new byte[1024];
 		int len;
 		// 构建一个Entry
-		TarArchiveEntry e = new TarArchiveEntry(pathInTar+fileName);
+		TarArchiveEntry e = new TarArchiveEntry(pathInTar + fileName);
 		// 设置Entry大小，这一步必须得有，否则会报错
 		e.setSize(new File(srcPath + fileName).length());
 		// put一个Entry
 		tout.putArchiveEntry(e);
 		// 写入文件
 		InputStream in = new FileInputStream(srcPath + fileName);
-		while ((len = in.read(b)) != -1){
-			tout.write(b,0,len);
+		while ((len = in.read(b)) != -1) {
+			tout.write(b, 0, len);
 		}
 		in.close();
 		// 关闭Entry
 		tout.closeArchiveEntry();
 	}
-
-	public static void gzip(String tarFilePath) throws IOException {
-		// gzip压缩
-		GZIPOutputStream gout = new GZIPOutputStream(new FileOutputStream(tarFilePath + ".gz"));
-		byte[] b = new byte[1024];
-		int len;
-		InputStream in = new FileInputStream(tarFilePath);
-		while ((len=in.read(b)) != -1){
-			gout.write(b,0,len);
-		}
-		gout.close();
-	}
-
 
 	// --- GZIP. ---
 	// TODO

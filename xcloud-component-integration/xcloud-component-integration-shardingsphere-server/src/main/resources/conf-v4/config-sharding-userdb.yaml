@@ -22,7 +22,7 @@ schemaName: userdb
 
 dataSources:
   userdb_g0db0:
-    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    url: jdbc:mysql://10.0.0.161:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
     username: root
     password: root
     connectionTimeoutMilliseconds: 30000
@@ -32,7 +32,7 @@ dataSources:
     minPoolSize: 1
     maintenanceIntervalMilliseconds: 30000
   userdb_g0db1:
-    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    url: jdbc:mysql://10.0.0.161:13306/userdb_g0db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
     username: root
     password: root
     connectionTimeoutMilliseconds: 30000
@@ -42,7 +42,7 @@ dataSources:
     minPoolSize: 1
     maintenanceIntervalMilliseconds: 30000
   userdb_g0db2:
-    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    url: jdbc:mysql://10.0.0.161:13306/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
     username: root
     password: root
     connectionTimeoutMilliseconds: 30000
@@ -53,7 +53,7 @@ dataSources:
     maintenanceIntervalMilliseconds: 30000
 
 dataSource:
-  url: jdbc:mysql://127.0.0.1:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  url: jdbc:mysql://10.0.0.161:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
   username: root
   password: root
   connectionTimeoutMilliseconds: 30000
