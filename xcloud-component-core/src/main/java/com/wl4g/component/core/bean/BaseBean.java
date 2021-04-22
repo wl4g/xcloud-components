@@ -16,8 +16,6 @@
 package com.wl4g.component.core.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wl4g.component.core.utils.expression.SpelExpressions;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
@@ -49,7 +47,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = true)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = true)
 	private Long id;
 
 	/**
@@ -72,7 +70,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Long createBy;
 
 	/**
@@ -81,7 +79,7 @@ public abstract class BaseBean implements Serializable {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Date createDate;
 
 	/**
@@ -93,7 +91,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private String humanCreateDate;
 
 	/**
@@ -101,7 +99,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Long updateBy;
 
 	/**
@@ -110,7 +108,7 @@ public abstract class BaseBean implements Serializable {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private Date updateDate;
 
 	/**
@@ -122,7 +120,7 @@ public abstract class BaseBean implements Serializable {
 	 */
 	@ApiModelProperty(readOnly = true, accessMode = AccessMode.READ_ONLY)
 	@ApiParam(readOnly = true, hidden = true)
-	@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = true, allowSetters = false)
 	private String humanUpdateDate;
 
 	/**
@@ -132,10 +130,10 @@ public abstract class BaseBean implements Serializable {
 	 * annotations of swagger 2.x and 3.x, the safest way is to add all possible
 	 * ways that will work.
 	 */
-	@JsonIgnore
+	//@JsonIgnore
 	@ApiModelProperty(readOnly = true, hidden = true)
 	@ApiParam(hidden = true, readOnly = true)
-	@JsonIgnoreProperties(allowGetters = false, allowSetters = false)
+	//@JsonIgnoreProperties(allowGetters = false, allowSetters = false)
 	private Integer delFlag;
 
 	/**
