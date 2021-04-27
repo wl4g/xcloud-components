@@ -47,7 +47,7 @@ public class ProviderContextFilter implements Filter {
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 		Result result = invoker.invoke(invocation);
-		Map<String, String> attachments = RpcContextHolder.get().getAttachments();
+		Map<String, String> attachments = RpcContextHolder.getServerContext().getAttachments();
 		result.getAttachments().putAll(attachments);
 		invocation.getAttachments().putAll(attachments);
 		log.debug("Sets response context attachments: {}", attachments);

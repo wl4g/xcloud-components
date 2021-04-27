@@ -73,7 +73,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<apache-dubbo-starter.version>2.7.0</apache-dubbo-starter.version>
+		<apache-dubbo-starter.version>2.7.10</apache-dubbo-starter.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

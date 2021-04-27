@@ -105,13 +105,16 @@ public class SpringCloudHystrixFeignContextAutoConfiguration {
 		@Override
 		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 				throws Exception {
-			RpcContextHolder.get().clearAttachments();
-			((SpringCloudHystrixFeignRpcContextHolder) RpcContextHolder.get()).close();
+			RpcContextHolder.getContext().clearAttachments();
+			RpcContextHolder.getServerContext().clearAttachments();
+			((SpringCloudHystrixFeignRpcContextHolder) RpcContextHolder.getContext()).close();
+			((SpringCloudHystrixFeignRpcContextHolder) RpcContextHolder.getServerContext()).close();
 		}
 	}
 
 	static class SpringCloudHystrixFeignRpcContextHolder extends RpcContextHolder implements Closeable {
 		private static final HystrixRequestVariableDefault<SpringCloudHystrixFeignRpcContextHolder> LOCAL = new HystrixRequestVariableDefault<>();
+		private static final HystrixRequestVariableDefault<SpringCloudHystrixFeignRpcContextHolder> SERVER_LOCAL = new HystrixRequestVariableDefault<>();
 
 		// Notes: Since feignclient ignores case when setting header, it should
 		// be unified here.
@@ -152,7 +155,7 @@ public class SpringCloudHystrixFeignContextAutoConfiguration {
 		}
 
 		@Override
-		protected RpcContextHolder current() {
+		protected RpcContextHolder getContext0() {
 			if (!HystrixRequestContext.isCurrentThreadInitialized()) {
 				HystrixRequestContext.initializeContext();
 			}
@@ -162,6 +165,29 @@ public class SpringCloudHystrixFeignContextAutoConfiguration {
 				LOCAL.set(current = new SpringCloudHystrixFeignRpcContextHolder());
 			}
 			return current;
+		}
+
+		@Override
+		protected RpcContextHolder getServerContext0() {
+			if (!HystrixRequestContext.isCurrentThreadInitialized()) {
+				HystrixRequestContext.initializeContext();
+			}
+			SpringCloudHystrixFeignRpcContextHolder current = SERVER_LOCAL.get();
+			// Initializes hystrix request context in the current thread.
+			if (isNull(current)) {
+				SERVER_LOCAL.set(current = new SpringCloudHystrixFeignRpcContextHolder());
+			}
+			return current;
+		}
+
+		@Override
+		protected void removeContext0() {
+			LOCAL.remove();
+		}
+
+		@Override
+		protected void removeServerContext0() {
+			SERVER_LOCAL.remove();
 		}
 	}
 

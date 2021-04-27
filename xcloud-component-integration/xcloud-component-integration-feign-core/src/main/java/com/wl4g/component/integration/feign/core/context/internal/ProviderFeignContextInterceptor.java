@@ -17,13 +17,12 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.feign.core.context.interceptor;
+package com.wl4g.component.integration.feign.core.context.internal;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
-import static com.wl4g.component.common.web.WebUtils2.isStacktraceRequest;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletRequest;
 import static com.wl4g.component.core.utils.web.WebUtils3.currentServletResponse;
 import static java.util.Objects.nonNull;
@@ -56,7 +55,7 @@ import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
  * @sine v1.0
  * @see
  */
-public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor {
+public class ProviderFeignContextInterceptor implements SmartProxyInterceptor {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Override
@@ -76,47 +75,59 @@ public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor
 
 	@Override
 	public Object[] preHandle(@NotNull Object target, @NotNull Method method, Object[] parameters) {
-		// [FIX] Only the feign remote instance is processed, ignore local
-		// instance. For example, in the provider layer, there is no request
-		// object when the ApplicationRunner#run() executes the task
-		HttpServletRequest request = currentServletRequest();
-		if (nonNull(request)) {
-			// When receiving RPC requests, the attachment info should be
-			// extracted and bound to the local context.
-			FeignRpcContextUtils.bindAttachmentsFromRequest(request);
+		if (!isConsumerSide(target)) {
+			// FIXED: Only the feign remote instance is processed, ignore local
+			// instance. For example, in the provider layer, there is no request
+			// object when the ApplicationRunner#run() executes the task.
+			HttpServletRequest request = currentServletRequest();
+			if (nonNull(request)) {
+				// When receiving RPC requests, the attachment info should be
+				// extracted and bound to the local context.
+				FeignRpcContextBinders.bindAttachmentsFromRequest(request);
+			}
+			// Call coprocessor.
+			FeignContextCoprocessor.Invokers.beforeProviderExecution(request, target, method, parameters);
 		}
-		customPreRequestHandle(request, target, method, parameters);
 		return parameters;
 	}
 
 	@Override
 	public Object postHandle(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result,
 			@NotNull Throwable ex) {
-		// [FIX] Only the feign remote instance is processed, ignore local
-		// instance. For example, in the provider layer, there is no request
-		// object when the ApplicationRunner#run() executes the task
-		HttpServletRequest request = currentServletRequest();
-		if (nonNull(request)) {
+		if (!isConsumerSide(target)) {
 			try {
+				// FIXED: Only the feign remote instance is processed, ignore
+				// local instance. For example, in the provider layer, there is
+				// no request object when the ApplicationRunner#run() executes
+				// the task.
 				HttpServletResponse response = currentServletResponse();
-				// When responding to RPC, the attachment information
-				// returned should be added.
-				FeignRpcContextUtils.writeAttachemntsToResponse(response);
+				if (nonNull(response)) {
+					// When responding to RPC, the attachment information
+					// returned should be added.
+					FeignRpcContextBinders.writeAttachemntsToResponse(response);
+				}
+				// Call coprocessor.
+				FeignContextCoprocessor.Invokers.afterProviderExecution(target, method, parameters, result, ex);
 			} finally {
-				// After responding to RPC, should cleanup the context
-				// attachment info.
-				RpcContextHolder.get().clearAttachments();
+				// After responding to RPC, should cleanup the context and
+				// server context. reference: dubbo-2.7.4.1↓:ContextFilter.java
+				RpcContextHolder.removeContext();
+				RpcContextHolder.removeServerContext();
 			}
 		}
 		return result;
 	}
 
-	protected void customPreRequestHandle(HttpServletRequest request, @NotNull Object target, @NotNull Method method,
-			Object[] parameters) {
-		// Check stacktrace request.
-		if (isStacktraceRequest(request)) {
-			RpcContextHolder.get().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
-		}
+	/**
+	 * Check whether the service role executing the current request to the
+	 * consumer side.
+	 * 
+	 * @param target
+	 * @return
+	 */
+	protected boolean isConsumerSide(@NotNull Object target) {
+		notNullOf(target, "target");
+		return (target instanceof feign.Target);
 	}
 
 	public static boolean checkSupportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
@@ -138,6 +149,5 @@ public class RpcContextProviderProxyInterceptor implements SmartProxyInterceptor
 
 	public static final Class<? extends Annotation> FEIGN_CLIENT_CLASS = resolveClassNameNullable(
 			"org.springframework.cloud.openfeign.FeignClient");
-
 	public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
 }

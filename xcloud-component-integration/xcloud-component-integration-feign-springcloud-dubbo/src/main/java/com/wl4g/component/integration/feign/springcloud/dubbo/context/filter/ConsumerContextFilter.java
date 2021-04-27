@@ -62,15 +62,15 @@ public class ConsumerContextFilter implements Filter {
 		 */
 		Map<String, String> params = getFirstParameters(currentServletRequest());
 		if (!isEmpty(params)) {
-			RpcContextHolder.get().setAttachments(params);
+			RpcContextHolder.getContext().setAttachments(params);
 		}
 
 		// Sets current IAM principal.(if necessary)
 		if (nonNull(GET_PRINCIPALINFO_METHOD)) {
-			RpcContextHolder.get().set("IAM_PRINCIPAL", invokeMethod(GET_PRINCIPALINFO_METHOD, null));
+			RpcContextHolder.getContext().set("IAM_PRINCIPAL", invokeMethod(GET_PRINCIPALINFO_METHOD, null));
 		}
 
-		log.debug("Pre invoke attachments: {}", () -> RpcContextHolder.get().getAttachments());
+		log.debug("Pre invoke attachments: {}", () -> RpcContextHolder.getContext().getAttachments());
 		Result result = invoker.invoke(invocation);
 
 		// TODO 未通过测试!!! 无法获得ProviderContextFilter返回的附加参数???

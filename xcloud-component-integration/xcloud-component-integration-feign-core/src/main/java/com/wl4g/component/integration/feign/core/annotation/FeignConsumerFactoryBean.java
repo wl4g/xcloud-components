@@ -15,34 +15,43 @@
  */
 package com.wl4g.component.integration.feign.core.annotation;
 
-import feign.Body;
-import feign.Client;
-import feign.Contract;
-import feign.Feign;
-import feign.FeignException;
-import feign.Logger;
-import feign.Logger.Level;
-import feign.MethodMetadata;
-import feign.Request;
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
-import feign.Request.Options;
-import feign.Response;
-import feign.Retryer;
-import feign.Util;
-import feign.codec.DecodeException;
-import feign.codec.Decoder;
-import feign.codec.EncodeException;
-import feign.codec.Encoder;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
-import feign.slf4j.Slf4jLogger;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
+import static com.wl4g.component.common.lang.Assert2.hasText;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
+import static com.wl4g.component.integration.feign.core.config.FeignConsumerAutoConfiguration.BEAN_FEIGN_CLIENT;
+import static com.wl4g.component.integration.feign.core.constant.FeignConsumerConstant.KEY_CONFIG_PREFIX;
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
+import static java.lang.System.lineSeparator;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -51,62 +60,35 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.io.CharStreams;
 import com.wl4g.component.common.annotation.Reserved;
-import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.rest.RespBase;
-import com.wl4g.component.integration.feign.core.annotation.mvc.SpringMvcContract;
 import com.wl4g.component.integration.feign.core.config.FeignConsumerAutoConfiguration;
 import com.wl4g.component.integration.feign.core.config.FeignConsumerProperties;
-import com.wl4g.component.integration.feign.core.context.FeignContextDecoder;
-import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
-import com.wl4g.component.integration.feign.core.context.interceptor.FeignRpcContextUtils;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextDecoder;
 
-import static com.wl4g.component.common.collection.CollectionUtils2.isEmpty;
-import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
-import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
-import static com.wl4g.component.common.lang.Assert2.hasText;
-import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.lang.ClassUtils2.resolveClassNameNullable;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethodNullable;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
-import static com.wl4g.component.integration.feign.core.config.FeignConsumerAutoConfiguration.BEAN_FEIGN_CLIENT;
-import static com.wl4g.component.integration.feign.core.constant.FeignConsumerConstant.KEY_CONFIG_PREFIX;
-import static feign.Util.UTF_8;
-import static feign.Util.toByteArray;
-import static feign.Util.valuesOrEmpty;
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
-import static java.lang.System.lineSeparator;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nullable;
+import feign.Client;
+import feign.Contract;
+import feign.Feign;
+import feign.FeignException;
+import feign.Logger;
+import feign.Logger.Level;
+import feign.MethodMetadata;
+import feign.Request;
+import feign.Request.Options;
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+import feign.Response;
+import feign.Retryer;
+import feign.Util;
+import feign.codec.DecodeException;
+import feign.codec.Decoder;
+import feign.codec.EncodeException;
+import feign.codec.Encoder;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
+import feign.slf4j.Slf4jLogger;
 
 /**
  * {@link FeignConsumerFactoryBean}
@@ -117,7 +99,6 @@ import javax.annotation.Nullable;
  * @sine v1.0
  * @see
  */
-@SuppressWarnings("unused")
 class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextAware {
 
 	/**
@@ -316,10 +297,10 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 			}
 		}
 		// new GsonEncoder()
-		builder.encoder(new DelegateFeignEncoder(isNull(encoder) ? defaultEncoder : encoder));
+		builder.encoder(new DecorateFeignEncoder(isNull(encoder) ? defaultEncoder : encoder));
 		// new GsonDecoder()
 		// new ParameterizedGsonDecoder()
-		builder.decoder(new DelegateFeignDecoder(isNull(decoder) ? defaultDecoder : decoder));
+		builder.decoder(new DecorateFeignDecoder(isNull(decoder) ? defaultDecoder : decoder));
 		// new Contract.Default()
 		builder.contract(isNull(contract) ? defaultContract : contract);
 		// builder.contract(new DelegateContract(isNull(contract)?new
@@ -355,10 +336,10 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 		return path;
 	}
 
-	class DelegateFeignEncoder implements Encoder {
+	class DecorateFeignEncoder implements Encoder {
 		private final Encoder encoder;
 
-		public DelegateFeignEncoder(Encoder encoder) {
+		public DecorateFeignEncoder(Encoder encoder) {
 			this.encoder = notNullOf(encoder, "encoder");
 		}
 
@@ -372,13 +353,12 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 	/**
 	 * {@link feign.SynchronousMethodHandler#executeAndDecode()}
 	 */
-	class DelegateFeignDecoder implements Decoder {
+	class DecorateFeignDecoder implements Decoder {
 		private final Decoder decoder;
 		private String feignHttpProtocol;
 
-		public DelegateFeignDecoder(Decoder decoder) {
-			notNullOf(decoder, "decoder");
-			this.decoder = new FeignContextDecoder(decoder);
+		public DecorateFeignDecoder(Decoder decoder) {
+			this.decoder = new FeignContextDecoder(notNullOf(decoder, "decoder"));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -392,7 +372,7 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 						printRequestAsString(response.request()), wrapResponse);
 				// High concurrency performance optimizing throw exception.
 				boolean dumpStackTrace = (getLogLevel() != Level.NONE);
-				throw new FeignRpcException(errmsg, (log.isDebugEnabled() ? e : null), true);
+				throw new FeignRpcException(errmsg, (log.isDebugEnabled() ? e : null), dumpStackTrace);
 			} finally {
 				// Actual close response.
 				((RepeatableResponseBody) wrapResponse.body()).actualClose();
@@ -420,7 +400,6 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 			}
 			return request.toString();
 		}
-
 	}
 
 	/**

@@ -15,12 +15,11 @@
  */
 package com.wl4g.component.common.id;
 
+import static com.wl4g.component.common.lang.Assert2.isTrueOf;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static java.lang.String.format;
 
 import java.util.concurrent.atomic.AtomicLong;
-
-import static com.wl4g.component.common.lang.Assert2.isTrueOf;
-import static com.wl4g.component.common.lang.Assert2.notNullOf;
 
 /**
  * Snowflake algorithms Id generator.
@@ -31,20 +30,18 @@ import static com.wl4g.component.common.lang.Assert2.notNullOf;
  * @see <a href=
  *      "https://github.com/twitter/snowflake">https://github.com/twitter/snowflake</a>
  */
-public class SnowflakeIdGenerator {
+public final class SnowflakeIdGenerator {
 
 	/**
 	 * {@link BitsDefine}
 	 */
 	private final BitsDefine def;
-
 	// Worker node ID.
 	private final long workerId;
 	// Data center ID.
 	private final long dataCenterId;
 	// Sequence ID.
 	private final AtomicLong sequence = new AtomicLong(0L);
-
 	// Last generate timestamp.
 	private final AtomicLong lastTime = new AtomicLong(-1L);
 
@@ -156,7 +153,7 @@ public class SnowflakeIdGenerator {
 	 * @version v1.0 2020年6月10日
 	 * @since
 	 */
-	private final static class SingletionHolder {
+	private static final class SingletionHolder {
 		private static final SnowflakeIdGenerator instance = new SnowflakeIdGenerator();
 	}
 
@@ -168,7 +165,6 @@ public class SnowflakeIdGenerator {
 	 * @since
 	 */
 	public static final class BitsDefine {
-
 		// Epoch (e.g: 1288834974657L => Thu, 04 Nov 2010 01:42:54 GMT)
 		final long twepoch;
 		// Node ID length bits.

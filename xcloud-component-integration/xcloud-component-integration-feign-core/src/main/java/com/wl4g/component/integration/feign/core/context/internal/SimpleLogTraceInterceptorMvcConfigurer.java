@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.feign.core.context.interceptor;
+package com.wl4g.component.integration.feign.core.context.internal;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
@@ -33,18 +33,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 
 /**
- * {@link WebRequestHandlerInterceptor}
+ * {@link SimpleLogTraceInterceptorMvcConfigurer}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-03-25
  * @sine v1.0
  * @see
  */
-public class WebMvcPreparedRequestInterceptorConfigurer implements WebMvcConfigurer {
+public class SimpleLogTraceInterceptorMvcConfigurer implements WebMvcConfigurer {
 
-	private final WebMvcPreparedRequestHandlerInterceptor interceptor;
+	private final SimpleLogTraceHandlerInterceptor interceptor;
 
-	public WebMvcPreparedRequestInterceptorConfigurer(WebMvcPreparedRequestHandlerInterceptor interceptor) {
+	public SimpleLogTraceInterceptorMvcConfigurer(SimpleLogTraceHandlerInterceptor interceptor) {
 		this.interceptor = notNullOf(interceptor, "interceptor");
 	}
 
@@ -53,12 +53,12 @@ public class WebMvcPreparedRequestInterceptorConfigurer implements WebMvcConfigu
 		registry.addInterceptor(interceptor).addPathPatterns("/**");
 	}
 
-	static class WebMvcPreparedRequestHandlerInterceptor implements HandlerInterceptor {
+	static class SimpleLogTraceHandlerInterceptor implements HandlerInterceptor {
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 			// Check stacktrace request.
 			if (isStacktraceRequest(request)) {
-				RpcContextHolder.get().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
+				RpcContextHolder.getContext().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
 			}
 			return true;
 		}

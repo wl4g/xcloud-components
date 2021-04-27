@@ -17,11 +17,11 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.feign.core.context.interceptor;
+package com.wl4g.component.integration.feign.core.context.internal;
 
 import org.springframework.context.annotation.Bean;
 
-import com.wl4g.component.integration.feign.core.context.interceptor.WebMvcPreparedRequestInterceptorConfigurer.WebMvcPreparedRequestHandlerInterceptor;
+import com.wl4g.component.integration.feign.core.context.internal.SimpleLogTraceInterceptorMvcConfigurer.SimpleLogTraceHandlerInterceptor;
 
 /***
  * Auto-configuration(client|server)
@@ -31,32 +31,32 @@ import com.wl4g.component.integration.feign.core.context.interceptor.WebMvcPrepa
  * @sine v1.0
  * @see
  */
-public class FeignRpcContextAutoConfiguration {
+public class FeignContextAutoConfiguration {
 
 	@Bean
-	public HeadersFeignRequestInterceptor headersFeignRequestInterceptor() {
-		return new HeadersFeignRequestInterceptor();
+	public SimpleLogTraceFeignContextCoprocessor simpleLogTraceFeignContextCoprocessor() {
+		return new SimpleLogTraceFeignContextCoprocessor();
 	}
 
 	@Bean
-	public RpcContextConsumerRequestInterceptor rpcContextFeignRequestInterceptor() {
-		return new RpcContextConsumerRequestInterceptor();
+	public ProviderFeignContextInterceptor providerFeignRpcContextInterceptor() {
+		return new ProviderFeignContextInterceptor();
 	}
 
 	@Bean
-	public RpcContextProviderProxyInterceptor rpcContextProviderProxyInterceptor() {
-		return new RpcContextProviderProxyInterceptor();
+	public ConsumerFeignContextInterceptor consumerFeignRpcContextInterceptor() {
+		return new ConsumerFeignContextInterceptor();
 	}
 
 	@Bean
-	public WebMvcPreparedRequestHandlerInterceptor webMvcRequestHandlerInterceptor() {
-		return new WebMvcPreparedRequestHandlerInterceptor();
+	public SimpleLogTraceHandlerInterceptor simpleLogTraceHandlerInterceptor() {
+		return new SimpleLogTraceHandlerInterceptor();
 	}
 
 	@Bean
-	public WebMvcPreparedRequestInterceptorConfigurer webMvcPreparedRequestInterceptorConfigurer(
-			WebMvcPreparedRequestHandlerInterceptor interceptor) {
-		return new WebMvcPreparedRequestInterceptorConfigurer(interceptor);
+	public SimpleLogTraceInterceptorMvcConfigurer simpleLogTraceInterceptorMvcConfigurer(
+			SimpleLogTraceHandlerInterceptor interceptor) {
+		return new SimpleLogTraceInterceptorMvcConfigurer(interceptor);
 	}
 
 }

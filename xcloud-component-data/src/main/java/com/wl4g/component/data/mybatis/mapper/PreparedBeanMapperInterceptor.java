@@ -19,6 +19,7 @@ import static com.wl4g.component.common.lang.TypeConverts.parseLongOrNull;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.springframework.beans.BeanUtils.copyProperties;
 
 import java.util.Properties;
 
@@ -32,7 +33,6 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.pagehelper.Page;
@@ -169,10 +169,10 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		 */
 		if (isNull(SqlUtil.getLocalPage())) { // No set?
 			// Obtain page from Rpc context.
-			PageHolder<?> holder = PageHolder.current();
-			if (nonNull(holder)) {
-				log.debug("Begin current pagination of: {}", holder);
-				PageHelper.startPage(holder.getPageNum(), holder.getPageSize(), holder.getPage().isCount());
+			com.wl4g.component.core.page.PageHolder.Page<?> page = PageHolder.current(false);
+			if (nonNull(page)) {
+				log.debug("Begin current pagination of: {}", page);
+				PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.isCount());
 			}
 		}
 	}
@@ -240,11 +240,18 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		// Update page result to (RPC)context holder.
 		if (result instanceof Page) {
 			com.github.pagehelper.Page<?> helperPage = (com.github.pagehelper.Page<?>) result;
-			PageHolder<?> holder = PageHolder.current();
-			if (nonNull(holder)) {
-				BeanUtils.copyProperties(helperPage, holder.getPage());
-				PageHolder.bind(holder); // rebind(update)
-				log.debug("End current pagination of: {}", holder);
+			com.wl4g.component.core.page.PageHolder.Page<?> currentPage = PageHolder.current(false);
+			if (nonNull(currentPage)) {
+				copyProperties(helperPage, currentPage);
+				// Bind the information after paging execution back to the RPC
+				// context, Ensure that the information that has been paged can
+				// be obtained on the service consumer side.
+				PageHolder.bind(true, currentPage);
+
+				// Load new paging information to the original paging object.(If
+				// it is currently the service provider side)
+				PageHolder.current(true);
+				log.debug("End current pagination of: {}", currentPage);
 			}
 		}
 		return result;

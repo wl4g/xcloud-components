@@ -22,13 +22,8 @@ package com.wl4g.component.integration.feign.core.context;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.springframework.context.annotation.Bean;
-
-import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-
-import static java.lang.ThreadLocal.withInitial;
+import org.springframework.context.annotation.Bean;
 
 /**
  * Default springboot-feign {@link RpcContextHolder} auto configuration. (Both
@@ -48,8 +43,20 @@ public class DefaultFeignContextAutoConfiguration {
 	}
 
 	public static class DefaultFeignRpcContextHolder extends RpcContextHolder {
-		private static final ThreadLocal<DefaultFeignRpcContextHolder> LOCAL = withInitial(
-				() -> new DefaultFeignRpcContextHolder());
+
+		private static final ThreadLocal<DefaultFeignRpcContextHolder> LOCAL = new InheritableThreadLocal<DefaultFeignRpcContextHolder>() {
+			@Override
+			protected DefaultFeignRpcContextHolder initialValue() {
+				return new DefaultFeignRpcContextHolder();
+			}
+		};
+
+		private static final ThreadLocal<DefaultFeignRpcContextHolder> SERVER_LOCAL = new InheritableThreadLocal<DefaultFeignRpcContextHolder>() {
+			@Override
+			protected DefaultFeignRpcContextHolder initialValue() {
+				return new DefaultFeignRpcContextHolder();
+			}
+		};
 
 		// Notes: Since feignclient ignores case when setting header, it should
 		// be unified here.
@@ -86,8 +93,23 @@ public class DefaultFeignContextAutoConfiguration {
 		}
 
 		@Override
-		protected RpcContextHolder current() {
+		protected RpcContextHolder getContext0() {
 			return LOCAL.get();
+		}
+
+		@Override
+		protected RpcContextHolder getServerContext0() {
+			return SERVER_LOCAL.get();
+		}
+
+		@Override
+		protected void removeContext0() {
+			LOCAL.remove();
+		}
+
+		@Override
+		protected void removeServerContext0() {
+			SERVER_LOCAL.remove();
 		}
 	}
 

@@ -61,7 +61,7 @@ import org.springframework.format.support.FormattingConversionService;
 
 import com.fasterxml.jackson.databind.Module;
 import com.netflix.hystrix.HystrixCommand;
-import com.wl4g.component.integration.feign.core.context.FeignContextDecoder;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextDecoder;
 import com.wl4g.component.integration.feign.springcloud.config.EnhanceSpringCloudFeignAutoConfiguration;
 
 import feign.Contract;

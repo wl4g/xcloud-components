@@ -17,7 +17,7 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.feign.core.context;
+package com.wl4g.component.integration.feign.core.context.internal;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
@@ -26,7 +26,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.integration.feign.core.context.interceptor.FeignRpcContextUtils;
+import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor.Invokers;
 
 import feign.FeignException;
 import feign.Response;
@@ -39,7 +40,7 @@ import feign.codec.Decoder;
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-01-28
  * @sine v1.0
- * @see
+ * @see {@link feign.SynchronousMethodHandler#executeAndDecode()}
  */
 public class FeignContextDecoder implements Decoder {
 	private final SmartLogger log = getLogger(feign.Logger.class);
@@ -58,7 +59,14 @@ public class FeignContextDecoder implements Decoder {
 			// The RPC call has responded and the attachment info should be
 			// extracted from it.
 			try {
-				FeignRpcContextUtils.bindFeignResposneAttachmentsToContext(response);
+				FeignRpcContextBinders.bindAttachmentsFromFeignResposne(response);
+
+				// After called RPC, first cleanup context, reference:
+				// dubbo-2.7.4.1↓:ConsumerContextFilter.java
+				RpcContextHolder.removeContext();
+
+				// Call coprocessor.
+				Invokers.afterConsumerExecution(response, type);
 			} catch (Exception e2) {
 				log.warn("Cannot bind feign response attachments to current RpcContext", e2);
 			}

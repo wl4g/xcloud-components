@@ -110,6 +110,7 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 			return bean;
 		}
 
+		// Add known proxied mappings.
 		boolean hasSupportProxied = false;
 		for (SmartProxyInterceptor p : processors) {
 			if (p.supportTypeProxy(bean, targetClass)) {

@@ -28,11 +28,6 @@ import static com.wl4g.component.common.reflect.TypeUtils2.isSimpleType;
 import static com.wl4g.component.common.serialize.JacksonUtils.parseJSON;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static com.wl4g.component.integration.feign.core.constant.FeignConsumerConstant.RPC_ATTACTMENT_MAX_BYTES;
-
-import com.wl4g.component.common.codec.CodecSource;
-import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.utils.context.SpringContextHolder;
-
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -40,12 +35,17 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+
+import com.wl4g.component.common.codec.CodecSource;
+import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.core.utils.context.SpringContextHolder;
 
 /**
  * {@link RpcContextHolder}
@@ -74,30 +74,6 @@ public abstract class RpcContextHolder {
 		this.repository = notNullOf(repository, "referenceRepository");
 		this.codec = notNullOf(codec, "referenceCodec");
 	}
-
-	/**
-	 * Obtain singleton instance of {@link RpcContextHolder}
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static final <T extends RpcContextHolder> T get() {
-		if (isNull(provider)) {
-			synchronized (RpcContextHolder.class) {
-				if (isNull(provider)) {
-					provider = initAvailableHolderProvider();
-				}
-			}
-		}
-		return (T) provider.current();
-	}
-
-	/**
-	 * Gets or create current this instance.
-	 * 
-	 * @return
-	 */
-	protected abstract RpcContextHolder current();
 
 	/**
 	 * Gets attribute from original Rpc context. {@link #set(String, Object)}
@@ -161,14 +137,14 @@ public abstract class RpcContextHolder {
 	 * 
 	 * @return
 	 */
-	public abstract String getAttachment(String key);
+	public abstract String getAttachment(@Nullable String key);
 
 	/**
 	 * Gets all attachments from current rpc context.
 	 * 
 	 * @return
 	 */
-	public abstract Map<String, String> getAttachments();
+	public @Nullable abstract Map<String, String> getAttachments();
 
 	/**
 	 * Sets attachment to current rpc context.
@@ -176,7 +152,7 @@ public abstract class RpcContextHolder {
 	 * @param key
 	 * @param value
 	 */
-	public abstract void setAttachment(String key, String value);
+	public abstract void setAttachment(@NotNull String key, @Nullable String value);
 
 	/**
 	 * Sets all attachments to current rpc context.
@@ -184,7 +160,7 @@ public abstract class RpcContextHolder {
 	 * @param key
 	 * @param value
 	 */
-	public void setAttachments(Map<? extends String, ? extends String> attachments) {
+	public void setAttachments(@Nullable Map<? extends String, ? extends String> attachments) {
 		safeMap(attachments).forEach((key, value) -> setAttachment(key, value));
 	}
 
@@ -193,7 +169,7 @@ public abstract class RpcContextHolder {
 	 * 
 	 * @param key
 	 */
-	public abstract void removeAttachment(String key);
+	public abstract void removeAttachment(@NotNull String key);
 
 	/**
 	 * Remove all attachments to current rpc context.
@@ -236,9 +212,92 @@ public abstract class RpcContextHolder {
 		return get("localHost", String.class);
 	}
 
-	//
-	// --- References attachemnts implementation. ---
-	//
+	// --- BASIC METHODS. ---
+
+	/**
+	 * Obtain current request {@link RpcContextHolder} instance.
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <T extends RpcContextHolder> T getContext() {
+		return (T) obtainContextProvider().getContext0();
+	}
+
+	/**
+	 * Obtain current response {@link RpcContextHolder} instance.
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <T extends RpcContextHolder> T getServerContext() {
+		return (T) obtainContextProvider().getServerContext0();
+	}
+
+	/**
+	 * Gets or create current this instance.
+	 * 
+	 * @return
+	 */
+	protected abstract RpcContextHolder getContext0();
+
+	/**
+	 * Gets or create current this instance.
+	 * 
+	 * @return
+	 */
+	protected abstract RpcContextHolder getServerContext0();
+
+	/**
+	 * Remove current request {@link RpcContextHolder} instance.
+	 * 
+	 * @return
+	 */
+	public static final void removeContext() {
+		obtainContextProvider().removeContext0();
+	}
+
+	/**
+	 * Remove current response {@link RpcContextHolder} instance.
+	 * 
+	 * @return
+	 */
+	public static final void removeServerContext() {
+		obtainContextProvider().removeServerContext0();
+	}
+
+	/**
+	 * Remove current request {@link RpcContextHolder} instance.
+	 * 
+	 * @return
+	 */
+	protected abstract void removeContext0();
+
+	/**
+	 * Remove current response {@link RpcContextHolder} instance.
+	 * 
+	 * @return
+	 */
+	protected abstract void removeServerContext0();
+
+	/**
+	 * Obtain singleton instance of {@link RpcContextHolder}
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private static final <T extends RpcContextHolder> T obtainContextProvider() {
+		if (isNull(provider)) {
+			synchronized (RpcContextHolder.class) {
+				if (isNull(provider)) {
+					provider = initAvailableHolderProvider();
+				}
+			}
+		}
+		return (T) provider;
+	}
+
+	// --- REFERENCE ATTACHMENT METHODS. ---
 
 	public <T> T get(@NotBlank ReferenceKey key, @NotNull Class<T> valueType) {
 		notNullOf(key, "referenceKey");
