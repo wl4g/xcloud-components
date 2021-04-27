@@ -49,10 +49,11 @@ public class PageBindingFeignContextCoprocessor implements FeignContextCoprocess
 	public void afterConsumerExecution(@NotNull Response response, Type type) {
 		// Load new paging information to the original paging object.(If
 		// it is currently the service provider side)
+		// @see:com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor#postQuery
 		PageHolder.current(true);
 
 		// Release page binding.
-		PageHolder.unbind();
+		PageHolder.release();
 	}
 
 	@Override

@@ -257,7 +257,7 @@ public class PageHolder<E> implements Serializable {
 	/**
 	 * Release cleanup current {@link Page} of 'standalone' mode.
 	 */
-	public static void unbind() {
+	public static void release() {
 		localCurrentPage.remove();
 		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
 			// It's cleanup too:

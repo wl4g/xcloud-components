@@ -250,6 +250,7 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 
 				// Load new paging information to the original paging object.(If
 				// it is currently the service provider side)
+				// @see:com.wl4g.component.integration.feign.core.extension.PageBindingFeignContextCoprocessor#afterConsumerExecution
 				PageHolder.current(true);
 				log.debug("End current pagination of: {}", currentPage);
 			}
