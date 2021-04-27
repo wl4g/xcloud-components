@@ -17,7 +17,7 @@ spring:
   # Starting banner configuration.
   banner:
     charset: UTF-8
-    location: classpath:banner.txt
+    #location: classpath:default-banner.txt
   xcloud:
     #component:
     #  framework:
