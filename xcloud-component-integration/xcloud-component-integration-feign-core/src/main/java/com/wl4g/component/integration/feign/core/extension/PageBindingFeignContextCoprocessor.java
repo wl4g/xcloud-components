@@ -65,9 +65,4 @@ public class PageBindingFeignContextCoprocessor implements FeignContextCoprocess
 		}
 	}
 
-	@Override
-	public void afterProviderExecution(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result,
-			@NotNull Throwable ex) {
-	}
-
 }
