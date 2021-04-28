@@ -16,7 +16,6 @@
 package com.wl4g.component.opencv;
 
 import static com.wl4g.component.common.lang.StringUtils2.startsWithIgnoreCase;
-import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,15 +39,14 @@ import com.wl4g.component.opencv.library.OpenCvNativeLibraryLoader;
 public class VideoFaceTests {
 
 	public static void main(String[] args) throws IOException, ParseException {
-		if (IS_OS_WINDOWS) { // Already exists in jar file
-			OpenCvNativeLibraryLoader.loadLibrarys();
-		} else { // External lib file needs to be load
-			// Load native library.
+		if (args.length > 0) { // // Load external dylink library.
 			CommandLine line = CommandUtils.newBuilder()
-					.option("l", "libLocationPattern", null, "Load external native file location match pattern").build(args);
-			String location = line.getOptionValue("libLocationPattern");
+					.option("l", "locationPattern", null, "Load external native file location match pattern").build(args);
+			String location = line.getOptionValue("locationPattern");
 			location = startsWithIgnoreCase(location, "file://") ? location : ("file://" + location);
 			OpenCvNativeLibraryLoader.loadLibrarys(location);
+		} else {
+			OpenCvNativeLibraryLoader.loadLibrarys();
 		}
 
 		// Video face testing.
