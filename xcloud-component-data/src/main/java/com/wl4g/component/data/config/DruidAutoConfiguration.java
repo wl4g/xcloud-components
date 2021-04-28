@@ -15,11 +15,13 @@
  */
 package com.wl4g.component.data.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.support.http.StatViewServlet;
-import com.alibaba.druid.support.http.WebStatFilter;
-import com.wl4g.component.common.codec.CodecSource;
-import com.wl4g.component.common.crypto.symmetric.AES128ECBPKCS5;
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
+
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -30,12 +32,11 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 //import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.List;
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.support.http.StatViewServlet;
+import com.alibaba.druid.support.http.WebStatFilter;
+import com.wl4g.component.common.codec.CodecSource;
+import com.wl4g.component.common.crypto.symmetric.AES128ECBPKCS5;
 
 /**
  * DataSource configuration
@@ -59,7 +60,7 @@ public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration 
 		if (valueOf(environment.getProperty("spring.profiles.active")).startsWith("pro")) {
 			try {
 				// TODO using dynamic cipherKey??
-				byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DEVOPS_CIPHER_KEY");
+				byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DB_CIPHER_KEY");
 				plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(config.getPassword())).toString();
 			} catch (Throwable th) {
 				throw new IllegalStateException(format("Unable to decryption database password for '%s'", config.getPassword()),
