@@ -255,10 +255,16 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	/**
-	 * Release cleanup current {@link Page} of 'standalone' mode.
+	 * Reload executed paging information to local current page object and
+	 * release from origin rpc context.
 	 */
-	public static void release() {
+	public static void update() {
+		// Reload executed paging information to local current page object.
+		current(true);
+
+		// Remove from local.
 		localCurrentPage.remove();
+		// Remove from rpc origin context.
 		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
 			// It's cleanup too:
 			// @see:com.wl4g.component.integration.feign.core.context.interceptor.RpcContextProviderProxyInterceptor#postHandle

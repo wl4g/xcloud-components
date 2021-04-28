@@ -204,7 +204,8 @@ public abstract class RpcContextHolderBridges {
 	private static final Method setAttachmentMethod = findMethodNullable(rpcContextHolderClass, "setAttachment", String.class,
 			String.class);
 	private static final Method getAttachmentsMethod = findMethodNullable(rpcContextHolderClass, "getAttachments");
-	private static final Method removeAttachmentMethod = findMethodNullable(rpcContextHolderClass, "removeAttachment");
+	private static final Method removeAttachmentMethod = findMethodNullable(rpcContextHolderClass, "removeAttachment",
+			String.class);
 	private static final Method clearAttachmentsMethod = findMethodNullable(rpcContextHolderClass, "clearAttachments");
 
 	private static final Method getReferenceMethod = findMethodNullable(rpcContextHolderClass, "get", referenceKeyClass,

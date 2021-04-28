@@ -52,8 +52,8 @@ public class PageBindingFeignContextCoprocessor implements FeignContextCoprocess
 		// @see:com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor#postQuery
 		PageHolder.current(true);
 
-		// Release page binding.
-		PageHolder.release();
+		// Update executed paging information.
+		PageHolder.update();
 	}
 
 	@Override

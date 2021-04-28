@@ -167,11 +167,11 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		 * obtain the I18N language of the current user, it is finally decided
 		 * to migrate to the web layer.
 		 */
-		if (isNull(SqlUtil.getLocalPage())) { // No set?
-			// Obtain page from Rpc context.
+		if (isNull(SqlUtil.getLocalPage())) { // Not paging
+			// Obtain page from rpc context.
 			com.wl4g.component.core.page.PageHolder.Page<?> page = PageHolder.current(false);
 			if (nonNull(page)) {
-				log.debug("Begin current pagination of: {}", page);
+				log.debug("Begin current paging of: {}", page);
 				PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.isCount());
 			}
 		}
@@ -237,22 +237,20 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 		if (isNull(result)) {
 			return null;
 		}
-		// Update page result to (RPC)context holder.
+		// Update executed paging info to rpc server context.
 		if (result instanceof Page) {
 			com.github.pagehelper.Page<?> helperPage = (com.github.pagehelper.Page<?>) result;
 			com.wl4g.component.core.page.PageHolder.Page<?> currentPage = PageHolder.current(false);
 			if (nonNull(currentPage)) {
 				copyProperties(helperPage, currentPage);
-				// Bind the information after paging execution back to the RPC
-				// context, Ensure that the information that has been paged can
-				// be obtained on the service consumer side.
+				// Rebind executed page information to rpc server context,
+				// Ensure that the information that has been paged can be
+				// obtained on the consumer service side.
 				PageHolder.bind(true, currentPage);
 
-				// Load new paging information to the original paging object.(If
-				// it is currently the service provider side)
-				// @see:com.wl4g.component.integration.feign.core.extension.PageBindingFeignContextCoprocessor#afterConsumerExecution
-				PageHolder.current(true);
-				log.debug("End current pagination of: {}", currentPage);
+				// Update executed paging information.
+				PageHolder.update();
+				log.debug("End current paging of: {}", currentPage);
 			}
 		}
 		return result;
