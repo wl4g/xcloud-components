@@ -26,6 +26,8 @@ import javax.sql.DataSource;
 import org.apache.ibatis.plugin.Interceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -37,9 +39,13 @@ import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.wl4g.component.common.codec.CodecSource;
 import com.wl4g.component.common.crypto.symmetric.AES128ECBPKCS5;
+import com.zaxxer.hikari.HikariDataSource;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * DataSource configuration
+ * Druid DataSource auto configuration.
  * 
  * @author Wangl.sir <983708408@qq.com>
  * @version v1.0
@@ -47,11 +53,13 @@ import com.wl4g.component.common.crypto.symmetric.AES128ECBPKCS5;
  * @since
  */
 @ConditionalOnClass(DruidDataSource.class)
-public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration {
+@ConditionalOnExpression("'com.alibaba.druid.pool.DruidDataSource'.equalsIgnoreCase('${spring.datasource.type:}')")
+@ConditionalOnMissingBean(HikariDataSource.class)
+public class DruidAutoConfiguration extends BasedMybatisDataSourceConfigurer {
 
-	@Bean
 	// @RefreshScope
 	// @ConditionalOnMissingBean
+	@Bean
 	public DruidDataSource druidDataSource(DruidProperties config) {
 		DruidDataSource druid = new DruidDataSource();
 		druid.setUrl(config.getUrl());
@@ -119,14 +127,10 @@ public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration 
 		return new DruidProperties();
 	}
 
-	/**
-	 * {@link DruidProperties}
-	 *
-	 * @since
-	 */
+	@Getter
+	@Setter
 	@ConfigurationProperties(prefix = "spring.datasource.druid")
-	public static class DruidProperties {
-
+	static class DruidProperties {
 		private String url;
 		private String username;
 		private String password;
@@ -142,155 +146,9 @@ public class DruidAutoConfiguration extends AbstractDataSourceAutoConfiguration 
 		private boolean testOnBorrow;
 		private boolean testOnReturn;
 		private String filters;
-
 		private String logSlowSql;
 		private String webLoginUsername = "druid";
 		private String webLoginPassword = "druid";
-
-		public String getUrl() {
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
-
-		public String getDriverClassName() {
-			return driverClassName;
-		}
-
-		public void setDriverClassName(String driverClassName) {
-			this.driverClassName = driverClassName;
-		}
-
-		public int getInitialSize() {
-			return initialSize;
-		}
-
-		public void setInitialSize(int initialSize) {
-			this.initialSize = initialSize;
-		}
-
-		public int getMinIdle() {
-			return minIdle;
-		}
-
-		public void setMinIdle(int minIdle) {
-			this.minIdle = minIdle;
-		}
-
-		public int getMaxActive() {
-			return maxActive;
-		}
-
-		public void setMaxActive(int maxActive) {
-			this.maxActive = maxActive;
-		}
-
-		public int getMaxWait() {
-			return maxWait;
-		}
-
-		public void setMaxWait(int maxWait) {
-			this.maxWait = maxWait;
-		}
-
-		public int getTimeBetweenEvictionRunsMillis() {
-			return timeBetweenEvictionRunsMillis;
-		}
-
-		public void setTimeBetweenEvictionRunsMillis(int timeBetweenEvictionRunsMillis) {
-			this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
-		}
-
-		public int getMinEvictableIdleTimeMillis() {
-			return minEvictableIdleTimeMillis;
-		}
-
-		public void setMinEvictableIdleTimeMillis(int minEvictableIdleTimeMillis) {
-			this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
-		}
-
-		public String getValidationQuery() {
-			return validationQuery;
-		}
-
-		public void setValidationQuery(String validationQuery) {
-			this.validationQuery = validationQuery;
-		}
-
-		public boolean isTestWhileIdle() {
-			return testWhileIdle;
-		}
-
-		public void setTestWhileIdle(boolean testWhileIdle) {
-			this.testWhileIdle = testWhileIdle;
-		}
-
-		public boolean isTestOnBorrow() {
-			return testOnBorrow;
-		}
-
-		public void setTestOnBorrow(boolean testOnBorrow) {
-			this.testOnBorrow = testOnBorrow;
-		}
-
-		public boolean isTestOnReturn() {
-			return testOnReturn;
-		}
-
-		public void setTestOnReturn(boolean testOnReturn) {
-			this.testOnReturn = testOnReturn;
-		}
-
-		public String getFilters() {
-			return filters;
-		}
-
-		public void setFilters(String filters) {
-			this.filters = filters;
-		}
-
-		public String getLogSlowSql() {
-			return logSlowSql;
-		}
-
-		public void setLogSlowSql(String logSlowSql) {
-			this.logSlowSql = logSlowSql;
-		}
-
-		public String getWebLoginUsername() {
-			return webLoginUsername;
-		}
-
-		public void setWebLoginUsername(String webLoginUsername) {
-			this.webLoginUsername = webLoginUsername;
-		}
-
-		public String getWebLoginPassword() {
-			return webLoginPassword;
-		}
-
-		public void setWebLoginPassword(String webLoginPassword) {
-			this.webLoginPassword = webLoginPassword;
-		}
-
 	}
 
 	static {
