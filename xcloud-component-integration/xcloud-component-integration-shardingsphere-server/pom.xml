@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-shardingsphere-server</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for Shardingsphere Proxy</name>
+	<name>XCloud Component Integration Shardingsphere Proxy</name>
 	<url>http://xcloud.wl4g.com</url>
 	<description>A XCloud Component Integration Framework integrating Shardingsphere Proxy.</description>
 	<organization>

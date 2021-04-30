@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-feign-common</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for SpringBoot-Feign Common</name>
+	<name>XCloud Component Integration SpringBoot-Feign Common</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Framework based on integrating feign.</description>
+	<description>A XCloud Component Integration Framework based on integrating share part of SpringBoot/Cloud/Dubbo + Feign.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>

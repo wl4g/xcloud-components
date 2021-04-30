@@ -63,12 +63,12 @@
 		<module>xcloud-component-integration-feign-springcloud-dubbo</module>
 		<module>xcloud-component-integration-feign-springcloud-seata</module>
 		<module>xcloud-component-integration-feign-example</module>
-		<module>xcloud-component-integration-springcloud-eureka-server</module>
-		<module>xcloud-component-integration-springcloud-hystrix-turbine-server</module>
-		<!-- <module>xcloud-component-integration-shardingsphere-server</module> -->
-		<!--<module>xcloud-component-integration-springcloud-nacos</module> -->
-		<!--<module>xcloud-component-integration-springcloud-consul</module> -->
-		<!--<module>xcloud-component-integration-springcloud-zookeeper</module> -->
+		<module>xcloud-component-integration-regcenter-eureka-server</module>
+		<!--<module>xcloud-component-integration-regcenter-nacos</module> -->
+		<!--<module>xcloud-component-integration-regcenter-consul</module> -->
+		<!--<module>xcloud-component-integration-regcenter-zookeeper</module> -->
+		<!--<module>xcloud-component-integration-shardingsphere-server</module> -->
+		<module>xcloud-component-integration-circuitbreaker-hystrix-turbine-server</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

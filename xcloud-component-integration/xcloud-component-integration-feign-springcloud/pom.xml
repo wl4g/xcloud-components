@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-feign-springcloud</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for SpringCloud-Feign</name>
+	<name>XCloud Component Integration SpringCloud-Feign</name>
 	<url>http://xcloud.wl4g.com</url>
 	<description>A XCloud Component Integration Framework integrating SpringCloud feign.</description>
 	<organization>

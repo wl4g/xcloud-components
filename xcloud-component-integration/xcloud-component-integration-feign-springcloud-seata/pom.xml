@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-feign-springcloud-seata</artifactId>
 	<packaging>jar</packaging>
-	<name>XCloud Component Integration for SpringCloud-Feign-Seata</name>
+	<name>XCloud Component Integration SpringCloud-Feign-Seata</name>
 	<url>http://xcloud.wl4g.com</url>
-	<description>A XCloud Component Integration Framework integrating SpringCloud feign seata.</description>
+	<description>A XCloud Component Integration Framework integrating SpringCloud+Feign+Seata.</description>
 	<organization>
 		<name>wl4g</name>
 		<url>https://xcloud.wl4g.com</url>
