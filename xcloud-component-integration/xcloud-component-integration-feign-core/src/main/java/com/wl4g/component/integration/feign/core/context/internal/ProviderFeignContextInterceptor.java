@@ -41,7 +41,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.framework.proxy.SmartProxyInterceptor;
+import com.wl4g.component.core.framework.proxy.InvocationChain;
+import com.wl4g.component.core.framework.proxy.SmartProxyFilter;
 import com.wl4g.component.integration.feign.core.annotation.FeignConsumer;
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 
@@ -55,7 +56,7 @@ import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
  * @sine v1.0
  * @see
  */
-public class ProviderFeignContextInterceptor implements SmartProxyInterceptor {
+public class ProviderFeignContextInterceptor implements SmartProxyFilter {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Override
@@ -74,7 +75,17 @@ public class ProviderFeignContextInterceptor implements SmartProxyInterceptor {
 	}
 
 	@Override
-	public Object[] preHandle(@NotNull Object target, @NotNull Method method, Object[] parameters) {
+	public Object doInvoke(@NotNull InvocationChain chain, @NotNull Object target, @NotNull Method method, Object[] args)
+			throws Exception {
+		try {
+			preHandle(target, method, args);
+			return chain.doInvoke(target, method, args);
+		} finally {
+			postHandle(target, method, args);
+		}
+	}
+
+	private void preHandle(@NotNull Object target, @NotNull Method method, Object[] args) {
 		if (!isConsumerSide(target)) {
 			// FIXED: Only the feign remote instance is processed, ignore local
 			// instance. For example, in the provider layer, there is no request
@@ -86,14 +97,11 @@ public class ProviderFeignContextInterceptor implements SmartProxyInterceptor {
 				FeignRpcContextBinders.bindAttachmentsFromRequest(request);
 			}
 			// Call coprocessor.
-			FeignContextCoprocessor.Invokers.beforeProviderExecution(request, target, method, parameters);
+			FeignContextCoprocessor.Invokers.beforeProviderExecution(request, target, method, args);
 		}
-		return parameters;
 	}
 
-	@Override
-	public Object postHandle(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result,
-			@NotNull Throwable ex) {
+	private void postHandle(@NotNull Object target, @NotNull Method method, Object[] args) {
 		if (!isConsumerSide(target)) {
 			try {
 				// FIXED: Only the feign remote instance is processed, ignore
@@ -107,7 +115,7 @@ public class ProviderFeignContextInterceptor implements SmartProxyInterceptor {
 					FeignRpcContextBinders.writeAttachemntsToResponse(response);
 				}
 				// Call coprocessor.
-				FeignContextCoprocessor.Invokers.afterProviderExecution(target, method, parameters, result, ex);
+				FeignContextCoprocessor.Invokers.afterProviderExecution(target, method, args);
 			} finally {
 				// After responding to RPC, should cleanup the context and
 				// server context. reference: dubbo-2.7.4.1↓:ContextFilter.java
@@ -115,7 +123,6 @@ public class ProviderFeignContextInterceptor implements SmartProxyInterceptor {
 				RpcContextHolder.removeServerContext();
 			}
 		}
-		return result;
 	}
 
 	/**

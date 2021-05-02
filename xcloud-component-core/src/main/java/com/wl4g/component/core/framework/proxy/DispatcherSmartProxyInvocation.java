@@ -15,15 +15,16 @@
  */
 package com.wl4g.component.core.framework.proxy;
 
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.reflect.ReflectionUtils2.makeAccessible;
-import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Supplier;
+
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 /**
  * {@link DispatcherSmartProxyInvocation}
@@ -50,53 +51,66 @@ public class DispatcherSmartProxyInvocation extends AbstractDispatcherProxyInvoc
 		// TODO use cache?
 		// e.g: but org.mybatis.spring.MapperFactoryBean#getObject()
 		// Returns a new object each time.
-		return (target = targetSuplier.get());
 		/**
 		 * Notes: do not use {@link BeanFactory#getBean(targetBeanName)} to get
 		 * the actual original object here, because it may have been overridden
 		 * and registered as a proxy object, and there will be a dead loop when
 		 * calling.
 		 */
+		return (target = targetSuplier.get());
 	}
 
 	@Override
-	public Object doInvoke(Object target, Method method, Object[] args) throws Throwable {
+	public Object doInvoke(final Object target, final Method method, final Object[] args) throws Throwable {
 		if (!method.isAccessible()) {
 			makeAccessible(method);
 		}
 
-		// Gets proxies handlers.
-		List<SmartProxyInterceptor> processors = configurer.getProcessors(targetClass);
+		// Match all filters that support intercepting target methods.
+		List<SmartProxyFilter> matchedFilters = safeList(configurer.getProcessors(targetClass)).stream()
+				.filter(p -> p.supportMethodProxy(target, method, targetClass, args)).collect(toList());
 
-		// Prepared process
-		for (SmartProxyInterceptor p : processors) {
-			if (p.supportMethodProxy(target, method, targetClass, args)) {
-				args = p.preHandle(target, method, args);
-			}
-		}
-
-		// Invoke actual method.
-		Throwable ex = null;
+		// Invoke target(actual) method.
 		Object result = null;
 		try {
-			result = method.invoke(target, args);
-		} catch (Throwable e) {
-			ex = e;
-		}
-
-		// Post process
-		for (SmartProxyInterceptor p : processors) {
-			if (p.supportMethodProxy(target, method, targetClass, args)) {
-				result = p.postHandle(target, method, args, result, ex);
-			}
-		}
-
-		// Throws actual invoke exception.
-		if (nonNull(ex)) { // TODO remove
+			result = new InvocationChain(matchedFilters).doInvoke(target, method, args);
+		} catch (Throwable ex) {
 			throw ex;
 		}
 
-		log.debug("Invoked enhance proxy orig method: {}, args:{}, return: {}", method, args, result);
+		// // Gets proxies handlers.
+		// List<SmartProxyInterceptor> processors =
+		// configurer.getProcessors(targetClass);
+		//
+		// // Prepared process
+		// for (SmartProxyInterceptor p : processors) {
+		// if (p.supportMethodProxy(target, method, targetClass, args)) {
+		// args = p.preHandle(target, method, args);
+		// }
+		// }
+		//
+		// // Invoke actual method.
+		// Throwable ex = null;
+		// Object result = null;
+		// try {
+		// result = method.invoke(target, args);
+		// } catch (Throwable e) {
+		// ex = e;
+		// }
+		//
+		// // Post process
+		// for (SmartProxyInterceptor p : processors) {
+		// if (p.supportMethodProxy(target, method, targetClass, args)) {
+		// result = p.postHandle(target, method, args, result, ex);
+		// }
+		// }
+		//
+		// // Throws actual invoke exception.
+		// if (nonNull(ex)) { // TODO remove?
+		// throw ex;
+		// }
+
+		log.debug("Invoked proxied origin method: {}, args:{}, return: {}", method, args, result);
 		return result;
 	}
 

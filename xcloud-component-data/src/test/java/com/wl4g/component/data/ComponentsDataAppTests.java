@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.wl4g.component.data.annotation.EnableComponentDBConfiguration;
+import com.wl4g.component.data.annotation.EnableComponentDataConfiguration;
 import com.wl4g.component.data.sample.dao.SampleDao;
 
 /**
@@ -33,7 +33,7 @@ import com.wl4g.component.data.sample.dao.SampleDao;
  * @version v1.0 2020-09-07
  * @since
  */
-@EnableComponentDBConfiguration
+@EnableComponentDataConfiguration
 @MapperScan("com.wl4g.component.data.sample.dao.*")
 @SpringBootApplication(scanBasePackages = { "com" })
 public class ComponentsDataAppTests implements InitializingBean {

@@ -15,10 +15,6 @@
  */
 package com.wl4g.component.core.framework.proxy;
 
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-
-import com.wl4g.component.common.log.SmartLogger;
-
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
@@ -29,6 +25,10 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+
+import com.wl4g.component.common.log.SmartLogger;
 
 /**
  * {@link AbstractDispatcherProxyInvocation}
@@ -69,7 +69,7 @@ public abstract class AbstractDispatcherProxyInvocation implements ProxyInvocati
 		return excludeMethods.contains(method.getName());
 	}
 
-	protected abstract Object doInvoke(Object proxy, Method method, Object[] args) throws Throwable;
+	protected abstract Object doInvoke(final Object target, final Method method, final Object[] args) throws Throwable;
 
 	public static final List<String> excludeMethods = unmodifiableList(new ArrayList<String>(4) {
 		private static final long serialVersionUID = 3369346948736795743L;

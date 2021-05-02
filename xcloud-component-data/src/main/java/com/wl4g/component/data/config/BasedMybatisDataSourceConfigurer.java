@@ -15,9 +15,12 @@
  */
 package com.wl4g.component.data.config;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.safeArray;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Arrays.asList;
+import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
+import static org.springframework.util.ClassUtils.convertClassNameToResourcePath;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,8 +39,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
-import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
-import static org.springframework.util.ClassUtils.convertClassNameToResourcePath;
 
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.data.mybatis.session.SmartSqlSessionFactoryBean;
@@ -95,15 +96,13 @@ public abstract class BasedMybatisDataSourceConfigurer {
 		// Define metadataReader
 		MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resolver);
 
-		for (String pkg : safeList(config.getTypeAliasPackage())) {
+		for (String pkg : safeList(config.getTypeAliasesPackage())) {
 			String location = CLASSPATH_ALL_URL_PREFIX + convertClassNameToResourcePath(pkg) + "**/*.class";
 			Resource[] resources = resolver.getResources(location);
-			if (resources != null) {
-				for (Resource resource : resources) {
-					if (resource.isReadable()) {
-						MetadataReader metadataReader = readerFactory.getMetadataReader(resource);
-						typeAliases.add(Class.forName(metadataReader.getClassMetadata().getClassName()));
-					}
+			for (Resource resource : safeArray(Resource.class, resources)) {
+				if (resource.isReadable()) {
+					MetadataReader reader = readerFactory.getMetadataReader(resource);
+					typeAliases.add(Class.forName(reader.getClassMetadata().getClassName()));
 				}
 			}
 		}

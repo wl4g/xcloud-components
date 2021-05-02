@@ -17,24 +17,34 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.data.constant;
+package com.wl4g.component.data.cache;
 
-import com.wl4g.component.core.constant.BaseConstant;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.annotation.Bean;
+
+import com.wl4g.component.support.redis.jedis.JedisService;
 
 /**
- * {@link DataComponentConstant}
+ * {@link DataCacheAutoConfiguration}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2021-01-20
+ * @version v1.0 2021-05-02
  * @sine v1.0
  * @see
  */
-public abstract class DataComponentConstant extends BaseConstant {
+public class DataCacheAutoConfiguration {
 
-	public static final String KEY_DATA_BASE_PREFIX = "spring.xcloud.component.data";
+	@Bean
+	@ConditionalOnBean(JedisService.class)
+	@ConditionalOnClass(JedisService.class)
+	public IDataCache jedisDataCache(JedisService jedisService) {
+		return new JedisDataCache(jedisService);
+	}
 
-	public static final String KEY_MYBATIS_PREFIX = KEY_DATA_BASE_PREFIX + ".mybatis";
-
-	public static final String KEY_HOTSPOT_LOADER_PREFIX = KEY_DATA_BASE_PREFIX + ".mybatis-loader";
+	@Bean
+	public MethodReturnDataCacheProxyFilter methodReturnDataCacheProxyFilter(IDataCache cache) {
+		return new MethodReturnDataCacheProxyFilter(cache);
+	}
 
 }

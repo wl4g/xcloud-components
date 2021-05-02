@@ -74,14 +74,14 @@ import com.wl4g.component.common.log.SmartLogger;
 public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostProcessor {
 	protected final SmartLogger log = getLogger(getClass());
 
-	private final Map<Class<?>, List<SmartProxyInterceptor>> knownProxiedMapping = new ConcurrentHashMap<>(4);
+	private final Map<Class<?>, List<SmartProxyFilter>> knownProxiedMapping = new ConcurrentHashMap<>(4);
 
 	@Value("${" + KEY_SMART_PROXY + ".base-packages:}")
 	private String[] basePackages;
 	@Autowired
 	private DefaultListableBeanFactory beanFactory;
 	@Autowired(required = false)
-	private List<SmartProxyInterceptor> processors;
+	private List<SmartProxyFilter> processors;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -112,7 +112,7 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 
 		// Add known proxied mappings.
 		boolean hasSupportProxied = false;
-		for (SmartProxyInterceptor p : processors) {
+		for (SmartProxyFilter p : processors) {
 			if (p.supportTypeProxy(bean, targetClass)) {
 				hasSupportProxied = true;
 				// Add proxies handler mapping.
@@ -182,13 +182,13 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 	}
 
 	/**
-	 * Addidition known proxied and {@link SmartProxyInterceptor} mappings.
+	 * Addidition known proxied and {@link SmartProxyFilter} mappings.
 	 * 
 	 * @param targetClass
 	 * @param processor
 	 */
-	private void addKnownProxiedMapping(Class<?> targetClass, SmartProxyInterceptor processor) {
-		List<SmartProxyInterceptor> processors = knownProxiedMapping.get(targetClass);
+	private void addKnownProxiedMapping(Class<?> targetClass, SmartProxyFilter processor) {
+		List<SmartProxyFilter> processors = knownProxiedMapping.get(targetClass);
 		if (isNull(processors)) {
 			processors = new ArrayList<>(4);
 		}
@@ -199,12 +199,12 @@ public class SmartProxyAutoConfiguration implements InitializingBean, BeanPostPr
 	}
 
 	/**
-	 * Gets known proxied and {@link SmartProxyInterceptor} processor.
+	 * Gets known proxied and {@link SmartProxyFilter} processor.
 	 * 
 	 * @param targetClass
 	 * @return
 	 */
-	final List<SmartProxyInterceptor> getProcessors(Class<?> targetClass) {
+	final List<SmartProxyFilter> getProcessors(Class<?> targetClass) {
 		return safeList(knownProxiedMapping.get(targetClass));
 	}
 

@@ -16,6 +16,9 @@ spring:
     name: eureka
   profiles:
     active: standalone # for default
+  banner:
+    charset: UTF-8
+    location: classpath:banner.txt
   xcloud:
     component:
       framework:

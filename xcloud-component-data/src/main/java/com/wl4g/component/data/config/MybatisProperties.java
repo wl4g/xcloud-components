@@ -15,10 +15,13 @@
  */
 package com.wl4g.component.data.config;
 
-import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * {@link MybatisProperties}
@@ -27,39 +30,13 @@ import java.util.List;
  * @version v1.0 2020-08-05
  * @since
  */
+@Getter
+@Setter
+@ToString
 public class MybatisProperties {
 
-	private List<String> typeAliasPackage;
+	private List<String> typeAliasesPackage;
 	private String configLocation = "mybatis/mybatis-config.xml";
 	private List<String> mapperLocations = asList("classpath:mybatis/**/*Mapper.xml");
-
-	public List<String> getTypeAliasPackage() {
-		return typeAliasPackage;
-	}
-
-	public void setTypeAliasPackage(List<String> typeAliasesPackage) {
-		this.typeAliasPackage = typeAliasesPackage;
-	}
-
-	public String getConfigLocation() {
-		return configLocation;
-	}
-
-	public void setConfigLocation(String configLocation) {
-		this.configLocation = configLocation;
-	}
-
-	public List<String> getMapperLocations() {
-		return mapperLocations;
-	}
-
-	public void setMapperLocations(List<String> mapperLocations) {
-		this.mapperLocations = mapperLocations;
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName().concat(" - ").concat(toJSONString(this));
-	}
 
 }

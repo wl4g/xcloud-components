@@ -41,7 +41,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @sine v1.0
  * @see
  */
-public interface SmartProxyInterceptor extends Ordered {
+public interface SmartProxyFilter extends Ordered {
 
 	/**
 	 * Check whether the current class proxy is supported.
@@ -64,13 +64,20 @@ public interface SmartProxyInterceptor extends Ordered {
 		return true;
 	}
 
-	default Object[] preHandle(@NotNull Object target, @NotNull Method method, @Nullable Object[] parameters) {
-		return parameters;
+	// default Object[] preHandle(@NotNull Object target, @NotNull Method
+	// method, @Nullable Object[] args) {
+	// return args;
+	// }
+
+	default Object doInvoke(@NotNull InvocationChain chain, @NotNull Object target, @NotNull Method method,
+			@Nullable Object[] args) throws Exception {
+		return chain.doInvoke(target, method, args);
 	}
 
-	default Object postHandle(@NotNull Object target, @NotNull Method method, @Nullable Object[] parameters,
-			@Nullable Object result, @NotNull Throwable ex) {
-		return result;
-	}
+	// default Object postHandle(@NotNull Object target, @NotNull Method method,
+	// @Nullable Object[] args, @Nullable Object result,
+	// @NotNull Throwable ex) {
+	// return result;
+	// }
 
 }

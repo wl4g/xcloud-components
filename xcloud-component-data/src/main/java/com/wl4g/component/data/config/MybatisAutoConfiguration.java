@@ -15,6 +15,9 @@
  */
 package com.wl4g.component.data.config;
 
+import static com.wl4g.component.data.constant.DataComponentConstant.KEY_HOTSPOT_LOADER_PREFIX;
+import static com.wl4g.component.data.constant.DataComponentConstant.KEY_MYBATIS_PREFIX;
+
 import java.util.Properties;
 
 import org.apache.ibatis.plugin.Interceptor;
@@ -22,8 +25,8 @@ import org.apache.ibatis.plugin.InterceptorChain;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
@@ -33,10 +36,8 @@ import com.github.pagehelper.PageHelper;
 import com.wl4g.component.core.annotation.condition.ConditionalOnJdwpDebug;
 import com.wl4g.component.data.mybatis.loader.SqlSessionMapperHotspotLoader;
 import com.wl4g.component.data.mybatis.loader.SqlSessionMapperHotspotLoader.HotspotLoaderProperties;
-import com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor;
 import com.wl4g.component.data.mybatis.mapper.IdGenerator;
-import static com.wl4g.component.data.constant.DataComponentConstant.KEY_MYBATIS_PREFIX;
-import static com.wl4g.component.data.constant.DataComponentConstant.KEY_HOTSPOT_LOADER_PREFIX;
+import com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor;
 
 /**
  * {@link SqlSessionMapperHotspotLoader} auto configuration.
@@ -120,7 +121,7 @@ public class MybatisAutoConfiguration {
 	 * Note: mybatis {@link Interceptor} is reverse, that is, the last execution
 	 * that is first added to {@link InterceptorChain}
 	 */
-	final public static int ORDER_PREPARED_BEAN_MAPPER = Ordered.LOWEST_PRECEDENCE;
-	final public static int ORDER_PAGEHELPER = ORDER_PREPARED_BEAN_MAPPER - 1;
+	public static final int ORDER_PREPARED_BEAN_MAPPER = Ordered.LOWEST_PRECEDENCE;
+	public static final int ORDER_PAGEHELPER = ORDER_PREPARED_BEAN_MAPPER - 1;
 
 }

@@ -17,24 +17,22 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.data.constant;
-
-import com.wl4g.component.core.constant.BaseConstant;
+package com.wl4g.component.data.cache;
 
 /**
- * {@link DataComponentConstant}
+ * {@link IDataCache}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2021-01-20
+ * @version v1.0 2021-05-02
  * @sine v1.0
  * @see
  */
-public abstract class DataComponentConstant extends BaseConstant {
+public interface IDataCache {
 
-	public static final String KEY_DATA_BASE_PREFIX = "spring.xcloud.component.data";
+	<T> T get(String key, Class<T> valueType);
 
-	public static final String KEY_MYBATIS_PREFIX = KEY_DATA_BASE_PREFIX + ".mybatis";
+	void put(String key, Object value);
 
-	public static final String KEY_HOTSPOT_LOADER_PREFIX = KEY_DATA_BASE_PREFIX + ".mybatis-loader";
+	void put(String key, Object value, long expireMs);
 
 }

@@ -28,12 +28,13 @@ import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
+import com.wl4g.component.data.cache.DataCacheAutoConfiguration;
 import com.wl4g.component.data.config.DruidAutoConfiguration;
 import com.wl4g.component.data.config.HikariAutoConfiguration;
 import com.wl4g.component.data.config.MybatisAutoConfiguration;
 
 /**
- * Enable xcloud components data source configuration.
+ * Enable xcloud components datasource auto configuration.
  *
  * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
  * @version v1.0 2020-08-05
@@ -43,8 +44,9 @@ import com.wl4g.component.data.config.MybatisAutoConfiguration;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @MapperScan
-@Import({ HikariAutoConfiguration.class, DruidAutoConfiguration.class, MybatisAutoConfiguration.class, })
-public @interface EnableComponentDBConfiguration {
+@Import({ HikariAutoConfiguration.class, DruidAutoConfiguration.class, MybatisAutoConfiguration.class,
+		DataCacheAutoConfiguration.class })
+public @interface EnableComponentDataConfiguration {
 
 	// --- Mapper scan attributes. ---
 

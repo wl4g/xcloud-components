@@ -58,8 +58,7 @@ public interface FeignContextCoprocessor {
 			Object[] parameters) {
 	}
 
-	default void afterProviderExecution(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result,
-			@NotNull Throwable ex) {
+	default void afterProviderExecution(@NotNull Object target, @NotNull Method method, Object[] args) {
 	};
 
 	static final class Invokers {
@@ -85,10 +84,9 @@ public interface FeignContextCoprocessor {
 			}
 		}
 
-		public static void afterProviderExecution(@NotNull Object target, @NotNull Method method, Object[] parameters,
-				Object result, @NotNull Throwable ex) {
+		public static void afterProviderExecution(@NotNull Object target, @NotNull Method method, Object[] args) {
 			for (FeignContextCoprocessor c : getCoprocessors()) {
-				c.afterProviderExecution(target, method, parameters, result, ex);
+				c.afterProviderExecution(target, method, args);
 			}
 		}
 

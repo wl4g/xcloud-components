@@ -19,6 +19,7 @@
  */
 package com.wl4g.component.core.web.method.convert;
 
+import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_HUMAN_DATE_CONVERTER;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation;
@@ -40,18 +41,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.wl4g.component.common.lang.period.PeriodFormatter;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.core.bean.BaseBean;
-import com.wl4g.component.core.framework.proxy.SmartProxyInterceptor;
-import static com.wl4g.component.core.constant.CoreConfigConstant.KEY_WEB_HUMAN_DATE_CONVERTER;
+import com.wl4g.component.core.framework.proxy.InvocationChain;
+import com.wl4g.component.core.framework.proxy.SmartProxyFilter;
 
 /**
- * {@link HumanDateConversionInterceptor}
+ * {@link HumanDateConversionFilter}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-21
  * @sine v1.0
  * @see
  */
-public class HumanDateConversionInterceptor implements SmartProxyInterceptor {
+public class HumanDateConversionFilter implements SmartProxyFilter {
 
 	@Override
 	public int getOrder() {
@@ -73,7 +74,12 @@ public class HumanDateConversionInterceptor implements SmartProxyInterceptor {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Object postHandle(@NotNull Object target, @NotNull Method method, Object[] parameters, Object result, Throwable ex) {
+	public Object doInvoke(@NotNull InvocationChain chain, @NotNull Object target, @NotNull Method method, Object[] args)
+			throws Exception {
+		// Invoke actual method.
+		Object result = chain.doInvoke(target, method, args);
+
+		// Update date fields to human formatted.
 		if (nonNull(result)) {
 			if (result instanceof RespBase) {
 				Object data = ((RespBase) result).getData();
@@ -132,8 +138,8 @@ public class HumanDateConversionInterceptor implements SmartProxyInterceptor {
 	@ConditionalOnProperty(name = KEY_WEB_HUMAN_DATE_CONVERTER + ".enabled", matchIfMissing = true)
 	static class HumanDateConversionAutoConfiguration {
 		@Bean
-		public HumanDateConversionInterceptor humanDateConversionProcessor() {
-			return new HumanDateConversionInterceptor();
+		public HumanDateConversionFilter humanDateConversionProcessor() {
+			return new HumanDateConversionFilter();
 		}
 	}
 
