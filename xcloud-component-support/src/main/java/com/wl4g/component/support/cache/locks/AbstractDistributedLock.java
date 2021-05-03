@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.locks;
+package com.wl4g.component.support.cache.locks;
 
 import static com.wl4g.component.common.lang.SystemUtils2.GLOBAL_PROCESS_SERIAL;
 import static org.springframework.util.Assert.hasText;
@@ -36,13 +36,13 @@ public abstract class AbstractDistributedLock implements Lock, Serializable {
 	private static final long serialVersionUID = -3633610156752730462L;
 
 	/** Current locker name. */
-	final protected String name;
+	protected final String name;
 
 	/** Current locker request ID. */
-	final protected String currentProcessId;
+	protected final String currentProcessId;
 
 	/** Current locker expired time(MS). */
-	final protected long expiredMs;
+	protected final long expiredMs;
 
 	public AbstractDistributedLock(String name, String currentProcessId, long expiredMs) {
 		hasText(name, "Lock name must not be empty.");

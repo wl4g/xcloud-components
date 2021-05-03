@@ -33,8 +33,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder.ReferenceRepository;
-import com.wl4g.component.support.redis.jedis.JedisClient;
-import com.wl4g.component.support.redis.jedis.JedisClientFactoryBean;
+import com.wl4g.component.support.cache.jedis.JedisClient;
+import com.wl4g.component.support.cache.jedis.JedisClientFactoryBean;
 
 /**
  * Notes: There is no need to check the automatic configuration only in the

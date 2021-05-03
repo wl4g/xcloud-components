@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.data.annotation;
+package com.wl4g.component.data.cache.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.springframework.stereotype.Indexed;
 
 /**
- * Enable cache for query methods of any type.
+ * Enable cache for update methods of any type.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-05-02
@@ -33,37 +33,56 @@ import lombok.Getter;
  * @see
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ ElementType.METHOD })
 @Documented
-public @interface DataCache {
+@Indexed
+@Inherited
+public @interface CacheUpdate {
 
 	/**
-	 * Sets method cache prefix.</br>
-	 * supported spring environment expression.
+	 * Sets method cache name.</br>
+	 * 
+	 * <pre>
+	 * for example: name="usercache:"
+	 * </pre>
 	 */
-	String prefix() default DEFAULT_CACHE_KEY_PREFIX;
+	String name() default DEFAULT_CACHE_NAME;
+
+	/**
+	 * Sets method cache key.</br>
+	 * 
+	 * <pre>
+	 * for example: key="#user.userId"
+	 * </pre>
+	 */
+	String key() default "";
+
+	/**
+	 * Sets method cache value.</br>
+	 * 
+	 * <pre>
+	 * for example: value="#user"
+	 * </pre>
+	 */
+	String value() default "";
 
 	/**
 	 * Sets method caching expire time(ms).</br>
-	 * supported spring environment expression.
+	 * 
+	 * <pre>
+	 * for example: expireMs="${myproject.cache.expireMs:3600}"
+	 * </pre>
 	 */
 	String expireMs() default DEFAULT_CACHE_EXPIRE_MS + "";
 
 	/**
-	 * Default query cache prefix.
+	 * Default cache name.
 	 */
-	public static final String DEFAULT_CACHE_KEY_PREFIX = "querycache:";
+	public static final String DEFAULT_CACHE_NAME = "cached:";
 
 	/**
-	 * Default query cache expireMs.
+	 * Default cache expireMs.
 	 */
 	public static final long DEFAULT_CACHE_EXPIRE_MS = 60 * 1000;
-
-	@Getter
-	@AllArgsConstructor
-	public static class DataCacheWrapper {
-		private String prefix;
-		private long expireMs;
-	}
 
 }

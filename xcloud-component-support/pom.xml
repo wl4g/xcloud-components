@@ -79,6 +79,16 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
+			<!-- <optional>true</optional> -->
+		</dependency>
+		<!-- Jetcache. -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.alicp.jetcache</groupId> -->
+		<!-- <artifactId>jetcache-redis-lettuce</artifactId> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>io.lettuce</groupId>
+			<artifactId>lettuce-core</artifactId>
 		</dependency>
 		<!-- Notification. -->
 		<dependency>

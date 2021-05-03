@@ -33,29 +33,30 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 import com.wl4g.component.core.framework.proxy.InvocationChain;
 import com.wl4g.component.core.framework.proxy.SmartProxyFilter;
-import com.wl4g.component.data.annotation.DataCache;
-import com.wl4g.component.data.annotation.DataCache.DataCacheWrapper;
+import com.wl4g.component.data.cache.annotation.Cached;
+import com.wl4g.component.data.cache.annotation.Cached.DataCacheWrapper;
 
 /**
- * {@link MethodReturnDataCacheProxyFilter}
+ * {@link MethodCachingProxyFilter}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-05-02
  * @sine v1.0
  * @see
  */
-public class MethodReturnDataCacheProxyFilter implements SmartProxyFilter {
+public class MethodCachingProxyFilter implements SmartProxyFilter {
 
 	protected @Autowired Environment environment;
 
 	protected final Map<Method, DataCacheWrapper> methodMetaCaching;
-	protected final IDataCache cache;
+	protected final ICacheStorage cache;
 
-	public MethodReturnDataCacheProxyFilter(IDataCache cache) {
+	public MethodCachingProxyFilter(ICacheStorage cache) {
 		this.cache = notNullOf(cache, "dataCache");
 		this.methodMetaCaching = new HashMap<>(64);
 	}
@@ -67,12 +68,12 @@ public class MethodReturnDataCacheProxyFilter implements SmartProxyFilter {
 
 	@Override
 	public boolean supportTypeProxy(Object target, Class<?> actualOriginalTargetClass) {
-		return hasAnnotation(actualOriginalTargetClass, DataCache.class);
+		return hasAnnotation(actualOriginalTargetClass, Cached.class);
 	}
 
 	@Override
 	public boolean supportMethodProxy(Object target, Method method, Class<?> actualOriginalTargetClass, Object... args) {
-		return hasAnnotation(method, DataCache.class);
+		return hasAnnotation(method, Cached.class);
 	}
 
 	// TODO 1.Dirty reading and dirty writing?
@@ -103,7 +104,7 @@ public class MethodReturnDataCacheProxyFilter implements SmartProxyFilter {
 	}
 
 	/**
-	 * Find method annotaton of {@link DataCache.DataCacheWrapper} meta
+	 * Find method annotaton of {@link Cached.DataCacheWrapper} meta
 	 * information.
 	 * 
 	 * @param target
@@ -116,17 +117,24 @@ public class MethodReturnDataCacheProxyFilter implements SmartProxyFilter {
 			synchronized (this) {
 				dcw = methodMetaCaching.get(method);
 				if (isNull(dcw)) {
-					DataCache dc = findAnnotation(method, DataCache.class);
+					Cached dc = findAnnotation(method, Cached.class);
 					if (isNull(dc)) { // Fallback use declaring type
-						dc = findAnnotation(method.getDeclaringClass(), DataCache.class);
+						dc = findAnnotation(method.getDeclaringClass(), Cached.class);
 					}
-					String prefix = environment.resolvePlaceholders(dc.prefix());
+					String prefix = environment.resolvePlaceholders(dc.name());
 					long expireMs = parseLongOrDefault(environment.resolvePlaceholders(dc.expireMs()));
 					methodMetaCaching.put(method, new DataCacheWrapper(prefix, expireMs));
 				}
 			}
 		}
 		return dcw;
+	}
+
+	static class MethodCachingAutoConfiguration {
+		@Bean
+		public MethodCachingProxyFilter methodCachingProxyFilter(ICacheStorage cache) {
+			return new MethodCachingProxyFilter(cache);
+		}
 	}
 
 }

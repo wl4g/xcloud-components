@@ -28,7 +28,6 @@ import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
-import com.wl4g.component.data.cache.DataCacheAutoConfiguration;
 import com.wl4g.component.data.config.DruidAutoConfiguration;
 import com.wl4g.component.data.config.HikariAutoConfiguration;
 import com.wl4g.component.data.config.MybatisAutoConfiguration;
@@ -44,8 +43,7 @@ import com.wl4g.component.data.config.MybatisAutoConfiguration;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @MapperScan
-@Import({ HikariAutoConfiguration.class, DruidAutoConfiguration.class, MybatisAutoConfiguration.class,
-		DataCacheAutoConfiguration.class })
+@Import({ HikariAutoConfiguration.class, DruidAutoConfiguration.class, MybatisAutoConfiguration.class })
 public @interface EnableComponentDataConfiguration {
 
 	// --- Mapper scan attributes. ---

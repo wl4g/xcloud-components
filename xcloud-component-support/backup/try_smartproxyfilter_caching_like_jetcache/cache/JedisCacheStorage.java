@@ -19,32 +19,53 @@
  */
 package com.wl4g.component.data.cache;
 
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.lang.TypeConverts.safeLongToInt;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 
-import com.wl4g.component.support.redis.jedis.JedisService;
+import com.wl4g.component.support.cache.jedis.JedisService;
 
 /**
- * {@link DataCacheAutoConfiguration}
+ * {@link JedisCacheStorage}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-05-02
  * @sine v1.0
  * @see
  */
-public class DataCacheAutoConfiguration {
+public class JedisCacheStorage implements ICacheStorage {
 
-	@Bean
-	@ConditionalOnBean(JedisService.class)
-	@ConditionalOnClass(JedisService.class)
-	public IDataCache jedisDataCache(JedisService jedisService) {
-		return new JedisDataCache(jedisService);
+	protected final JedisService jedisService;
+
+	public JedisCacheStorage(JedisService jedisService) {
+		this.jedisService = notNullOf(jedisService, "jedisService");
 	}
 
-	@Bean
-	public MethodReturnDataCacheProxyFilter methodReturnDataCacheProxyFilter(IDataCache cache) {
-		return new MethodReturnDataCacheProxyFilter(cache);
+	@Override
+	public <T> T get(String key, Class<T> valueType) {
+		return jedisService.getObjectT(key, valueType);
+	}
+
+	@Override
+	public void put(String key, Object value) {
+		jedisService.setObjectT(key, value, 0);
+	}
+
+	@Override
+	public void put(String key, Object value, long expireMs) {
+		jedisService.setObjectT(key, value, safeLongToInt(expireMs));
+	}
+
+	@ConditionalOnClass(JedisService.class)
+	static class JedisCachingAutoConfiguration {
+		@Bean
+		@ConditionalOnBean(JedisService.class)
+		public ICacheStorage jedisDataCache(JedisService jedisService) {
+			return new JedisCacheStorage(jedisService);
+		}
 	}
 
 }

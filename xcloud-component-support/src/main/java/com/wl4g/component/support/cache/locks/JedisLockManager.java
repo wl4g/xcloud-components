@@ -13,16 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.locks;
-
-import com.google.common.annotations.Beta;
-import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.support.redis.jedis.JedisService;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
+package com.wl4g.component.support.cache.locks;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
@@ -36,22 +27,31 @@ import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+
+import com.google.common.annotations.Beta;
+import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.support.cache.jedis.JedisService;
+
 /**
- * REDIS locks manager.
+ * JEDIS locks manager.
  *
  * @author wangl.sir
  * @version v1.0 2019年3月19日
  * @since
  */
 public class JedisLockManager {
-	final protected static String NAMESPACE = "reentrantUnfairLock.";
-	final protected static String NXXX = "NX";
-	final protected static String EXPX = "PX";
-	final protected static long FRAME_INTERVAL_MS = 50L;
-	final protected static String UNLOCK_LUA = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-	final protected SmartLogger log = getLogger(getClass());
+	protected static final String NAMESPACE = "reentrantUnfairLock.";
+	protected static final String NXXX = "NX";
+	protected static final String EXPX = "PX";
+	protected static final long FRAME_INTERVAL_MS = 50L;
+	protected static final String UNLOCK_LUA = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+	protected final SmartLogger log = getLogger(getClass());
 
-	final protected JedisService jedisService;
+	protected final JedisService jedisService;
 
 	public JedisLockManager(JedisService jedisService) {
 		notNullOf(jedisService, "jedisService");
@@ -190,8 +190,7 @@ public class JedisLockManager {
 			log.debug("No need to unlock and reenter the stack lock layer, counter: {}", counter);
 
 			if (counter.longValue() == 0L) { // All thread stack layers exited?
-				Object res = jedisService.getJedisClient().eval(UNLOCK_LUA, singletonList(name),
-						singletonList(currentProcessId));
+				Object res = jedisService.getJedisClient().eval(UNLOCK_LUA, singletonList(name), singletonList(currentProcessId));
 				if (!assertValidity(res)) {
 					log.debug("Failed to unlock for %{}@{}", currentProcessId, name);
 				} else {

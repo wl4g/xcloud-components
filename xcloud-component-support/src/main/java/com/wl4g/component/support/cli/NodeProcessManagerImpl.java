@@ -17,8 +17,8 @@ package com.wl4g.component.support.cli;
 
 import static com.wl4g.component.common.lang.Exceptions.getRootCausesString;
 import static com.wl4g.component.common.lang.ThreadUtils2.sleepRandom;
+import static com.wl4g.component.support.cache.jedis.JedisClient.RedisProtoUtil.*;
 import static com.wl4g.component.support.cli.destroy.DestroySignalMessage.DestroyState.*;
-import static com.wl4g.component.support.redis.jedis.JedisClient.RedisProtoUtil.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -30,13 +30,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
+import com.wl4g.component.support.cache.jedis.JedisService;
+import com.wl4g.component.support.cache.locks.JedisLockManager;
 import com.wl4g.component.support.cli.TimeoutDestroyProcessException;
 import com.wl4g.component.support.cli.destroy.DestroySignal;
 import com.wl4g.component.support.cli.destroy.DestroySignalMessage;
 import com.wl4g.component.support.cli.process.DestroableProcess;
 import com.wl4g.component.support.cli.repository.ProcessRepository;
-import com.wl4g.component.support.redis.jedis.JedisService;
-import com.wl4g.component.support.redis.locks.JedisLockManager;
 
 /**
  * Implementation of distributed destroable command process based on jedis

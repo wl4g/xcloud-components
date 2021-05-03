@@ -17,14 +17,14 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.support.redis.locks;
+package com.wl4g.component.support.cache.locks;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 
-import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration;
-import com.wl4g.component.support.redis.jedis.JedisService;
+import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration;
+import com.wl4g.component.support.cache.jedis.JedisService;
 
 /**
  * {@link JedisLockAutoConfiguration}

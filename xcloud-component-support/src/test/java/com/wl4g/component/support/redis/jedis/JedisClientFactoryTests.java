@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.jedis;
+package com.wl4g.component.support.cache.jedis;
 
 import static java.lang.System.out;
 import static java.util.Arrays.asList;
@@ -21,10 +21,10 @@ import static java.util.Collections.singletonList;
 
 import org.junit.Test;
 
-import com.wl4g.component.support.redis.jedis.JedisClient;
-import com.wl4g.component.support.redis.jedis.JedisClientFactoryBean;
-import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration.JedisProperties;
-import com.wl4g.component.support.redis.jedis.JedisClient.RedisProtoUtil;
+import com.wl4g.component.support.cache.jedis.JedisClient;
+import com.wl4g.component.support.cache.jedis.JedisClientFactoryBean;
+import com.wl4g.component.support.cache.jedis.JedisClient.RedisProtoUtil;
+import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration.JedisProperties;
 
 /**
  * {@link JedisClientFactoryTests}

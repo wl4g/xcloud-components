@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.jedis;
+package com.wl4g.component.support.cache.jedis;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;

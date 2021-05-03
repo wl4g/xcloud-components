@@ -75,11 +75,6 @@
 			<groupId>com.wl4g</groupId>
 			<artifactId>xcloud-component-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.wl4g</groupId>
-			<artifactId>xcloud-component-support</artifactId>
-			<optional>true</optional>
-		</dependency>
 		<!-- Database -->
 		<dependency>
 			<groupId>com.zaxxer</groupId>

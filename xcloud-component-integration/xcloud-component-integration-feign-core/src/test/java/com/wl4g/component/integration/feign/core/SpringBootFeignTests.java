@@ -34,7 +34,7 @@ import com.wl4g.component.core.boot.DefaultBootstrapAutoConfiguration;
 import com.wl4g.component.integration.feign.core.GithubService1.GitHubContributor;
 import com.wl4g.component.integration.feign.core.SpringBootFeignTests.SampleRetryer;
 import com.wl4g.component.integration.feign.core.annotation.EnableFeignConsumers;
-import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration;
+import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration;
 
 import feign.Retryer;
 

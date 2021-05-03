@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.support.redis.jedis;
+package com.wl4g.component.support.cache.jedis;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.lang.Assert2.notEmpty;
@@ -29,9 +29,9 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.support.redis.jedis.cluster.JedisClusterJedisClient;
-import com.wl4g.component.support.redis.jedis.JedisClientAutoConfiguration.JedisProperties;
-import com.wl4g.component.support.redis.jedis.cluster.ConfigurableJedisClusterJedisClient;
+import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration.JedisProperties;
+import com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisClusterJedisClient;
+import com.wl4g.component.support.cache.jedis.cluster.JedisClusterJedisClient;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
