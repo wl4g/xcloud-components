@@ -27,7 +27,7 @@ spring:
       #      enable: false # Default[false]
       #      host: mail.google.com
       #      port: 465
-      #      username: super-devops@gmail.com
+      #      username: xcloud-component@gmail.com
       #      password: 123456
       #      protocol: smtp
       #      default-encoding: UTF-8

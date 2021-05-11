@@ -37,7 +37,7 @@
 			<artifactId>opencv</artifactId>
 			<version>4.1.1</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/opencv-411.jar</systemPath>
+			<systemPath>${project.basedir}/lib/opencv-411.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
