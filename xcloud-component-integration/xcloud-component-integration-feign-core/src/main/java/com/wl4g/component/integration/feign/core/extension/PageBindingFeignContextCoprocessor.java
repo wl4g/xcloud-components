@@ -47,8 +47,8 @@ public class PageBindingFeignContextCoprocessor implements FeignContextCoprocess
 
 	@Override
 	public void afterConsumerExecution(@NotNull Response response, Type type) {
-		// Update executed paging information.
-		PageHolder.update();
+		// Update current executed paging info.
+		PageHolder.updateCurrent();
 	}
 
 	@Override

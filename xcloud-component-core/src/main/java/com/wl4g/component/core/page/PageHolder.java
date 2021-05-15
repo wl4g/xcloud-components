@@ -255,10 +255,10 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	/**
-	 * Reload executed paging information to local current page object and
-	 * release from origin rpc context.
+	 * Reload current executed paging information to local current page object
+	 * and release from origin rpc context.
 	 */
-	public static void update() {
+	public static void updateCurrent() {
 		// Reload executed paging information to local current page object.
 		current(true);
 

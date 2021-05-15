@@ -117,8 +117,9 @@ public class ProviderFeignContextInterceptor implements SmartProxyFilter {
 				// Call coprocessor.
 				FeignContextCoprocessor.Invokers.afterProviderExecution(target, method, args);
 			} finally {
-				// After responding to RPC, should cleanup the context and
-				// server context. reference: dubbo-2.7.4.1↓:ContextFilter.java
+				// Refer to apache-dubbo(2.0.10 ~ 2.7.9):ContextFilter.java,
+				// after responding to RPC, should cleanup the context and
+				// server context.
 				RpcContextHolder.removeContext();
 				RpcContextHolder.removeServerContext();
 			}

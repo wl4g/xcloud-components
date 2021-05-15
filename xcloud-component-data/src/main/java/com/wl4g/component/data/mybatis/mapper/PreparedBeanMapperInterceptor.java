@@ -248,8 +248,8 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 				// obtained on the consumer service side.
 				PageHolder.bind(true, currentPage);
 
-				// Update executed paging information.
-				PageHolder.update();
+				// Update current executed paging info.
+				PageHolder.updateCurrent();
 				log.debug("End current paging of: {}", currentPage);
 			}
 		}

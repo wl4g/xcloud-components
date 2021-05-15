@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor.Invokers;
 
 import feign.FeignException;
@@ -61,9 +60,30 @@ public class FeignContextDecoder implements Decoder {
 			try {
 				FeignRpcContextBinders.bindAttachmentsFromFeignResposne(response);
 
-				// After called RPC, first cleanup context, reference:
-				// dubbo-2.7.4.1↓:ConsumerContextFilter.java
-				RpcContextHolder.removeContext();
+				// Scheme 1(bug):
+				// Refer to apache-dubbo-2.7.4.1↓:ConsumerContextFilter.java,
+				// after called RPC, first cleanup context.
+				// RpcContextHolder.removeContext();
+
+				// Scheme 2:
+				// Refer to apache-dubbo-2.7.5↑:ConsumerContextFilter.java,
+				// after called RPC nothing todo.
+				/**
+				 * Because when current role is consumer, still need to continue
+				 * to call other services, and must to carry hermit parameters,
+				 * for example pseudo code:
+				 * 
+				 * <pre>
+				 * public class OrderServiceImpl {
+				 * 	public void createOrder(Order o) {
+				 * 		// e.g: hermits pass authentication info to provider.
+				 * 		storeService.checkAndUpdateStock(o);
+				 * 		// e.g: hermits pass authentication info to provider.
+				 * 		orderDal.insertOrder(o);
+				 * 	}
+				 * }
+				 * </pre>
+				 */
 
 				// Call coprocessor.
 				Invokers.afterConsumerExecution(response, type);

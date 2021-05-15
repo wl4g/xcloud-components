@@ -103,6 +103,7 @@ public class DubboRpcContextHolderAutoConfiguration {
 
 		@Override
 		protected void removeServerContext0() {
+			// For compatibility dubbo-2.6/dubbo-2.7
 			if (nonNull(apacheDubbo27RemoveServerContextMethod)) {
 				try {
 					apacheDubbo27RemoveServerContextMethod.invoke(null);
@@ -116,7 +117,8 @@ public class DubboRpcContextHolderAutoConfiguration {
 			}
 		}
 
-		// FIXED: apache-dubbo-2.7.x => getContext() and getServerContext()
+		// Compatibility FIXED: apache-dubbo-2.7.x => getContext() and
+		// getServerContext()
 		private static final @Nullable Class<?> apacheDubbo27RpcContextClass = resolveClassNameNullable(
 				"org.apache.dubbo.rpc.RpcContext"); // dubbo-2.7.x:org.apache.dubbo.rpc.RpcContext
 

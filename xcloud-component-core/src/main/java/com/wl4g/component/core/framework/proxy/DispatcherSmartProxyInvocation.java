@@ -78,38 +78,6 @@ public class DispatcherSmartProxyInvocation extends AbstractDispatcherProxyInvoc
 			throw ex;
 		}
 
-		// // Gets proxies handlers.
-		// List<SmartProxyInterceptor> processors =
-		// configurer.getProcessors(targetClass);
-		//
-		// // Prepared process
-		// for (SmartProxyInterceptor p : processors) {
-		// if (p.supportMethodProxy(target, method, targetClass, args)) {
-		// args = p.preHandle(target, method, args);
-		// }
-		// }
-		//
-		// // Invoke actual method.
-		// Throwable ex = null;
-		// Object result = null;
-		// try {
-		// result = method.invoke(target, args);
-		// } catch (Throwable e) {
-		// ex = e;
-		// }
-		//
-		// // Post process
-		// for (SmartProxyInterceptor p : processors) {
-		// if (p.supportMethodProxy(target, method, targetClass, args)) {
-		// result = p.postHandle(target, method, args, result, ex);
-		// }
-		// }
-		//
-		// // Throws actual invoke exception.
-		// if (nonNull(ex)) { // TODO remove?
-		// throw ex;
-		// }
-
 		log.debug("Invoked proxied origin method: {}, args:{}, return: {}", method, args, result);
 		return result;
 	}
