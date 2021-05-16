@@ -21,8 +21,6 @@ package com.wl4g.component.integration.feign.core.context.internal;
 
 import org.springframework.context.annotation.Bean;
 
-import com.wl4g.component.integration.feign.core.extension.SimpleLogTraceFeignContextCoprocessor;
-
 /***
  * Auto-configuration(client|server)
  *
@@ -32,11 +30,6 @@ import com.wl4g.component.integration.feign.core.extension.SimpleLogTraceFeignCo
  * @see
  */
 public class FeignContextAutoConfiguration {
-
-	@Bean
-	public SimpleLogTraceFeignContextCoprocessor simpleLogTraceFeignContextCoprocessor() {
-		return new SimpleLogTraceFeignContextCoprocessor();
-	}
 
 	@Bean
 	public ProviderFeignContextInterceptor providerFeignContextInterceptor() {

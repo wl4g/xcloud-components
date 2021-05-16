@@ -17,7 +17,6 @@ package com.wl4g.component.common.web;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.isEmptyArray;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
-import static com.wl4g.component.common.jvm.JvmRuntimeKit.isJVMDebugging;
 import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.lang.Assert2.notNull;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
@@ -984,9 +983,9 @@ public abstract class WebUtils2 {
 		if (isNull(request)) {
 			return false;
 		}
-		if (isJVMDebugging) {
-			return true;
-		}
+//		if (isJVMDebugging) {
+//			return true;
+//		}
 		String stacktrace = request.getParameter(PARAM_STACKTRACE);
 		if (request instanceof HttpServletRequest) {
 			if (isBlank(stacktrace)) {

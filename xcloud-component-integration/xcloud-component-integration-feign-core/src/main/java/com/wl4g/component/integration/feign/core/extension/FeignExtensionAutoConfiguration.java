@@ -21,9 +21,6 @@ package com.wl4g.component.integration.feign.core.extension;
 
 import org.springframework.context.annotation.Bean;
 
-import com.wl4g.component.integration.feign.core.extension.SimpleLogTraceFeignContextCoprocessor.SimpleLogTraceHandlerInterceptor;
-import com.wl4g.component.integration.feign.core.extension.SimpleLogTraceFeignContextCoprocessor.SimpleLogTraceMvcConfigurer;
-
 /**
  * {@link FeignExtensionAutoConfiguration}
  * 
@@ -40,13 +37,8 @@ public class FeignExtensionAutoConfiguration {
 	}
 
 	@Bean
-	public SimpleLogTraceHandlerInterceptor simpleLogTraceHandlerInterceptor() {
-		return new SimpleLogTraceHandlerInterceptor();
-	}
-
-	@Bean
-	public SimpleLogTraceMvcConfigurer simpleLogTraceMvcConfigurer(SimpleLogTraceHandlerInterceptor interceptor) {
-		return new SimpleLogTraceMvcConfigurer(interceptor);
+	public SimpleLogTraceFeignContextCoprocessor simpleLogTraceFeignContextCoprocessor() {
+		return new SimpleLogTraceFeignContextCoprocessor();
 	}
 
 }
