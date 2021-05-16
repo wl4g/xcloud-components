@@ -52,7 +52,7 @@ public class SimpleLogTraceFeignContextCoprocessor implements FeignContextCoproc
 	public void beforeProviderExecution(HttpServletRequest request, @NotNull Object target, @NotNull Method method,
 			Object[] parameters) {
 		// Check stacktrace request.
-		if (isStacktraceRequest(request) || true) {
+		if (isStacktraceRequest(request)) {
 			RpcContextHolder.getContext().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
 		}
 	}

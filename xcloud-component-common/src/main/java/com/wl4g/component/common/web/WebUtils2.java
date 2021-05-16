@@ -80,6 +80,7 @@ import com.google.common.net.MediaType;
 import com.wl4g.component.common.collection.CollectionUtils2;
 import com.wl4g.component.common.collection.multimap.LinkedMultiValueMap;
 import com.wl4g.component.common.collection.multimap.MultiValueMap;
+import com.wl4g.component.common.jvm.JvmRuntimeKit;
 import com.wl4g.component.common.lang.Assert2;
 import com.wl4g.component.common.lang.StringUtils2;
 
@@ -983,9 +984,9 @@ public abstract class WebUtils2 {
 		if (isNull(request)) {
 			return false;
 		}
-//		if (isJVMDebugging) {
-//			return true;
-//		}
+		if (JvmRuntimeKit.isJVMDebugging) {
+			return true;
+		}
 		String stacktrace = request.getParameter(PARAM_STACKTRACE);
 		if (request instanceof HttpServletRequest) {
 			if (isBlank(stacktrace)) {

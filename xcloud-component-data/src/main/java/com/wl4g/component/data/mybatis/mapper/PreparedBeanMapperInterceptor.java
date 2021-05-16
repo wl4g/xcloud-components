@@ -175,7 +175,6 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 				PageHelper.startPage(page.getPageNum(), page.getPageSize(), page.isCount());
 			}
 		}
-		throw new RuntimeException("adfadfasfasdf");
 	}
 
 	/**
