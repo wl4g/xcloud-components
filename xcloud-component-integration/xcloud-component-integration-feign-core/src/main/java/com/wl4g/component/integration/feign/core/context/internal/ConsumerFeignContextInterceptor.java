@@ -20,13 +20,17 @@
 package com.wl4g.component.integration.feign.core.context.internal;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeArrayToList;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,12 +40,17 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor.Invokers;
 
+import feign.FeignException;
 import feign.MethodMetadata;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import feign.Response;
+import feign.codec.DecodeException;
+import feign.codec.Decoder;
 
 /**
  * {@link ConsumerFeignContextInterceptor}
@@ -110,6 +119,71 @@ public class ConsumerFeignContextInterceptor implements RequestInterceptor {
 			}
 		}
 		return annotations;
+	}
+
+	/**
+	 * {@link FeignContextDecoder}
+	 * 
+	 * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
+	 * @version v1.0 2021-01-28
+	 * @sine v1.0
+	 * @see {@link feign.SynchronousMethodHandler#executeAndDecode()}
+	 */
+	public static final class FeignContextDecoder implements Decoder {
+		private final SmartLogger log = getLogger(feign.Logger.class);
+
+		private final Decoder decoder;
+
+		public FeignContextDecoder(Decoder decoder) {
+			this.decoder = notNullOf(decoder, "decoder");
+		}
+
+		@Override
+		public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
+			try {
+				return decoder.decode(response, type);
+			} finally {
+				// The RPC call has responded and the attachment info should be
+				// extracted from it.
+				try {
+					FeignRpcContextBinders.bindAttachmentsFromFeignResposne(response);
+
+					// Scheme 1(bug):
+					// Refer to
+					// apache-dubbo-2.7.4.1↓:ConsumerContextFilter.java,
+					// after called RPC, first cleanup context.
+					// RpcContextHolder.removeContext();
+
+					// Scheme 2:
+					// Refer to apache-dubbo-2.7.5↑:ConsumerContextFilter.java,
+					// after called RPC nothing todo.
+					/**
+					 * Because when current role is consumer, still need to
+					 * continue to call other services, and must to carry hermit
+					 * parameters, for example pseudo code:
+					 * 
+					 * <pre>
+					 * public class OrderServiceImpl {
+					 * 	public void createOrder(Order o) {
+					 * 		// e.g: hermits pass authentication info to
+					 * 		// provider.
+					 * 		storeService.checkAndUpdateStock(o);
+					 * 		// e.g: hermits pass authentication info to
+					 * 		// provider.
+					 * 		orderDal.insertOrder(o);
+					 * 	}
+					 * }
+					 * </pre>
+					 */
+
+					// Call coprocessor.
+					Invokers.afterConsumerExecution(response, type);
+				} catch (Exception e2) {
+					log.warn("Cannot bind feign response attachments to current RpcContext", e2);
+				}
+			}
+		}
+
 	}
 
 }

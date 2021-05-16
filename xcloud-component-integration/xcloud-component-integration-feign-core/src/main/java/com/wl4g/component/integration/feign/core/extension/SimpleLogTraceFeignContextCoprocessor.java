@@ -17,11 +17,21 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.feign.core.context.internal;
+package com.wl4g.component.integration.feign.core.extension;
 
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
+import static com.wl4g.component.common.web.WebUtils2.isStacktraceRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor;
 
 import feign.RequestTemplate;
 
@@ -39,6 +49,30 @@ public class SimpleLogTraceFeignContextCoprocessor implements FeignContextCoproc
 	public void beforeConsumerExecution(RequestTemplate template) {
 		// Pass 'stacktrace' parameter through to the next service
 		template.header(PARAM_STACKTRACE, RpcContextHolder.getContext().getAttachment(PARAM_STACKTRACE));
+	}
+
+	static class SimpleLogTraceMvcConfigurer implements WebMvcConfigurer {
+		private final SimpleLogTraceHandlerInterceptor interceptor;
+
+		public SimpleLogTraceMvcConfigurer(SimpleLogTraceHandlerInterceptor interceptor) {
+			this.interceptor = notNullOf(interceptor, "interceptor");
+		}
+
+		@Override
+		public void addInterceptors(InterceptorRegistry registry) {
+			registry.addInterceptor(interceptor).addPathPatterns("/**");
+		}
+	}
+
+	static class SimpleLogTraceHandlerInterceptor implements HandlerInterceptor {
+		@Override
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+			// Check stacktrace request.
+			if (isStacktraceRequest(request)) {
+				RpcContextHolder.getContext().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
+			}
+			return true;
+		}
 	}
 
 }
