@@ -216,8 +216,8 @@ public class PreparedBeanMapperInterceptor implements Interceptor {
 				if (isInsertSettable(bean)) {
 					bean.preInsert();
 					Long currentPrincipalId = getCurrentPrincipalId();
-					bean.setCreateBy(currentPrincipalId);
-					bean.setUpdateBy(currentPrincipalId);
+					bean.setCreateBy(isNull(currentPrincipalId) ? BaseBean.UNKNOWN_USER_ID : currentPrincipalId);
+					bean.setUpdateBy(bean.getCreateBy());
 				}
 				break;
 			}
