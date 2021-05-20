@@ -21,13 +21,15 @@ package com.wl4g.component.integration.example.service.impl;
 
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.integration.example.model.OrderInfo;
+import com.wl4g.component.core.page.PageHolder;
+import com.wl4g.component.integration.example.bean.OrderInfo;
+import com.wl4g.component.integration.example.dao.OrderDao;
 import com.wl4g.component.integration.example.service.OrderService;
 
 /**
@@ -41,21 +43,22 @@ import com.wl4g.component.integration.example.service.OrderService;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-	protected final SmartLogger log = getLogger(getClass());
+	private final SmartLogger log = getLogger(getClass());
+
+	private @Autowired OrderDao orderDao;
 
 	@Override
-	public List<OrderInfo> findOrderByUser(Long userId) {
-		List<OrderInfo> orders = new ArrayList<>();
-		orders.add(new OrderInfo(10001L, "Sniper rifle", "1458 Bee Street1", null));
-		orders.add(new OrderInfo(10002L, "Over limit combat check", "95 Oxford Rd", null));
-		orders.add(new OrderInfo(10003L, "fake vote", "394 Patterson Fork Road", null));
+	public List<OrderInfo> list(PageHolder<OrderInfo> page, String orderName) {
+		page.useCount().bind();
+		List<OrderInfo> orders = orderDao.list(orderName);
 		log.info("find orders result: {}", orders);
 		return orders;
 	}
 
 	@Override
-	public void createOrder(OrderInfo order, Long goodsId) {
+	public int createOrder(OrderInfo order, Long goodsId) {
 		log.info("create order: {}, goodsId: {}", order, goodsId);
+		return orderDao.insertSelective(order);
 	}
 
 }

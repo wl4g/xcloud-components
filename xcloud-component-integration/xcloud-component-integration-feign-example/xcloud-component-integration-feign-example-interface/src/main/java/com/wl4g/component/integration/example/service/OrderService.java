@@ -19,7 +19,6 @@
  */
 package com.wl4g.component.integration.example.service;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.util.List;
@@ -28,7 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.wl4g.component.integration.example.model.OrderInfo;
+import com.wl4g.component.core.page.PageHolder;
+import com.wl4g.component.integration.example.bean.OrderInfo;
 import com.wl4g.component.integration.feign.core.annotation.FeignConsumer;
 
 /**
@@ -45,10 +45,10 @@ public interface OrderService {
 
 	// Notes: Cannot be used @GetMapping, because feign convention does not
 	// allow it.
-	@RequestMapping(value = "/findOrderByUser", method = GET)
-	List<OrderInfo> findOrderByUser(@RequestParam("userId") Long userId);
+	@RequestMapping(value = "/findOrderByUser", method = POST)
+	List<OrderInfo> list(@RequestBody PageHolder<OrderInfo> page, @RequestParam("orderName") String orderName);
 
 	@RequestMapping(value = "/createOrder", method = POST)
-	void createOrder(@RequestBody OrderInfo order, @RequestParam("goodsId") Long goodsId);
+	int createOrder(@RequestBody OrderInfo order, @RequestParam("goodsId") Long goodsId);
 
 }

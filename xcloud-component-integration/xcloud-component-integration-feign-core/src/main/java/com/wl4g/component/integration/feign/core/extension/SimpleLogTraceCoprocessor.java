@@ -30,23 +30,21 @@ import javax.validation.constraints.NotNull;
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor;
 
-import feign.RequestTemplate;
-
 /**
- * {@link SimpleLogTraceFeignContextCoprocessor}
+ * {@link SimpleLogTraceCoprocessor}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-04-27
  * @sine v1.0
  * @see
  */
-public class SimpleLogTraceFeignContextCoprocessor implements FeignContextCoprocessor {
+public class SimpleLogTraceCoprocessor implements FeignContextCoprocessor {
 
-	@Override
-	public void beforeConsumerExecution(RequestTemplate template) {
-		// Pass 'stacktrace' parameter through to the next service
-		template.header(PARAM_STACKTRACE, RpcContextHolder.getContext().getAttachment(PARAM_STACKTRACE));
-	}
+//	@Override
+//	public void beforeConsumerExecution(RequestTemplate template) {
+//		// Pass 'stacktrace' parameter through to the next service
+//		template.header(PARAM_STACKTRACE, RpcContextHolder.getContext().getAttachment(PARAM_STACKTRACE));
+//	}
 
 	@Override
 	public void beforeProviderExecution(HttpServletRequest request, @NotNull Object target, @NotNull Method method,

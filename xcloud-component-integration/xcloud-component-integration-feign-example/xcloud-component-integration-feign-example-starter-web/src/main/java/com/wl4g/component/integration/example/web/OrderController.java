@@ -29,8 +29,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wl4g.component.common.web.rest.RespBase;
+import com.wl4g.component.core.page.PageHolder;
 import com.wl4g.component.core.web.BaseController;
-import com.wl4g.component.integration.example.model.OrderInfo;
+import com.wl4g.component.integration.example.bean.OrderInfo;
 import com.wl4g.component.integration.example.service.OrderService;
 
 /**
@@ -48,9 +49,10 @@ public class OrderController extends BaseController {
 	private @Autowired OrderService orderService;
 
 	@RequestMapping(value = "/list", method = GET)
-	public RespBase<?> list(@RequestParam(name = "userId", defaultValue = "10001", required = false) Long userId) {
+	public RespBase<?> list(PageHolder<OrderInfo> page,
+			@RequestParam(name = "orderName", defaultValue = "", required = false) String orderName) {
 		RespBase<Object> resp = RespBase.create();
-		resp.setData(orderService.findOrderByUser(userId));
+		resp.setData(orderService.list(page, orderName));
 		log.info("find orders resp: {}", resp);
 		return resp;
 	}
@@ -60,6 +62,7 @@ public class OrderController extends BaseController {
 			@RequestParam(name = "goodsId", defaultValue = "20001", required = false) Long goodsId) {
 		RespBase<Object> resp = RespBase.create();
 		orderService.createOrder(order, goodsId);
+		log.info("saved order, orderId: {}", order.getId());
 		log.info("create orders resp: {}", resp);
 		return resp;
 	}

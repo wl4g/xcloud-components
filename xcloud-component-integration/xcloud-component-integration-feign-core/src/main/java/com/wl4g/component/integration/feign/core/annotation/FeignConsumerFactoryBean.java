@@ -67,6 +67,7 @@ import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.integration.feign.core.config.FeignConsumerAutoConfiguration;
 import com.wl4g.component.integration.feign.core.config.FeignConsumerProperties;
 import com.wl4g.component.integration.feign.core.context.internal.ConsumerFeignContextInterceptor.FeignContextDecoder;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextBuilder;
 
 import feign.Client;
 import feign.Contract;
@@ -205,7 +206,7 @@ class FeignConsumerFactoryBean<T> implements FactoryBean<T>, ApplicationContextA
 		this.requestInterceptors = obtainFeignRequestInterceptors();
 
 		// Builder feign
-		Feign.Builder builder = Feign.builder().client(client);
+		Feign.Builder builder = new FeignContextBuilder().client(client);
 
 		// Sets request interceptors.
 		if (!requestInterceptors.isEmpty()) {

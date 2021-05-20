@@ -19,31 +19,29 @@
  */
 package com.wl4g.component.integration.feign.core.extension;
 
-import org.springframework.context.annotation.Bean;
+import java.lang.reflect.Type;
+
+import javax.validation.constraints.NotNull;
+
+import com.wl4g.component.core.page.PageHolder;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor;
+
+import feign.Response;
 
 /**
- * {@link FeignExtensionAutoConfiguration}
+ * {@link PageBindingCoprocessor}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2021-04-27
  * @sine v1.0
  * @see
  */
-public class FeignExtensionAutoConfiguration {
+public class PageBindingCoprocessor implements FeignContextCoprocessor {
 
-	@Bean
-	public PageBindingCoprocessor pageBindingFeignContextCoprocessor() {
-		return new PageBindingCoprocessor();
-	}
-
-	@Bean
-	public SimpleLogTraceCoprocessor simpleLogTraceFeignContextCoprocessor() {
-		return new SimpleLogTraceCoprocessor();
-	}
-
-	@Bean
-	public InsertBeanBindingCoprocessor insertBeanBindingFeignContextCoprocessor() {
-		return new InsertBeanBindingCoprocessor();
+	@Override
+	public void afterConsumerExecution(@NotNull Response response, Type type) {
+		// Update current executed paging info.
+		PageHolder.InternalUtil.update();
 	}
 
 }

@@ -17,13 +17,14 @@ package com.wl4g.component.core.bean;
 
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wl4g.component.core.utils.expression.SpelExpressions;
+import com.wl4g.component.common.bridge.RpcContextHolderBridges;
 
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
@@ -166,13 +167,13 @@ public abstract class BaseBean implements Serializable {
 	 * 
 	 * @return return current preparing insert generated id.
 	 */
-	public Long preInsert() {
+	public void preInsert() {
+		// @see:com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor#preInsert
 		// setCreateBy(UNKNOWN_USER_ID);
 		setCreateDate(isNull(getCreateDate()) ? new Date() : getCreateDate());
 		setUpdateDate(isNull(getUpdateDate()) ? getCreateDate() : getUpdateDate());
 		setDelFlag(isNull(getDelFlag()) ? DEL_FLAG_NORMAL : getDelFlag());
 		setEnable(isNull(getEnable()) ? ENABLED : getEnable());
-		return getId();
 	}
 
 	/**
@@ -181,17 +182,17 @@ public abstract class BaseBean implements Serializable {
 	 * @param organizationCode
 	 * @return return current preparing insert generated id.
 	 */
-	public Long preInsert(String organizationCode) {
+	public void preInsert(String organizationCode) {
 		if (isBlank(getOrganizationCode())) {
 			setOrganizationCode(organizationCode);
 		}
-		return preInsert();
 	}
 
 	/**
 	 * Execute method before update, need to call manually
 	 */
 	public void preUpdate() {
+		// @see:com.wl4g.component.data.mybatis.mapper.PreparedBeanMapperInterceptor#preUpdate
 		// setUpdateBy(UNKNOWN_USER_ID);
 		setUpdateDate(new Date());
 	}
@@ -249,6 +250,41 @@ public abstract class BaseBean implements Serializable {
 	}
 
 	/**
+	 * Internal utility for {@link BaseBean}
+	 */
+	public static final class InternalUtil {
+
+		public static void bind(BaseBean bean) {
+			localCurrentBean.set(bean);
+		}
+
+		public static void update() {
+			BaseBean lBean = localCurrentBean.get();
+			if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
+				Long rBeanId = (Long) RpcContextHolderBridges.invokeGet(true, CURRENT_BEANID_KEY, Long.class);
+				if (nonNull(rBeanId) && nonNull(lBean)) {
+					lBean.setId(rBeanId);
+				}
+			}
+
+			// Remove from local.
+			localCurrentBean.remove();
+			// Remove from rpc origin context.
+			if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
+				// It's cleanup too:
+				// @see:com.wl4g.component.integration.feign.core.context.interceptor.RpcContextProviderProxyInterceptor#postHandle
+				RpcContextHolderBridges.invokeRemoveAttachment(true, CURRENT_BEANID_KEY);
+			}
+		}
+
+		/**
+		 * Cluster mode, current inserted bean.id rpccontext key.
+		 */
+		public static transient final String CURRENT_BEANID_KEY = "currentInsertionBean";
+		private static transient final ThreadLocal<BaseBean> localCurrentBean = new ThreadLocal<>();
+	}
+
+	/**
 	 * Generic Status: enabled
 	 */
 	public static transient final int ENABLED = 1;
@@ -277,10 +313,5 @@ public abstract class BaseBean implements Serializable {
 	 * Default super administrator user name.
 	 */
 	public static transient final String DEFAULT_SUPER_USER = "root";
-
-	/**
-	 * {@link SpelExpressions}
-	 */
-	public static transient final SpelExpressions spelExpr = SpelExpressions.create();
 
 }

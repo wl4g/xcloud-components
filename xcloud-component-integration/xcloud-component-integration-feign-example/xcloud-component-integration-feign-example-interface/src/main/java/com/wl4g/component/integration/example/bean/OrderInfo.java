@@ -17,10 +17,11 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.example.model;
+package com.wl4g.component.integration.example.bean;
 
-import java.io.Serializable;
 import java.util.Properties;
+
+import com.wl4g.component.core.bean.BaseBean;
 
 /**
  * {@link OrderInfo}
@@ -30,7 +31,7 @@ import java.util.Properties;
  * @sine v1.0
  * @see
  */
-public class OrderInfo implements Serializable {
+public class OrderInfo extends BaseBean {
 	private static final long serialVersionUID = -5164915069497907966L;
 
 	private Long orderNo;

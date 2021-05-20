@@ -218,58 +218,8 @@ public class PageHolder<E> implements Serializable {
 	 * Sets page in current Rpc context.
 	 */
 	public PageHolder<E> bind() {
-		bind(false, getPage());
+		InternalUtil.bind(false, getPage());
 		return this;
-	}
-
-	/**
-	 * Sets page in current Rpc context.
-	 * 
-	 * @param useServerContext
-	 * @param page
-	 */
-	public static void bind(boolean useServerContext, @Nullable Page<?> page) {
-		localCurrentPage.set(page);
-		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
-			RpcContextHolderBridges.invokeSet(useServerContext, CURRENT_PAGE_KEY, page);
-		}
-	}
-
-	/**
-	 * Gets current {@link PageHolder} from (RPC)context.
-	 * 
-	 * @param useServerContext
-	 * @return
-	 */
-	public @Nullable static <T> Page<T> current(boolean useServerContext) {
-		Page<T> lCurrentPage = (Page<T>) localCurrentPage.get();
-		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
-			Page<T> rCurrentPage = (Page<T>) RpcContextHolderBridges.invokeGet(useServerContext, CURRENT_PAGE_KEY, Page.class);
-			if (nonNull(rCurrentPage) && nonNull(lCurrentPage)) {
-				copyProperties(rCurrentPage, lCurrentPage);
-			} else { // Fallback
-				lCurrentPage = rCurrentPage;
-			}
-		}
-		return lCurrentPage;
-	}
-
-	/**
-	 * Reload current executed paging information to local current page object
-	 * and release from origin rpc context.
-	 */
-	public static void updateCurrent() {
-		// Reload executed paging information to local current page object.
-		current(true);
-
-		// Remove from local.
-		localCurrentPage.remove();
-		// Remove from rpc origin context.
-		if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
-			// It's cleanup too:
-			// @see:com.wl4g.component.integration.feign.core.context.interceptor.RpcContextProviderProxyInterceptor#postHandle
-			RpcContextHolderBridges.invokeRemoveAttachment(false, CURRENT_PAGE_KEY);
-		}
 	}
 
 	/**
@@ -562,11 +512,68 @@ public class PageHolder<E> implements Serializable {
 	}
 
 	/**
-	 * Cluster mode current page key.
+	 * Internal utility for {@link PageHolder}
 	 */
-	private static transient final String CURRENT_PAGE_KEY = "currentPage";
+	public static final class InternalUtil {
 
-	private static transient final ThreadLocal<Page<?>> localCurrentPage = new ThreadLocal<>();
+		/**
+		 * Sets page in current Rpc context.
+		 * 
+		 * @param useServerContext
+		 * @param page
+		 */
+		public static void bind(boolean useServerContext, @Nullable Page<?> page) {
+			localCurrentPage.set(page);
+			if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
+				RpcContextHolderBridges.invokeSet(useServerContext, CURRENT_PAGE_KEY, page);
+			}
+		}
+
+		/**
+		 * Gets current {@link PageHolder} from (RPC)context.
+		 * 
+		 * @param useServerContext
+		 * @return
+		 */
+		public @Nullable static <T> Page<T> current(boolean useServerContext) {
+			Page<T> lCurrentPage = (Page<T>) localCurrentPage.get();
+			if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
+				Page<T> rCurrentPage = (Page<T>) RpcContextHolderBridges.invokeGet(useServerContext, CURRENT_PAGE_KEY,
+						Page.class);
+				if (nonNull(rCurrentPage) && nonNull(lCurrentPage)) {
+					copyProperties(rCurrentPage, lCurrentPage);
+				} else { // Fallback
+					lCurrentPage = rCurrentPage;
+				}
+			}
+			return lCurrentPage;
+		}
+
+		/**
+		 * Reload current executed paging information to local current page
+		 * object and release from origin rpc context.
+		 */
+		public static void update() {
+			// Reload executed paging information to local current page object.
+			current(true);
+
+			// Remove from local.
+			localCurrentPage.remove();
+			// Remove from rpc origin context.
+			if (RpcContextHolderBridges.hasRpcContextHolderClass()) { // Distributed(cluster)?
+				// It's cleanup too:
+				// @see:com.wl4g.component.integration.feign.core.context.interceptor.RpcContextProviderProxyInterceptor#postHandle
+				RpcContextHolderBridges.invokeRemoveAttachment(false, CURRENT_PAGE_KEY);
+			}
+		}
+
+		/**
+		 * Cluster mode, current page rpccontext key.
+		 */
+		private static transient final String CURRENT_PAGE_KEY = "currentPage";
+		private static transient final ThreadLocal<Page<?>> localCurrentPage = new ThreadLocal<>();
+	}
+
 	private static transient final List<?> DEFAULT_RECORDS = unmodifiableList(emptyList());
 
 }

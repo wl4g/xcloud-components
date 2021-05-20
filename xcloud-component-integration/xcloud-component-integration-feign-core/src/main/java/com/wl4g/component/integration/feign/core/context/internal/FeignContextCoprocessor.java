@@ -31,11 +31,11 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import com.wl4g.component.core.utils.context.SpringContextHolder;
 
-import feign.RequestTemplate;
 import feign.Response;
 
 /**
@@ -46,9 +46,14 @@ import feign.Response;
  * @sine v1.0
  * @see
  */
-public interface FeignContextCoprocessor {
+public interface FeignContextCoprocessor extends Ordered {
 
-	default void beforeConsumerExecution(@NotNull RequestTemplate template) {
+	@Override
+	default int getOrder() {
+		return 0;
+	}
+
+	default void beforeConsumerExecution(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
 	}
 
 	default void afterConsumerExecution(@NotNull Response response, Type type) {
@@ -65,9 +70,9 @@ public interface FeignContextCoprocessor {
 		private static final FeignContextCoprocessor[] DEFAULT = new FeignContextCoprocessor[0];
 		private static volatile FeignContextCoprocessor[] coprocessors;
 
-		public static void beforeConsumerExecution(@NotNull RequestTemplate template) {
+		public static void beforeConsumerExecution(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
 			for (FeignContextCoprocessor c : getCoprocessors()) {
-				c.beforeConsumerExecution(template);
+				c.beforeConsumerExecution(proxy, method, args);
 			}
 		}
 

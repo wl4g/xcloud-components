@@ -17,33 +17,26 @@
  * 
  * Reference to website: http://wl4g.com
  */
-package com.wl4g.component.integration.feign.core.extension;
+package com.wl4g.component.integration.example.dao;
 
-import org.springframework.context.annotation.Bean;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.wl4g.component.integration.example.bean.OrderInfo;
 
 /**
- * {@link FeignExtensionAutoConfiguration}
+ * {@link OrderDao}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version v1.0 2021-04-27
+ * @version v1.0 2021-05-20
  * @sine v1.0
  * @see
  */
-public class FeignExtensionAutoConfiguration {
+public interface OrderDao {
 
-	@Bean
-	public PageBindingCoprocessor pageBindingFeignContextCoprocessor() {
-		return new PageBindingCoprocessor();
-	}
+	List<OrderInfo> list(@Param("orderName") String orderName);
 
-	@Bean
-	public SimpleLogTraceCoprocessor simpleLogTraceFeignContextCoprocessor() {
-		return new SimpleLogTraceCoprocessor();
-	}
-
-	@Bean
-	public InsertBeanBindingCoprocessor insertBeanBindingFeignContextCoprocessor() {
-		return new InsertBeanBindingCoprocessor();
-	}
+	int insertSelective(OrderInfo order);
 
 }

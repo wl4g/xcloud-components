@@ -77,9 +77,6 @@ public class ConsumerFeignContextInterceptor implements RequestInterceptor {
 			// Before calling RPC, the current context attachment info should be
 			// added to the request header.
 			FeignRpcContextBinders.writeAttachmentsToFeignRequest(template);
-
-			// Call coprocessor.
-			Invokers.beforeConsumerExecution(template);
 		} finally {
 			// Before calling RPC, first cleanup server context, reference:
 			// dubbo-2.7.4.1↓:ConsumerContextFilter.java
@@ -148,7 +145,7 @@ public class ConsumerFeignContextInterceptor implements RequestInterceptor {
 				try {
 					FeignRpcContextBinders.bindAttachmentsFromFeignResposne(response);
 
-					// Scheme 1(bug):
+					// Scheme 1(BUG):
 					// Refer to
 					// apache-dubbo-2.7.4.1↓:ConsumerContextFilter.java,
 					// after called RPC, first cleanup context.
@@ -175,15 +172,12 @@ public class ConsumerFeignContextInterceptor implements RequestInterceptor {
 					 * }
 					 * </pre>
 					 */
-
-					// Call coprocessor.
 					Invokers.afterConsumerExecution(response, type);
 				} catch (Exception e2) {
 					log.warn("Cannot bind feign response attachments to current RpcContext", e2);
 				}
 			}
 		}
-
 	}
 
 }

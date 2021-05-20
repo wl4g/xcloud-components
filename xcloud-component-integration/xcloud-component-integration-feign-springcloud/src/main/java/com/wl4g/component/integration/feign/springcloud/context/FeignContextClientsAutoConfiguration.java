@@ -62,6 +62,7 @@ import org.springframework.format.support.FormattingConversionService;
 import com.fasterxml.jackson.databind.Module;
 import com.netflix.hystrix.HystrixCommand;
 import com.wl4g.component.integration.feign.core.context.internal.ConsumerFeignContextInterceptor.FeignContextDecoder;
+import com.wl4g.component.integration.feign.core.context.internal.FeignContextBuilder;
 import com.wl4g.component.integration.feign.springcloud.config.EnhanceSpringCloudFeignAutoConfiguration;
 
 import feign.Contract;
@@ -166,8 +167,15 @@ public class FeignContextClientsAutoConfiguration {
 	@Scope("prototype")
 	@ConditionalOnMissingBean
 	public Feign.Builder feignBuilder(Retryer retryer) {
-		return Feign.builder().retryer(retryer);
+		return new FeignContextBuilder().retryer(retryer);
 	}
+
+	// @Bean
+	// @Scope("prototype")
+	// @ConditionalOnMissingBean
+	// public Feign.Builder feignBuilder(Retryer retryer) {
+	// return Feign.builder().retryer(retryer);
+	// }
 
 	@Bean
 	@ConditionalOnMissingBean(FeignLoggerFactory.class)
