@@ -56,7 +56,7 @@ import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
  * @sine v1.0
  * @see
  */
-public class ProviderFeignContextInterceptor implements SmartProxyFilter {
+public class ProviderFeignContextFilter implements SmartProxyFilter {
 	protected final SmartLogger log = getLogger(getClass());
 
 	@Override

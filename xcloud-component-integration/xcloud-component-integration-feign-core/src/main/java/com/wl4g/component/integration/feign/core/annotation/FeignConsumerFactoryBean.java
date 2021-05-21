@@ -66,7 +66,7 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.web.rest.RespBase;
 import com.wl4g.component.integration.feign.core.config.FeignConsumerAutoConfiguration;
 import com.wl4g.component.integration.feign.core.config.FeignConsumerProperties;
-import com.wl4g.component.integration.feign.core.context.internal.ConsumerFeignContextInterceptor.FeignContextDecoder;
+import com.wl4g.component.integration.feign.core.context.internal.ConsumerFeignContextFilter.FeignContextDecoder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextBuilder;
 
 import feign.Client;

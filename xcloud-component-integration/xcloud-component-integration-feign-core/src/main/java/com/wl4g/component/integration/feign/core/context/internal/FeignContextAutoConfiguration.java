@@ -22,7 +22,8 @@ package com.wl4g.component.integration.feign.core.context.internal;
 import org.springframework.context.annotation.Bean;
 
 /***
- * Auto-configuration(client|server)
+ * Feign context auto configuration.</br>
+ * (consumer/client|provider/server)
  *
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-07
@@ -32,13 +33,13 @@ import org.springframework.context.annotation.Bean;
 public class FeignContextAutoConfiguration {
 
 	@Bean
-	public ProviderFeignContextInterceptor providerFeignContextInterceptor() {
-		return new ProviderFeignContextInterceptor();
+	public ConsumerFeignContextFilter consumerFeignContextFilter() {
+		return new ConsumerFeignContextFilter();
 	}
 
 	@Bean
-	public ConsumerFeignContextInterceptor consumerFeignContextInterceptor() {
-		return new ConsumerFeignContextInterceptor();
+	public ProviderFeignContextFilter providerFeignContextFilter() {
+		return new ProviderFeignContextFilter();
 	}
 
 }

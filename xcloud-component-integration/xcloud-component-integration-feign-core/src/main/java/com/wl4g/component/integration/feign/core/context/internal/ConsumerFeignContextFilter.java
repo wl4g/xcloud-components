@@ -41,6 +41,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.wl4g.component.common.log.SmartLogger;
+import com.wl4g.component.core.utils.web.WebUtils3;
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor.Invokers;
 
@@ -53,7 +54,7 @@ import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
 /**
- * {@link ConsumerFeignContextInterceptor}
+ * {@link ConsumerFeignContextFilter}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version v1.0 2020-12-26
@@ -61,7 +62,7 @@ import feign.codec.Decoder;
  * @see
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
-public class ConsumerFeignContextInterceptor implements RequestInterceptor {
+public class ConsumerFeignContextFilter implements RequestInterceptor {
 
 	private final Map<Method, List<List<Annotation>>> knownMethodAnnotationCache = new ConcurrentHashMap<>(64);
 
@@ -77,6 +78,9 @@ public class ConsumerFeignContextInterceptor implements RequestInterceptor {
 			// Before calling RPC, the current context attachment info should be
 			// added to the request header.
 			FeignRpcContextBinders.writeAttachmentsToFeignRequest(template);
+
+			// Call the coprocessor first.
+			Invokers.prepareConsumerExecution(template, WebUtils3.currentServletRequest());
 		} finally {
 			// Before calling RPC, first cleanup server context, reference:
 			// dubbo-2.7.4.1↓:ConsumerContextFilter.java

@@ -61,7 +61,7 @@ import org.springframework.format.support.FormattingConversionService;
 
 import com.fasterxml.jackson.databind.Module;
 import com.netflix.hystrix.HystrixCommand;
-import com.wl4g.component.integration.feign.core.context.internal.ConsumerFeignContextInterceptor.FeignContextDecoder;
+import com.wl4g.component.integration.feign.core.context.internal.ConsumerFeignContextFilter.FeignContextDecoder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextBuilder;
 import com.wl4g.component.integration.feign.springcloud.config.EnhanceSpringCloudFeignAutoConfiguration;
 
@@ -104,15 +104,8 @@ public class FeignContextClientsAutoConfiguration {
 	private SpringDataWebProperties springDataWebProperties;
 
 	//
-	// Override default SpringDecoder
+	// Override springcloud default SpringDecoder
 	//
-
-	@Bean
-	@Primary
-	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public Decoder feignDecoder(ObjectFactory<HttpMessageConverters> messageConverters) {
-		return new FeignContextDecoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(messageConverters))));
-	}
 
 	// @Bean
 	// @ConditionalOnMissingBean
@@ -120,6 +113,13 @@ public class FeignContextClientsAutoConfiguration {
 	// return new OptionalDecoder(new ResponseEntityDecoder(new
 	// SpringDecoder(this.messageConverters)));
 	// }
+
+	@Bean
+	@Primary
+	@Order(Ordered.HIGHEST_PRECEDENCE)
+	public Decoder feignDecoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+		return new FeignContextDecoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(messageConverters))));
+	}
 
 	@Bean
 	@ConditionalOnMissingBean
@@ -163,12 +163,9 @@ public class FeignContextClientsAutoConfiguration {
 		return Retryer.NEVER_RETRY;
 	}
 
-	@Bean
-	@Scope("prototype")
-	@ConditionalOnMissingBean
-	public Feign.Builder feignBuilder(Retryer retryer) {
-		return new FeignContextBuilder().retryer(retryer);
-	}
+	//
+	// Override springcloud default FeignBuilder
+	//
 
 	// @Bean
 	// @Scope("prototype")
@@ -176,6 +173,13 @@ public class FeignContextClientsAutoConfiguration {
 	// public Feign.Builder feignBuilder(Retryer retryer) {
 	// return Feign.builder().retryer(retryer);
 	// }
+
+	@Bean
+	@Scope("prototype")
+	@ConditionalOnMissingBean
+	public Feign.Builder feignBuilder(Retryer retryer) {
+		return new FeignContextBuilder().retryer(retryer);
+	}
 
 	@Bean
 	@ConditionalOnMissingBean(FeignLoggerFactory.class)

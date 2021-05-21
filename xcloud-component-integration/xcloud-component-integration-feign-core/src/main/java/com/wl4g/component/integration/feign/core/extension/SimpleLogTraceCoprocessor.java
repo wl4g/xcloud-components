@@ -22,13 +22,13 @@ package com.wl4g.component.integration.feign.core.extension;
 import static com.wl4g.component.common.web.WebUtils2.PARAM_STACKTRACE;
 import static com.wl4g.component.common.web.WebUtils2.isStacktraceRequest;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import com.wl4g.component.integration.feign.core.context.RpcContextHolder;
 import com.wl4g.component.integration.feign.core.context.internal.FeignContextCoprocessor;
+
+import feign.RequestTemplate;
 
 /**
  * {@link SimpleLogTraceCoprocessor}
@@ -40,18 +40,11 @@ import com.wl4g.component.integration.feign.core.context.internal.FeignContextCo
  */
 public class SimpleLogTraceCoprocessor implements FeignContextCoprocessor {
 
-//	@Override
-//	public void beforeConsumerExecution(RequestTemplate template) {
-//		// Pass 'stacktrace' parameter through to the next service
-//		template.header(PARAM_STACKTRACE, RpcContextHolder.getContext().getAttachment(PARAM_STACKTRACE));
-//	}
-
 	@Override
-	public void beforeProviderExecution(HttpServletRequest request, @NotNull Object target, @NotNull Method method,
-			Object[] parameters) {
-		// Check stacktrace request.
+	public void prepareConsumerExecution(@NotNull RequestTemplate template, HttpServletRequest request) {
+		// Pass 'stacktrace' parameter through to the next service.
 		if (isStacktraceRequest(request)) {
-			RpcContextHolder.getContext().setAttachment(PARAM_STACKTRACE, Boolean.TRUE.toString());
+			template.header(PARAM_STACKTRACE, RpcContextHolder.getContext().getAttachment(PARAM_STACKTRACE));
 		}
 	}
 

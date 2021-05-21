@@ -36,6 +36,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import com.wl4g.component.core.utils.context.SpringContextHolder;
 
+import feign.RequestTemplate;
 import feign.Response;
 
 /**
@@ -51,6 +52,9 @@ public interface FeignContextCoprocessor extends Ordered {
 	@Override
 	default int getOrder() {
 		return 0;
+	}
+
+	default void prepareConsumerExecution(@NotNull RequestTemplate template, @Nullable HttpServletRequest request) {
 	}
 
 	default void beforeConsumerExecution(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
@@ -70,32 +74,38 @@ public interface FeignContextCoprocessor extends Ordered {
 		private static final FeignContextCoprocessor[] DEFAULT = new FeignContextCoprocessor[0];
 		private static volatile FeignContextCoprocessor[] coprocessors;
 
+		public static void prepareConsumerExecution(@NotNull RequestTemplate template, @Nullable HttpServletRequest request) {
+			for (FeignContextCoprocessor c : obtainCoprocessors()) {
+				c.prepareConsumerExecution(template, request);
+			}
+		}
+
 		public static void beforeConsumerExecution(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
-			for (FeignContextCoprocessor c : getCoprocessors()) {
+			for (FeignContextCoprocessor c : obtainCoprocessors()) {
 				c.beforeConsumerExecution(proxy, method, args);
 			}
 		}
 
 		public static void afterConsumerExecution(@NotNull Response response, Type type) {
-			for (FeignContextCoprocessor c : getCoprocessors()) {
+			for (FeignContextCoprocessor c : obtainCoprocessors()) {
 				c.afterConsumerExecution(response, type);
 			}
 		}
 
 		public static void beforeProviderExecution(@Nullable HttpServletRequest request, @NotNull Object target,
 				@NotNull Method method, Object[] parameters) {
-			for (FeignContextCoprocessor c : getCoprocessors()) {
+			for (FeignContextCoprocessor c : obtainCoprocessors()) {
 				c.beforeProviderExecution(request, target, method, parameters);
 			}
 		}
 
 		public static void afterProviderExecution(@NotNull Object target, @NotNull Method method, Object[] args) {
-			for (FeignContextCoprocessor c : getCoprocessors()) {
+			for (FeignContextCoprocessor c : obtainCoprocessors()) {
 				c.afterProviderExecution(target, method, args);
 			}
 		}
 
-		private static final FeignContextCoprocessor[] getCoprocessors() {
+		private static final FeignContextCoprocessor[] obtainCoprocessors() {
 			if (isNull(coprocessors)) {
 				synchronized (Invokers.class) {
 					if (isNull(coprocessors)) {
