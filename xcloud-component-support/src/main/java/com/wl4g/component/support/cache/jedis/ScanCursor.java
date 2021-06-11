@@ -15,8 +15,10 @@
  */
 package com.wl4g.component.support.cache.jedis;
 
-import static com.wl4g.component.common.lang.Assert2.*;
-import static com.wl4g.component.common.serialize.ProtostuffUtils.*;
+import static com.wl4g.component.common.lang.Assert2.hasText;
+import static com.wl4g.component.common.lang.Assert2.isTrue;
+import static com.wl4g.component.common.lang.Assert2.notEmptyOf;
+import static com.wl4g.component.common.lang.Assert2.notNull;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
@@ -36,13 +38,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Charsets;
+import com.wl4g.component.common.serialize.ProtostuffUtils;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -66,15 +69,16 @@ import redis.clients.jedis.ScanResult;
  * @param <E>
  */
 public abstract class ScanCursor<E> implements Iterator<E> {
-	final public static String REPLICATION = "Replication";
-	final public static String ROLE_MASTER = "role:master";
-	final public static ScanParams NONE_PARAMS = new ScanParams();
+	public final static String REPLICATION = "Replication";
+	public final static String ROLE_MASTER = "role:master";
+	public final static ScanParams NONE_PARAMS = new ScanParams();
 
-	final private Logger log = LoggerFactory.getLogger(getClass());
-	final private ScanParams params;
-	final private Class<?> valueType;
-	final private JedisClient adapter;
-	final private List<JedisPool> nodePools;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ScanParams params;
+	private final Class<?> valueType;
+	private final Deserializer deserializer;
+	private final JedisClient jedisClient;
+	private final List<JedisPool> nodePools;
 
 	private CursorWrapper cursor;
 	private CursorState state;
@@ -84,8 +88,8 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * Crates new {@link ScanCursor} with {@code id=0} and
 	 * {@link ScanParams#NONE}
 	 */
-	public ScanCursor(JedisClient adapter, Class<?> valueType) {
-		this(adapter, valueType, NONE_PARAMS);
+	public ScanCursor(JedisClient jedisClient, Class<?> valueType) {
+		this(jedisClient, valueType, NONE_PARAMS);
 	}
 
 	/**
@@ -93,8 +97,8 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * 
 	 * @param params
 	 */
-	public ScanCursor(JedisClient adapter, ScanParams params) {
-		this(adapter, new CursorWrapper(), null, params);
+	public ScanCursor(JedisClient jedisClient, ScanParams params) {
+		this(jedisClient, new CursorWrapper(), null, params);
 	}
 
 	/**
@@ -102,8 +106,8 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * 
 	 * @param params
 	 */
-	public ScanCursor(JedisClient adapter, Class<?> valueType, ScanParams params) {
-		this(adapter, new CursorWrapper(), valueType, params);
+	public ScanCursor(JedisClient jedisClient, Class<?> valueType, ScanParams params) {
+		this(jedisClient, new CursorWrapper(), valueType, params);
 	}
 
 	/**
@@ -111,29 +115,49 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * 
 	 * @param cursor
 	 */
-	public ScanCursor(JedisClient adapter, CursorWrapper cursor, Class<?> valueType) {
-		this(adapter, cursor, valueType, NONE_PARAMS);
+	public ScanCursor(JedisClient jedisClient, CursorWrapper cursor, Class<?> valueType) {
+		this(jedisClient, cursor, valueType, NONE_PARAMS);
 	}
 
 	/**
 	 * Crates new {@link ScanCursor}
 	 * 
-	 * @param adapter
+	 * @param jedisClient
 	 *            JedisCluster
 	 * @param cursor
 	 * @param param
 	 *            Defaulted to {@link ScanParams#NONE} if nulled.
 	 */
-	public ScanCursor(JedisClient adapter, CursorWrapper cursor, Class<?> valueType, ScanParams param) {
-		notNull(adapter, "jedisCluster must not be null");
+	public ScanCursor(JedisClient jedisClient, CursorWrapper cursor, Class<?> valueType, ScanParams param) {
+		this(jedisClient, cursor, valueType, null, NONE_PARAMS);
+	}
+
+	/**
+	 * Crates new {@link ScanCursor}
+	 * 
+	 * @param jedisClient
+	 *            JedisCluster
+	 * @param cursor
+	 * @param param
+	 *            Defaulted to {@link ScanParams#NONE} if nulled.
+	 */
+	public ScanCursor(JedisClient jedisClient, CursorWrapper cursor, Class<?> valueType, Deserializer deserializer,
+			ScanParams param) {
+		notNull(jedisClient, "jedisCluster must not be null");
 		if (isNull(valueType)) {
 			valueType = ResolvableType.forClass(getClass()).getSuperType().getGeneric(0).resolve();
 		}
+		if (isNull(valueType)) {
+			this.deserializer = new Deserializer() {
+			};
+		} else {
+			this.deserializer = deserializer;
+		}
 		this.valueType = valueType;
 		notNull(valueType, "No scan value java type is specified. Use constructs that can set value java type.");
-		this.adapter = adapter;
+		this.jedisClient = jedisClient;
 		this.params = param != null ? param : NONE_PARAMS;
-		this.nodePools = adapter.getClusterNodes().values().stream().map(n -> n).collect(toList());
+		this.nodePools = jedisClient.getClusterNodes().values().stream().map(n -> n).collect(toList());
 		this.state = CursorState.READY;
 		this.cursor = cursor;
 		this.iter = new ScanIterable<>(cursor, emptyList());
@@ -254,9 +278,8 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 			}
 
 			// Iterated yet?
-			return (List<E>) iter.getItems().stream().map(key -> {
-				return deserialize(adapter.get(key), valueType);
-			}).collect(toList());
+			return (List<E>) iter.getItems().stream().map(key -> deserializer.deserialize(jedisClient.get(key), valueType))
+					.collect(toList());
 		} finally {
 			iter.getItems().clear();
 		}
@@ -278,7 +301,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 			throw new NoSuchElementException("No more elements available for cursor " + getCursor() + ".");
 		}
 
-		return (E) deserialize(adapter.get(iter.iterator().next()), valueType);
+		return (E) deserializer.deserialize(jedisClient.get(iter.iterator().next()), valueType);
 	}
 
 	/**
@@ -406,7 +429,7 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	 * @version v1.0 2019年11月4日
 	 * @since
 	 */
-	final public static class CursorWrapper implements Serializable {
+	public static final class CursorWrapper implements Serializable {
 		private static final long serialVersionUID = 4547949424670284416L;
 
 		/** Cursor end spec. */
@@ -514,17 +537,28 @@ public abstract class ScanCursor<E> implements Iterator<E> {
 	}
 
 	/**
+	 * Deserialization for {@link ScanCursor#next()} and
+	 * {@link ScanCursor#readValues()}, default implemention of
+	 * {@link ProtostuffUtils}
+	 */
+	public static abstract class Deserializer {
+		protected Object deserialize(byte[] data, Class<?> clazz) {
+			return ProtostuffUtils.deserialize(data, clazz);
+		}
+	}
+
+	/**
 	 * {@link ScanIterable} holds the values contained in Redis
 	 * {@literal Multibulk reply} on exectuting {@literal SCAN} command.
 	 * 
 	 * @author Christoph Strobl
 	 * @since 1.4
 	 */
-	final static class ScanIterable<K> implements Iterable<K> {
+	static final class ScanIterable<K> implements Iterable<K> {
 
-		final private CursorWrapper cursor;
-		final private List<K> items;
-		final private Iterator<K> iter;
+		private final CursorWrapper cursor;
+		private final List<K> items;
+		private final Iterator<K> iter;
 
 		/**
 		 * Scan iterable
