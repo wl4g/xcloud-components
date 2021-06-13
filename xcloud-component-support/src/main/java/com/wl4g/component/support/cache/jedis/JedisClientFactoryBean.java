@@ -25,6 +25,9 @@ import static java.util.Objects.nonNull;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -41,116 +44,112 @@ import redis.clients.jedis.JedisPool;
  * Bean factory of {@link JedisClient}.
  */
 public class JedisClientFactoryBean implements FactoryBean<JedisClient>, InitializingBean {
-	protected final SmartLogger log = getLogger(getClass());
+    protected final SmartLogger log = getLogger(getClass());
 
-	/**
-	 * {@link JedisProperties}
-	 */
-	protected final JedisProperties config;
+    /**
+     * {@link JedisProperties}
+     */
+    protected final JedisProperties config;
 
-	/**
-	 * {@link JedisCluster}
-	 */
-	protected final JedisCluster jedisCluster;
+    /**
+     * {@link JedisCluster}
+     */
+    protected final JedisCluster jedisCluster;
 
-	/**
-	 * {@link JedisPool}
-	 */
-	protected final JedisPool jedisPool;
+    /**
+     * {@link JedisPool}
+     */
+    protected final JedisPool jedisPool;
 
-	/**
-	 * {@link JedisClient}
-	 */
-	private JedisClient jedisClient;
+    /**
+     * {@link JedisClient}
+     */
+    private JedisClient jedisClient;
 
-	public JedisClientFactoryBean(JedisCluster jedisCluster, JedisPool jedisPool) {
-		this.config = null;
-		this.jedisCluster = notNullOf(jedisCluster, "jedisCluster");
-		this.jedisPool = notNullOf(jedisPool, "jedisPool");
-	}
+    public JedisClientFactoryBean(@NotNull JedisCluster jedisCluster, @NotNull JedisPool jedisPool) {
+        this.config = null;
+        this.jedisCluster = notNullOf(jedisCluster, "jedisCluster");
+        this.jedisPool = notNullOf(jedisPool, "jedisPool");
+    }
 
-	public JedisClientFactoryBean(JedisProperties config) {
-		this.config = notNullOf(config, "jedisProperties");
-		this.jedisCluster = null;
-		this.jedisPool = null;
-	}
+    public JedisClientFactoryBean(@NotNull JedisProperties config) {
+        this.config = notNullOf(config, "jedisProperties");
+        this.jedisCluster = null;
+        this.jedisPool = null;
+    }
 
-	public JedisClientFactoryBean(JedisProperties config, JedisCluster jedisCluster, JedisPool jedisPool) {
-		// notNullOf(config, "jedisProperties");
-		// notNullOf(jedisCluster, "jedisCluster");
-		// notNullOf(jedisPool, "jedisPool");
-		this.config = config;
-		this.jedisCluster = jedisCluster;
-		this.jedisPool = jedisPool;
-	}
+    public JedisClientFactoryBean(@Nullable JedisProperties config, @Nullable JedisCluster jedisCluster,
+            @Nullable JedisPool jedisPool) {
+        this.config = config;
+        this.jedisCluster = jedisCluster;
+        this.jedisPool = jedisPool;
+    }
 
-	@Override
-	public JedisClient getObject() throws Exception {
-		return jedisClient;
-	}
+    @Override
+    public JedisClient getObject() throws Exception {
+        return jedisClient;
+    }
 
-	@Override
-	public Class<?> getObjectType() {
-		return JedisClient.class;
-	}
+    @Override
+    public Class<?> getObjectType() {
+        return JedisClient.class;
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		init();
-		log.info("Instantiated jedis client: {}", jedisClient);
-	}
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        init();
+        log.info("Instantiated jedis client: {}", jedisClient);
+    }
 
-	/**
-	 * Build a {@link JedisClient} with existing jedis or via configuration.
-	 * 
-	 * @throws Exception
-	 */
-	private void init() throws Exception {
-		// Wrapper with existing jedis.
-		if (nonNull(jedisCluster)) {
-			jedisClient = new JedisClusterJedisClient(jedisCluster);
-			log.info("Instantiated JedisClient: {} via existing JedisCluster: {}", jedisClient, jedisCluster);
-		} else if (nonNull(jedisPool)) {
-			jedisClient = new StandaloneJedisClient(jedisPool, false);
-			log.info("Instantiated JedisClient: {} via existing JedisPool: {}", jedisClient, jedisPool);
-		}
-		// New instantiate via configuration.
-		else {
-			notNull(config,
-					"Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
-					JedisClient.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
-					JedisProperties.class.getSimpleName());
-			createWithConfiguration(config);
-		}
-	}
+    /**
+     * Build a {@link JedisClient} with existing jedis or via configuration.
+     * 
+     * @throws Exception
+     */
+    private void init() throws Exception {
+        // Initialize of existing JedisCluster or JedisPool.
+        if (nonNull(jedisCluster)) {
+            jedisClient = new JedisClusterJedisClient(jedisCluster);
+            log.info("Instantiated JedisClient: {} via existing JedisCluster: {}", jedisClient, jedisCluster);
+        } else if (nonNull(jedisPool)) {
+            jedisClient = new SingleJedisClient(jedisPool, false);
+            log.info("Instantiated JedisClient: {} via existing JedisPool: {}", jedisClient, jedisPool);
+        }
+        // Initialize of configuration.
+        else {
+            notNull(config,
+                    "Cannot to automatically instantiate the %s. One of %s, %s and %s, expected at least 1 bean which qualifies as autowire candidate",
+                    JedisClient.class.getSimpleName(), JedisPool.class.getSimpleName(), JedisCluster.class.getSimpleName(),
+                    JedisProperties.class.getSimpleName());
+            initializeWithConfiguration(config);
+        }
+    }
 
-	/**
-	 * New instantiate {@link JedisClient} via {@link JedisProperties}
-	 * 
-	 * @param config
-	 * @throws Exception
-	 */
-	private void createWithConfiguration(JedisProperties config) throws Exception {
-		Set<HostAndPort> nodes = config.parseHostAndPort();
-		notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
-		// nodes.forEach(n -> log.info("Connecting to redis node: {}", n));
-		log.info("Connecting to redis nodes..., config: {}", config.toString());
-
-		try {
-			// Nodes config is cluster?
-			if (safeList(config.getNodes()).size() > 1) {// auto
-				jedisClient = new ConfigurableJedisClusterJedisClient(nodes, config.getConnTimeout(), config.getSoTimeout(),
-						config.getMaxAttempts(), config.getPasswd(), config.getPoolConfig(), config.isSafeMode());
-			} else { // standalone
-				HostAndPort hap = nodes.iterator().next();
-				JedisPool pool = new JedisPool(config.getPoolConfig(), hap.getHost(), hap.getPort(), config.getConnTimeout(),
-						config.getSoTimeout(), config.getPasswd(), 0, config.getClientName(), false, null, null, null);
-				jedisClient = new StandaloneJedisClient(pool, config.isSafeMode());
-			}
-			log.info("Instantiated jedis client via configuration. {}", jedisClient);
-		} catch (Exception e) {
-			throw new IllegalStateException(format("Cannot connect to redis nodes: %s", nodes), e);
-		}
-	}
+    /**
+     * Initialize {@link JedisClient} via {@link JedisProperties}
+     * 
+     * @param config
+     * @throws Exception
+     */
+    private void initializeWithConfiguration(JedisProperties config) throws Exception {
+        Set<HostAndPort> nodes = config.parseHostAndPort();
+        notEmpty(nodes, "Redis nodes configuration is requires, must contain at least 1 node");
+        log.info("Connecting to redis nodes... - {}", config.toString());
+        try {
+            // Nodes size configuration is cluster?
+            if (safeList(config.getNodes()).size() > 1) { // Cluster(Multi-nodes).
+                jedisClient = new ConfigurableJedisClusterJedisClient(nodes, config.getConnTimeout(), config.getSoTimeout(),
+                        config.getMaxAttempts(), config.getPasswd(), config.getPoolConfig(), config.isSafeMode());
+            } else { // Single
+                HostAndPort hap = nodes.iterator().next();
+                JedisPool pool = new JedisPool(config.getPoolConfig(), hap.getHost(), hap.getPort(), config.getConnTimeout(),
+                        config.getSoTimeout(), config.getPasswd(), 0, config.getClientName(), false, null, null, null);
+                jedisClient = new SingleJedisClient(pool, config.isSafeMode());
+            }
+            log.info("Instantiated jedis client via configuration. {}", jedisClient);
+        } catch (Exception e) {
+            throw new IllegalStateException(format("Cannot connect to redis nodes: %s", nodes), e);
+        }
+    }
 
 }

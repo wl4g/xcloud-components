@@ -16,12 +16,13 @@
 package com.wl4g.component.support.cache.jedis;
 
 import static com.wl4g.component.common.lang.Assert2.hasText;
+import static com.wl4g.component.common.lang.Assert2.hasTextOf;
 import static com.wl4g.component.common.lang.Assert2.isTrue;
 import static com.wl4g.component.common.lang.Assert2.notEmptyOf;
 import static com.wl4g.component.common.lang.Assert2.notNull;
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
@@ -37,11 +38,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
-import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Charsets;
@@ -51,11 +53,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
+import redis.clients.util.SafeEncoder;
 
 /**
- * Redis client agnostic {@link CursorWrapper} implementation continuously
- * loading additional results from Redis server until reaching its starting
- * point {@code zero}. <br />
+ * Redis client agnostic {@link CursorSpec} implementation continuously loading
+ * additional results from Redis server until reaching its starting point
+ * {@code zero}. <br />
  * <strong>Note:</strong> Please note that the {@link ScanCursor} has to be
  * initialized ({@link #start()} prior to usage.
  * 
@@ -68,555 +71,560 @@ import redis.clients.jedis.ScanResult;
  * @since
  * @param <E>
  */
-public abstract class ScanCursor<E> implements Iterator<E> {
-	public final static String REPLICATION = "Replication";
-	public final static String ROLE_MASTER = "role:master";
-	public final static ScanParams NONE_PARAMS = new ScanParams();
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ScanParams params;
-	private final Class<?> valueType;
-	private final Deserializer deserializer;
-	private final JedisClient jedisClient;
-	private final List<JedisPool> nodePools;
-
-	private CursorWrapper cursor;
-	private CursorState state;
-	private ScanIterable<byte[]> iter; // Values
-
-	/**
-	 * Crates new {@link ScanCursor} with {@code id=0} and
-	 * {@link ScanParams#NONE}
-	 */
-	public ScanCursor(JedisClient jedisClient, Class<?> valueType) {
-		this(jedisClient, valueType, NONE_PARAMS);
-	}
-
-	/**
-	 * Crates new {@link ScanCursor} with {@code id=0}.
-	 * 
-	 * @param params
-	 */
-	public ScanCursor(JedisClient jedisClient, ScanParams params) {
-		this(jedisClient, new CursorWrapper(), null, params);
-	}
-
-	/**
-	 * Crates new {@link ScanCursor} with {@code id=0}.
-	 * 
-	 * @param params
-	 */
-	public ScanCursor(JedisClient jedisClient, Class<?> valueType, ScanParams params) {
-		this(jedisClient, new CursorWrapper(), valueType, params);
-	}
-
-	/**
-	 * Crates new {@link ScanCursor} with {@link ScanParams#NONE}
-	 * 
-	 * @param cursor
-	 */
-	public ScanCursor(JedisClient jedisClient, CursorWrapper cursor, Class<?> valueType) {
-		this(jedisClient, cursor, valueType, NONE_PARAMS);
-	}
-
-	/**
-	 * Crates new {@link ScanCursor}
-	 * 
-	 * @param jedisClient
-	 *            JedisCluster
-	 * @param cursor
-	 * @param param
-	 *            Defaulted to {@link ScanParams#NONE} if nulled.
-	 */
-	public ScanCursor(JedisClient jedisClient, CursorWrapper cursor, Class<?> valueType, ScanParams param) {
-		this(jedisClient, cursor, valueType, null, NONE_PARAMS);
-	}
-
-	/**
-	 * Crates new {@link ScanCursor}
-	 * 
-	 * @param jedisClient
-	 *            JedisCluster
-	 * @param cursor
-	 * @param param
-	 *            Defaulted to {@link ScanParams#NONE} if nulled.
-	 */
-	public ScanCursor(JedisClient jedisClient, CursorWrapper cursor, Class<?> valueType, Deserializer deserializer,
-			ScanParams param) {
-		notNull(jedisClient, "jedisCluster must not be null");
-		if (isNull(valueType)) {
-			valueType = ResolvableType.forClass(getClass()).getSuperType().getGeneric(0).resolve();
-		}
-		if (isNull(valueType)) {
-			this.deserializer = new Deserializer() {
-			};
-		} else {
-			this.deserializer = deserializer;
-		}
-		this.valueType = valueType;
-		notNull(valueType, "No scan value java type is specified. Use constructs that can set value java type.");
-		this.jedisClient = jedisClient;
-		this.params = param != null ? param : NONE_PARAMS;
-		this.nodePools = jedisClient.getClusterNodes().values().stream().map(n -> n).collect(toList());
-		this.state = CursorState.READY;
-		this.cursor = cursor;
-		this.iter = new ScanIterable<>(cursor, emptyList());
-		CursorWrapper.validate(cursor);
-		notEmptyOf(nodePools, "Jedis nodes is empty.");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.data.redis.core.Cursor#getCursorId()
-	 */
-	public CursorWrapper getCursor() {
-		Assert.state(nonNull(cursor), "Jedis scanner cursor is null.");
-		return cursor;
-	}
-
-	/**
-	 * Is ready
-	 * 
-	 * @return
-	 */
-	public final boolean isReady() {
-		return state == CursorState.READY;
-	}
-
-	/**
-	 * Is open
-	 * 
-	 * @return
-	 */
-	public final boolean isOpen() {
-		return state == CursorState.OPEN;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.data.redis.core.Cursor#isClosed()
-	 */
-	public boolean isFinished() {
-		return state == CursorState.CLOSED;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.Closeable#close()
-	 */
-	public synchronized final void finished() {
-		if (!isFinished()) {
-			try {
-				doFinished();
-			} finally {
-				state = CursorState.CLOSED;
-			}
-		}
-	}
-
-	/**
-	 * Customization hook for cleaning up resources on when calling
-	 * {@link #finished()}.
-	 */
-	protected synchronized void doFinished() {
-	}
-
-	/**
-	 * Initialize the {@link CursorWrapper} prior to usage.
-	 */
-	@SuppressWarnings("unchecked")
-	public synchronized final <T extends ScanCursor<E>> T open() {
-		if (isOpen()) {
-			log.debug("Cursor already " + state + ", no need (re)open it.");
-			return (T) this;
-		}
-
-		state = CursorState.OPEN;
-		nextScan();
-		return (T) this;
-	}
-
-	/**
-	 * Scan keys.
-	 * 
-	 * @return
-	 */
-	public List<byte[]> keys() {
-		return iter.getItems();
-	}
-
-	/**
-	 * Scan keys as string.
-	 * 
-	 * @return
-	 */
-	public List<String> keysAsString() {
-		return iter.getItems().stream().map(e -> new String(e)).collect(toList());
-	}
-
-	/**
-	 * Mutual exclusion with the {@link ScanCursor#next()} method (only one can
-	 * be used)
-	 * 
-	 * @throws IOException
-	 * 
-	 * @see ScanCursor#next()
-	 */
-	@SuppressWarnings("unchecked")
-	public synchronized List<E> readValues() throws IOException {
-		try {
-			// Not iterated yet?
-			if (isEmpty(iter.getItems())) {
-				List<E> list = new ArrayList<>(64);
-				while (hasNext()) {
-					list.add(next());
-				}
-				return list;
-			}
-
-			// Iterated yet?
-			return (List<E>) iter.getItems().stream().map(key -> deserializer.deserialize(jedisClient.get(key), valueType))
-					.collect(toList());
-		} finally {
-			iter.getItems().clear();
-		}
-	}
-
-	/**
-	 * Fetch the next value from the underlying {@link Iterable}. mutual
-	 * exclusion with {@link ScanCursor#readValues()} method (only one can be
-	 * used)
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public synchronized E next() {
-		assertCursorIsOpen();
-
-		if (!hasNext()) {
-			throw new NoSuchElementException("No more elements available for cursor " + getCursor() + ".");
-		}
-
-		return (E) deserializer.deserialize(jedisClient.get(iter.iterator().next()), valueType);
-	}
-
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.Iterator#hasNext()
-	 */
-	@Override
-	public synchronized boolean hasNext() {
-		assertCursorIsOpen();
-
-		// If the current 'iter' is fully traversed, you need to check whether
-		// the next node has data.
-		while (!iter.iterator().hasNext() && CursorState.FINISHED != state) {
-			nextScan();
-		}
-
-		return (iter.iterator().hasNext() || !checkScanCompleted());
-	}
-
-	/**
-	 * Execute scan by cursor index.
-	 */
-	protected synchronized void nextScan() {
-		// Select a node
-		try (Jedis jedis = nodePools.get(getCursor().getSelectionPos()).getResource()) {
-			// Traverse only the primary node
-			if (containsIgnoreCase(jedis.info(REPLICATION), ROLE_MASTER)) {
-				processResult(doScanNode(jedis));
-			} else {
-				nextTo();
-			}
-		}
-	}
-
-	/**
-	 * Performs the actual scan command using the native client implementation.
-	 * The given {@literal options} are never {@code null}.
-	 * 
-	 * @param jedis
-	 * @return
-	 */
-	protected synchronized ScanIterable<byte[]> doScanNode(Jedis jedis) {
-		ScanResult<byte[]> res = jedis.scan(getCursor().getCursorByteArray(), params);
-
-		List<byte[]> items = res.getResult();
-		if (isEmpty(items)) {
-			items = emptyList();
-		}
-
-		return new ScanIterable<byte[]>(cursor.setCursor(res.getStringCursor()), items);
-	}
-
-	/**
-	 * After process result
-	 * 
-	 * @param res
-	 */
-	private synchronized void processResult(ScanIterable<byte[]> res) {
-		this.iter = res;
-		this.cursor = res.getCursor();
-
-		// The current node has completed traversal
-		if (checkScanCompleted()) { // End?
-			nextTo(); // Select to next node.
-		}
-	}
-
-	/**
-	 * Selection next node
-	 */
-	private synchronized void nextTo() {
-		cursor.nextSelectiveNode(); // Next new node.
-
-		// Safe check fully scanned.
-		if (checkScanNodesCompleted()) {
-			log.debug(format("Scanned all jedis nodes. size: %s", nodePools.size()));
-			state = CursorState.FINISHED;
-			cursor.setSelectionPos(nodePools.size() - 1);
-		}
-	}
-
-	/**
-	 * Check that currently node finished.
-	 * 
-	 * @return
-	 */
-	private boolean checkScanCompleted() {
-		return trimToEmpty(getCursor().getCursor()).equalsIgnoreCase("0");
-	}
-
-	/**
-	 * Check that all nodes are currently fully scanned.
-	 * 
-	 * @return
-	 */
-	private boolean checkScanNodesCompleted() {
-		return cursor.getSelectionPos() >= nodePools.size();
-	}
-
-	/**
-	 * Assertion cursor is open
-	 */
-	private synchronized void assertCursorIsOpen() {
-		if (isReady() || isFinished()) {
-			throw new RuntimeException("Cannot access closed cursor. Did you forget to call open()?");
-		}
-	}
-
-	/**
-	 * Cursor state
-	 * 
-	 * @author Wangl.sir <983708408@qq.com>
-	 * @version v1.0 2019年4月1日
-	 * @since
-	 */
-	private enum CursorState {
-		READY, OPEN, FINISHED, CLOSED;
-	}
-
-	/**
-	 * Scan cursor wrapper.
-	 * 
-	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
-	 * @version v1.0 2019年11月4日
-	 * @since
-	 */
-	public static final class CursorWrapper implements Serializable {
-		private static final long serialVersionUID = 4547949424670284416L;
-
-		/** Cursor end spec. */
-		private transient static final String STARTEND = "0";
-
-		/** Scan node position */
-		private Integer selectionPos = 0;
-
-		/** Scan node cursor value */
-		private String cursor = STARTEND;
-
-		public CursorWrapper() {
-			super();
-		}
-
-		public CursorWrapper(Integer selectionPos, String cursor) {
-			setSelectionPos(selectionPos);
-			setCursor(cursor);
-		}
-
-		@JsonIgnore
-		public Integer getSelectionPos() {
-			return selectionPos;
-		}
-
-		public CursorWrapper setSelectionPos(Integer selectionPos) {
-			notNull(selectionPos, "Jedis scan selectionPos must not be empty.");
-			notNull(selectionPos >= 0, "Jedis scan selectionPos must >=0.");
-			this.selectionPos = selectionPos;
-			return this;
-		}
-
-		@JsonIgnore
-		public String getCursor() {
-			return cursor;
-		}
-
-		public CursorWrapper setCursor(String cursor) {
-			hasText(cursor, "Jedis scan cursor must not be empty.");
-			this.cursor = cursor;
-			return this;
-		}
-
-		@Override
-		public String toString() {
-			return getCursorString();
-		}
-
-		@JsonIgnore
-		public void nextSelectiveNode() {
-			++this.selectionPos; // Reset cursor.
-			setCursor("0");// Reset cursor.
-		}
-
-		@JsonIgnore
-		public byte[] getCursorByteArray() {
-			return cursor.getBytes(Charsets.UTF_8);
-		}
-
-		/**
-		 * Check has hext records.
-		 * 
-		 * @return
-		 */
-		public boolean getHasNext() {
-			return !endsWithIgnoreCase(getCursor(), STARTEND);
-		}
-
-		/**
-		 * As cursor to string.
-		 * 
-		 * @return
-		 */
-		public String getCursorString() {
-			return getCursor() + "@" + getSelectionPos();
-		}
-
-		/**
-		 * Parse cursor string
-		 * 
-		 * @param cursorString
-		 * @return
-		 */
-		public static CursorWrapper parse(String cursorString) {
-			hasText(cursorString, "Jedis scan cursorString must not be empty.");
-			String errmsg = String.format("Invalid cursorString with %s", cursorString);
-			isTrue(cursorString.contains("@"), errmsg);
-			String[] parts = split(trimToEmpty(cursorString), "@");
-			isTrue(parts.length >= 2, errmsg);
-			return new CursorWrapper(Integer.parseInt(parts[1]), parts[0]);
-		}
-
-		/**
-		 * Validation for {@link CursorWrapper}
-		 * 
-		 * @param cursor
-		 */
-		public static void validate(CursorWrapper cursor) {
-			notNull(cursor, "Jedis scan cursor must not be null.");
-			hasText(cursor.getCursor(), "Jedis scan cursor value must not be empty.");
-			notNull(cursor.getSelectionPos(), "Jedis scan selectionPos must not be empty.");
-			notNull(cursor.getSelectionPos() >= 0, "Jedis scan selectionPos must >=0.");
-		}
-
-	}
-
-	/**
-	 * Deserialization for {@link ScanCursor#next()} and
-	 * {@link ScanCursor#readValues()}, default implemention of
-	 * {@link ProtostuffUtils}
-	 */
-	public static abstract class Deserializer {
-		protected Object deserialize(byte[] data, Class<?> clazz) {
-			return ProtostuffUtils.deserialize(data, clazz);
-		}
-	}
-
-	/**
-	 * {@link ScanIterable} holds the values contained in Redis
-	 * {@literal Multibulk reply} on exectuting {@literal SCAN} command.
-	 * 
-	 * @author Christoph Strobl
-	 * @since 1.4
-	 */
-	static final class ScanIterable<K> implements Iterable<K> {
-
-		private final CursorWrapper cursor;
-		private final List<K> items;
-		private final Iterator<K> iter;
-
-		/**
-		 * Scan iterable
-		 */
-		public ScanIterable() {
-			this(new CursorWrapper());
-		}
-
-		/**
-		 * Scan iterable
-		 * 
-		 * @param cursor
-		 * @param items
-		 */
-		public ScanIterable(CursorWrapper cursor) {
-			this(cursor, Collections.emptyList());
-		}
-
-		/**
-		 * Scan iterable
-		 * 
-		 * @param cursor
-		 * @param items
-		 */
-		public ScanIterable(CursorWrapper cursor, List<K> items) {
-			this.cursor = cursor;
-			this.items = (isEmpty(items) ? emptyList() : new ArrayList<K>(items));
-			this.iter = this.items.iterator();
-		}
-
-		/**
-		 * The cursor id to be used for subsequent requests.
-		 * 
-		 * @return
-		 */
-		public CursorWrapper getCursor() {
-			return cursor;
-		}
-
-		/**
-		 * Get the items returned.
-		 * 
-		 * @return
-		 */
-		public List<K> getItems() {
-			return items;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Iterable#iterator()
-		 */
-		@Override
-		public Iterator<K> iterator() {
-			return iter;
-		}
-
-	}
+public class ScanCursor<E> implements Iterator<E> {
+    public final static String REPLICATION = "Replication";
+    public final static String ROLE_MASTER = "role:master";
+    public final static ClusterScanParams NONE_PARAMS = new ClusterScanParams();
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final ClusterScanParams params;
+    private final Class<?> valueType;
+    private final Deserializer deserializer;
+    private final JedisClient jedisClient;
+    private final List<JedisPool> nodePools;
+
+    private volatile CursorSpec cursor;
+    private volatile CursorState state;
+    private volatile ScanIterable<byte[]> iter; // Batch scanned values cache.
+    private AtomicInteger totalKeys = new AtomicInteger(0);
+
+    /**
+     * Crates new {@link ScanCursor} with {@code id=0} and
+     * {@link ScanParams#NONE}
+     */
+    public ScanCursor(JedisClient jedisClient, Class<?> valueType) {
+        this(jedisClient, valueType, NONE_PARAMS);
+    }
+
+    /**
+     * Crates new {@link ScanCursor} with {@code id=0}.
+     * 
+     * @param params
+     */
+    public ScanCursor(JedisClient jedisClient, ClusterScanParams params) {
+        this(jedisClient, new CursorSpec(), null, params);
+    }
+
+    /**
+     * Crates new {@link ScanCursor} with {@code id=0}.
+     * 
+     * @param params
+     */
+    public ScanCursor(JedisClient jedisClient, Class<?> valueType, ClusterScanParams params) {
+        this(jedisClient, new CursorSpec(), valueType, params);
+    }
+
+    /**
+     * Crates new {@link ScanCursor} with {@link ScanParams#NONE}
+     * 
+     * @param cursor
+     */
+    public ScanCursor(JedisClient jedisClient, CursorSpec cursor, Class<?> valueType) {
+        this(jedisClient, cursor, valueType, NONE_PARAMS);
+    }
+
+    /**
+     * Crates new {@link ScanCursor}
+     * 
+     * @param jedisClient
+     *            JedisCluster
+     * @param cursor
+     * @param params
+     *            Defaulted to {@link ScanParams#NONE} if nulled.
+     */
+    public ScanCursor(JedisClient jedisClient, CursorSpec cursor, Class<?> valueType, ClusterScanParams params) {
+        this(jedisClient, cursor, valueType, null, params);
+    }
+
+    /**
+     * Crates new {@link ScanCursor}
+     * 
+     * @param jedisClient
+     *            JedisCluster
+     * @param cursor
+     * @param params
+     *            Defaulted to {@link ScanParams#NONE} if nulled.
+     */
+    public ScanCursor(JedisClient jedisClient, CursorSpec cursor, Class<?> valueType, Deserializer deserializer,
+            ClusterScanParams params) {
+        notNullOf(jedisClient, "jedisClient");
+        this.valueType = nonNull(valueType) ? valueType
+                : ResolvableType.forClass(getClass()).getSuperType().getGeneric(0).resolve();
+        notNull(valueType, "No scan value java type is specified. Use constructs that can set value java type.");
+        this.deserializer = nonNull(deserializer) ? deserializer : new Deserializer() {
+        };
+        this.jedisClient = jedisClient;
+        this.params = params != null ? params : NONE_PARAMS;
+        this.nodePools = jedisClient.getClusterNodes().values().stream().map(n -> n).collect(toList());
+        this.state = CursorState.READY;
+        this.cursor = cursor;
+        this.iter = new ScanIterable<>(cursor, emptyList());
+        CursorSpec.validate(cursor);
+        notEmptyOf(nodePools, "Jedis nodes is empty.");
+    }
+
+    /**
+     * Initialize the {@link CursorSpec} prior to usage.
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized final <T extends ScanCursor<E>> T open() {
+        if (isOpen()) {
+            log.debug("Cursor already " + state + ", no need (re)open it.");
+            return (T) this;
+        }
+
+        state = CursorState.OPEN;
+        nextScan();
+        return (T) this;
+    }
+
+    public CursorSpec getCursor() {
+        return cursor;
+    }
+
+    /**
+     * Scan keys.
+     * 
+     * @return
+     */
+    public List<byte[]> keys() {
+        return iter.getKeys();
+    }
+
+    /**
+     * Scan keys as string.
+     * 
+     * @return
+     */
+    public List<String> keysAsString() {
+        return iter.getKeys().stream().map(e -> new String(e)).collect(toList());
+    }
+
+    /**
+     * Mutual exclusion with the {@link ScanCursor#next()} method (only one can
+     * be used)
+     * 
+     * @throws IOException
+     * 
+     * @see ScanCursor#next()
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized List<E> readValues() throws IOException {
+        try {
+            // Not iterated yet?
+            if (isEmpty(iter.getKeys())) {
+                List<E> list = new ArrayList<>(64);
+                while (hasNext()) {
+                    list.add(next());
+                }
+                return list;
+            }
+
+            // Iterated yet?
+            return (List<E>) iter.getKeys().stream().map(key -> deserializer.deserialize(jedisClient.get(key), valueType))
+                    .collect(toList());
+        } finally {
+            iter.getKeys().clear();
+        }
+    }
+
+    /**
+     * Fetch the next value from the underlying {@link java.util.Iterable}.
+     * mutual exclusion with {@link ScanCursor#readValues()} method (only one
+     * can be used)
+     * 
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public synchronized E next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException("No more elements available for cursor " + cursor + ".");
+        }
+
+        return (E) deserializer.deserialize(jedisClient.get(iter.iterator().next()), valueType);
+    }
+
+    /**
+     * {@link java.util.Iterator#hasNext()}
+     */
+    @Override
+    public synchronized boolean hasNext() {
+        checkCursorState();
+
+        // If the current 'iter' is fully traversed, you need to check whether
+        // the next node has data.
+        while (!iter.iterator().hasNext() && CursorState.FINISHED != state) {
+            nextScan();
+        }
+
+        return (iter.iterator().hasNext() || !checkScanCompleted());
+    }
+
+    protected final boolean isReady() {
+        return state == CursorState.READY;
+    }
+
+    protected final boolean isOpen() {
+        return state == CursorState.OPEN;
+    }
+
+    protected boolean isFinished() {
+        return state == CursorState.FINISHED;
+    }
+
+    /*
+     * {@link org.springframework.data.redis.core.Cursor#isClosed()}
+     */
+    protected synchronized void finished() {
+        state = CursorState.FINISHED;
+        cursor.setSelectionPos(nodePools.size() - 1);
+        cursor.setCursorString(CursorSpec.STARTEND);
+    }
+
+    /**
+     * Execute scan by cursor index.
+     */
+    protected synchronized void nextScan() {
+        // Select a node
+        try (Jedis jedis = nodePools.get(cursor.getSelectionPos()).getResource()) {
+            // Traverse only the primary node
+            if (containsIgnoreCase(jedis.info(REPLICATION), ROLE_MASTER)) {
+                processScanResult(doScanNode(jedis));
+            } else {
+                nextTo();
+            }
+        }
+    }
+
+    /**
+     * Performs the actual scan command using the native client implementation.
+     * The given {@literal options} are never {@code null}.
+     * 
+     * @param jedis
+     * @return
+     */
+    protected synchronized ScanIterable<byte[]> doScanNode(Jedis jedis) {
+        ScanResult<byte[]> res = jedis.scan(cursor.getCursorByteArray(), params.toScanParams());
+
+        List<byte[]> keys = Optional.ofNullable(res.getResult()).get();
+
+        // Cumulative total count of scanned keys.
+        int total = totalKeys.addAndGet(keys.size());
+
+        // Latest cursor string of current node.
+        String cursorString = res.getStringCursor();
+
+        // Check whether the total number is exceeded.
+        int excess = total - params.getTotal();
+        if (excess > 0) {
+            finished();
+            // After finished scan, the pointer has been reset.
+            cursorString = cursor.getCursorString();
+
+            // Remove the last elements.
+            int size = keys.size();
+            for (int i = size - 1; i >= size - excess; i--) {
+                keys.remove(i);
+            }
+        }
+
+        return new ScanIterable<byte[]>(cursor.setCursorString(cursorString), keys);
+    }
+
+    /**
+     * After process scanned result
+     * 
+     * @param res
+     */
+    private synchronized void processScanResult(ScanIterable<byte[]> res) {
+        this.iter = res;
+        this.cursor = res.cursor;
+
+        if (checkScanCompleted()) { // Scan end?
+            nextTo(); // Select to next node.
+        }
+    }
+
+    /**
+     * Selection next node
+     */
+    private synchronized void nextTo() {
+        cursor.nextSelectiveNode(); // Next new node.
+
+        // Check selection nodes completed?
+        if (checkSelectionNodesCompleted()) {
+            log.debug(format("Fully scanned all nodes. size: %s", nodePools.size()));
+            finished();
+        }
+    }
+
+    /**
+     * Check that currently node finished.
+     * 
+     * @return
+     */
+    private boolean checkScanCompleted() {
+        return trimToEmpty(cursor.getCursorString()).equalsIgnoreCase(CursorSpec.STARTEND);
+    }
+
+    /**
+     * Check selection all nodes completed.
+     * 
+     * @return
+     */
+    private boolean checkSelectionNodesCompleted() {
+        return cursor.getSelectionPos() >= nodePools.size();
+    }
+
+    /**
+     * Check cursor is open or finished?
+     */
+    private void checkCursorState() {
+        if (!isOpen() && !isFinished()) {
+            throw new RuntimeException("Cannot access closed cursor, or did you forget to call open?");
+        }
+    }
+
+    /**
+     * Cursor state
+     * 
+     * @author Wangl.sir <983708408@qq.com>
+     * @version v1.0 2019年4月1日
+     * @since
+     */
+    private enum CursorState {
+        READY, OPEN, FINISHED;
+    }
+
+    /**
+     * Scan cursor wrapper.
+     * 
+     * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+     * @version v1.0 2019年11月4日
+     * @since
+     */
+    public static final class CursorSpec implements Serializable {
+        private static final long serialVersionUID = 4547949424670284416L;
+
+        /** Cursor end spec. */
+        private transient static final String STARTEND = "0";
+
+        /** Scan node position */
+        private Integer selectionPos = 0;
+
+        /** Scan node cursor value */
+        private String cursorString = STARTEND;
+
+        public CursorSpec() {
+            super();
+        }
+
+        public CursorSpec(Integer selectionNode, String cursor) {
+            setSelectionPos(selectionNode);
+            setCursorString(cursor);
+        }
+
+        @JsonIgnore
+        public Integer getSelectionPos() {
+            return selectionPos;
+        }
+
+        public CursorSpec setSelectionPos(Integer selectionNode) {
+            notNull(selectionNode, "Jedis scan selectionNode must not be empty.");
+            notNull(selectionNode >= 0, "Jedis scan selectionNode must >=0.");
+            this.selectionPos = selectionNode;
+            return this;
+        }
+
+        @JsonIgnore
+        public String getCursorString() {
+            return cursorString;
+        }
+
+        public CursorSpec setCursorString(String cursorString) {
+            this.cursorString = hasTextOf(cursorString, "cursorString");
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return getCursorString();
+        }
+
+        @JsonIgnore
+        public synchronized void nextSelectiveNode() {
+            ++this.selectionPos; // Next node position.
+            setCursorString(CursorSpec.STARTEND);// Reset cursor.
+        }
+
+        @JsonIgnore
+        public byte[] getCursorByteArray() {
+            return cursorString.getBytes(Charsets.UTF_8);
+        }
+
+        /**
+         * Check has hext records.
+         * 
+         * @return
+         */
+        public boolean getHasNext() {
+            return !endsWithIgnoreCase(getCursorString(), STARTEND);
+        }
+
+        /**
+         * As cursor to fully string.
+         * 
+         * @return
+         */
+        public String getCursorFullyString() {
+            return getCursorString() + "@" + getSelectionPos();
+        }
+
+        /**
+         * Parse cursor string
+         * 
+         * @param cursorString
+         * @return
+         */
+        public static CursorSpec parse(String cursorString) {
+            hasText(cursorString, "Jedis scan cursorString must not be empty.");
+            String errmsg = String.format("Invalid cursorString with %s", cursorString);
+            isTrue(cursorString.contains("@"), errmsg);
+            String[] parts = split(trimToEmpty(cursorString), "@");
+            isTrue(parts.length >= 2, errmsg);
+            return new CursorSpec(Integer.parseInt(parts[1]), parts[0]);
+        }
+
+        /**
+         * Validation for {@link CursorSpec}
+         * 
+         * @param cursor
+         */
+        public static void validate(CursorSpec cursor) {
+            notNull(cursor, "Jedis scan cursor must not be null.");
+            hasText(cursor.getCursorString(), "Jedis scan cursor value must not be empty.");
+            notNull(cursor.getSelectionPos(), "Jedis scan selectionNode must not be empty.");
+            notNull(cursor.getSelectionPos() >= 0, "Jedis scan selectionNode must >=0.");
+        }
+
+    }
+
+    /**
+     * Redis cluster multi nodes scan params, {@link ScanParams}
+     */
+    public static final class ClusterScanParams implements Serializable {
+        private static final long serialVersionUID = -8988706974133080380L;
+        private final int total; // Total scan limit for all nodes.
+        private final byte[] pattern;
+
+        public ClusterScanParams() {
+            this(10, "");
+        }
+
+        public ClusterScanParams(int total, String pattern) {
+            this(total, SafeEncoder.encode(pattern));
+        }
+
+        public ClusterScanParams(int total, byte[] pattern) {
+            this.total = total;
+            this.pattern = notNullOf(pattern, "pattern");
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public byte[] getPattern() {
+            return pattern;
+        }
+
+        public ScanParams toScanParams() {
+            return new ScanParams().count(getTotal()).match(getPattern());
+        }
+    }
+
+    /**
+     * De-serialization for {@link ScanCursor#next()} and
+     * {@link ScanCursor#readValues()}, default implemention of
+     * {@link ProtostuffUtils}
+     */
+    public static abstract class Deserializer {
+        protected Object deserialize(byte[] data, Class<?> clazz) {
+            return ProtostuffUtils.deserialize(data, clazz);
+        }
+    }
+
+    /**
+     * {@link ScanIterable} holds the values contained in Redis
+     * {@literal Multibulk reply} on exectuting {@literal SCAN} command.
+     * 
+     * @author Christoph Strobl
+     * @since 1.4
+     */
+    static final class ScanIterable<K> implements Iterable<K> {
+
+        private final CursorSpec cursor;
+        private final List<K> keys;
+        private final Iterator<K> iter;
+
+        /**
+         * Scan iterable
+         */
+        public ScanIterable() {
+            this(new CursorSpec());
+        }
+
+        /**
+         * Scan iterable
+         * 
+         * @param cursor
+         * @param keys
+         */
+        public ScanIterable(CursorSpec cursor) {
+            this(cursor, Collections.emptyList());
+        }
+
+        /**
+         * Scan iterable
+         * 
+         * @param cursor
+         * @param keys
+         */
+        public ScanIterable(CursorSpec cursor, List<K> keys) {
+            this.cursor = cursor;
+            this.keys = (isEmpty(keys) ? emptyList() : new ArrayList<K>(keys));
+            this.iter = this.keys.iterator();
+        }
+
+        /**
+         * The cursor id to be used for subsequent requests.
+         * 
+         * @return
+         */
+        public CursorSpec getCursor() {
+            return cursor;
+        }
+
+        /**
+         * Get the items returned.
+         * 
+         * @return
+         */
+        public List<K> getKeys() {
+            return keys;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Iterable#iterator()
+         */
+        @Override
+        public Iterator<K> iterator() {
+            return iter;
+        }
+
+    }
 
 }
