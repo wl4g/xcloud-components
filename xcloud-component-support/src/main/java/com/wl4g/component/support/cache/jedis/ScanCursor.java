@@ -208,24 +208,12 @@ public class ScanCursor<E> implements Iterator<E> {
      * 
      * @see ScanCursor#next()
      */
-    @SuppressWarnings("unchecked")
     public synchronized List<E> readValues() throws IOException {
-        try {
-            // Not iterated yet?
-            if (isEmpty(iter.getKeys())) {
-                List<E> list = new ArrayList<>(64);
-                while (hasNext()) {
-                    list.add(next());
-                }
-                return list;
-            }
-
-            // Iterated yet?
-            return (List<E>) iter.getKeys().stream().map(key -> deserializer.deserialize(jedisClient.get(key), valueType))
-                    .collect(toList());
-        } finally {
-            iter.getKeys().clear();
+        List<E> list = new ArrayList<>(64);
+        while (hasNext()) {
+            list.add(next());
         }
+        return list;
     }
 
     /**
