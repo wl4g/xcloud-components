@@ -86,7 +86,7 @@ public class ScanCursor<E> implements Iterator<E> {
     private volatile CursorSpec cursor;
     private volatile CursorState state;
     private volatile ScanIterable<byte[]> iter; // Batch scanned values cache.
-    private AtomicInteger totalKeys = new AtomicInteger(0);
+    private AtomicInteger keysTotal = new AtomicInteger(0);
 
     /**
      * Crates new {@link ScanCursor} with {@code id=0} and
@@ -187,7 +187,7 @@ public class ScanCursor<E> implements Iterator<E> {
      * 
      * @return
      */
-    public List<byte[]> keys() {
+    public List<byte[]> toKeys() {
         return iter.getKeys();
     }
 
@@ -196,7 +196,7 @@ public class ScanCursor<E> implements Iterator<E> {
      * 
      * @return
      */
-    public List<String> keysAsString() {
+    public List<String> toStringkeys() {
         return iter.getKeys().stream().map(e -> new String(e)).collect(toList());
     }
 
@@ -208,7 +208,7 @@ public class ScanCursor<E> implements Iterator<E> {
      * 
      * @see ScanCursor#next()
      */
-    public synchronized List<E> readValues() throws IOException {
+    public synchronized List<E> toValues() throws IOException {
         List<E> list = new ArrayList<>(64);
         while (hasNext()) {
             list.add(next());
@@ -218,8 +218,8 @@ public class ScanCursor<E> implements Iterator<E> {
 
     /**
      * Fetch the next value from the underlying {@link java.util.Iterable}.
-     * mutual exclusion with {@link ScanCursor#readValues()} method (only one
-     * can be used)
+     * mutual exclusion with {@link ScanCursor#toValues()} method (only one can
+     * be used)
      * 
      * @return
      */
@@ -233,9 +233,6 @@ public class ScanCursor<E> implements Iterator<E> {
         return (E) deserializer.deserialize(jedisClient.get(iter.iterator().next()), valueType);
     }
 
-    /**
-     * {@link java.util.Iterator#hasNext()}
-     */
     @Override
     public synchronized boolean hasNext() {
         checkCursorState();
@@ -257,23 +254,23 @@ public class ScanCursor<E> implements Iterator<E> {
         return state == CursorState.OPEN;
     }
 
+    /**
+     * {@link org.springframework.data.redis.core.Cursor#isClosed()}
+     */
     protected boolean isFinished() {
         return state == CursorState.FINISHED;
     }
 
-    /*
-     * {@link org.springframework.data.redis.core.Cursor#isClosed()}
-     */
-    protected synchronized void finished() {
+    protected void finished() {
         state = CursorState.FINISHED;
         cursor.setSelectionPos(nodePools.size() - 1);
         cursor.setCursorString(CursorSpec.STARTEND);
     }
 
     /**
-     * Execute scan by cursor index.
+     * Next scan by cursor index.
      */
-    protected synchronized void nextScan() {
+    protected void nextScan() {
         // Select a node
         try (Jedis jedis = nodePools.get(cursor.getSelectionPos()).getResource()) {
             // Traverse only the primary node
@@ -292,13 +289,13 @@ public class ScanCursor<E> implements Iterator<E> {
      * @param jedis
      * @return
      */
-    protected synchronized ScanIterable<byte[]> doScanNode(Jedis jedis) {
+    protected ScanIterable<byte[]> doScanNode(Jedis jedis) {
         ScanResult<byte[]> res = jedis.scan(cursor.getCursorByteArray(), params.toScanParams());
 
         List<byte[]> keys = Optional.ofNullable(res.getResult()).get();
 
         // Cumulative total count of scanned keys.
-        int total = totalKeys.addAndGet(keys.size());
+        int total = keysTotal.addAndGet(keys.size());
 
         // Latest cursor string of current node.
         String cursorString = res.getStringCursor();
@@ -325,7 +322,7 @@ public class ScanCursor<E> implements Iterator<E> {
      * 
      * @param res
      */
-    private synchronized void processScanResult(ScanIterable<byte[]> res) {
+    private void processScanResult(ScanIterable<byte[]> res) {
         this.iter = res;
         this.cursor = res.cursor;
 
@@ -337,7 +334,7 @@ public class ScanCursor<E> implements Iterator<E> {
     /**
      * Selection next node
      */
-    private synchronized void nextTo() {
+    private void nextTo() {
         cursor.nextSelectiveNode(); // Next new node.
 
         // Check selection nodes completed?
@@ -534,7 +531,7 @@ public class ScanCursor<E> implements Iterator<E> {
 
     /**
      * De-serialization for {@link ScanCursor#next()} and
-     * {@link ScanCursor#readValues()}, default implemention of
+     * {@link ScanCursor#toValues()}, default implemention of
      * {@link ProtostuffUtils}
      */
     public static abstract class Deserializer {
