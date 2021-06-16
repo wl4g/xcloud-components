@@ -239,11 +239,11 @@ public class ScanCursor<E> implements Iterator<E> {
 
         // If the current 'iter' is fully traversed, you need to check whether
         // the next node has data.
-        while (!iter.iterator().hasNext() && CursorState.FINISHED != state) {
+        while (!iter.iterator().hasNext() && !isFinished()) {
             nextScan();
         }
 
-        return (iter.iterator().hasNext() || !checkScanCompleted());
+        return (iter.iterator().hasNext() || (!isFinished() && !checkScanCompleted()));
     }
 
     protected final boolean isReady() {
@@ -258,13 +258,18 @@ public class ScanCursor<E> implements Iterator<E> {
      * {@link org.springframework.data.redis.core.Cursor#isClosed()}
      */
     protected boolean isFinished() {
+        // state==FINISHED 的两种情况:
+        // 1. 所有节点都被扫描完而结束;
+        // 2. 基于游标分页限制而结束;
         return state == CursorState.FINISHED;
     }
 
-    protected void finished() {
+    protected void finished(boolean resetCursorString) {
         state = CursorState.FINISHED;
-        cursor.setSelectionPos(nodePools.size() - 1);
-        cursor.setCursorString(CursorSpec.STARTEND);
+        if (resetCursorString) {
+            cursor.setCursorString(CursorSpec.STARTEND);
+        }
+        // cursor.setSelectionPos(nodePools.size() - 1);
     }
 
     /**
@@ -302,10 +307,10 @@ public class ScanCursor<E> implements Iterator<E> {
 
         // Check whether the total number is exceeded.
         int excess = total - params.getTotal();
-        if (excess > 0) {
-            finished();
+        if (excess >= 0) {
+            finished(false);
             // After finished scan, the pointer has been reset.
-            cursorString = cursor.getCursorString();
+            // cursorString = cursor.getCursorString();
 
             // Remove the last elements.
             int size = keys.size();
@@ -340,7 +345,7 @@ public class ScanCursor<E> implements Iterator<E> {
         // Check selection nodes completed?
         if (checkSelectionNodesCompleted()) {
             log.debug(format("Fully scanned all nodes. size: %s", nodePools.size()));
-            finished();
+            finished(true);
         }
     }
 
