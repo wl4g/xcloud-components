@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-feign-example</artifactId>
 	<packaging>pom</packaging>
-	<name>XCloud Component Integration SpringBoot+Feign Example</name>
+	<name>XCloud Component Integration SpringBoot-Feign Example</name>
 	<url>http://xcloud.wl4g.com</url>
 	<description>A XCloud Component Integration Examples Projects.</description>
 	<organization>
