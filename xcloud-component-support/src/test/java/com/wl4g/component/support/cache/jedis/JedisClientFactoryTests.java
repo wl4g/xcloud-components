@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import com.wl4g.component.support.cache.jedis.JedisClient;
 import com.wl4g.component.support.cache.jedis.JedisClientFactoryBean;
-import com.wl4g.component.support.cache.jedis.JedisClient.RedisProtoUtil;
+import com.wl4g.component.support.cache.jedis.util.RedisKeySpecUtil;
 import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration.JedisProperties;
 
 /**
@@ -35,55 +35,55 @@ import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration.Jedis
  */
 public class JedisClientFactoryTests {
 
-	@Test
-	public void checkKeyFormatTest1() {
-		System.out.println("-----11-----");
-		RedisProtoUtil.checkArguments(asList("safecloud_support_appinfo_admin"));
+    @Test
+    public void checkKeyFormatTest1() {
+        System.out.println("-----11-----");
+        RedisKeySpecUtil.checkArguments(asList("safecloud_support_appinfo_admin"));
 
-		System.out.println("-----22-----");
-		RedisProtoUtil.checkArguments(asList("3342701404111872&&800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+        System.out.println("-----22-----");
+        RedisKeySpecUtil.checkArguments(asList("3342701404111872&&800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
 
-		try {
-			System.out.println("-----33-----");
-			RedisProtoUtil.checkArguments(asList("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            System.out.println("-----33-----");
+            RedisKeySpecUtil.checkArguments(asList("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		System.out.println("-----44-----");
-		System.out.println(RedisProtoUtil.keyFormat("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
-	}
+        System.out.println("-----44-----");
+        System.out.println(RedisKeySpecUtil.keyFormat("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+    }
 
-	@Test
-	public void createWithJedisSingleTest2() throws Exception {
-		JedisProperties config = new JedisProperties();
-		config.setNodes(singletonList("127.0.0.1:6379"));
+    @Test
+    public void createWithJedisSingleTest2() throws Exception {
+        JedisProperties config = new JedisProperties();
+        config.setNodes(singletonList("127.0.0.1:6379"));
 
-		out.println("Instantiating composite operators adapter with single ...");
-		JedisClientFactoryBean factory = new JedisClientFactoryBean(config);
-		factory.afterPropertiesSet();
-		JedisClient client = factory.getObject();
+        out.println("Instantiating composite operators adapter with single ...");
+        JedisClientFactoryBean factory = new JedisClientFactoryBean(config);
+        factory.afterPropertiesSet();
+        JedisClient client = factory.getObject();
 
-		out.printf("\nadapter.set() result: %s", client.set("foo", "bar"));
-		out.printf("\nadapter.get() result: %s", client.get("foo"));
+        out.printf("\nadapter.set() result: %s", client.set("foo", "bar"));
+        out.printf("\nadapter.get() result: %s", client.get("foo"));
 
-	}
+    }
 
-	@Test
-	public void createWithJedisClusterTest3() throws Exception {
-		JedisProperties config = new JedisProperties();
-		config.setNodes(asList(new String[] { "127.0.0.1:6379", "127.0.0.1:6380", "127.0.0.1:6381", "127.0.0.1:7379",
-				"127.0.0.1:7380", "127.0.0.1:7381" }));
-		config.setPasswd("123456");
+    @Test
+    public void createWithJedisClusterTest3() throws Exception {
+        JedisProperties config = new JedisProperties();
+        config.setNodes(asList(new String[] { "127.0.0.1:6379", "127.0.0.1:6380", "127.0.0.1:6381", "127.0.0.1:7379",
+                "127.0.0.1:7380", "127.0.0.1:7381" }));
+        config.setPasswd("123456");
 
-		out.println("Instantiating composite operators adapter with cluster ...");
-		JedisClientFactoryBean factory = new JedisClientFactoryBean(config);
-		factory.afterPropertiesSet();
-		JedisClient client = factory.getObject();
+        out.println("Instantiating composite operators adapter with cluster ...");
+        JedisClientFactoryBean factory = new JedisClientFactoryBean(config);
+        factory.afterPropertiesSet();
+        JedisClient client = factory.getObject();
 
-		out.printf("\nadapter.set() result: %s", client.set("foo", "bar"));
-		out.printf("\nadapter.get() result: %s", client.get("foo"));
+        out.printf("\nadapter.set() result: %s", client.set("foo", "bar"));
+        out.printf("\nadapter.get() result: %s", client.get("foo"));
 
-	}
+    }
 
 }

@@ -24,7 +24,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,6 +35,7 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.exception.framework.ParameterCanonicalException;
 import com.wl4g.component.support.cache.jedis.JedisClient;
 import com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisClusterCommand.ConfigurableJedisClusterConntionHandler;
+import com.wl4g.component.support.cache.jedis.util.RedisKeySpecUtil;
 
 import redis.clients.jedis.BinaryJedisCluster;
 import redis.clients.jedis.BinaryJedisPubSub;
@@ -72,27 +72,25 @@ import redis.clients.jedis.util.SafeEncoder;
  * @version 2020年3月28日 v1.0.0
  * @see
  */
+@SuppressWarnings("deprecation")
 public class ConfigurableJedisClusterJedisClient extends JedisCluster implements JedisClient {
     protected final SmartLogger log = getLogger(getClass());
 
     /** Safety mode, validating storage key. */
     protected final boolean safeMode;
 
-    @SuppressWarnings("rawtypes")
     public ConfigurableJedisClusterJedisClient(HostAndPort node, int connectionTimeout, int soTimeout, int maxAttempts,
-            final GenericObjectPoolConfig poolConfig, boolean safeMode) {
+            final GenericObjectPoolConfig<Jedis> poolConfig, boolean safeMode) {
         this(singleton(node), connectionTimeout, soTimeout, maxAttempts, null, poolConfig, safeMode);
     }
 
-    @SuppressWarnings("rawtypes")
     public ConfigurableJedisClusterJedisClient(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout,
-            int maxAttempts, final GenericObjectPoolConfig poolConfig, boolean safeMode) {
+            int maxAttempts, final GenericObjectPoolConfig<Jedis> poolConfig, boolean safeMode) {
         this(jedisClusterNode, connectionTimeout, soTimeout, maxAttempts, null, poolConfig, safeMode);
     }
 
-    @SuppressWarnings("rawtypes")
     public ConfigurableJedisClusterJedisClient(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout,
-            int maxAttempts, String password, final GenericObjectPoolConfig poolConfig, boolean safeMode) {
+            int maxAttempts, String password, final GenericObjectPoolConfig<Jedis> poolConfig, boolean safeMode) {
         super(emptySet(), connectionTimeout, soTimeout, maxAttempts, null, null);
         // Overly jedisCluster connection handler
         this.connectionHandler = new ConfigurableJedisClusterConntionHandler(jedisClusterNode, poolConfig, connectionTimeout,
@@ -2307,11 +2305,11 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
     }
 
     @Override
-    public String xgroupDelConsumer(final String key, final String groupname, final String consumername) {
+    public Long xgroupDelConsumer(final String key, final String groupname, final String consumername) {
         checkArguments(key);
-        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
             @Override
-            public String doExecute(Jedis connection) {
+            public Long doExecute(Jedis connection) {
                 return connection.xgroupDelConsumer(key, groupname, consumername);
             }
         }.run(key);
@@ -2903,11 +2901,11 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
     }
 
     @Override
-    public Collection<byte[]> hvals(final byte[] key) {
+    public List<byte[]> hvals(final byte[] key) {
         checkBinaryArguments(key);
-        return new ConfigurableJedisClusterCommand<Collection<byte[]>>(connectionHandler, maxAttempts) {
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
             @Override
-            public Collection<byte[]> doExecute(Jedis connection) {
+            public List<byte[]> doExecute(Jedis connection) {
                 return connection.hvals(key);
             }
         }.runBinary(key);
@@ -4603,11 +4601,11 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
     }
 
     @Override
-    public String xgroupDelConsumer(final byte[] key, final byte[] consumer, final byte[] consumerName) {
+    public Long xgroupDelConsumer(final byte[] key, final byte[] consumer, final byte[] consumerName) {
         checkBinaryArguments(key);
-        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
             @Override
-            public String doExecute(Jedis connection) {
+            public Long doExecute(Jedis connection) {
                 return connection.xgroupDelConsumer(key, consumer, consumerName);
             }
         }.runBinary(key);
@@ -4648,12 +4646,12 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
     }
 
     @Override
-    public List<byte[]> xpending(final byte[] key, final byte[] groupname, final byte[] start, final byte[] end, final int count,
+    public List<Object> xpending(final byte[] key, final byte[] groupname, final byte[] start, final byte[] end, final int count,
             final byte[] consumername) {
         checkBinaryArguments(key);
-        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+        return new ConfigurableJedisClusterCommand<List<Object>>(connectionHandler, maxAttempts) {
             @Override
-            public List<byte[]> doExecute(Jedis connection) {
+            public List<Object> doExecute(Jedis connection) {
                 return connection.xpending(key, groupname, start, end, count, consumername);
             }
         }.runBinary(key);
@@ -4702,7 +4700,7 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
      */
     protected void checkBinaryArguments(final byte[]... keys) throws ParameterCanonicalException {
         if (safeMode) {
-            RedisProtoUtil.checkArguments(asList(keys));
+            RedisKeySpecUtil.checkArguments(asList(keys));
         }
     }
 
@@ -4714,7 +4712,7 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
      */
     protected void checkBinaryArguments(final List<byte[]> keys) throws ParameterCanonicalException {
         if (safeMode) {
-            RedisProtoUtil.checkArguments(asList(keys));
+            RedisKeySpecUtil.checkArguments(asList(keys));
         }
     }
 
@@ -4736,7 +4734,7 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
      */
     protected void checkArguments(final String... keys) throws ParameterCanonicalException {
         if (safeMode) {
-            RedisProtoUtil.checkArguments(asList(keys));
+            RedisKeySpecUtil.checkArguments(asList(keys));
         }
     }
 

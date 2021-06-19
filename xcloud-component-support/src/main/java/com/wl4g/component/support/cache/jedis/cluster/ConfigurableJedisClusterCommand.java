@@ -47,96 +47,95 @@ import redis.clients.jedis.exceptions.JedisRedirectionException;
  * @see
  */
 abstract class ConfigurableJedisClusterCommand<T> extends JedisClusterCommand<T> {
-	protected final SmartLogger log = getLogger(getClass());
+    protected final SmartLogger log = getLogger(getClass());
 
-	public ConfigurableJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
-		super(connectionHandler, maxAttempts);
-	}
+    public ConfigurableJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
+        super(connectionHandler, maxAttempts);
+    }
 
-	@Override
-	public T execute(Jedis connection) {
-		try {
-			return doExecute(connection);
-		} catch (JedisException e) {
-			/**
-			 * {@link redis.clients.jedis.JedisClusterCommand#runWithRetries}
-			 */
-			if ((e instanceof JedisRedirectionException) || (e instanceof JedisNoReachableClusterNodeException)) {
-				throw e;
-			}
-			// Print details errors.
-			String node = connection.getClient().getHost() + ":" + connection.getClient().getPort();
-			String errmsg = format("Couldn't execution jedis command of node: %s", node);
-			if (e instanceof JedisConnectionException) {
-				throw new JedisConnectionException(errmsg, e);
-			}
-			throw new JedisException(errmsg, e);
-		}
-	}
+    @Override
+    public T execute(Jedis connection) {
+        try {
+            return doExecute(connection);
+        } catch (JedisException e) {
+            /**
+             * {@link redis.clients.jedis.JedisClusterCommand#runWithRetries}
+             */
+            if ((e instanceof JedisRedirectionException) || (e instanceof JedisNoReachableClusterNodeException)) {
+                throw e;
+            }
+            // Print details errors.
+            String node = connection.getClient().getHost() + ":" + connection.getClient().getPort();
+            String errmsg = format("Couldn't execution jedis command of node: %s", node);
+            if (e instanceof JedisConnectionException) {
+                throw new JedisConnectionException(errmsg, e);
+            }
+            throw new JedisException(errmsg, e);
+        }
+    }
 
-	/**
-	 * Do executions.
-	 * 
-	 * @param connection
-	 * @return
-	 */
-	public abstract T doExecute(Jedis connection);
+    /**
+     * Do executions.
+     * 
+     * @param connection
+     * @return
+     */
+    public abstract T doExecute(Jedis connection);
 
-	/**
-	 * Configurable enhanced Jedis cluster connection handler.
-	 * 
-	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
-	 * @version v1.0 2020年4月17日
-	 * @since
-	 */
-	static class ConfigurableJedisClusterConntionHandler extends JedisSlotBasedConnectionHandler {
-		protected final SmartLogger log = getLogger(getClass());
+    /**
+     * Configurable enhanced Jedis cluster connection handler.
+     * 
+     * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+     * @version v1.0 2020年4月17日
+     * @since
+     */
+    static class ConfigurableJedisClusterConntionHandler extends JedisSlotBasedConnectionHandler {
+        protected final SmartLogger log = getLogger(getClass());
 
-		@SuppressWarnings("rawtypes")
-		public ConfigurableJedisClusterConntionHandler(Set<HostAndPort> nodes, GenericObjectPoolConfig poolConfig,
-				int connectionTimeout, int soTimeout, String password) {
-			super(nodes, poolConfig, connectionTimeout, soTimeout, password);
-		}
+        public ConfigurableJedisClusterConntionHandler(Set<HostAndPort> nodes, GenericObjectPoolConfig<Jedis> poolConfig,
+                int connectionTimeout, int soTimeout, String password) {
+            super(nodes, poolConfig, connectionTimeout, soTimeout, password);
+        }
 
-		public Jedis getConnection() {
-			return super.getConnection();
-		}
+        public Jedis getConnection() {
+            return super.getConnection();
+        }
 
-		public Jedis getConnectionFromSlot(int slot) {
-			try {
-				return super.getConnectionFromSlot(slot);
-			} catch (JedisException ex) {
-				// Found current jedis node
-				JedisPool jedisPool = cache.getSlotPool(slot);
-				Optional<String> opt = cache.getNodes().entrySet().stream().filter(e -> e.getValue() == jedisPool)
-						.map(e -> e.getKey()).findFirst();
-				log.trace("Failed to getsConnectionFromSlot. slot: {}, redis.node.host: {}", slot, opt);
+        public Jedis getConnectionFromSlot(int slot) {
+            try {
+                return super.getConnectionFromSlot(slot);
+            } catch (JedisException ex) {
+                // Found current jedis node
+                JedisPool jedisPool = cache.getSlotPool(slot);
+                Optional<String> opt = cache.getNodes().entrySet().stream().filter(e -> e.getValue() == jedisPool)
+                        .map(e -> e.getKey()).findFirst();
+                log.trace("Failed to getsConnectionFromSlot. slot: {}, redis.node.host: {}", slot, opt);
 
-				// Print details errors.
-				String errmsg = format("slot: %s", slot);
-				if (opt.isPresent()) {
-					errmsg = opt.get();
-					// Tip: Redis(server) cluster configered warning.
-					if (isBlank(parseString(errmsg).getHost())) {
-						errmsg = format(
-								"'%s', Please check the configuration of the redis-cluster(server). Is it bound (0.0.0.0:<port>)? You should let the redis server process listen for a specific host address!",
-								errmsg);
-					}
-				}
-				throw new JedisException(format("Can't get a resource for %s", errmsg), ex);
-			}
-		}
+                // Print details errors.
+                String errmsg = format("slot: %s", slot);
+                if (opt.isPresent()) {
+                    errmsg = opt.get();
+                    // Tip: Redis(server) cluster configered warning.
+                    if (isBlank(parseString(errmsg).getHost())) {
+                        errmsg = format(
+                                "'%s', Please check the configuration of the redis-cluster(server). Is it bound (0.0.0.0:<port>)? You should let the redis server process listen for a specific host address!",
+                                errmsg);
+                    }
+                }
+                throw new JedisException(format("Can't get a resource for %s", errmsg), ex);
+            }
+        }
 
-		@Override
-		public Jedis getConnectionFromNode(HostAndPort node) {
-			try {
-				return super.getConnectionFromNode(node);
-			} catch (JedisException e) {
-				// Print details errors.
-				throw new JedisException(format("Can't get a resource of '%s'", node), e);
-			}
-		}
+        @Override
+        public Jedis getConnectionFromNode(HostAndPort node) {
+            try {
+                return super.getConnectionFromNode(node);
+            } catch (JedisException e) {
+                // Print details errors.
+                throw new JedisException(format("Can't get a resource of '%s'", node), e);
+            }
+        }
 
-	}
+    }
 
 }

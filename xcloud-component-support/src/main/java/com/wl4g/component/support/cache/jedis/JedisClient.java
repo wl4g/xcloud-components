@@ -15,31 +15,14 @@
  */
 package com.wl4g.component.support.cache.jedis;
 
-import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static java.lang.Long.parseLong;
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isAlpha;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNumeric;
-
 import java.io.Closeable;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.exception.framework.ParameterCanonicalException;
-
+import redis.clients.jedis.AccessControlLogEntry;
+import redis.clients.jedis.AccessControlUser;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.BitOP;
 import redis.clients.jedis.BitPosParams;
@@ -48,2851 +31,2842 @@ import redis.clients.jedis.DebugParams;
 import redis.clients.jedis.GeoCoordinate;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.ListPosition;
+import redis.clients.jedis.Module;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.StreamConsumersInfo;
 import redis.clients.jedis.StreamEntry;
 import redis.clients.jedis.StreamEntryID;
+import redis.clients.jedis.StreamGroupInfo;
+import redis.clients.jedis.StreamInfo;
 import redis.clients.jedis.StreamPendingEntry;
+import redis.clients.jedis.StreamPendingSummary;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.ZParams;
-import redis.clients.jedis.commands.AdvancedBinaryJedisCommands;
-import redis.clients.jedis.commands.AdvancedJedisCommands;
-import redis.clients.jedis.commands.BasicCommands;
-import redis.clients.jedis.commands.BinaryJedisClusterCommands;
-import redis.clients.jedis.commands.BinaryJedisCommands;
-import redis.clients.jedis.commands.BinaryScriptingCommands;
-import redis.clients.jedis.commands.ClusterCommands;
-import redis.clients.jedis.commands.JedisClusterBinaryScriptingCommands;
-import redis.clients.jedis.commands.JedisClusterScriptingCommands;
-import redis.clients.jedis.commands.MultiKeyBinaryCommands;
-import redis.clients.jedis.commands.MultiKeyBinaryJedisClusterCommands;
-import redis.clients.jedis.commands.MultiKeyCommands;
-import redis.clients.jedis.commands.MultiKeyJedisClusterCommands;
-import redis.clients.jedis.commands.ScriptingCommands;
-import redis.clients.jedis.commands.SentinelCommands;
+import redis.clients.jedis.args.FlushMode;
+import redis.clients.jedis.args.ListDirection;
+import redis.clients.jedis.args.UnblockType;
 import redis.clients.jedis.params.ClientKillParams;
+import redis.clients.jedis.params.GeoAddParams;
 import redis.clients.jedis.params.GeoRadiusParam;
+import redis.clients.jedis.params.GeoRadiusStoreParam;
+import redis.clients.jedis.params.GetExParams;
+import redis.clients.jedis.params.LPosParams;
 import redis.clients.jedis.params.MigrateParams;
+import redis.clients.jedis.params.RestoreParams;
 import redis.clients.jedis.params.SetParams;
+import redis.clients.jedis.params.XAddParams;
+import redis.clients.jedis.params.XClaimParams;
+import redis.clients.jedis.params.XPendingParams;
+import redis.clients.jedis.params.XReadGroupParams;
+import redis.clients.jedis.params.XReadParams;
+import redis.clients.jedis.params.XTrimParams;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.params.ZIncrByParams;
+import redis.clients.jedis.resps.KeyedListElement;
+import redis.clients.jedis.resps.KeyedZSetElement;
 import redis.clients.jedis.util.Slowlog;
 
 /**
- * Composite jedis single and cluster adapter.
+ * Composite {@link Jedis} and {@link JedisCluster} facade adapter. </br>
+ * 
+ * <p>
+ * Synchronization of jedis code process description: </br>
+ * Use the following shell command to remove the completely duplicate methods
+ * (method name and parameter list) of {@link Jedis} and {@link JedisCluster} :
+ * 
+ * <pre>
+ * cat JedisClient.java|grep default|sort -u
+ * </pre>
+ * </p>
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年7月18日 v1.0.0
- * @see
+ * @see jedis-3.6.1
  */
-public interface JedisClient extends MultiKeyJedisClusterCommands, JedisClusterScriptingCommands, BasicCommands,
-        BinaryJedisClusterCommands, MultiKeyBinaryJedisClusterCommands, JedisClusterBinaryScriptingCommands, MultiKeyCommands,
-        AdvancedJedisCommands, ScriptingCommands, ClusterCommands, SentinelCommands, BinaryJedisCommands, MultiKeyBinaryCommands,
-        AdvancedBinaryJedisCommands, BinaryScriptingCommands, Closeable {
+@SuppressWarnings("unchecked")
+public interface JedisClient extends Closeable {
+
+    // JedisCommands
 
     default Map<String, JedisPool> getClusterNodes() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default void close() throws IOException {
+    default AccessControlUser aclGetUser(byte[] name) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Object eval(byte[] script) {
+    default AccessControlUser aclGetUser(String name) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Object evalsha(byte[] script) {
+    default Boolean copy(byte[] srcKey, byte[] dstKey, boolean replace) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<Long> scriptExists(byte[]... sha1) {
+    default Boolean copy(byte[] srcKey, byte[] dstKey, int db, boolean replace) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default byte[] scriptLoad(byte[] script) {
+    default Boolean copy(String srcKey, String dstKey, boolean replace) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String scriptFlush() {
+    default Boolean copy(String srcKey, String dstKey, int db, boolean replace) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String scriptKill() {
+    default Boolean exists(byte[] key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<byte[]> configGet(byte[] pattern) {
+    default Boolean exists(String key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default byte[] configSet(byte[] parameter, byte[] value) {
+    default Boolean getbit(byte[] key, long offset) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<byte[]> slowlogGetBinary() {
+    default Boolean getbit(String key, long offset) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<byte[]> slowlogGetBinary(long entries) {
+    default Boolean hexists(byte[] key, byte[] field) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long objectRefcount(byte[] key) {
+    default Boolean hexists(String key, String field) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default byte[] objectEncoding(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long objectIdletime(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> blpop(byte[]... args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> brpop(byte[]... args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> keys(byte[] pattern) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String watch(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] randomBinaryKey() {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String set(String key, String value, SetParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String migrate(String host, int port, byte[] key, int destinationDB, int timeout) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String migrate(String host, int port, int destinationDB, int timeout, MigrateParams params, byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientKill(byte[] ipPort) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] clientGetnameBinary() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] clientListBinary() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientSetname(byte[] name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] memoryDoctorBinary() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String restoreReplace(byte[] key, int ttl, byte[] serializedValue) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long move(byte[] key, int dbIndex) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<Map<String, String>> sentinelMasters() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> sentinelGetMasterAddrByName(String masterName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sentinelReset(String pattern) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<Map<String, String>> sentinelSlaves(String masterName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String sentinelFailover(String masterName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String sentinelMonitor(String masterName, String ip, int port, int quorum) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String sentinelRemove(String masterName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String sentinelSet(String masterName, Map<String, String> parameterMap) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterNodes() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterMeet(String ip, int port) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterAddSlots(int... slots) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterDelSlots(int... slots) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterInfo() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> clusterGetKeysInSlot(int slot, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterSetSlotNode(int slot, String nodeId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterSetSlotMigrating(int slot, String nodeId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterSetSlotImporting(int slot, String nodeId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterSetSlotStable(int slot) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterForget(String nodeId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterFlushSlots() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long clusterKeySlot(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long clusterCountKeysInSlot(int slot) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterSaveConfig() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterReplicate(String nodeId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> clusterSlaves(String nodeId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterFailover() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<Object> clusterSlots() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clusterReset(ClusterReset resetType) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String readonly() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(String script) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(String sha1) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     default Boolean scriptExists(String sha1) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<Boolean> scriptExists(String... sha1) {
+    default Boolean scriptExists(String sha1, String sampleKey) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String scriptLoad(String script) {
+    default Boolean setbit(byte[] key, long offset, boolean value) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<String> configGet(String pattern) {
+    default Boolean setbit(byte[] key, long offset, byte[] value) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String configSet(String parameter, String value) {
+    default Boolean setbit(String key, long offset, boolean value) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String slowlogReset() {
+    default Boolean setbit(String key, long offset, String value) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long slowlogLen() {
+    default Boolean sismember(byte[] key, byte[] member) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<Slowlog> slowlogGet() {
+    default Boolean sismember(String key, String member) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<Slowlog> slowlogGet(long entries) {
+    default byte[] aclGenPassBinary() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long objectRefcount(String key) {
+    default byte[] aclLog(byte[] options) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String objectEncoding(String key) {
+    default byte[] aclWhoAmIBinary() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long objectIdletime(String key) {
+    default byte[] blmove(byte[] srcKey, byte[] dstKey, ListDirection from, ListDirection to, double timeout) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String migrate(String host, int port, String key, int destinationDB, int timeout) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String migrate(String host, int port, int destinationDB, int timeout, MigrateParams params, String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientKill(String ipPort) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientKill(String ip, int port) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long clientKill(ClientKillParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientGetname() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientList() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String clientSetname(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String memoryDoctor() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> blpop(String... args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> brpop(String... args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String watch(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String unwatch() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String randomKey() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<String> scan(String cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    default List<Entry<String, List<StreamEntry>>> xread(int count, long block, Entry<String, StreamEntryID>... streams) {
-        throw new UnsupportedOperationException();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    default List<Map.Entry<String, List<StreamEntry>>> xreadGroup(String groupname, String consumer, int count, long block,
-            final boolean noAck, Map.Entry<String, StreamEntryID>... streams) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(byte[] script, byte[] keyCount, byte[]... params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(byte[] script, int keyCount, byte[]... params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(byte[] script, List<byte[]> keys, List<byte[]> args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(byte[] script, byte[] sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(byte[] sha1, byte[] sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(byte[] sha1, List<byte[]> keys, List<byte[]> args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(byte[] sha1, int keyCount, byte[]... params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<Long> scriptExists(byte[] sampleKey, byte[]... sha1) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] scriptLoad(byte[] script, byte[] sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String scriptFlush(byte[] sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String scriptKill(byte[] sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long del(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long unlink(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long exists(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> blpop(int timeout, byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> brpop(int timeout, byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> mget(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String mset(byte[]... keysvalues) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long msetnx(byte[]... keysvalues) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String rename(byte[] oldkey, byte[] newkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long renamenx(byte[] oldkey, byte[] newkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] rpoplpush(byte[] srckey, byte[] dstkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> sdiff(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sdiffstore(byte[] dstkey, byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> sinter(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sinterstore(byte[] dstkey, byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long smove(byte[] srckey, byte[] dstkey, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sort(byte[] key, SortingParams sortingParameters, byte[] dstkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sort(byte[] key, byte[] dstkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> sunion(byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sunionstore(byte[] dstkey, byte[]... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zinterstore(byte[] dstkey, byte[]... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zinterstore(byte[] dstkey, ZParams params, byte[]... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zunionstore(byte[] dstkey, byte[]... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zunionstore(byte[] dstkey, ZParams params, byte[]... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     default byte[] brpoplpush(byte[] source, byte[] destination, int timeout) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long publish(byte[] channel, byte[] message) {
+    default byte[] clientGetnameBinary() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default void subscribe(BinaryJedisPubSub jedisPubSub, byte[]... channels) {
+    default byte[] clientInfoBinary() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default void psubscribe(BinaryJedisPubSub jedisPubSub, byte[]... patterns) {
+    default byte[] clientListBinary() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long bitop(BitOP op, byte[] destKey, byte[]... srcKeys) {
+    default byte[] clientListBinary(long... clientIds) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String pfmerge(byte[] destkey, byte[]... sourcekeys) {
+    default byte[] configSet(byte[] parameter, byte[] value) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long pfcount(byte[]... keys) {
+    default byte[] dump(byte[] key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long touch(byte[]... keys) {
+    default byte[] dump(String key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default ScanResult<byte[]> scan(byte[] cursor, ScanParams params) {
+    default byte[] echo(byte[] arg) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<byte[]> xread(int count, long block, Map<byte[], byte[]> streams) {
+    default byte[] get(byte[] key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    default byte[] getDel(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] getEx(byte[] key, GetExParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] getrange(byte[] key, long startOffset, long endOffset) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] getSet(byte[] key, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] hget(byte[] key, byte[] field) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] hrandfield(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] lindex(byte[] key, long index) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] lmove(byte[] srcKey, byte[] dstKey, ListDirection from, ListDirection to) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] lpop(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] memoryDoctorBinary() {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] objectEncoding(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] randomBinaryKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] rpop(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] rpoplpush(byte[] srckey, byte[] dstkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] scriptLoad(byte[] script) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] scriptLoad(byte[] script, byte[] sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] spop(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] srandmember(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] substr(byte[] key, int start, int end) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] xadd(byte[] key, byte[] id, Map<byte[], byte[]> hash, long maxLen, boolean approximateLength) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] xadd(byte[] key, Map<byte[], byte[]> hash, XAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] zrandmember(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double geodist(byte[] key, byte[] member1, byte[] member2) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double geodist(byte[] key, byte[] member1, byte[] member2, GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double geodist(String key, String member1, String member2) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double geodist(String key, String member1, String member2, GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double hincrByFloat(byte[] key, byte[] field, double value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double hincrByFloat(String key, String field, double value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double incrByFloat(byte[] key, double increment) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double incrByFloat(String key, double increment) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zaddIncr(byte[] key, double score, byte[] member, ZAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zaddIncr(String key, double score, String member, ZAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zincrby(byte[] key, double increment, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zincrby(byte[] key, double increment, byte[] member, ZIncrByParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zincrby(String key, double increment, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zincrby(String key, double increment, String member, ZIncrByParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zscore(byte[] key, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Double zscore(String key, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getDB() {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyedListElement blpop(double timeout, String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyedListElement blpop(double timeout, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyedListElement brpop(double timeout, String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyedListElement brpop(double timeout, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyedZSetElement bzpopmax(double timeout, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyedZSetElement bzpopmin(double timeout, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<AccessControlLogEntry> aclLog() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<AccessControlLogEntry> aclLog(int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Boolean> scriptExists(String sampleKey, String... sha1) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Boolean> scriptExists(String... sha1) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Boolean> smismember(byte[] key, byte[]... members) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Boolean> smismember(String key, String... members) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> aclCatBinary() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> aclCat(byte[] category) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> aclListBinary() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> aclLogBinary() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> aclLogBinary(int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> aclUsersBinary() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> blpop(byte[]... args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> blpop(double timeout, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> blpop(int timeout, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> brpop(byte[]... args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> brpop(double timeout, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> brpop(int timeout, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> bzpopmax(double timeout, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> bzpopmin(double timeout, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> configGet(byte[] pattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> geohash(byte[] key, byte[]... members) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> hmget(byte[] key, byte[]... fields) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> hrandfield(byte[] key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> hvals(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> lpop(byte[] key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> lrange(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> mget(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> objectHelpBinary() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> rpop(byte[] key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> sort(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> sort(byte[] key, SortingParams sortingParameters) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> srandmember(byte[] key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xclaim(byte[] key, byte[] group, byte[] consumername, long minIdleTime, XClaimParams params,
+            byte[]... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xclaim$JedisCommands(byte[] key, byte[] groupname, byte[] consumername, long minIdleTime,
+            long newIdleTime, int retries, boolean force, byte[]... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xclaim$JedisClusterCommands(byte[] key, byte[] groupname, byte[] consumername, long minIdleTime,
+            long newIdleTime, int retries, boolean force, byte[][] ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xclaimJustId(byte[] key, byte[] group, byte[] consumername, long minIdleTime, XClaimParams params,
+            byte[]... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xrange(byte[] key, byte[] start, byte[] end) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xrange(byte[] key, byte[] start, byte[] end, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<byte[]> xrange(byte[] key, byte[] start, byte[] end, long count) {
+        throw new UnsupportedOperationException();
+    }
+
     default List<byte[]> xreadGroup(byte[] groupname, byte[] consumer, int count, long block, boolean noAck,
             Map<byte[], byte[]> streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String set(byte[] key, byte[] value) {
+    default List<byte[]> xreadGroup(byte[] groupname, byte[] consumer, XReadGroupParams xReadGroupParams,
+            Entry<byte[], byte[]>... streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String set(byte[] key, byte[] value, SetParams params) {
+    default List<byte[]> xread(int count, long block, Map<byte[], byte[]> streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default byte[] get(byte[] key) {
+    default List<byte[]> xread(XReadParams xReadParams, Entry<byte[], byte[]>... streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Boolean exists(byte[] key) {
+    default List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long persist(byte[] key) {
+    default List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, int count) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String type(byte[] key) {
+    default List<Double> zmscore(byte[] key, byte[]... members) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default byte[] dump(byte[] key) {
+    default List<Double> zmscore(String key, String... members) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default String restore(byte[] key, int ttl, byte[] serializedValue) {
+    default List<Entry<String, List<StreamEntry>>> xreadGroup(String groupname, String consumer, int count, long block,
+            boolean noAck, Entry<String, StreamEntryID>... streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long expire(byte[] key, int seconds) {
+    default List<Entry<String, List<StreamEntry>>> xreadGroup(String groupname, String consumer,
+            XReadGroupParams xReadGroupParams, Map<String, StreamEntryID> streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long pexpire(byte[] key, long milliseconds) {
+    default List<Entry<String, List<StreamEntry>>> xread(int count, long block, Entry<String, StreamEntryID>... streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long expireAt(byte[] key, long unixTime) {
+    default List<Entry<String, List<StreamEntry>>> xread(XReadParams xReadParams, Map<String, StreamEntryID> streams) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default Long pexpireAt(byte[] key, long millisecondsTimestamp) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long ttl(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long pttl(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long touch(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Boolean setbit(byte[] key, long offset, boolean value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Boolean setbit(byte[] key, long offset, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Boolean getbit(byte[] key, long offset) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long setrange(byte[] key, long offset, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] getrange(byte[] key, long startOffset, long endOffset) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] getSet(byte[] key, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long setnx(byte[] key, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String setex(byte[] key, int seconds, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String psetex(byte[] key, long milliseconds, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long decrBy(byte[] key, long decrement) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long decr(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long incrBy(byte[] key, long increment) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double incrByFloat(byte[] key, double increment) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long incr(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long append(byte[] key, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] substr(byte[] key, int start, int end) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hset(byte[] key, byte[] field, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hset(byte[] key, Map<byte[], byte[]> hash) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] hget(byte[] key, byte[] field) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hsetnx(byte[] key, byte[] field, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String hmset(byte[] key, Map<byte[], byte[]> hash) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> hmget(byte[] key, byte[]... fields) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hincrBy(byte[] key, byte[] field, long value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double hincrByFloat(byte[] key, byte[] field, double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Boolean hexists(byte[] key, byte[] field) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hdel(byte[] key, byte[]... field) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hlen(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> hkeys(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Collection<byte[]> hvals(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Map<byte[], byte[]> hgetAll(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long rpush(byte[] key, byte[]... args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long lpush(byte[] key, byte[]... args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long llen(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> lrange(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String ltrim(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] lindex(byte[] key, long index) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String lset(byte[] key, long index, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long lrem(byte[] key, long count, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] lpop(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] rpop(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sadd(byte[] key, byte[]... member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> smembers(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long srem(byte[] key, byte[]... member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] spop(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> spop(byte[] key, long count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long scard(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Boolean sismember(byte[] key, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] srandmember(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> srandmember(byte[] key, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long strlen(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zadd(byte[] key, double score, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zadd(byte[] key, double score, byte[] member, ZAddParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zadd(byte[] key, Map<byte[], Double> scoreMembers) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zadd(byte[] key, Map<byte[], Double> scoreMembers, ZAddParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrange(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zrem(byte[] key, byte[]... members) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double zincrby(byte[] key, double increment, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double zincrby(byte[] key, double increment, byte[] member, ZIncrByParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zrank(byte[] key, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zrevrank(byte[] key, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrange(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrangeWithScores(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrevrangeWithScores(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zcard(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double zscore(byte[] key, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> sort(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> sort(byte[] key, SortingParams sortingParameters) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zcount(byte[] key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zcount(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrangeByScore(byte[] key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrangeByScore(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrangeByScore(byte[] key, double max, double min) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrangeByScore(byte[] key, double min, double max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrangeByScore(byte[] key, byte[] max, byte[] min) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrangeByScore(byte[] key, byte[] min, byte[] max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrangeByScore(byte[] key, double max, double min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrangeByScoreWithScores(byte[] key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, double max, double min) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrangeByScoreWithScores(byte[] key, double min, double max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrangeByScore(byte[] key, byte[] max, byte[] min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrangeByScoreWithScores(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, byte[] max, byte[] min) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrangeByScoreWithScores(byte[] key, byte[] min, byte[] max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, double max, double min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, byte[] max, byte[] min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zremrangeByRank(byte[] key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zremrangeByScore(byte[] key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zremrangeByScore(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zlexcount(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrangeByLex(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrangeByLex(byte[] key, byte[] min, byte[] max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrangeByLex(byte[] key, byte[] max, byte[] min) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<byte[]> zrevrangeByLex(byte[] key, byte[] max, byte[] min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zremrangeByLex(byte[] key, byte[] min, byte[] max) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long linsert(byte[] key, ListPosition where, byte[] pivot, byte[] value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long lpushx(byte[] key, byte[]... arg) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long rpushx(byte[] key, byte[]... arg) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long del(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long unlink(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] echo(byte[] arg) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long bitcount(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long bitcount(byte[] key, long start, long end) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long pfadd(byte[] key, byte[]... elements) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default long pfcount(byte[] key) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long geoadd(byte[] key, double longitude, double latitude, byte[] member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long geoadd(byte[] key, Map<byte[], GeoCoordinate> memberCoordinateMap) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double geodist(byte[] key, byte[] member1, byte[] member2) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Double geodist(byte[] key, byte[] member1, byte[] member2, GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> geohash(byte[] key, byte[]... members) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     default List<GeoCoordinate> geopos(byte[] key, byte[]... members) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<GeoRadiusResponse> georadius(byte[] key, double longitude, double latitude, double radius, GeoUnit unit) {
+    default List<GeoCoordinate> geopos(String key, String... members) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<GeoRadiusResponse> georadiusReadonly(byte[] key, double longitude, double latitude, double radius,
-            GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<GeoRadiusResponse> georadius(byte[] key, double longitude, double latitude, double radius, GeoUnit unit,
-            GeoRadiusParam param) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<GeoRadiusResponse> georadiusReadonly(byte[] key, double longitude, double latitude, double radius, GeoUnit unit,
-            GeoRadiusParam param) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     default List<GeoRadiusResponse> georadiusByMember(byte[] key, byte[] member, double radius, GeoUnit unit) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default List<GeoRadiusResponse> georadiusByMemberReadonly(byte[] key, byte[] member, double radius, GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     default List<GeoRadiusResponse> georadiusByMember(byte[] key, byte[] member, double radius, GeoUnit unit,
             GeoRadiusParam param) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    default List<GeoRadiusResponse> georadiusByMemberReadonly(byte[] key, byte[] member, double radius, GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
     default List<GeoRadiusResponse> georadiusByMemberReadonly(byte[] key, byte[] member, double radius, GeoUnit unit,
             GeoRadiusParam param) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    default ScanResult<Entry<byte[], byte[]>> hscan(byte[] key, byte[] cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<Entry<byte[], byte[]>> hscan(byte[] key, byte[] cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<byte[]> sscan(byte[] key, byte[] cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<byte[]> sscan(byte[] key, byte[] cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<Tuple> zscan(byte[] key, byte[] cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<Tuple> zscan(byte[] key, byte[] cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<Long> bitfield(byte[] key, byte[]... arguments) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long hstrlen(byte[] key, byte[] field) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default byte[] xadd(byte[] key, byte[] id, Map<byte[], byte[]> hash, long maxLen, boolean approximateLength) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long xlen(byte[] key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> xrange(byte[] key, byte[] start, byte[] end, long count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long xack(byte[] key, byte[] group, byte[]... ids) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String xgroupCreate(byte[] key, byte[] consumer, byte[] id, boolean makeStream) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String xgroupSetID(byte[] key, byte[] consumer, byte[] id) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long xgroupDestroy(byte[] key, byte[] consumer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String xgroupDelConsumer(byte[] key, byte[] consumer, byte[] consumerName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long xdel(byte[] key, byte[]... ids) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long xtrim(byte[] key, long maxLen, boolean approximateLength) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> xpending(byte[] key, byte[] groupname, byte[] start, byte[] end, int count, byte[] consumername) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<byte[]> xclaim(byte[] key, byte[] groupname, byte[] consumername, long minIdleTime, long newIdleTime,
-            int retries, boolean force, byte[][] ids) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long waitReplicas(byte[] key, int replicas, long timeout) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String ping() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String quit() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String flushDB() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long dbSize() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String select(int index) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String swapDB(int index1, int index2) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String flushAll() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String auth(String password) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String save() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String bgsave() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String bgrewriteaof() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long lastsave() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String shutdown() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String info() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String info(String section) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String slaveof(String host, int port) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String slaveofNoOne() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default int getDB() {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String debug(DebugParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String configResetStat() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String configRewrite() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long waitReplicas(int replicas, long timeout) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(String script, int keyCount, String... params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(String script, List<String> keys, List<String> args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object eval(String script, String sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(String sha1, String sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(String sha1, List<String> keys, List<String> args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Object evalsha(String sha1, int keyCount, String... params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Boolean scriptExists(String sha1, String sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<Boolean> scriptExists(String sampleKey, String... sha1) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String scriptLoad(String script, String sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String scriptFlush(String sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String scriptKill(String sampleKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long del(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long unlink(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long exists(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> blpop(int timeout, String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> brpop(int timeout, String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default List<String> mget(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String mset(String... keysvalues) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long msetnx(String... keysvalues) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String rename(String oldkey, String newkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long renamenx(String oldkey, String newkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String rpoplpush(String srckey, String dstkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<String> sdiff(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sdiffstore(String dstkey, String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<String> sinter(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sinterstore(String dstkey, String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long smove(String srckey, String dstkey, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sort(String key, SortingParams sortingParameters, String dstkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sort(String key, String dstkey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<String> sunion(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long sunionstore(String dstkey, String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zinterstore(String dstkey, String... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zinterstore(String dstkey, ZParams params, String... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zunionstore(String dstkey, String... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long zunionstore(String dstkey, ZParams params, String... sets) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String brpoplpush(String source, String destination, int timeout) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long publish(String channel, String message) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default void subscribe(JedisPubSub jedisPubSub, String... channels) {
-
-    }
-
-    @Override
-    default void psubscribe(JedisPubSub jedisPubSub, String... patterns) {
-
-    }
-
-    @Override
-    default Long bitop(BitOP op, String destKey, String... srcKeys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default String pfmerge(String destkey, String... sourcekeys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default long pfcount(String... keys) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Long touch(String... keys) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default ScanResult<String> scan(String cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default Set<String> keys(String pattern) {
-        throw new UnsupportedOperationException();
-    }
-
-    // ---------------------------------------------------------------
-    // ------------ JedisCommands / JedisClusterCommands -------------
-    // ---------------------------------------------------------------
-
-    // @Override
-    default String set(String key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String get(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Boolean exists(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long persist(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String type(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default byte[] dump(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String restore(String key, int ttl, byte[] serializedValue) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String restoreReplace(String key, int ttl, byte[] serializedValue) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long expire(String key, int seconds) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long pexpire(String key, long milliseconds) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long expireAt(String key, long unixTime) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long pexpireAt(String key, long millisecondsTimestamp) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long ttl(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long pttl(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long touch(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Boolean setbit(String key, long offset, boolean value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Boolean setbit(String key, long offset, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Boolean getbit(String key, long offset) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long setrange(String key, long offset, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String getrange(String key, long startOffset, long endOffset) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String getSet(String key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long setnx(String key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String setex(String key, int seconds, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String psetex(String key, long milliseconds, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long decrBy(String key, long decrement) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long decr(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long incrBy(String key, long increment) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Double incrByFloat(String key, double increment) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long incr(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long append(String key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String substr(String key, int start, int end) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long hset(String key, String field, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long hset(String key, Map<String, String> hash) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String hget(String key, String field) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long hsetnx(String key, String field, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String hmset(String key, Map<String, String> hash) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> hmget(String key, String... fields) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long hincrBy(String key, String field, long value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Double hincrByFloat(String key, String field, double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Boolean hexists(String key, String field) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long hdel(String key, String... field) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long hlen(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> hkeys(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> hvals(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Map<String, String> hgetAll(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long rpush(String key, String... string) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long lpush(String key, String... string) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long llen(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> lrange(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String ltrim(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String lindex(String key, long index) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String lset(String key, long index, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long lrem(String key, long count, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String lpop(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String rpop(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long sadd(String key, String... member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> smembers(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long srem(String key, String... member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String spop(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> spop(String key, long count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long scard(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Boolean sismember(String key, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String srandmember(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> srandmember(String key, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long strlen(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zadd(String key, double score, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zadd(String key, double score, String member, ZAddParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zadd(String key, Map<String, Double> scoreMembers) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zadd(String key, Map<String, Double> scoreMembers, ZAddParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrange(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zrem(String key, String... members) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Double zincrby(String key, double increment, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Double zincrby(String key, double increment, String member, ZIncrByParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zrank(String key, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zrevrank(String key, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrange(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrangeWithScores(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrevrangeWithScores(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zcard(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Double zscore(String key, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> sort(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> sort(String key, SortingParams sortingParameters) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zcount(String key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zcount(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrangeByScore(String key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrangeByScore(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrangeByScore(String key, double max, double min) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrangeByScore(String key, double min, double max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrangeByScore(String key, String max, String min) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrangeByScore(String key, String min, String max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrangeByScore(String key, double max, double min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrangeByScoreWithScores(String key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(String key, double max, double min) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrangeByScoreWithScores(String key, double min, double max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrangeByScore(String key, String max, String min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrangeByScoreWithScores(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(String key, String max, String min) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrangeByScoreWithScores(String key, String min, String max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(String key, double max, double min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<Tuple> zrevrangeByScoreWithScores(String key, String max, String min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zremrangeByRank(String key, long start, long stop) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zremrangeByScore(String key, double min, double max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zremrangeByScore(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zlexcount(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrangeByLex(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrangeByLex(String key, String min, String max, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrangeByLex(String key, String max, String min) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Set<String> zrevrangeByLex(String key, String max, String min, int offset, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long zremrangeByLex(String key, String min, String max) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long linsert(String key, ListPosition where, String pivot, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long lpushx(String key, String... string) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long rpushx(String key, String... string) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> blpop(int timeout, String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> brpop(int timeout, String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long del(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long unlink(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default String echo(String string) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long move(String key, int dbIndex) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long bitcount(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long bitcount(String key, long start, long end) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long bitpos(String key, boolean value) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long bitpos(String key, boolean value, BitPosParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default ScanResult<Entry<String, String>> hscan(String key, String cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default ScanResult<Entry<String, String>> hscan(String key, String cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default ScanResult<String> sscan(String key, String cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default ScanResult<Tuple> zscan(String key, String cursor) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default ScanResult<Tuple> zscan(String key, String cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default ScanResult<String> sscan(String key, String cursor, ScanParams params) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long pfadd(String key, String... elements) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default long pfcount(String key) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long geoadd(String key, double longitude, double latitude, String member) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Long geoadd(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
-        throw new UnsupportedOperationException();
-    }
-
-    // For compatibility adaptation
-    // @Override
-    default Double geodist$JedisClusterCommands(String key, String member1, String member2) {
-        throw new UnsupportedOperationException();
-    }
-
-    // For compatibility adaptation
-    // @Override
-    default Double geodist$JedisCommands(String key, String member1, String member2) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default Double geodist(String key, String member1, String member2, GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<String> geohash(String key, String... members) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<GeoCoordinate> geopos(String key, String... members) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<GeoRadiusResponse> georadiusReadonly(String key, double longitude, double latitude, double radius,
-            GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit,
-            GeoRadiusParam param) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<GeoRadiusResponse> georadiusReadonly(String key, double longitude, double latitude, double radius, GeoUnit unit,
-            GeoRadiusParam param) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
-    default List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
     default List<GeoRadiusResponse> georadiusByMemberReadonly(String key, String member, double radius, GeoUnit unit) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit,
-            GeoRadiusParam param) {
-        throw new UnsupportedOperationException();
-    }
-
-    // @Override
     default List<GeoRadiusResponse> georadiusByMemberReadonly(String key, String member, double radius, GeoUnit unit,
             GeoRadiusParam param) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
+    default List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadius(byte[] key, double longitude, double latitude, double radius, GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadius(byte[] key, double longitude, double latitude, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadiusReadonly(byte[] key, double longitude, double latitude, double radius,
+            GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadiusReadonly(byte[] key, double longitude, double latitude, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadiusReadonly(String key, double longitude, double latitude, double radius,
+            GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadiusReadonly(String key, double longitude, double latitude, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Long> bitfield(byte[] key, byte[]... arguments) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Long> bitfieldReadonly(byte[] key, byte[]... arguments) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Long> bitfieldReadonly(String key, String... arguments) {
+        throw new UnsupportedOperationException();
+    }
+
     default List<Long> bitfield(String key, String... arguments) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default Long hstrlen(String key, String field) {
+    default List<Long> lpos(byte[] key, byte[] element, LPosParams params, long count) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default StreamEntryID xadd(String key, StreamEntryID id, Map<String, String> hash) {
+    default List<Long> lpos(String key, String element, LPosParams params, long count) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default StreamEntryID xadd(String key, StreamEntryID id, Map<String, String> hash, long maxLen, boolean approximateLength) {
+    default List<Long> scriptExists(byte[] sampleKey, byte[]... sha1) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default Long xlen(String key) {
+    default List<Long> scriptExists(byte[]... sha1) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end, int count) {
+    default List<Map<String, String>> sentinelMasters() {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default List<StreamEntry> xrevrange(String key, StreamEntryID end, StreamEntryID start, int count) {
+    default List<Map<String, String>> sentinelSlaves(String masterName) {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default Long xack$JedisClusterCommands(String key, String group, StreamEntryID... ids) {
+    default List<Module> moduleList() {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default long xack$JedisCommands(String key, String group, StreamEntryID... ids) {
+    default List<Object> clusterSlots() {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default String xgroupCreate(String key, String groupname, StreamEntryID id, boolean makeStream) {
+    default List<Object> slowlogGetBinary() {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default String xgroupSetID(String key, String groupname, StreamEntryID id) {
+    default List<Object> slowlogGetBinary(long entries) {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default Long xgroupDestroy$JedisClusterCommands(String key, String groupname) {
+    default List<Object> xinfoConsumersBinary(byte[] key, byte[] group) {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default long xgroupDestroy$JedisCommands(String key, String groupname) {
+    default List<Object> xinfoGroupBinary(byte[] key) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default String xgroupDelConsumer(String key, String groupname, String consumername) {
+    default List<Object> xpending(byte[] key, byte[] groupname, byte[] start, byte[] end, int count, byte[] consumername) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
-    default List<StreamPendingEntry> xpending(String key, String groupname, StreamEntryID start, StreamEntryID end, int count,
-            String consumername) {
+    default List<Object> xpending(byte[] key, byte[] groupname, XPendingParams params) {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default Long xdel$JedisClusterCommands(String key, StreamEntryID... ids) {
+    default List<Slowlog> slowlogGet() {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default long xdel$JedisCommands(String key, StreamEntryID... ids) {
+    default List<Slowlog> slowlogGet(long entries) {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default Long xtrim$JedisClusterCommands(String key, long maxLen, boolean approximate) {
+    default List<StreamConsumersInfo> xinfoConsumers(byte[] key, byte[] group) {
         throw new UnsupportedOperationException();
     }
 
-    // For compatibility adaptation
-    // @Override
-    default long xtrim$JedisCommands(String key, long maxLen, boolean approximate) {
+    default List<StreamConsumersInfo> xinfoConsumers(String key, String group) {
         throw new UnsupportedOperationException();
     }
 
-    // @Override
+    default List<StreamEntryID> xclaimJustId(String key, String group, String consumername, long minIdleTime, XClaimParams params,
+            StreamEntryID... ids) {
+        throw new UnsupportedOperationException();
+    }
+
     default List<StreamEntry> xclaim(String key, String group, String consumername, long minIdleTime, long newIdleTime,
             int retries, boolean force, StreamEntryID... ids) {
         throw new UnsupportedOperationException();
     }
 
-    //
-    // --- Function's. ---
-    //
+    default List<StreamEntry> xclaim(String key, String group, String consumername, long minIdleTime, XClaimParams params,
+            StreamEntryID... ids) {
+        throw new UnsupportedOperationException();
+    }
 
-    /**
-     * Redis key specifications utils(formatter etc).
-     * 
-     * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
-     * @version v1.0 2020年4月10日
-     * @since
-     */
-    public static abstract class RedisProtoUtil {
+    default List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end) {
+        throw new UnsupportedOperationException();
+    }
 
-        final private static SmartLogger log = getLogger(RedisProtoUtil.class);
+    default List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end, int count) {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Check is result is successful.
-         * 
-         * @param res
-         * @return
-         */
-        public static boolean isSuccess(String res) {
-            return equalsIgnoreCase(res, "OK") || (!isBlank(res) && isNumeric(res) && parseLong(res) > 0);
-        }
+    default List<StreamEntry> xrevrange(String key, StreamEntryID end, StreamEntryID start) {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Check is result is successful.
-         * 
-         * @param res
-         * @return
-         */
-        public static boolean isSuccess(Long res) {
-            return !isNull(res) && res > 0;
-        }
+    default List<StreamEntry> xrevrange(String key, StreamEntryID end, StreamEntryID start, int count) {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Check input argument names specification.
-         * 
-         * @param keys
-         * @throws ParameterNormativeException
-         */
-        public static void checkArguments(final List<?> keys) throws ParameterCanonicalException {
-            notNullOf(keys, "jedis operation key");
-            for (Object key : keys) {
-                char[] _key = null;
-                if (key instanceof String) {
-                    _key = key.toString().toCharArray();
-                } else if (char.class.isAssignableFrom(key.getClass())) {
-                    _key = new char[] { (char) key };
-                } else if (key instanceof char[]) {
-                    _key = (char[]) key;
-                }
+    default List<StreamGroupInfo> xinfoGroup(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
 
-                if (isNull(_key)) {
-                    continue;
-                }
+    default List<StreamGroupInfo> xinfoGroup(String key) {
+        throw new UnsupportedOperationException();
+    }
 
-                // The check exclusion key contains special characters such
-                // as '-', '$', ' ' etc and so on.
-                for (char c : _key) {
-                    String warning = format(
-                            "The operation redis keys: %s there are unsafe characters: '%s', Because of the binary safety mechanism of redis, it may not be got",
-                            keys, c);
-                    if (!checkInvalidCharacter(c)) {
-                        if (warnKeyChars.contains(c)) { // Warning key chars
-                            log.warn(warning);
-                            return;
-                        } else {
-                            throw new ParameterCanonicalException(warning);
-                        }
-                    }
-                }
-            }
-        }
+    default List<StreamPendingEntry> xpending(String key, String groupname, StreamEntryID start, StreamEntryID end, int count,
+            String consumername) {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Formating redis arguments unsafe characters, e.g: '-' to '_'
-         * 
-         * @param key
-         * @return
-         */
-        public static String keyFormat(String key) {
-            return keyFormat(key, '_');
-        }
+    default List<StreamPendingEntry> xpending(String key, String groupname, XPendingParams params) {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Formating redis arguments unsafe characters, e.g: '-' to '_'
-         * 
-         * @param key
-         * @param safeChar
-         *            Replace safe character
-         * @return
-         */
-        public static String keyFormat(String key, char safeChar) {
-            if (isBlank(key)) {
-                return key;
-            }
-            checkArguments(singletonList(safeChar));
+    default List<String> aclCat() {
+        throw new UnsupportedOperationException();
+    }
 
-            // The check exclusion key contains special characters such
-            // as '-', '$', ' ' etc and so on.
-            StringBuffer _key = new StringBuffer(key.length());
-            for (char c : key.toString().toCharArray()) {
-                if (checkInvalidCharacter(c)) {
-                    _key.append(c);
-                } else {
-                    _key.append(safeChar);
-                }
-            }
-            return _key.toString();
-        }
+    default List<String> aclCat(String category) {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Check is invalid redis arguments character.
-         * 
-         * @param c
-         * @return
-         */
-        public static boolean checkInvalidCharacter(char c) {
-            return !isNull(c) && isNumeric(valueOf(c)) || isAlpha(valueOf(c)) || safeKeyChars.contains(c);
-        }
+    default List<String> aclList() {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Redis key-name safe characters.
-         */
-        private static final List<Character> safeKeyChars = unmodifiableList(new ArrayList<Character>(4) {
-            private static final long serialVersionUID = -7144798722787955277L;
-            {
-                add(':');
-                add('_');
-                add('.');
-                add('@');
-                // @see:JedisClusterCRC16#getSlot(byte[]), support user tag
-                // slot.
-                add('{');
-                add('}');
-            }
-        });
+    default List<String> aclUsers() {
+        throw new UnsupportedOperationException();
+    }
 
-        /**
-         * Redis key-name safe characters.
-         */
-        private static final List<Character> warnKeyChars = unmodifiableList(new ArrayList<Character>(4) {
-            private static final long serialVersionUID = -7144798722787955277L;
-            {
-                add('&');
-                add('!');
-                add('*');
-            }
-        });
+    default List<String> blpop(int timeout, String key) {
+        throw new UnsupportedOperationException();
+    }
 
+    default List<String> blpop(int timeout, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> blpop(String... args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> brpop(int timeout, String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> brpop(int timeout, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> brpop(String... args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> clusterGetKeysInSlot(int slot, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> clusterSlaves(String nodeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> configGet(String pattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> geohash(String key, String... members) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> hmget(String key, String... fields) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> hrandfield(String key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> hvals(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> lpop(String key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> lrange(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> mget(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> objectHelp() {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> rpop(String key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> sentinelGetMasterAddrByName(String masterName) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> sort(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> sort(String key, SortingParams sortingParameters) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<String> srandmember(String key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long aclDelUser(byte[] name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long aclDelUser(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long append(byte[] key, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long append(String key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitcount(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitcount(byte[] key, long start, long end) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitcount(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitcount(String key, long start, long end) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitop(BitOP op, byte[] destKey, byte[]... srcKeys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitop(BitOP op, String destKey, String... srcKeys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitpos(String key, boolean value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long bitpos(String key, boolean value, BitPosParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long clientId() {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long clientKill(ClientKillParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long clientUnblock(long clientId, UnblockType unblockType) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long clusterCountKeysInSlot(int slot) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long clusterKeySlot(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long dbSize() {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long decrBy(byte[] key, long decrement) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long decrBy(String key, long decrement) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long decr(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long decr(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long del(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long del(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long del(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long del(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long exists(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long exists(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long expireAt(byte[] key, long unixTime) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long expireAt(String key, long unixTime) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long expire(byte[] key, int seconds) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long expire(byte[] key, long seconds) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long expire(String key, long seconds) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long geoadd(byte[] key, double longitude, double latitude, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long geoadd(byte[] key, GeoAddParams params, Map<byte[], GeoCoordinate> memberCoordinateMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long geoadd(byte[] key, Map<byte[], GeoCoordinate> memberCoordinateMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long geoadd(String key, double longitude, double latitude, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long geoadd(String key, GeoAddParams params, Map<String, GeoCoordinate> memberCoordinateMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long geoadd(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long georadiusByMemberStore(byte[] key, byte[] member, double radius, GeoUnit unit, GeoRadiusParam param,
+            GeoRadiusStoreParam storeParam) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long georadiusByMemberStore(String key, String member, double radius, GeoUnit unit, GeoRadiusParam param,
+            GeoRadiusStoreParam storeParam) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long georadiusStore(byte[] key, double longitude, double latitude, double radius, GeoUnit unit, GeoRadiusParam param,
+            GeoRadiusStoreParam storeParam) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long georadiusStore(String key, double longitude, double latitude, double radius, GeoUnit unit, GeoRadiusParam param,
+            GeoRadiusStoreParam storeParam) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hdel(byte[] key, byte[]... field) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hdel(String key, String... field) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hincrBy(byte[] key, byte[] field, long value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hincrBy(String key, String field, long value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hlen(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hlen(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hset(byte[] key, byte[] field, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hset(byte[] key, Map<byte[], byte[]> hash) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hsetnx(byte[] key, byte[] field, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hsetnx(String key, String field, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hset(String key, Map<String, String> hash) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hset(String key, String field, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hstrlen(byte[] key, byte[] field) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long hstrlen(String key, String field) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long incrBy(byte[] key, long increment) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long incrBy(String key, long increment) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long incr(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long incr(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lastsave() {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long linsert(byte[] key, ListPosition where, byte[] pivot, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long linsert(String key, ListPosition where, String pivot, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long llen(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long llen(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpos(byte[] key, byte[] element) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpos(byte[] key, byte[] element, LPosParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpos(String key, String element) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpos(String key, String element, LPosParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpush(byte[] key, byte[]... args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpush(String key, String... string) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpushx(byte[] key, byte[]... arg) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lpushx(String key, String... string) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lrem(byte[] key, long count, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long lrem(String key, long count, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long memoryUsage(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long memoryUsage(byte[] key, int samples) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long memoryUsage(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long memoryUsage(String key, int samples) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long move(byte[] key, int dbIndex) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long move(String key, int dbIndex) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long msetnx(byte[]... keysvalues) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long msetnx(String... keysvalues) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long objectFreq(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long objectFreq(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long objectIdletime(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long objectIdletime(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long objectRefcount(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long objectRefcount(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long persist(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long persist(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pexpireAt(byte[] key, long millisecondsTimestamp) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pexpireAt(String key, long millisecondsTimestamp) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pexpire(byte[] key, long milliseconds) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pexpire(String key, long milliseconds) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pfadd(byte[] key, byte[]... elements) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pfadd(String key, String... elements) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long pfcount(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pfcount(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long pfcount(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long pfcount(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pttl(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long pttl(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long publish(byte[] channel, byte[] message) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long publish(String channel, String message) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long renamenx(byte[] oldkey, byte[] newkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long renamenx(String oldkey, String newkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long rpush(byte[] key, byte[]... args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long rpush(String key, String... string) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long rpushx(byte[] key, byte[]... arg) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long rpushx(String key, String... string) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sadd(byte[] key, byte[]... member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sadd(String key, String... member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long scard(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long scard(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sdiffstore(byte[] dstkey, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sdiffstore(String dstkey, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sentinelReset(String pattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long setnx(byte[] key, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long setnx(String key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long setrange(byte[] key, long offset, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long setrange(String key, long offset, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sinterstore(byte[] dstkey, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sinterstore(String dstkey, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long slowlogLen() {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long smove(byte[] srckey, byte[] dstkey, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long smove(String srckey, String dstkey, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sort(byte[] key, byte[] dstkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sort(byte[] key, SortingParams sortingParameters, byte[] dstkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sort(String key, SortingParams sortingParameters, String dstkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sort(String key, String dstkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long srem(byte[] key, byte[]... member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long srem(String key, String... member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long strlen(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long strlen(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sunionstore(byte[] dstkey, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long sunionstore(String dstkey, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long touch(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long touch(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long touch(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long touch(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long ttl(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long ttl(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long unlink(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long unlink(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long unlink(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long unlink(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long waitReplicas(byte[] key, int replicas, long timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long waitReplicas(int replicas, long timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long waitReplicas(String key, int replicas, long timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xack(byte[] key, byte[] group, byte[]... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long xack$JedisCommands(String key, String group, StreamEntryID... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xack$JedisClusterCommands(String key, String group, StreamEntryID... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xdel(byte[] key, byte[]... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long xdel$JedisCommands(String key, StreamEntryID... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xdel$JedisClusterCommands(String key, StreamEntryID... ids) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xgroupDelConsumer(byte[] key, byte[] consumer, byte[] consumerName) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xgroupDelConsumer(String key, String groupname, String consumername) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xgroupDestroy(byte[] key, byte[] consumer) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long xgroupDestroy$JedisCommands(String key, String groupname) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xgroupDestroy$JedisClusterCommands(String key, String groupname) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xlen(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xlen(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xtrim(byte[] key, long maxLen, boolean approximateLength) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xtrim(byte[] key, XTrimParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long xtrim$JedisCommands(String key, long maxLen, boolean approximate) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xtrim$JedisClusterCommands(String key, long maxLen, boolean approximateLength) {
+        throw new UnsupportedOperationException();
+    }
+
+    default long xtrim$JedisCommands(String key, XTrimParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long xtrim$JedisClusterCommands(String key, XTrimParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(byte[] key, double score, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(byte[] key, double score, byte[] member, ZAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(byte[] key, Map<byte[], Double> scoreMembers) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(byte[] key, Map<byte[], Double> scoreMembers, ZAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(String key, double score, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(String key, double score, String member, ZAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(String key, Map<String, Double> scoreMembers) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zadd(String key, Map<String, Double> scoreMembers, ZAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zcard(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zcard(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zcount(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zcount(byte[] key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zcount(String key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zcount(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zdiffStore(byte[] dstkey, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zdiffStore(String dstkey, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zinterstore(byte[] dstkey, byte[]... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zinterstore(byte[] dstkey, ZParams params, byte[]... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zinterstore(String dstkey, String... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zinterstore(String dstkey, ZParams params, String... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zlexcount(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zlexcount(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zrank(byte[] key, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zrank(String key, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zrem(byte[] key, byte[]... members) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByLex(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByLex(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByRank(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByRank(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByScore(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByScore(byte[] key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByScore(String key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zremrangeByScore(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zrem(String key, String... members) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zrevrank(byte[] key, byte[] member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zrevrank(String key, String member) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zunionstore(byte[] dstkey, byte[]... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zunionstore(byte[] dstkey, ZParams params, byte[]... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zunionstore(String dstkey, String... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Long zunionstore(String dstkey, ZParams params, String... sets) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Map<byte[], byte[]> hgetAll(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Map<byte[], byte[]> hrandfieldWithValues(byte[] key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Map<String, String> hgetAll(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Map<String, String> hrandfieldWithValues(String key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(byte[] script) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(byte[] script, byte[] keyCount, byte[]... params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(byte[] script, byte[] sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(byte[] script, int keyCount, byte[]... params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(byte[] script, List<byte[]> keys, List<byte[]> args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(byte[] sha1) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(byte[] sha1, byte[] sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(byte[] sha1, int keyCount, byte[]... params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(byte[] sha1, List<byte[]> keys, List<byte[]> args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(String sha1) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(String sha1, int keyCount, String... params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(String sha1, List<String> keys, List<String> args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object evalsha(String sha1, String sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(String script) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(String script, int keyCount, String... params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(String script, List<String> keys, List<String> args) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object eval(String script, String sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object xinfoStreamBinary(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Object xpending(byte[] key, byte[] groupname) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<byte[]> scan(byte[] cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<byte[]> sscan(byte[] key, byte[] cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<byte[]> sscan(byte[] key, byte[] cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Entry<byte[], byte[]>> hscan(byte[] key, byte[] cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Entry<byte[], byte[]>> hscan(byte[] key, byte[] cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Entry<String, String>> hscan(String key, String cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Entry<String, String>> hscan(String key, String cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<String> scan(String cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<String> scan(String cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<String> sscan(String key, String cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<String> sscan(String key, String cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Tuple> zscan(byte[] key, byte[] cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Tuple> zscan(byte[] key, byte[] cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Tuple> zscan(String key, String cursor) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ScanResult<Tuple> zscan(String key, String cursor, ScanParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> hkeys(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> keys(byte[] pattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> sdiff(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> sinter(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> smembers(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> spop(byte[] key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> sunion(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zdiff(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zinter(ZParams params, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrandmember(byte[] key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrangeByLex(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrangeByLex(byte[] key, byte[] min, byte[] max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrangeByScore(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrangeByScore(byte[] key, byte[] min, byte[] max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrangeByScore(byte[] key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrangeByScore(byte[] key, double min, double max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrange(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrangeByLex(byte[] key, byte[] max, byte[] min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrangeByLex(byte[] key, byte[] max, byte[] min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrangeByScore(byte[] key, byte[] max, byte[] min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrangeByScore(byte[] key, byte[] max, byte[] min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrangeByScore(byte[] key, double max, double min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrangeByScore(byte[] key, double max, double min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zrevrange(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<byte[]> zunion(ZParams params, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> hkeys(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> keys(String pattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> sdiff(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> sinter(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> smembers(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> spop(String key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> sunion(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zdiff(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zinter(ZParams params, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrandmember(String key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrangeByLex(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrangeByLex(String key, String min, String max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrangeByScore(String key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrangeByScore(String key, double min, double max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrangeByScore(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrangeByScore(String key, String min, String max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrange(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrangeByLex(String key, String max, String min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrangeByLex(String key, String max, String min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrangeByScore(String key, double max, double min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrangeByScore(String key, double max, double min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrangeByScore(String key, String max, String min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrangeByScore(String key, String max, String min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zrevrange(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<String> zunion(ZParams params, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zdiffWithScores(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zdiffWithScores(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zinterWithScores(ZParams params, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zinterWithScores(ZParams params, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zpopmax(byte[] key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zpopmax(String key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zpopmin(byte[] key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zpopmin(String key, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrandmemberWithScores(byte[] key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrandmemberWithScores(String key, long count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(byte[] key, byte[] min, byte[] max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(byte[] key, byte[] min, byte[] max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(byte[] key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(byte[] key, double min, double max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(String key, double min, double max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(String key, double min, double max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(String key, String min, String max) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeByScoreWithScores(String key, String min, String max, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeWithScores(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrangeWithScores(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, byte[] max, byte[] min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, byte[] max, byte[] min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, double max, double min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(byte[] key, double max, double min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(String key, double max, double min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(String key, double max, double min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(String key, String max, String min) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeByScoreWithScores(String key, String max, String min, int offset, int count) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeWithScores(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zrevrangeWithScores(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zunionWithScores(ZParams params, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Set<Tuple> zunionWithScores(ZParams params, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default StreamEntryID xadd(String key, Map<String, String> hash, XAddParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default StreamEntryID xadd(String key, StreamEntryID id, Map<String, String> hash) {
+        throw new UnsupportedOperationException();
+    }
+
+    default StreamEntryID xadd(String key, StreamEntryID id, Map<String, String> hash, long maxLen, boolean approximateLength) {
+        throw new UnsupportedOperationException();
+    }
+
+    default StreamInfo xinfoStream(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default StreamInfo xinfoStream(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default StreamPendingSummary xpending(String key, String groupname) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclGenPass() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclLoad() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclLog(String options) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclSave() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclSetUser(byte[] name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclSetUser(byte[] name, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclSetUser(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclSetUser(String name, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String aclWhoAmI() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String auth(String password) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String auth(String user, String password) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String bgrewriteaof() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String bgsave() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String blmove(String srcKey, String dstKey, ListDirection from, ListDirection to, double timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String brpoplpush(String source, String destination, int timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientGetname() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientInfo() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientKill(byte[] ipPort) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientKill(String ip, int port) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientKill(String ipPort) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientList() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientList(long... clientIds) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientSetname(byte[] name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clientSetname(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterAddSlots(int... slots) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterDelSlots(int... slots) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterFailover() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterFlushSlots() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterForget(String nodeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterInfo() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterMeet(String ip, int port) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterNodes() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterReplicate(String nodeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterReset(ClusterReset resetType) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterSaveConfig() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterSetSlotImporting(int slot, String nodeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterSetSlotMigrating(int slot, String nodeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterSetSlotNode(int slot, String nodeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String clusterSetSlotStable(int slot) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String configResetStat() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String configRewrite() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String configSet(String parameter, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String debug(DebugParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String echo(String string) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String flushAll() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String flushAll(FlushMode flushMode) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String flushDB() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String flushDB(FlushMode flushMode) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getDel(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getEx(String key, GetExParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getrange(String key, long startOffset, long endOffset) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getSet(String key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String get(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String hget(String key, String field) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String hmset(byte[] key, Map<byte[], byte[]> hash) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String hmset(String key, Map<String, String> hash) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String hrandfield(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String info() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String info(String section) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String lindex(String key, long index) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String lmove(String srcKey, String dstKey, ListDirection from, ListDirection to) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String lpop(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String lset(byte[] key, long index, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String lset(String key, long index, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String ltrim(byte[] key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String ltrim(String key, long start, long stop) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String memoryDoctor() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String migrate(String host, int port, byte[] key, int destinationDB, int timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String migrate(String host, int port, int destinationDB, int timeout, MigrateParams params, byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String migrate(String host, int port, int destinationDB, int timeout, MigrateParams params, String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String migrate(String host, int port, String key, int destinationDB, int timeout) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String moduleLoad(String path) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String moduleUnload(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String mset(byte[]... keysvalues) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String mset(String... keysvalues) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String objectEncoding(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String pfmerge(byte[] destkey, byte[]... sourcekeys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String pfmerge(String destkey, String... sourcekeys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String ping() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String psetex(byte[] key, long milliseconds, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String psetex(String key, long milliseconds, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String quit() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String randomKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String readonly() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String rename(byte[] oldkey, byte[] newkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String rename(String oldkey, String newkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String restore(byte[] key, long ttl, byte[] serializedValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String restore(byte[] key, long ttl, byte[] serializedValue, RestoreParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String restoreReplace(byte[] key, long ttl, byte[] serializedValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String restoreReplace(String key, long ttl, byte[] serializedValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String restore(String key, long ttl, byte[] serializedValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String restore(String key, long ttl, byte[] serializedValue, RestoreParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String rpoplpush(String srckey, String dstkey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String rpop(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String save() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptFlush() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptFlush(byte[] sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptFlush(byte[] sampleKey, FlushMode flushMode) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptFlush(FlushMode flushMode) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptFlush(String sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptKill() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptKill(byte[] sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptKill(String sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptLoad(String script) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String scriptLoad(String script, String sampleKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String select(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String sentinelFailover(String masterName) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String sentinelMonitor(String masterName, String ip, int port, int quorum) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String sentinelRemove(String masterName) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String sentinelSet(String masterName, Map<String, String> parameterMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String set(byte[] key, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String set(byte[] key, byte[] value, SetParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String setex(byte[] key, long seconds, byte[] value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String setex(String key, long seconds, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String set(String key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String set(String key, String value, SetParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String shutdown() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String slaveofNoOne() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String slaveof(String host, int port) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String slowlogReset() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String spop(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String srandmember(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String substr(String key, int start, int end) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String swapDB(int index1, int index2) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String type(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String type(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String unwatch() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String watch(byte[]... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String watch(String... keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String xgroupCreate(byte[] key, byte[] consumer, byte[] id, boolean makeStream) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String xgroupCreate(String key, String groupname, StreamEntryID id, boolean makeStream) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String xgroupSetID(byte[] key, byte[] consumer, byte[] id) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String xgroupSetID(String key, String groupname, StreamEntryID id) {
+        throw new UnsupportedOperationException();
+    }
+
+    default String zrandmember(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Tuple zpopmax(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Tuple zpopmax(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Tuple zpopmin(byte[] key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Tuple zpopmin(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void psubscribe(BinaryJedisPubSub jedisPubSub, byte[]... patterns) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void psubscribe(JedisPubSub jedisPubSub, String... patterns) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void subscribe(BinaryJedisPubSub jedisPubSub, byte[]... channels) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void subscribe(JedisPubSub jedisPubSub, String... channels) {
+        throw new UnsupportedOperationException();
     }
 
 }

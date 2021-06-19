@@ -35,6 +35,7 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration.JedisProperties;
 import com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisClusterJedisClient;
 import com.wl4g.component.support.cache.jedis.cluster.JedisClusterJedisClient;
+import com.wl4g.component.support.cache.jedis.single.SingleJedisClient;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
