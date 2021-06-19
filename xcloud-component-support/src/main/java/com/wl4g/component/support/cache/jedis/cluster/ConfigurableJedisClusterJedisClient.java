@@ -35,7 +35,7 @@ import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.exception.framework.ParameterCanonicalException;
 import com.wl4g.component.support.cache.jedis.JedisClient;
 import com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisClusterCommand.ConfigurableJedisClusterConntionHandler;
-import com.wl4g.component.support.cache.jedis.util.RedisKeySpecUtil;
+import com.wl4g.component.support.cache.jedis.util.RedisSpecUtil;
 
 import redis.clients.jedis.BinaryJedisCluster;
 import redis.clients.jedis.BinaryJedisPubSub;
@@ -4700,7 +4700,7 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
      */
     protected void checkBinaryArguments(final byte[]... keys) throws ParameterCanonicalException {
         if (safeMode) {
-            RedisKeySpecUtil.checkArguments(asList(keys));
+            RedisSpecUtil.safeCheckKeys(asList(keys));
         }
     }
 
@@ -4712,7 +4712,7 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
      */
     protected void checkBinaryArguments(final List<byte[]> keys) throws ParameterCanonicalException {
         if (safeMode) {
-            RedisKeySpecUtil.checkArguments(asList(keys));
+            RedisSpecUtil.safeCheckKeys(asList(keys));
         }
     }
 
@@ -4734,7 +4734,7 @@ public class ConfigurableJedisClusterJedisClient extends JedisCluster implements
      */
     protected void checkArguments(final String... keys) throws ParameterCanonicalException {
         if (safeMode) {
-            RedisKeySpecUtil.checkArguments(asList(keys));
+            RedisSpecUtil.safeCheckKeys(asList(keys));
         }
     }
 

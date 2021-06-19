@@ -30,6 +30,9 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.exception.framework.ParameterCanonicalException;
 
@@ -40,8 +43,8 @@ import com.wl4g.component.core.exception.framework.ParameterCanonicalException;
  * @version v1.0 2020年4月10日
  * @since
  */
-public abstract class RedisKeySpecUtil {
-    private static final SmartLogger log = getLogger(RedisKeySpecUtil.class);
+public abstract class RedisSpecUtil {
+    private static final SmartLogger log = getLogger(RedisSpecUtil.class);
 
     /**
      * Check is result is successful.
@@ -49,7 +52,7 @@ public abstract class RedisKeySpecUtil {
      * @param res
      * @return
      */
-    public static boolean isSuccess(String res) {
+    public static boolean isSuccess(@Nullable final String res) {
         return equalsIgnoreCase(res, "OK") || (!isBlank(res) && isNumeric(res) && Long.parseLong(res) > 0);
     }
 
@@ -59,7 +62,7 @@ public abstract class RedisKeySpecUtil {
      * @param res
      * @return
      */
-    public static boolean isSuccess(Long res) {
+    public static boolean isSuccess(@Nullable final Long res) {
         return !isNull(res) && res > 0;
     }
 
@@ -69,7 +72,7 @@ public abstract class RedisKeySpecUtil {
      * @param keys
      * @throws ParameterNormativeException
      */
-    public static void checkArguments(final List<?> keys) throws ParameterCanonicalException {
+    public static void safeCheckKeys(@NotNull final List<?> keys) throws ParameterCanonicalException {
         notNullOf(keys, "jedis operation key");
         for (Object key : keys) {
             char[] _key = null;
@@ -91,7 +94,7 @@ public abstract class RedisKeySpecUtil {
                 String warning = format(
                         "The operation redis keys: %s there are unsafe characters: '%s', Because of the binary safety mechanism of redis, it may not be got",
                         keys, c);
-                if (!checkInvalidCharacter(c)) {
+                if (!isInvalidCharacter(c)) {
                     if (warnKeyChars.contains(c)) { // Warning key chars
                         log.warn(warning);
                         return;
@@ -109,8 +112,8 @@ public abstract class RedisKeySpecUtil {
      * @param key
      * @return
      */
-    public static String keyFormat(String key) {
-        return keyFormat(key, '_');
+    public static String safeFormat(@Nullable final String key) {
+        return safeFormat(key, '_');
     }
 
     /**
@@ -121,17 +124,17 @@ public abstract class RedisKeySpecUtil {
      *            Replace safe character
      * @return
      */
-    public static String keyFormat(String key, char safeChar) {
+    public static String safeFormat(@Nullable final String key, final char safeChar) {
         if (isBlank(key)) {
             return key;
         }
-        checkArguments(singletonList(safeChar));
+        safeCheckKeys(singletonList(safeChar));
 
         // The check exclusion key contains special characters such
         // as '-', '$', ' ' etc and so on.
         StringBuffer _key = new StringBuffer(key.length());
         for (char c : key.toString().toCharArray()) {
-            if (checkInvalidCharacter(c)) {
+            if (isInvalidCharacter(c)) {
                 _key.append(c);
             } else {
                 _key.append(safeChar);
@@ -146,7 +149,7 @@ public abstract class RedisKeySpecUtil {
      * @param c
      * @return
      */
-    public static boolean checkInvalidCharacter(char c) {
+    public static boolean isInvalidCharacter(final char c) {
         return !isNull(c) && isNumeric(valueOf(c)) || isAlpha(valueOf(c)) || safeKeyChars.contains(c);
     }
 

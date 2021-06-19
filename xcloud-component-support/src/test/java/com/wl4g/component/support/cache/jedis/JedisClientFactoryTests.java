@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import com.wl4g.component.support.cache.jedis.JedisClient;
 import com.wl4g.component.support.cache.jedis.JedisClientFactoryBean;
-import com.wl4g.component.support.cache.jedis.util.RedisKeySpecUtil;
+import com.wl4g.component.support.cache.jedis.util.RedisSpecUtil;
 import com.wl4g.component.support.cache.jedis.JedisClientAutoConfiguration.JedisProperties;
 
 /**
@@ -38,20 +38,20 @@ public class JedisClientFactoryTests {
     @Test
     public void checkKeyFormatTest1() {
         System.out.println("-----11-----");
-        RedisKeySpecUtil.checkArguments(asList("safecloud_support_appinfo_admin"));
+        RedisSpecUtil.safeCheckKeys(asList("safecloud_support_appinfo_admin"));
 
         System.out.println("-----22-----");
-        RedisKeySpecUtil.checkArguments(asList("3342701404111872&&800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+        RedisSpecUtil.safeCheckKeys(asList("3342701404111872&&800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
 
         try {
             System.out.println("-----33-----");
-            RedisKeySpecUtil.checkArguments(asList("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+            RedisSpecUtil.safeCheckKeys(asList("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         System.out.println("-----44-----");
-        System.out.println(RedisKeySpecUtil.keyFormat("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
+        System.out.println(RedisSpecUtil.safeFormat("3342701404111872-800492841ab644dc8ea01c683a809255BELONGANNUPXIN"));
     }
 
     @Test

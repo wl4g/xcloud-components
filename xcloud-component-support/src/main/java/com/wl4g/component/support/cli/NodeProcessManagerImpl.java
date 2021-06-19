@@ -17,7 +17,7 @@ package com.wl4g.component.support.cli;
 
 import static com.wl4g.component.common.lang.Exceptions.getRootCausesString;
 import static com.wl4g.component.common.lang.ThreadUtils2.sleepRandom;
-import static com.wl4g.component.support.cache.jedis.util.RedisKeySpecUtil.*;
+import static com.wl4g.component.support.cache.jedis.util.RedisSpecUtil.*;
 import static com.wl4g.component.support.cli.destroy.DestroySignalMessage.DestroyState.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -114,7 +114,7 @@ public class NodeProcessManagerImpl extends GenericProcessManager {
      * @throws InterruptedException
      */
     private void doInspectForProcessesDestroy(String destroyLockName) throws InterruptedException {
-        Lock lock = lockManager.getLock(keyFormat(destroyLockName));
+        Lock lock = lockManager.getLock(safeFormat(destroyLockName));
         try {
             // Let cluster this node process destroy, nodes that do not
             // acquire lock are on ready in place.
