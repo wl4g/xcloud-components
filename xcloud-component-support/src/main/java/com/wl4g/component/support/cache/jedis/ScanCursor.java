@@ -53,7 +53,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
-import redis.clients.util.SafeEncoder;
+import redis.clients.jedis.util.SafeEncoder;
 
 /**
  * Redis client agnostic {@link CursorSpec} implementation continuously loading
@@ -303,7 +303,7 @@ public class ScanCursor<E> implements Iterator<E> {
         int total = keysTotal.addAndGet(keys.size());
 
         // Latest cursor string of current node.
-        String cursorString = res.getStringCursor();
+        String cursorString = res.getCursor();
 
         // Check whether the total number is exceeded.
         int excess = total - params.getTotal();

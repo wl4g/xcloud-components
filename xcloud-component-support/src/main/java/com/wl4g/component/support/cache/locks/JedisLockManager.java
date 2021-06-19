@@ -36,6 +36,8 @@ import com.google.common.annotations.Beta;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.support.cache.jedis.JedisService;
 
+import redis.clients.jedis.params.SetParams;
+
 /**
  * JEDIS locks manager.
  *
@@ -44,214 +46,215 @@ import com.wl4g.component.support.cache.jedis.JedisService;
  * @since
  */
 public class JedisLockManager {
-	protected static final String NAMESPACE = "reentrantUnfairLock.";
-	protected static final String NXXX = "NX";
-	protected static final String EXPX = "PX";
-	protected static final long FRAME_INTERVAL_MS = 50L;
-	protected static final String UNLOCK_LUA = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-	protected final SmartLogger log = getLogger(getClass());
+    protected static final String NAMESPACE = "reentrantUnfairLock.";
+    protected static final String NXXX = "NX";
+    protected static final String EXPX = "PX";
+    protected static final long FRAME_INTERVAL_MS = 50L;
+    protected static final String UNLOCK_LUA = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+    protected final SmartLogger log = getLogger(getClass());
 
-	protected final JedisService jedisService;
+    protected final JedisService jedisService;
 
-	public JedisLockManager(JedisService jedisService) {
-		notNullOf(jedisService, "jedisService");
-		this.jedisService = jedisService;
-	}
+    public JedisLockManager(JedisService jedisService) {
+        notNullOf(jedisService, "jedisService");
+        this.jedisService = jedisService;
+    }
 
-	/**
-	 * Get and create {@link FastReentrantUnfairDistributedRedLock} with name.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public Lock getLock(String name) {
-		return getLock(name, 10, TimeUnit.SECONDS);
-	}
+    /**
+     * Get and create {@link FastReentrantUnfairDistributedRedLock} with name.
+     * 
+     * @param name
+     * @return
+     */
+    public Lock getLock(String name) {
+        return getLock(name, 10, TimeUnit.SECONDS);
+    }
 
-	/**
-	 * Get and create {@link FastReentrantUnfairDistributedRedLock} with name.
-	 * 
-	 * @param name
-	 * @param expiredAt
-	 * @param unit
-	 * @return
-	 */
-	public Lock getLock(String name, long expiredAt, TimeUnit unit) {
-		hasText(name, "Lock name must not be empty.");
-		isTrue(expiredAt > 0, "Lock expiredAt must greater than 0");
-		notNull(unit, "TimeUnit must not be null.");
-		return new FastReentrantUnfairDistributedRedLock(name, unit.toMillis(expiredAt));
-	}
+    /**
+     * Get and create {@link FastReentrantUnfairDistributedRedLock} with name.
+     * 
+     * @param name
+     * @param expiredAt
+     * @param unit
+     * @return
+     */
+    public Lock getLock(String name, long expiredAt, TimeUnit unit) {
+        hasText(name, "Lock name must not be empty.");
+        isTrue(expiredAt > 0, "Lock expiredAt must greater than 0");
+        notNull(unit, "TimeUnit must not be null.");
+        return new FastReentrantUnfairDistributedRedLock(name, unit.toMillis(expiredAt));
+    }
 
-	/**
-	 * Fast unsafe reentrant unfair redlock implemented by REDIS cluster.</br>
-	 * </br>
-	 * <font color=red style="text-decoration:underline;">Note: This
-	 * implementation is not strictly strong consistency. It is recommended to
-	 * use this distributed lock for scenarios with high performance
-	 * requirements and low consistency requirements. On the contrary, for
-	 * scenarios with high consistency requirements (such as orders, payments,
-	 * etc.), please do not use this lock. You can use the lock of Raft/Paxos
-	 * strong consistency algorithm such as zookeeper distributed lock. Because
-	 * redis cluster distributed locks, for example, when the master dies before
-	 * copying to the slave or when the master and slave die together, there
-	 * will be serious consequences of locking.</font>
-	 * 
-	 * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
-	 * @version v1.0 2019年3月21日
-	 * @since
-	 * @see <a href=
-	 *      'https://blog.csdn.net/matt8/article/details/64442064'>Discuss
-	 *      Antirez failover analysis</a>
-	 * @see <a href=
-	 *      'https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html'>Martin
-	 *      Kleppmann analysis redlock</a>
-	 * @see <a href='https://redis.io/topics/distlock'>Antirez failover
-	 *      analysis</a>
-	 * @see <a href='http://antirez.com/news/101'>VS Martin Kleppmann for
-	 *      Redlock failover analysis</a>
-	 */
-	@Beta
-	private final class FastReentrantUnfairDistributedRedLock extends AbstractDistributedLock {
-		private static final long serialVersionUID = -1909894475263151824L;
+    /**
+     * Fast unsafe reentrant unfair redlock implemented by REDIS cluster.</br>
+     * </br>
+     * <font color=red style="text-decoration:underline;">Note: This
+     * implementation is not strictly strong consistency. It is recommended to
+     * use this distributed lock for scenarios with high performance
+     * requirements and low consistency requirements. On the contrary, for
+     * scenarios with high consistency requirements (such as orders, payments,
+     * etc.), please do not use this lock. You can use the lock of Raft/Paxos
+     * strong consistency algorithm such as zookeeper distributed lock. Because
+     * redis cluster distributed locks, for example, when the master dies before
+     * copying to the slave or when the master and slave die together, there
+     * will be serious consequences of locking.</font>
+     * 
+     * @author Wangl.sir <wanglsir@gmail.com, 983708408@qq.com>
+     * @version v1.0 2019年3月21日
+     * @since
+     * @see <a href=
+     *      'https://blog.csdn.net/matt8/article/details/64442064'>Discuss
+     *      Antirez failover analysis</a>
+     * @see <a href=
+     *      'https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html'>Martin
+     *      Kleppmann analysis redlock</a>
+     * @see <a href='https://redis.io/topics/distlock'>Antirez failover
+     *      analysis</a>
+     * @see <a href='http://antirez.com/news/101'>VS Martin Kleppmann for
+     *      Redlock failover analysis</a>
+     */
+    @Beta
+    private final class FastReentrantUnfairDistributedRedLock extends AbstractDistributedLock {
+        private static final long serialVersionUID = -1909894475263151824L;
 
-		/**
-		 * Current locker reentrant counter.</br>
-		 * <font color=red>Special Note: assuming that the situation of retry to
-		 * obtain lock occurs, it must be in the same JVM process.</font>
-		 */
-		final protected AtomicLong counter;
+        /**
+         * Current locker reentrant counter.</br>
+         * <font color=red>Special Note: assuming that the situation of retry to
+         * obtain lock occurs, it must be in the same JVM process.</font>
+         */
+        final protected AtomicLong counter;
 
-		public FastReentrantUnfairDistributedRedLock(String name, long expiredMs) {
-			this(name, expiredMs, 0L);
-		}
+        public FastReentrantUnfairDistributedRedLock(String name, long expiredMs) {
+            this(name, expiredMs, 0L);
+        }
 
-		public FastReentrantUnfairDistributedRedLock(String name, long expiredMs, long counterValue) {
-			this(name, expiredMs, new AtomicLong(counterValue));
-		}
+        public FastReentrantUnfairDistributedRedLock(String name, long expiredMs, long counterValue) {
+            this(name, expiredMs, new AtomicLong(counterValue));
+        }
 
-		public FastReentrantUnfairDistributedRedLock(String name, long expiredMs, AtomicLong counter) {
-			super((NAMESPACE + name), getThreadCurrentProcessId(), expiredMs);
-			isTrue(counter.get() >= 0, "Lock count must greater than 0");
-			this.counter = counter;
-		}
+        public FastReentrantUnfairDistributedRedLock(String name, long expiredMs, AtomicLong counter) {
+            super((NAMESPACE + name), getThreadCurrentProcessId(), expiredMs);
+            isTrue(counter.get() >= 0, "Lock count must greater than 0");
+            this.counter = counter;
+        }
 
-		@Override
-		public void lock() {
-			try {
-				lockInterruptibly();
-			} catch (InterruptedException e) {
-				currentThread().interrupt();
-			}
-		}
+        @Override
+        public void lock() {
+            try {
+                lockInterruptibly();
+            } catch (InterruptedException e) {
+                currentThread().interrupt();
+            }
+        }
 
-		@Override
-		public void lockInterruptibly() throws InterruptedException {
-			if (interrupted())
-				throw new InterruptedException();
-			while (true) {
-				if (doTryAcquire())
-					break;
-				sleep(FRAME_INTERVAL_MS);
-			}
-		}
+        @Override
+        public void lockInterruptibly() throws InterruptedException {
+            if (interrupted())
+                throw new InterruptedException();
+            while (true) {
+                if (doTryAcquire())
+                    break;
+                sleep(FRAME_INTERVAL_MS);
+            }
+        }
 
-		@Override
-		public boolean tryLock() {
-			return doTryAcquire();
-		}
+        @Override
+        public boolean tryLock() {
+            return doTryAcquire();
+        }
 
-		@Override
-		public boolean tryLock(long tryTimeout, TimeUnit unit) throws InterruptedException {
-			notNull(unit, "TimeUnit must not be null.");
-			isTrue((tryTimeout > 0 && tryTimeout <= expiredMs), "TryTimeout must be > 0 && <= " + expiredMs);
-			long t = unit.toMillis(tryTimeout) / FRAME_INTERVAL_MS, c = 0;
-			while (t > ++c) {
-				if (doTryAcquire())
-					return true;
-				sleep(FRAME_INTERVAL_MS);
-			}
-			return false;
-		}
+        @Override
+        public boolean tryLock(long tryTimeout, TimeUnit unit) throws InterruptedException {
+            notNull(unit, "TimeUnit must not be null.");
+            isTrue((tryTimeout > 0 && tryTimeout <= expiredMs), "TryTimeout must be > 0 && <= " + expiredMs);
+            long t = unit.toMillis(tryTimeout) / FRAME_INTERVAL_MS, c = 0;
+            while (t > ++c) {
+                if (doTryAcquire())
+                    return true;
+                sleep(FRAME_INTERVAL_MS);
+            }
+            return false;
+        }
 
-		@Override
-		public void unlock() {
-			// Obtain locked processId.
-			String acquiredProcessId = jedisService.getJedisClient().get(name);
-			// Current thread is holder?
-			if (!currentProcessId.equals(acquiredProcessId)) {
-				log.debug("No need to unlock of currentProcessId: {}, acquiredProcessId: {}, counter: {}", currentProcessId,
-						acquiredProcessId, counter);
-				return;
-			}
+        @Override
+        public void unlock() {
+            // Obtain locked processId.
+            String acquiredProcessId = jedisService.getJedisClient().get(name);
+            // Current thread is holder?
+            if (!currentProcessId.equals(acquiredProcessId)) {
+                log.debug("No need to unlock of currentProcessId: {}, acquiredProcessId: {}, counter: {}", currentProcessId,
+                        acquiredProcessId, counter);
+                return;
+            }
 
-			// Obtain lock record once decrement.
-			counter.decrementAndGet();
-			log.debug("No need to unlock and reenter the stack lock layer, counter: {}", counter);
+            // Obtain lock record once decrement.
+            counter.decrementAndGet();
+            log.debug("No need to unlock and reenter the stack lock layer, counter: {}", counter);
 
-			if (counter.longValue() == 0L) { // All thread stack layers exited?
-				Object res = jedisService.getJedisClient().eval(UNLOCK_LUA, singletonList(name), singletonList(currentProcessId));
-				if (!assertValidity(res)) {
-					log.debug("Failed to unlock for %{}@{}", currentProcessId, name);
-				} else {
-					log.debug("Unlock successful for %{}@{}", currentProcessId, name);
-				}
-			}
-		}
+            if (counter.longValue() == 0L) { // All thread stack layers exited?
+                Object res = jedisService.getJedisClient().eval(UNLOCK_LUA, singletonList(name), singletonList(currentProcessId));
+                if (!assertValidity(res)) {
+                    log.debug("Failed to unlock for %{}@{}", currentProcessId, name);
+                } else {
+                    log.debug("Unlock successful for %{}@{}", currentProcessId, name);
+                }
+            }
+        }
 
-		@Override
-		public Condition newCondition() {
-			throw new UnsupportedOperationException();
-		}
+        @Override
+        public Condition newCondition() {
+            throw new UnsupportedOperationException();
+        }
 
-		/**
-		 * Execution try acquire locker by reentrant info.</br>
-		 * 
-		 * @see JedisLockManager.java
-		 * @return
-		 */
-		private final boolean doTryAcquire() {
-			String acquiredProcessId = jedisService.getJedisClient().get(name); // Locked-processId.
-			if (currentProcessId.equals(acquiredProcessId)) {
-				// Obtain lock record once cumulatively.
-				counter.incrementAndGet();
-				log.debug("Reuse acquire lock for name: {}, acquiredProcessId: {}, counter: {}", name, acquiredProcessId,
-						counter);
-				return true;
-			} else {
-				// Not currently locked? Lock expired? Local counter reset.
-				counter.set(0L);
-			}
+        /**
+         * Execution try acquire locker by reentrant info.</br>
+         * 
+         * @see JedisLockManager.java
+         * @return
+         */
+        private final boolean doTryAcquire() {
+            String acquiredProcessId = jedisService.getJedisClient().get(name); // Locked-processId.
+            if (currentProcessId.equals(acquiredProcessId)) {
+                // Obtain lock record once cumulatively.
+                counter.incrementAndGet();
+                log.debug("Reuse acquire lock for name: {}, acquiredProcessId: {}, counter: {}", name, acquiredProcessId,
+                        counter);
+                return true;
+            } else {
+                // Not currently locked? Lock expired? Local counter reset.
+                counter.set(0L);
+            }
 
-			// Try to acquire a new lock from the server.
-			if (assertValidity(jedisService.getJedisClient().set(name, currentProcessId, NXXX, EXPX, expiredMs))) {
-				// Obtain lock record once cumulatively.
-				counter.incrementAndGet();
-				return true;
-			}
-			return false;
-		}
+            // Try to acquire a new lock from the server.
+            SetParams params = SetParams.setParams().nx().px(expiredMs);
+            if (assertValidity(jedisService.getJedisClient().set(name, currentProcessId, params))) {
+                // Obtain lock record once cumulatively.
+                counter.incrementAndGet();
+                return true;
+            }
+            return false;
+        }
 
-		/**
-		 * Assertion validate lock result is acquired/UnAcquired success?
-		 * 
-		 * @param res
-		 * @return
-		 */
-		private final boolean assertValidity(Object res) {
-			if (isNull(res)) {
-				return false;
-			}
-			if (res instanceof String) {
-				String res0 = res.toString().trim();
-				return "1".equals(res0) || "OK".equalsIgnoreCase(res0);
-			} else if (res instanceof Number) {
-				return ((Number) res).longValue() >= 1L;
-			} else {
-				throw new IllegalStateException(format("Unknown acquired state for %s", res));
-			}
-		}
+        /**
+         * Assertion validate lock result is acquired/UnAcquired success?
+         * 
+         * @param res
+         * @return
+         */
+        private final boolean assertValidity(Object res) {
+            if (isNull(res)) {
+                return false;
+            }
+            if (res instanceof String) {
+                String res0 = res.toString().trim();
+                return "1".equals(res0) || "OK".equalsIgnoreCase(res0);
+            } else if (res instanceof Number) {
+                return ((Number) res).longValue() >= 1L;
+            } else {
+                throw new IllegalStateException(format("Unknown acquired state for %s", res));
+            }
+        }
 
-	}
+    }
 
 }

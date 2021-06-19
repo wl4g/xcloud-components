@@ -38,10 +38,9 @@ import com.wl4g.component.support.cache.jedis.JedisService;
 @AutoConfigureAfter(JedisClientAutoConfiguration.class)
 public class JedisLockAutoConfiguration {
 
-	// Requires
-	@Bean
-	public JedisLockManager jedisLockManager(JedisService jedisService) {
-		return new JedisLockManager(jedisService);
-	}
+    @Bean
+    public JedisLockManager jedisLockManager(JedisService jedisService) {
+        return new JedisLockManager(jedisService);
+    }
 
 }

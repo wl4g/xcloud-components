@@ -26,43 +26,50 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 
-import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.BitOP;
 import redis.clients.jedis.BitPosParams;
+import redis.clients.jedis.ClusterReset;
 import redis.clients.jedis.DebugParams;
 import redis.clients.jedis.GeoCoordinate;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster.Reset;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.ListPosition;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.StreamEntry;
+import redis.clients.jedis.StreamEntryID;
+import redis.clients.jedis.StreamPendingEntry;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.ZParams;
+import redis.clients.jedis.commands.JedisCommands;
 import redis.clients.jedis.exceptions.JedisException;
-import redis.clients.jedis.params.geo.GeoRadiusParam;
-import redis.clients.jedis.params.sortedset.ZAddParams;
-import redis.clients.jedis.params.sortedset.ZIncrByParams;
-import redis.clients.util.Slowlog;
+import redis.clients.jedis.params.ClientKillParams;
+import redis.clients.jedis.params.GeoRadiusParam;
+import redis.clients.jedis.params.MigrateParams;
+import redis.clients.jedis.params.SetParams;
+import redis.clients.jedis.params.ZAddParams;
+import redis.clients.jedis.params.ZIncrByParams;
+import redis.clients.jedis.util.Slowlog;
 
 /**
- * Standalone mode jedis client wrapper.
+ * Single mode Jedis client implemention.
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2020年7月18日 v1.0.0
  * @see
  */
-public class SingleJedisClient implements JedisClient {
+public class SingleJedisClient implements JedisClient, JedisCommands {
 
     /** Jedis single pool */
-    final protected JedisPool jedisPool;
+    protected final JedisPool jedisPool;
 
     /** Safety mode, validating storage key. */
-    final protected boolean safeMode;
+    protected final boolean safeMode;
 
     public SingleJedisClient(JedisPool jedisPool, boolean safeMode) {
         notNullOf(jedisPool, "jedisPool");
@@ -174,22 +181,48 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public String set(byte[] key, byte[] value, byte[] nxxx) {
-        return doExecuteWithRedis(jedis -> jedis.set(key, value, nxxx));
+    public String set(String key, String value, SetParams params) {
+        return doExecuteWithRedis(jedis -> jedis.set(key, value, params));
     }
 
-    @SuppressWarnings("deprecation")
-    @Deprecated
     @Override
-    public List<byte[]> blpop(byte[] arg) {
-        return doExecuteWithRedis(jedis -> jedis.blpop(arg));
+    public String migrate(String host, int port, byte[] key, int destinationDB, int timeout) {
+        return doExecuteWithRedis(jedis -> jedis.migrate(host, port, key, destinationDB, timeout));
     }
 
-    @SuppressWarnings("deprecation")
-    @Deprecated
     @Override
-    public List<byte[]> brpop(byte[] arg) {
-        return doExecuteWithRedis(jedis -> jedis.brpop(arg));
+    public String migrate(String host, int port, int destinationDB, int timeout, MigrateParams params, byte[]... keys) {
+        return doExecuteWithRedis(jedis -> jedis.migrate(host, port, destinationDB, timeout, params, keys));
+    }
+
+    @Override
+    public String clientKill(byte[] ipPort) {
+        return doExecuteWithRedis(jedis -> jedis.clientKill(ipPort));
+    }
+
+    @Override
+    public byte[] clientGetnameBinary() {
+        return doExecuteWithRedis(jedis -> jedis.clientGetnameBinary());
+    }
+
+    @Override
+    public byte[] clientListBinary() {
+        return doExecuteWithRedis(jedis -> jedis.clientListBinary());
+    }
+
+    @Override
+    public String clientSetname(byte[] name) {
+        return doExecuteWithRedis(jedis -> jedis.clientSetname(name));
+    }
+
+    @Override
+    public byte[] memoryDoctorBinary() {
+        return doExecuteWithRedis(jedis -> jedis.memoryDoctorBinary());
+    }
+
+    @Override
+    public String restoreReplace(byte[] key, int ttl, byte[] serializedValue) {
+        return doExecuteWithRedis(jedis -> jedis.restoreReplace(key, ttl, serializedValue));
     }
 
     @Override
@@ -333,7 +366,7 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public String clusterReset(Reset resetType) {
+    public String clusterReset(ClusterReset resetType) {
         return doExecuteWithRedis(jedis -> jedis.clusterReset(resetType));
     }
 
@@ -348,8 +381,8 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Object evalsha(String script) {
-        return doExecuteWithRedis(jedis -> jedis.evalsha(script));
+    public Object evalsha(String sha1) {
+        return doExecuteWithRedis(jedis -> jedis.evalsha(sha1));
     }
 
     @Override
@@ -398,18 +431,63 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long objectRefcount(String string) {
-        return doExecuteWithRedis(jedis -> jedis.objectRefcount(string));
+    public Long objectRefcount(String key) {
+        return doExecuteWithRedis(jedis -> jedis.objectRefcount(key));
     }
 
     @Override
-    public String objectEncoding(String string) {
-        return doExecuteWithRedis(jedis -> jedis.objectEncoding(string));
+    public String objectEncoding(String key) {
+        return doExecuteWithRedis(jedis -> jedis.objectEncoding(key));
     }
 
     @Override
-    public Long objectIdletime(String string) {
-        return doExecuteWithRedis(jedis -> jedis.objectIdletime(string));
+    public Long objectIdletime(String key) {
+        return doExecuteWithRedis(jedis -> jedis.objectIdletime(key));
+    }
+
+    @Override
+    public String migrate(String host, int port, String key, int destinationDB, int timeout) {
+        return doExecuteWithRedis(jedis -> jedis.migrate(host, port, key, destinationDB, timeout));
+    }
+
+    @Override
+    public String migrate(String host, int port, int destinationDB, int timeout, MigrateParams params, String... keys) {
+        return doExecuteWithRedis(jedis -> jedis.migrate(host, port, destinationDB, timeout, params, keys));
+    }
+
+    @Override
+    public String clientKill(String ipPort) {
+        return doExecuteWithRedis(jedis -> jedis.clientKill(ipPort));
+    }
+
+    @Override
+    public String clientKill(String ip, int port) {
+        return doExecuteWithRedis(jedis -> jedis.clientKill(ip, port));
+    }
+
+    @Override
+    public Long clientKill(ClientKillParams params) {
+        return doExecuteWithRedis(jedis -> jedis.clientKill(params));
+    }
+
+    @Override
+    public String clientGetname() {
+        return doExecuteWithRedis(jedis -> jedis.clientGetname());
+    }
+
+    @Override
+    public String clientList() {
+        return doExecuteWithRedis(jedis -> jedis.clientList());
+    }
+
+    @Override
+    public String clientSetname(String name) {
+        return doExecuteWithRedis(jedis -> jedis.clientSetname(name));
+    }
+
+    @Override
+    public String memoryDoctor() {
+        return doExecuteWithRedis(jedis -> jedis.memoryDoctor());
     }
 
     @Override
@@ -420,11 +498,6 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public List<String> brpop(String... args) {
         return doExecuteWithRedis(jedis -> jedis.brpop(args));
-    }
-
-    @Override
-    public Set<String> keys(String pattern) {
-        return doExecuteWithRedis(jedis -> jedis.keys(pattern));
     }
 
     @Override
@@ -442,16 +515,22 @@ public class SingleJedisClient implements JedisClient {
         return doExecuteWithRedis(jedis -> jedis.randomKey());
     }
 
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public ScanResult<String> scan(int cursor) {
-        return doExecuteWithRedis(jedis -> jedis.scan(cursor));
-    }
-
     @Override
     public ScanResult<String> scan(String cursor) {
         return doExecuteWithRedis(jedis -> jedis.scan(cursor));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Entry<String, List<StreamEntry>>> xread(int count, long block, Entry<String, StreamEntryID>... streams) {
+        return doExecuteWithRedis(jedis -> jedis.xread(count, block, streams));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Entry<String, List<StreamEntry>>> xreadGroup(String groupname, String consumer, int count, long block,
+            boolean noAck, Entry<String, StreamEntryID>... streams) {
+        return doExecuteWithRedis(jedis -> jedis.xreadGroup(groupname, consumer, count, block, noAck, streams));
     }
 
     @Override
@@ -470,8 +549,8 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Object eval(byte[] script, byte[] key) {
-        return doExecuteWithRedis(jedis -> jedis.eval(script, key));
+    public Object eval(byte[] script, byte[] sampleKey) {
+        return doExecuteWithRedis(jedis -> jedis.eval(script, sampleKey));
     }
 
     @Override
@@ -485,13 +564,18 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long exists(byte[]... keys) {
-        return doExecuteWithRedis(jedis -> jedis.exists(keys));
+    public Long del(byte[]... keys) {
+        return doExecuteWithRedis(jedis -> jedis.del(keys));
     }
 
     @Override
-    public Long del(byte[]... keys) {
-        return doExecuteWithRedis(jedis -> jedis.del(keys));
+    public Long unlink(byte[]... keys) {
+        return doExecuteWithRedis(jedis -> jedis.unlink(keys));
+    }
+
+    @Override
+    public Long exists(byte[]... keys) {
+        return doExecuteWithRedis(jedis -> jedis.exists(keys));
     }
 
     @Override
@@ -641,13 +725,34 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
+    public Long touch(byte[]... keys) {
+        return doExecuteWithRedis(jedis -> jedis.touch(keys));
+    }
+
+    @Override
+    public ScanResult<byte[]> scan(byte[] cursor, ScanParams params) {
+        return doExecuteWithRedis(jedis -> jedis.scan(cursor, params));
+    }
+
+    @Override
+    public List<byte[]> xread(int count, long block, Map<byte[], byte[]> streams) {
+        return doExecuteWithRedis(jedis -> jedis.xread(count, block, streams));
+    }
+
+    @Override
+    public List<byte[]> xreadGroup(byte[] groupname, byte[] consumer, int count, long block, boolean noAck,
+            Map<byte[], byte[]> streams) {
+        return doExecuteWithRedis(jedis -> jedis.xreadGroup(groupname, consumer, count, block, noAck, streams));
+    }
+
+    @Override
     public String set(byte[] key, byte[] value) {
         return doExecuteWithRedis(jedis -> jedis.set(key, value));
     }
 
     @Override
-    public String set(byte[] key, byte[] value, byte[] nxxx, byte[] expx, long time) {
-        return doExecuteWithRedis(jedis -> jedis.set(key, value, nxxx, expx, time));
+    public String set(byte[] key, byte[] value, SetParams params) {
+        return doExecuteWithRedis(jedis -> jedis.set(key, value, params));
     }
 
     @Override
@@ -668,6 +773,16 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public String type(byte[] key) {
         return doExecuteWithRedis(jedis -> jedis.type(key));
+    }
+
+    @Override
+    public byte[] dump(byte[] key) {
+        return doExecuteWithRedis(jedis -> jedis.dump(key));
+    }
+
+    @Override
+    public String restore(byte[] key, int ttl, byte[] serializedValue) {
+        return doExecuteWithRedis(jedis -> jedis.restore(key, ttl, serializedValue));
     }
 
     @Override
@@ -693,6 +808,16 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long ttl(byte[] key) {
         return doExecuteWithRedis(jedis -> jedis.ttl(key));
+    }
+
+    @Override
+    public Long pttl(byte[] key) {
+        return doExecuteWithRedis(jedis -> jedis.pttl(key));
+    }
+
+    @Override
+    public Long touch(byte[] key) {
+        return doExecuteWithRedis(jedis -> jedis.touch(key));
     }
 
     @Override
@@ -736,8 +861,13 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long decrBy(byte[] key, long integer) {
-        return doExecuteWithRedis(jedis -> jedis.decrBy(key, integer));
+    public String psetex(byte[] key, long milliseconds, byte[] value) {
+        return doExecuteWithRedis(jedis -> jedis.psetex(key, milliseconds, value));
+    }
+
+    @Override
+    public Long decrBy(byte[] key, long decrement) {
+        return doExecuteWithRedis(jedis -> jedis.decrBy(key, decrement));
     }
 
     @Override
@@ -746,13 +876,13 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long incrBy(byte[] key, long integer) {
-        return doExecuteWithRedis(jedis -> jedis.incrBy(key, integer));
+    public Long incrBy(byte[] key, long increment) {
+        return doExecuteWithRedis(jedis -> jedis.incrBy(key, increment));
     }
 
     @Override
-    public Double incrByFloat(byte[] key, double value) {
-        return doExecuteWithRedis(jedis -> jedis.incrByFloat(key, value));
+    public Double incrByFloat(byte[] key, double increment) {
+        return doExecuteWithRedis(jedis -> jedis.incrByFloat(key, increment));
     }
 
     @Override
@@ -773,6 +903,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long hset(byte[] key, byte[] field, byte[] value) {
         return doExecuteWithRedis(jedis -> jedis.hset(key, field, value));
+    }
+
+    @Override
+    public Long hset(byte[] key, Map<byte[], byte[]> hash) {
+        return doExecuteWithRedis(jedis -> jedis.hset(key, hash));
     }
 
     @Override
@@ -851,13 +986,13 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public List<byte[]> lrange(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.lrange(key, start, end));
+    public List<byte[]> lrange(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.lrange(key, start, stop));
     }
 
     @Override
-    public String ltrim(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.ltrim(key, start, end));
+    public String ltrim(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.ltrim(key, start, stop));
     }
 
     @Override
@@ -941,13 +1076,13 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long zadd(byte[] key, Map<byte[], Double> scoreMembers) {
-        return doExecuteWithRedis(jedis -> jedis.zadd(key, scoreMembers));
+    public Long zadd(byte[] key, double score, byte[] member, ZAddParams params) {
+        return doExecuteWithRedis(jedis -> jedis.zadd(key, score, member, params));
     }
 
     @Override
-    public Long zadd(byte[] key, double score, byte[] member, ZAddParams params) {
-        return doExecuteWithRedis(jedis -> jedis.zadd(key, score, member, params));
+    public Long zadd(byte[] key, Map<byte[], Double> scoreMembers) {
+        return doExecuteWithRedis(jedis -> jedis.zadd(key, scoreMembers));
     }
 
     @Override
@@ -956,23 +1091,23 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Set<byte[]> zrange(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrange(key, start, end));
+    public Set<byte[]> zrange(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrange(key, start, stop));
     }
 
     @Override
-    public Long zrem(byte[] key, byte[]... member) {
-        return doExecuteWithRedis(jedis -> jedis.zrem(key, member));
+    public Long zrem(byte[] key, byte[]... members) {
+        return doExecuteWithRedis(jedis -> jedis.zrem(key, members));
     }
 
     @Override
-    public Double zincrby(byte[] key, double score, byte[] member) {
-        return doExecuteWithRedis(jedis -> jedis.zincrby(key, score, member));
+    public Double zincrby(byte[] key, double increment, byte[] member) {
+        return doExecuteWithRedis(jedis -> jedis.zincrby(key, increment, member));
     }
 
     @Override
-    public Double zincrby(byte[] key, double score, byte[] member, ZIncrByParams params) {
-        return doExecuteWithRedis(jedis -> jedis.zincrby(key, score, member, params));
+    public Double zincrby(byte[] key, double increment, byte[] member, ZIncrByParams params) {
+        return doExecuteWithRedis(jedis -> jedis.zincrby(key, increment, member, params));
     }
 
     @Override
@@ -986,18 +1121,18 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Set<byte[]> zrevrange(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrevrange(key, start, end));
+    public Set<byte[]> zrevrange(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrevrange(key, start, stop));
     }
 
     @Override
-    public Set<Tuple> zrangeWithScores(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrangeWithScores(key, start, end));
+    public Set<Tuple> zrangeWithScores(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrangeWithScores(key, start, stop));
     }
 
     @Override
-    public Set<Tuple> zrevrangeWithScores(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrevrangeWithScores(key, start, end));
+    public Set<Tuple> zrevrangeWithScores(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrevrangeWithScores(key, start, stop));
     }
 
     @Override
@@ -1111,18 +1246,18 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long zremrangeByRank(byte[] key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zremrangeByRank(key, start, end));
+    public Long zremrangeByRank(byte[] key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zremrangeByRank(key, start, stop));
     }
 
     @Override
-    public Long zremrangeByScore(byte[] key, double start, double end) {
-        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, start, end));
+    public Long zremrangeByScore(byte[] key, double min, double max) {
+        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, min, max));
     }
 
     @Override
-    public Long zremrangeByScore(byte[] key, byte[] start, byte[] end) {
-        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, start, end));
+    public Long zremrangeByScore(byte[] key, byte[] min, byte[] max) {
+        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, min, max));
     }
 
     @Override
@@ -1156,7 +1291,7 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long linsert(byte[] key, LIST_POSITION where, byte[] pivot, byte[] value) {
+    public Long linsert(byte[] key, ListPosition where, byte[] pivot, byte[] value) {
         return doExecuteWithRedis(jedis -> jedis.linsert(key, where, pivot, value));
     }
 
@@ -1173,6 +1308,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long del(byte[] key) {
         return doExecuteWithRedis(jedis -> jedis.del(key));
+    }
+
+    @Override
+    public Long unlink(byte[] key) {
+        return doExecuteWithRedis(jedis -> jedis.unlink(key));
     }
 
     @Override
@@ -1211,11 +1351,6 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Double geodist(byte[] key, byte[] member1, byte[] member2) {
-        return doExecuteWithRedis(jedis -> jedis.geodist(key, member1, member2));
-    }
-
-    @Override
     public Double geodist(byte[] key, byte[] member1, byte[] member2, GeoUnit unit) {
         return doExecuteWithRedis(jedis -> jedis.geodist(key, member1, member2, unit));
     }
@@ -1236,14 +1371,30 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
+    public List<GeoRadiusResponse> georadiusReadonly(byte[] key, double longitude, double latitude, double radius, GeoUnit unit) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusReadonly(key, longitude, latitude, radius, unit));
+    }
+
+    @Override
     public List<GeoRadiusResponse> georadius(byte[] key, double longitude, double latitude, double radius, GeoUnit unit,
             GeoRadiusParam param) {
         return doExecuteWithRedis(jedis -> jedis.georadius(key, longitude, latitude, radius, unit, param));
     }
 
     @Override
+    public List<GeoRadiusResponse> georadiusReadonly(byte[] key, double longitude, double latitude, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusReadonly(key, longitude, latitude, radius, unit, param));
+    }
+
+    @Override
     public List<GeoRadiusResponse> georadiusByMember(byte[] key, byte[] member, double radius, GeoUnit unit) {
         return doExecuteWithRedis(jedis -> jedis.georadiusByMember(key, member, radius, unit));
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(byte[] key, byte[] member, double radius, GeoUnit unit) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusByMemberReadonly(key, member, radius, unit));
     }
 
     @Override
@@ -1253,8 +1404,9 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public ScanResult<byte[]> scan(byte[] cursor, ScanParams params) {
-        return doExecuteWithRedis(jedis -> jedis.scan(cursor, params));
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(byte[] key, byte[] member, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusByMemberReadonly(key, member, radius, unit, param));
     }
 
     @Override
@@ -1288,8 +1440,80 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public List<byte[]> bitfield(byte[] key, byte[]... arguments) {
+    public List<Long> bitfield(byte[] key, byte[]... arguments) {
         return doExecuteWithRedis(jedis -> jedis.bitfield(key, arguments));
+    }
+
+    @Override
+    public Long hstrlen(byte[] key, byte[] field) {
+        return doExecuteWithRedis(jedis -> jedis.hstrlen(key, field));
+    }
+
+    @Override
+    public byte[] xadd(byte[] key, byte[] id, Map<byte[], byte[]> hash, long maxLen, boolean approximateLength) {
+        return doExecuteWithRedis(jedis -> jedis.xadd(key, id, hash, maxLen, approximateLength));
+    }
+
+    @Override
+    public Long xlen(byte[] key) {
+        return doExecuteWithRedis(jedis -> jedis.xlen(key));
+    }
+
+    @Override
+    public List<byte[]> xrange(byte[] key, byte[] start, byte[] end, long count) {
+        return doExecuteWithRedis(jedis -> jedis.xrange(key, start, end, count));
+    }
+
+    @Override
+    public List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, int count) {
+        return doExecuteWithRedis(jedis -> jedis.xrevrange(key, end, start, count));
+    }
+
+    @Override
+    public Long xack(byte[] key, byte[] group, byte[]... ids) {
+        return doExecuteWithRedis(jedis -> jedis.xack(key, group, ids));
+    }
+
+    @Override
+    public String xgroupCreate(byte[] key, byte[] consumer, byte[] id, boolean makeStream) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupCreate(key, consumer, id, makeStream));
+    }
+
+    @Override
+    public String xgroupSetID(byte[] key, byte[] consumer, byte[] id) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupSetID(key, consumer, id));
+    }
+
+    @Override
+    public Long xgroupDestroy(byte[] key, byte[] consumer) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupDestroy(key, consumer));
+    }
+
+    @Override
+    public String xgroupDelConsumer(byte[] key, byte[] consumer, byte[] consumerName) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupDelConsumer(key, consumer, consumerName));
+    }
+
+    @Override
+    public Long xdel(byte[] key, byte[]... ids) {
+        return doExecuteWithRedis(jedis -> jedis.xdel(key, ids));
+    }
+
+    @Override
+    public Long xtrim(byte[] key, long maxLen, boolean approximateLength) {
+        return doExecuteWithRedis(jedis -> jedis.xtrim(key, maxLen, approximateLength));
+    }
+
+    @Override
+    public List<byte[]> xpending(byte[] key, byte[] groupname, byte[] start, byte[] end, int count, byte[] consumername) {
+        return doExecuteWithRedis(jedis -> jedis.xpending(key, groupname, start, end, count, consumername));
+    }
+
+    @Override
+    public List<byte[]> xclaim(byte[] key, byte[] groupname, byte[] consumername, long minIdleTime, long newIdleTime, int retries,
+            boolean force, byte[][] ids) {
+        return doExecuteWithRedis(
+                jedis -> jedis.xclaim(key, groupname, consumername, minIdleTime, newIdleTime, retries, force, ids));
     }
 
     @Override
@@ -1373,7 +1597,7 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long getDB() {
+    public int getDB() {
         return doExecuteWithRedis(jedis -> jedis.getDB());
     }
 
@@ -1385,6 +1609,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public String configResetStat() {
         return doExecuteWithRedis(jedis -> jedis.configResetStat());
+    }
+
+    @Override
+    public String configRewrite() {
+        return doExecuteWithRedis(jedis -> jedis.configRewrite());
     }
 
     @Override
@@ -1413,13 +1642,23 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long exists(String... keys) {
-        return doExecuteWithRedis(jedis -> jedis.exists(keys));
+    public String scriptFlush(String sampleKey) {
+        return doExecuteWithRedis(jedis -> jedis.scriptFlush());
     }
 
     @Override
     public Long del(String... keys) {
         return doExecuteWithRedis(jedis -> jedis.del(keys));
+    }
+
+    @Override
+    public Long unlink(String... keys) {
+        return doExecuteWithRedis(jedis -> jedis.unlink(keys));
+    }
+
+    @Override
+    public Long exists(String... keys) {
+        return doExecuteWithRedis(jedis -> jedis.exists(keys));
     }
 
     @Override
@@ -1569,23 +1808,23 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
+    public Long touch(String... keys) {
+        return doExecuteWithRedis(jedis -> jedis.touch(keys));
+    }
+
+    @Override
     public ScanResult<String> scan(String cursor, ScanParams params) {
         return doExecuteWithRedis(jedis -> jedis.scan(cursor, params));
     }
 
     @Override
+    public Set<String> keys(String pattern) {
+        return doExecuteWithRedis(jedis -> jedis.keys(pattern));
+    }
+
+    @Override
     public String set(String key, String value) {
         return doExecuteWithRedis(jedis -> jedis.set(key, value));
-    }
-
-    @Override
-    public String set(String key, String value, String nxxx, String expx, long time) {
-        return doExecuteWithRedis(jedis -> jedis.set(key, value, nxxx, expx, time));
-    }
-
-    @Override
-    public String set(String key, String value, String nxxx) {
-        return doExecuteWithRedis(jedis -> jedis.set(key, value, nxxx));
     }
 
     @Override
@@ -1606,6 +1845,21 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public String type(String key) {
         return doExecuteWithRedis(jedis -> jedis.type(key));
+    }
+
+    @Override
+    public byte[] dump(String key) {
+        return doExecuteWithRedis(jedis -> jedis.dump(key));
+    }
+
+    @Override
+    public String restore(String key, int ttl, byte[] serializedValue) {
+        return doExecuteWithRedis(jedis -> jedis.restore(key, ttl, serializedValue));
+    }
+
+    @Override
+    public String restoreReplace(String key, int ttl, byte[] serializedValue) {
+        return doExecuteWithRedis(jedis -> jedis.restoreReplace(key, ttl, serializedValue));
     }
 
     @Override
@@ -1636,6 +1890,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long pttl(String key) {
         return doExecuteWithRedis(jedis -> jedis.pttl(key));
+    }
+
+    @Override
+    public Long touch(String key) {
+        return doExecuteWithRedis(jedis -> jedis.touch(key));
     }
 
     @Override
@@ -1684,8 +1943,8 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long decrBy(String key, long integer) {
-        return doExecuteWithRedis(jedis -> jedis.decrBy(key, integer));
+    public Long decrBy(String key, long decrement) {
+        return doExecuteWithRedis(jedis -> jedis.decrBy(key, decrement));
     }
 
     @Override
@@ -1694,13 +1953,13 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long incrBy(String key, long integer) {
-        return doExecuteWithRedis(jedis -> jedis.incrBy(key, integer));
+    public Long incrBy(String key, long increment) {
+        return doExecuteWithRedis(jedis -> jedis.incrBy(key, increment));
     }
 
     @Override
-    public Double incrByFloat(String key, double value) {
-        return doExecuteWithRedis(jedis -> jedis.incrByFloat(key, value));
+    public Double incrByFloat(String key, double increment) {
+        return doExecuteWithRedis(jedis -> jedis.incrByFloat(key, increment));
     }
 
     @Override
@@ -1721,6 +1980,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long hset(String key, String field, String value) {
         return doExecuteWithRedis(jedis -> jedis.hset(key, field, value));
+    }
+
+    @Override
+    public Long hset(String key, Map<String, String> hash) {
+        return doExecuteWithRedis(jedis -> jedis.hset(key, hash));
     }
 
     @Override
@@ -1799,13 +2063,13 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public List<String> lrange(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.lrange(key, start, end));
+    public List<String> lrange(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.lrange(key, start, stop));
     }
 
     @Override
-    public String ltrim(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.ltrim(key, start, end));
+    public String ltrim(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.ltrim(key, start, stop));
     }
 
     @Override
@@ -1904,23 +2168,23 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Set<String> zrange(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrange(key, start, end));
+    public Set<String> zrange(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrange(key, start, stop));
     }
 
     @Override
-    public Long zrem(String key, String... member) {
-        return doExecuteWithRedis(jedis -> jedis.zrem(key, member));
+    public Long zrem(String key, String... members) {
+        return doExecuteWithRedis(jedis -> jedis.zrem(key, members));
     }
 
     @Override
-    public Double zincrby(String key, double score, String member) {
-        return doExecuteWithRedis(jedis -> jedis.zincrby(key, score, member));
+    public Double zincrby(String key, double increment, String member) {
+        return doExecuteWithRedis(jedis -> jedis.zincrby(key, increment, member));
     }
 
     @Override
-    public Double zincrby(String key, double score, String member, ZIncrByParams params) {
-        return doExecuteWithRedis(jedis -> jedis.zincrby(key, score, member, params));
+    public Double zincrby(String key, double increment, String member, ZIncrByParams params) {
+        return doExecuteWithRedis(jedis -> jedis.zincrby(key, increment, member, params));
     }
 
     @Override
@@ -1934,18 +2198,18 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Set<String> zrevrange(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrevrange(key, start, end));
+    public Set<String> zrevrange(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrevrange(key, start, stop));
     }
 
     @Override
-    public Set<Tuple> zrangeWithScores(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrangeWithScores(key, start, end));
+    public Set<Tuple> zrangeWithScores(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrangeWithScores(key, start, stop));
     }
 
     @Override
-    public Set<Tuple> zrevrangeWithScores(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zrevrangeWithScores(key, start, end));
+    public Set<Tuple> zrevrangeWithScores(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zrevrangeWithScores(key, start, stop));
     }
 
     @Override
@@ -2059,18 +2323,18 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long zremrangeByRank(String key, long start, long end) {
-        return doExecuteWithRedis(jedis -> jedis.zremrangeByRank(key, start, end));
+    public Long zremrangeByRank(String key, long start, long stop) {
+        return doExecuteWithRedis(jedis -> jedis.zremrangeByRank(key, start, stop));
     }
 
     @Override
-    public Long zremrangeByScore(String key, double start, double end) {
-        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, start, end));
+    public Long zremrangeByScore(String key, double min, double max) {
+        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, min, max));
     }
 
     @Override
-    public Long zremrangeByScore(String key, String start, String end) {
-        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, start, end));
+    public Long zremrangeByScore(String key, String min, String max) {
+        return doExecuteWithRedis(jedis -> jedis.zremrangeByScore(key, min, max));
     }
 
     @Override
@@ -2104,7 +2368,7 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public Long linsert(String key, LIST_POSITION where, String pivot, String value) {
+    public Long linsert(String key, ListPosition where, String pivot, String value) {
         return doExecuteWithRedis(jedis -> jedis.linsert(key, where, pivot, value));
     }
 
@@ -2118,23 +2382,9 @@ public class SingleJedisClient implements JedisClient {
         return doExecuteWithRedis(jedis -> jedis.rpushx(key, string));
     }
 
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public List<String> blpop(String arg) {
-        return doExecuteWithRedis(jedis -> jedis.blpop(arg));
-    }
-
     @Override
     public List<String> blpop(int timeout, String key) {
         return doExecuteWithRedis(jedis -> jedis.blpop(timeout, key));
-    }
-
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public List<String> brpop(String arg) {
-        return doExecuteWithRedis(jedis -> jedis.brpop(arg));
     }
 
     @Override
@@ -2145,6 +2395,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long del(String key) {
         return doExecuteWithRedis(jedis -> jedis.del(key));
+    }
+
+    @Override
+    public Long unlink(String key) {
+        return doExecuteWithRedis(jedis -> jedis.unlink(key));
     }
 
     @Override
@@ -2177,27 +2432,6 @@ public class SingleJedisClient implements JedisClient {
         return doExecuteWithRedis(jedis -> jedis.bitpos(key, value, params));
     }
 
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public ScanResult<Entry<String, String>> hscan(String key, int cursor) {
-        return doExecuteWithRedis(jedis -> jedis.hscan(key, cursor));
-    }
-
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public ScanResult<String> sscan(String key, int cursor) {
-        return doExecuteWithRedis(jedis -> jedis.sscan(key, cursor));
-    }
-
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public ScanResult<Tuple> zscan(String key, int cursor) {
-        return doExecuteWithRedis(jedis -> jedis.zscan(key, cursor));
-    }
-
     @Override
     public ScanResult<Entry<String, String>> hscan(String key, String cursor) {
         return doExecuteWithRedis(jedis -> jedis.hscan(key, cursor));
@@ -2214,11 +2448,6 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
-    public ScanResult<String> sscan(String key, String cursor, ScanParams params) {
-        return doExecuteWithRedis(jedis -> jedis.sscan(key, cursor, params));
-    }
-
-    @Override
     public ScanResult<Tuple> zscan(String key, String cursor) {
         return doExecuteWithRedis(jedis -> jedis.zscan(key, cursor));
     }
@@ -2226,6 +2455,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public ScanResult<Tuple> zscan(String key, String cursor, ScanParams params) {
         return doExecuteWithRedis(jedis -> jedis.zscan(key, cursor, params));
+    }
+
+    @Override
+    public ScanResult<String> sscan(String key, String cursor, ScanParams params) {
+        return doExecuteWithRedis(jedis -> jedis.sscan(key, cursor, params));
     }
 
     @Override
@@ -2246,6 +2480,11 @@ public class SingleJedisClient implements JedisClient {
     @Override
     public Long geoadd(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
         return doExecuteWithRedis(jedis -> jedis.geoadd(key, memberCoordinateMap));
+    }
+
+    @Override
+    public Double geodist$JedisCommands(String key, String member1, String member2) {
+        return geodist(key, member1, member2);
     }
 
     @Override
@@ -2274,14 +2513,30 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
+    public List<GeoRadiusResponse> georadiusReadonly(String key, double longitude, double latitude, double radius, GeoUnit unit) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusReadonly(key, longitude, latitude, radius, unit));
+    }
+
+    @Override
     public List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit,
             GeoRadiusParam param) {
         return doExecuteWithRedis(jedis -> jedis.georadius(key, longitude, latitude, radius, unit, param));
     }
 
     @Override
+    public List<GeoRadiusResponse> georadiusReadonly(String key, double longitude, double latitude, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusReadonly(key, longitude, latitude, radius, unit, param));
+    }
+
+    @Override
     public List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit) {
         return doExecuteWithRedis(jedis -> jedis.georadiusByMember(key, member, radius, unit));
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(String key, String member, double radius, GeoUnit unit) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusByMemberReadonly(key, member, radius, unit));
     }
 
     @Override
@@ -2291,8 +2546,112 @@ public class SingleJedisClient implements JedisClient {
     }
 
     @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(String key, String member, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        return doExecuteWithRedis(jedis -> jedis.georadiusByMemberReadonly(key, member, radius, unit, param));
+    }
+
+    @Override
     public List<Long> bitfield(String key, String... arguments) {
         return doExecuteWithRedis(jedis -> jedis.bitfield(key, arguments));
+    }
+
+    @Override
+    public Long hstrlen(String key, String field) {
+        return doExecuteWithRedis(jedis -> jedis.hstrlen(key, field));
+    }
+
+    @Override
+    public StreamEntryID xadd(String key, StreamEntryID id, Map<String, String> hash) {
+        return doExecuteWithRedis(jedis -> jedis.xadd(key, id, hash));
+    }
+
+    @Override
+    public StreamEntryID xadd(String key, StreamEntryID id, Map<String, String> hash, long maxLen, boolean approximateLength) {
+        return doExecuteWithRedis(jedis -> jedis.xadd(key, id, hash, maxLen, approximateLength));
+    }
+
+    @Override
+    public Long xlen(String key) {
+        return doExecuteWithRedis(jedis -> jedis.xlen(key));
+    }
+
+    @Override
+    public List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end, int count) {
+        return doExecuteWithRedis(jedis -> jedis.xrange(key, start, end, count));
+    }
+
+    @Override
+    public List<StreamEntry> xrevrange(String key, StreamEntryID end, StreamEntryID start, int count) {
+        return doExecuteWithRedis(jedis -> jedis.xrevrange(key, end, start, count));
+    }
+
+    @Override
+    public long xack(String key, String group, StreamEntryID... ids) {
+        return doExecuteWithRedis(jedis -> jedis.xack(key, group, ids));
+    }
+
+    @Override
+    public long xack$JedisCommands(String key, String group, StreamEntryID... ids) {
+        return xack(key, group, ids);
+    }
+
+    @Override
+    public String xgroupCreate(String key, String groupname, StreamEntryID id, boolean makeStream) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupCreate(key, groupname, id, makeStream));
+    }
+
+    @Override
+    public String xgroupSetID(String key, String groupname, StreamEntryID id) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupSetID(key, groupname, id));
+    }
+
+    @Override
+    public long xgroupDestroy(String key, String groupname) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupDestroy(key, groupname));
+    }
+
+    @Override
+    public long xgroupDestroy$JedisCommands(String key, String groupname) {
+        return xgroupDestroy(key, groupname);
+    }
+
+    @Override
+    public String xgroupDelConsumer(String key, String groupname, String consumername) {
+        return doExecuteWithRedis(jedis -> jedis.xgroupDelConsumer(key, groupname, consumername));
+    }
+
+    @Override
+    public List<StreamPendingEntry> xpending(String key, String groupname, StreamEntryID start, StreamEntryID end, int count,
+            String consumername) {
+        return doExecuteWithRedis(jedis -> jedis.xpending(key, groupname, start, end, count, consumername));
+    }
+
+    @Override
+    public long xdel$JedisCommands(String key, StreamEntryID... ids) {
+        return doExecuteWithRedis(jedis -> jedis.xdel(key, ids));
+    }
+
+    // => JedisCommands#xdel(String, StreamEntryID)
+    @Override
+    public long xdel(String key, StreamEntryID... ids) {
+        return xdel$JedisCommands(key, ids);
+    }
+
+    @Override
+    public long xtrim(String key, long maxLen, boolean approximate) {
+        return doExecuteWithRedis(jedis -> jedis.xtrim(key, maxLen, approximate));
+    }
+
+    @Override
+    public long xtrim$JedisCommands(String key, long maxLen, boolean approximate) {
+        return xtrim(key, maxLen, approximate);
+    }
+
+    @Override
+    public List<StreamEntry> xclaim(String key, String group, String consumername, long minIdleTime, long newIdleTime,
+            int retries, boolean force, StreamEntryID... ids) {
+        return doExecuteWithRedis(jedis -> jedis.xclaim(key, group, consumername, minIdleTime, newIdleTime, retries, force, ids));
     }
 
     /**

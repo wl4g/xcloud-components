@@ -15,6 +15,8 @@
  */
 package com.wl4g.component.support.cache.jedis.cluster;
 
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -25,20 +27,19 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.core.exception.framework.ParameterCanonicalException;
 import com.wl4g.component.support.cache.jedis.JedisClient;
+import com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisClusterCommand.ConfigurableJedisClusterConntionHandler;
 
 import redis.clients.jedis.BinaryJedisCluster;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.BitOP;
-import redis.clients.jedis.BitPosParams;
-import redis.clients.jedis.Client;
 import redis.clients.jedis.GeoCoordinate;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
@@ -46,22 +47,23 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.ListPosition;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.StreamEntry;
+import redis.clients.jedis.StreamEntryID;
+import redis.clients.jedis.StreamPendingEntry;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.ZParams;
-import redis.clients.jedis.BinaryClient.LIST_POSITION;
-import redis.clients.jedis.params.geo.GeoRadiusParam;
-import redis.clients.jedis.params.sortedset.ZAddParams;
-import redis.clients.jedis.params.sortedset.ZIncrByParams;
-import redis.clients.util.JedisClusterHashTagUtil;
-import redis.clients.util.KeyMergeUtil;
-import redis.clients.util.SafeEncoder;
-
-import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisClusterCommand.ConfigurableJedisClusterConntionHandler;
+import redis.clients.jedis.commands.ProtocolCommand;
+import redis.clients.jedis.params.GeoRadiusParam;
+import redis.clients.jedis.params.SetParams;
+import redis.clients.jedis.params.ZAddParams;
+import redis.clients.jedis.params.ZIncrByParams;
+import redis.clients.jedis.util.JedisClusterHashTagUtil;
+import redis.clients.jedis.util.KeyMergeUtil;
+import redis.clients.jedis.util.SafeEncoder;
 
 /**
  * {@link ConfigurableJedisClusterJedisClient}
@@ -71,4107 +73,4727 @@ import static com.wl4g.component.support.cache.jedis.cluster.ConfigurableJedisCl
  * @see
  */
 public class ConfigurableJedisClusterJedisClient extends JedisCluster implements JedisClient {
-	protected final SmartLogger log = getLogger(getClass());
-
-	/** Safety mode, validating storage key. */
-	protected final boolean safeMode;
-
-	@SuppressWarnings("rawtypes")
-	public ConfigurableJedisClusterJedisClient(HostAndPort node, int connectionTimeout, int soTimeout, int maxAttempts,
-			final GenericObjectPoolConfig poolConfig, boolean safeMode) {
-		this(singleton(node), connectionTimeout, soTimeout, maxAttempts, null, poolConfig, safeMode);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public ConfigurableJedisClusterJedisClient(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout,
-			int maxAttempts, final GenericObjectPoolConfig poolConfig, boolean safeMode) {
-		this(jedisClusterNode, connectionTimeout, soTimeout, maxAttempts, null, poolConfig, safeMode);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public ConfigurableJedisClusterJedisClient(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout,
-			int maxAttempts, String password, final GenericObjectPoolConfig poolConfig, boolean safeMode) {
-		super(emptySet(), connectionTimeout, soTimeout, maxAttempts, null, null);
-		// Overly jedisCluster connection handler
-		this.connectionHandler = new ConfigurableJedisClusterConntionHandler(jedisClusterNode, poolConfig, connectionTimeout,
-				soTimeout, (isBlank(password) ? null : password));
-		this.safeMode = safeMode;
-	}
-
-	@Override
-	public String set(final String key, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.set(key, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String set(final String key, final String value, final String nxxx, final String expx, final long time) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.set(key, value, nxxx, expx, time);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String get(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.get(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean exists(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.exists(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long exists(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.exists(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public Long persist(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.persist(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String type(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.type(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long expire(final String key, final int seconds) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.expire(key, seconds);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long pexpire(final String key, final long milliseconds) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pexpire(key, milliseconds);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long expireAt(final String key, final long unixTime) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.expireAt(key, unixTime);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long pexpireAt(final String key, final long millisecondsTimestamp) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pexpireAt(key, millisecondsTimestamp);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long ttl(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.ttl(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long pttl(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pttl(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean setbit(final String key, final long offset, final boolean value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.setbit(key, offset, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean setbit(final String key, final long offset, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.setbit(key, offset, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean getbit(final String key, final long offset) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.getbit(key, offset);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long setrange(final String key, final long offset, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.setrange(key, offset, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String getrange(final String key, final long startOffset, final long endOffset) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.getrange(key, startOffset, endOffset);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String getSet(final String key, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.getSet(key, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long setnx(final String key, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.setnx(key, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String setex(final String key, final int seconds, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.setex(key, seconds, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String psetex(final String key, final long milliseconds, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.psetex(key, milliseconds, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long decrBy(final String key, final long integer) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.decrBy(key, integer);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long decr(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.decr(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long incrBy(final String key, final long integer) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.incrBy(key, integer);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double incrByFloat(final String key, final double value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.incrByFloat(key, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long incr(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.incr(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long append(final String key, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.append(key, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String substr(final String key, final int start, final int end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.substr(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long hset(final String key, final String field, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hset(key, field, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String hget(final String key, final String field) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.hget(key, field);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long hsetnx(final String key, final String field, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hsetnx(key, field, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String hmset(final String key, final Map<String, String> hash) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.hmset(key, hash);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> hmget(final String key, final String... fields) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.hmget(key, fields);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long hincrBy(final String key, final String field, final long value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hincrBy(key, field, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double hincrByFloat(final String key, final String field, final double value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.hincrByFloat(key, field, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean hexists(final String key, final String field) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.hexists(key, field);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long hdel(final String key, final String... field) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hdel(key, field);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long hlen(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hlen(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> hkeys(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.hkeys(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> hvals(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.hvals(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Map<String, String> hgetAll(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Map<String, String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Map<String, String> doExecute(Jedis connection) {
-				return connection.hgetAll(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long rpush(final String key, final String... string) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.rpush(key, string);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long lpush(final String key, final String... string) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.lpush(key, string);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long llen(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.llen(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> lrange(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.lrange(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String ltrim(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.ltrim(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String lindex(final String key, final long index) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.lindex(key, index);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String lset(final String key, final long index, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.lset(key, index, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long lrem(final String key, final long count, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.lrem(key, count, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String lpop(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.lpop(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String rpop(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.rpop(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long sadd(final String key, final String... member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sadd(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> smembers(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.smembers(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long srem(final String key, final String... member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.srem(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String spop(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.spop(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> spop(final String key, final long count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.spop(key, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long scard(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.scard(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean sismember(final String key, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.sismember(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String srandmember(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.srandmember(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> srandmember(final String key, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.srandmember(key, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long strlen(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.strlen(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zadd(final String key, final double score, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, score, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, score, member, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zadd(final String key, final Map<String, Double> scoreMembers) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, scoreMembers);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, scoreMembers, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrange(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrange(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zrem(final String key, final String... member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zrem(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double zincrby(final String key, final double score, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.zincrby(key, score, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double zincrby(final String key, final double score, final String member, final ZIncrByParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.zincrby(key, score, member, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zrank(final String key, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zrank(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zrevrank(final String key, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zrevrank(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrange(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrange(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeWithScores(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeWithScores(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeWithScores(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeWithScores(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zcard(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zcard(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double zscore(final String key, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.zscore(key, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> sort(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.sort(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> sort(final String key, final SortingParams sortingParameters) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.sort(key, sortingParameters);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zcount(final String key, final double min, final double max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zcount(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zcount(final String key, final String min, final String max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zcount(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrangeByScore(final String key, final double min, final double max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrangeByScore(final String key, final String min, final String max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrangeByScore(final String key, final String min, final String max, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrangeByScore(final String key, final String max, final String min, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zremrangeByRank(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByRank(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zremrangeByScore(final String key, final double start, final double end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByScore(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zremrangeByScore(final String key, final String start, final String end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByScore(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zlexcount(final String key, final String min, final String max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zlexcount(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrangeByLex(final String key, final String min, final String max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrangeByLex(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrangeByLex(final String key, final String min, final String max, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrangeByLex(key, min, max, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrangeByLex(final String key, final String max, final String min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrangeByLex(key, max, min);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Set<String> zrevrangeByLex(final String key, final String max, final String min, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.zrevrangeByLex(key, max, min, offset, count);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long zremrangeByLex(final String key, final String min, final String max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByLex(key, min, max);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long linsert(final String key, final LIST_POSITION where, final String pivot, final String value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.linsert(key, where, pivot, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long lpushx(final String key, final String... string) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.lpushx(key, string);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long rpushx(final String key, final String... string) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.rpushx(key, string);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long del(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.del(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String echo(final String string) {
-		// note that it'll be run from arbitary node
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.echo(string);
-			}
-		}.run(string);
-	}
-
-	@Override
-	public Long bitcount(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitcount(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long bitcount(final String key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitcount(key, start, end);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<String> scan(final String cursor, final ScanParams params) {
-		String matchPattern = null;
-		if (params == null || (matchPattern = doScanMatch(params)) == null || matchPattern.isEmpty()) {
-			throw new IllegalArgumentException(
-					getClass().getSimpleName() + " only supports SCAN commands with non-empty MATCH patterns");
-		}
-
-		if (JedisClusterHashTagUtil.isClusterCompliantMatchPattern(matchPattern)) {
-			return new ConfigurableJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
-				@Override
-				public ScanResult<String> doExecute(Jedis connection) {
-					return connection.scan(cursor, params);
-				}
-			}.runBinary(SafeEncoder.encode(matchPattern));
-		} else {
-			throw new IllegalArgumentException(getClass().getSimpleName()
-					+ " only supports SCAN commands with MATCH patterns containing hash-tags ( curly-brackets enclosed strings )");
-		}
-	}
-
-	@Override
-	public Long bitpos(final String key, final boolean value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitpos(key, value);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long bitpos(final String key, final boolean value, final BitPosParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitpos(key, value, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<Entry<String, String>> hscan(final String key, final String cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
-				return connection.hscan(key, cursor);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<Entry<String, String>> hscan(final String key, final String cursor, final ScanParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
-				return connection.hscan(key, cursor, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<String> sscan(final String key, final String cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<String> doExecute(Jedis connection) {
-				return connection.sscan(key, cursor);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<String> sscan(final String key, final String cursor, final ScanParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<String> doExecute(Jedis connection) {
-				return connection.sscan(key, cursor, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<Tuple> zscan(final String key, final String cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Tuple> doExecute(Jedis connection) {
-				return connection.zscan(key, cursor);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public ScanResult<Tuple> zscan(final String key, final String cursor, final ScanParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Tuple> doExecute(Jedis connection) {
-				return connection.zscan(key, cursor, params);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long pfadd(final String key, final String... elements) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pfadd(key, elements);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public long pfcount(final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pfcount(key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> blpop(final int timeout, final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.blpop(timeout, key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> brpop(final int timeout, final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.brpop(timeout, key);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long del(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.del(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public List<String> blpop(final int timeout, final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.blpop(timeout, keys);
-			}
-		}.run(keys.length, keys);
-
-	}
-
-	@Override
-	public List<String> brpop(final int timeout, final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.brpop(timeout, keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public List<String> mget(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.mget(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public String mset(final String... keysvalues) {
-		String[] keys = new String[keysvalues.length / 2];
-
-		for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
-			keys[keyIdx] = keysvalues[keyIdx * 2];
-		}
-
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.mset(keysvalues);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public Long msetnx(final String... keysvalues) {
-		String[] keys = new String[keysvalues.length / 2];
-
-		for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
-			keys[keyIdx] = keysvalues[keyIdx * 2];
-		}
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.msetnx(keysvalues);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public String rename(final String oldkey, final String newkey) {
-		checkArguments(oldkey);
-		checkArguments(newkey);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.rename(oldkey, newkey);
-			}
-		}.run(2, oldkey, newkey);
-	}
-
-	@Override
-	public Long renamenx(final String oldkey, final String newkey) {
-		checkArguments(oldkey);
-		checkArguments(newkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.renamenx(oldkey, newkey);
-			}
-		}.run(2, oldkey, newkey);
-	}
-
-	@Override
-	public String rpoplpush(final String srckey, final String dstkey) {
-		checkArguments(srckey);
-		checkArguments(dstkey);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.rpoplpush(srckey, dstkey);
-			}
-		}.run(2, srckey, dstkey);
-	}
-
-	@Override
-	public Set<String> sdiff(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.sdiff(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public Long sdiffstore(final String dstkey, final String... keys) {
-		checkArguments(dstkey);
-		checkArguments(keys);
-		String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sdiffstore(dstkey, keys);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public Set<String> sinter(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.sinter(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public Long sinterstore(final String dstkey, final String... keys) {
-		checkArguments(dstkey);
-		checkArguments(keys);
-		String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sinterstore(dstkey, keys);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public Long smove(final String srckey, final String dstkey, final String member) {
-		checkArguments(srckey, dstkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.smove(srckey, dstkey, member);
-			}
-		}.run(2, srckey, dstkey);
-	}
-
-	@Override
-	public Long sort(final String key, final SortingParams sortingParameters, final String dstkey) {
-		checkArguments(key, dstkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sort(key, sortingParameters, dstkey);
-			}
-		}.run(2, key, dstkey);
-	}
-
-	@Override
-	public Long sort(final String key, final String dstkey) {
-		checkArguments(key, dstkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sort(key, dstkey);
-			}
-		}.run(2, key, dstkey);
-	}
-
-	@Override
-	public Set<String> sunion(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<String> doExecute(Jedis connection) {
-				return connection.sunion(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public Long sunionstore(final String dstkey, final String... keys) {
-		checkArguments(dstkey);
-		checkArguments(keys);
-		String[] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sunionstore(dstkey, keys);
-			}
-		}.run(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long zinterstore(final String dstkey, final String... sets) {
-		checkArguments(dstkey);
-		String[] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zinterstore(dstkey, sets);
-			}
-		}.run(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long zinterstore(final String dstkey, final ZParams params, final String... sets) {
-		checkArguments(dstkey);
-		String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zinterstore(dstkey, params, sets);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public Long zunionstore(final String dstkey, final String... sets) {
-		checkArguments(dstkey);
-		String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zunionstore(dstkey, sets);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public Long zunionstore(final String dstkey, final ZParams params, final String... sets) {
-		checkArguments(dstkey);
-		String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zunionstore(dstkey, params, sets);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public String brpoplpush(final String source, final String destination, final int timeout) {
-		checkArguments(source, destination);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.brpoplpush(source, destination, timeout);
-			}
-		}.run(2, source, destination);
-	}
-
-	@Override
-	public Long publish(final String channel, final String message) {
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.publish(channel, message);
-			}
-		}.runWithAnyNode();
-	}
-
-	@Override
-	public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
-		new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
-			@Override
-			public Integer doExecute(Jedis connection) {
-				connection.subscribe(jedisPubSub, channels);
-				return 0;
-			}
-		}.runWithAnyNode();
-	}
-
-	@Override
-	public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
-		new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
-			@Override
-			public Integer doExecute(Jedis connection) {
-				connection.psubscribe(jedisPubSub, patterns);
-				return 0;
-			}
-		}.runWithAnyNode();
-	}
-
-	@Override
-	public Long bitop(final BitOP op, final String destKey, final String... srcKeys) {
-		checkArguments(destKey);
-		checkArguments(srcKeys);
-		String[] mergedKeys = KeyMergeUtil.merge(destKey, srcKeys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitop(op, destKey, srcKeys);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public String pfmerge(final String destkey, final String... sourcekeys) {
-		checkArguments(destkey);
-		checkArguments(sourcekeys);
-		String[] mergedKeys = KeyMergeUtil.merge(destkey, sourcekeys);
-
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.pfmerge(destkey, sourcekeys);
-			}
-		}.run(mergedKeys.length, mergedKeys);
-	}
-
-	@Override
-	public long pfcount(final String... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pfcount(keys);
-			}
-		}.run(keys.length, keys);
-	}
-
-	@Override
-	public Object eval(final String script, final int keyCount, final String... params) {
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script, keyCount, params);
-			}
-		}.run(keyCount, params);
-	}
-
-	@Override
-	public Object eval(final String script, final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Object eval(final String script, final List<String> keys, final List<String> args) {
-		RedisProtoUtil.checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script, keys, args);
-			}
-		}.run(keys.size(), keys.toArray(new String[keys.size()]));
-	}
-
-	@Override
-	public Object evalsha(final String sha1, final int keyCount, final String... params) {
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.evalsha(sha1, keyCount, params);
-			}
-		}.run(keyCount, params);
-	}
-
-	@Override
-	public Object evalsha(final String sha1, final List<String> keys, final List<String> args) {
-		RedisProtoUtil.checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.evalsha(sha1, keys, args);
-			}
-		}.run(keys.size(), keys.toArray(new String[keys.size()]));
-	}
-
-	@Override
-	public Object evalsha(final String script, final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.evalsha(script);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Boolean scriptExists(final String sha1, final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.scriptExists(sha1);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<Boolean> scriptExists(final String key, final String... sha1) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<Boolean>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<Boolean> doExecute(Jedis connection) {
-				return connection.scriptExists(sha1);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public String scriptLoad(final String script, final String key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.scriptLoad(script);
-			}
-		}.run(key);
-	}
-
-	/*
-	 * below methods will be removed at 3.0
-	 */
-
-	/**
-	 * @deprecated SetParams is scheduled to be introduced at next major release
-	 *             Please use setnx instead for now
-	 * @see <a href="https://github.com/xetorthio/jedis/pull/878">issue#878</a>
-	 */
-	@Deprecated
-	@Override
-	public String set(String key, String value, String nxxx) {
-		checkArguments(key);
-		return setnx(key, value) == 1 ? "OK" : null;
-	}
-
-	/**
-	 * @deprecated unusable command, this will be removed at next major release.
-	 */
-	@Deprecated
-	@Override
-	public List<String> blpop(final String arg) {
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.blpop(arg);
-			}
-		}.run(arg);
-	}
-
-	/**
-	 * @deprecated unusable command, this will be removed at next major release.
-	 */
-	@Deprecated
-	@Override
-	public List<String> brpop(final String arg) {
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.brpop(arg);
-			}
-		}.run(arg);
-	}
-
-	/**
-	 * @deprecated Redis Cluster uses only db index 0, so it doesn't make sense.
-	 *             scheduled to be removed on next major release
-	 */
-	@Deprecated
-	@Override
-	public Long move(final String key, final int dbIndex) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.move(key, dbIndex);
-			}
-		}.run(key);
-	}
-
-	/**
-	 * This method is deprecated due to bug (scan cursor should be unsigned
-	 * long) And will be removed on next major release
-	 * 
-	 * @see <a href=
-	 *      "https://github.com/xetorthio/jedis/issues/531">issue#531</a>
-	 */
-	@Deprecated
-	@Override
-	public ScanResult<Entry<String, String>> hscan(final String key, final int cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
-				return connection.hscan(key, cursor);
-			}
-		}.run(key);
-	}
-
-	/**
-	 * This method is deprecated due to bug (scan cursor should be unsigned
-	 * long) And will be removed on next major release
-	 * 
-	 * @see <a href=
-	 *      "https://github.com/xetorthio/jedis/issues/531">issue#531</a>
-	 */
-	@Deprecated
-	@Override
-	public ScanResult<String> sscan(final String key, final int cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<String> doExecute(Jedis connection) {
-				return connection.sscan(key, cursor);
-			}
-		}.run(key);
-	}
-
-	/**
-	 * This method is deprecated due to bug (scan cursor should be unsigned
-	 * long) And will be removed on next major release
-	 * 
-	 * @see <a href=
-	 *      "https://github.com/xetorthio/jedis/issues/531">issue#531</a>
-	 */
-	@Deprecated
-	@Override
-	public ScanResult<Tuple> zscan(final String key, final int cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Tuple> doExecute(Jedis connection) {
-				return connection.zscan(key, cursor);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long geoadd(final String key, final double longitude, final double latitude, final String member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.geoadd(key, longitude, latitude, member);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Long geoadd(final String key, final Map<String, GeoCoordinate> memberCoordinateMap) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.geoadd(key, memberCoordinateMap);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double geodist(final String key, final String member1, final String member2) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.geodist(key, member1, member2);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public Double geodist(final String key, final String member1, final String member2, final GeoUnit unit) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.geodist(key, member1, member2, unit);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<String> geohash(final String key, final String... members) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<String> doExecute(Jedis connection) {
-				return connection.geohash(key, members);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<GeoCoordinate> geopos(final String key, final String... members) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoCoordinate>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoCoordinate> doExecute(Jedis connection) {
-				return connection.geopos(key, members);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadius(final String key, final double longitude, final double latitude, final double radius,
-			final GeoUnit unit) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadius(key, longitude, latitude, radius, unit);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadius(final String key, final double longitude, final double latitude, final double radius,
-			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadius(key, longitude, latitude, radius, unit, param);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadiusByMember(final String key, final String member, final double radius,
-			final GeoUnit unit) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadiusByMember(key, member, radius, unit);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadiusByMember(final String key, final String member, final double radius,
-			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadiusByMember(key, member, radius, unit, param);
-			}
-		}.run(key);
-	}
-
-	@Override
-	public List<Long> bitfield(final String key, final String... arguments) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<Long>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<Long> doExecute(Jedis connection) {
-				return connection.bitfield(key, arguments);
-			}
-		}.run(key);
-	}
-
-	// --- BinaryJedisCluster. ---
-
-	@Override
-	public String set(final byte[] key, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.set(key, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String set(final byte[] key, final byte[] value, final byte[] nxxx, final byte[] expx, final long time) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.set(key, value, nxxx, expx, time);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] get(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.get(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Boolean exists(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.exists(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long exists(final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.exists(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public Long persist(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.persist(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String type(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.type(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long expire(final byte[] key, final int seconds) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.expire(key, seconds);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long pexpire(final byte[] key, final long milliseconds) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pexpire(key, milliseconds);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long expireAt(final byte[] key, final long unixTime) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.expireAt(key, unixTime);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long pexpireAt(final byte[] key, final long millisecondsTimestamp) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pexpire(key, millisecondsTimestamp);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long ttl(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.ttl(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Boolean setbit(final byte[] key, final long offset, final boolean value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.setbit(key, offset, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Boolean setbit(final byte[] key, final long offset, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.setbit(key, offset, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Boolean getbit(final byte[] key, final long offset) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.getbit(key, offset);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long setrange(final byte[] key, final long offset, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.setrange(key, offset, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] getrange(final byte[] key, final long startOffset, final long endOffset) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.getrange(key, startOffset, endOffset);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] getSet(final byte[] key, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.getSet(key, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long setnx(final byte[] key, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.setnx(key, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String setex(final byte[] key, final int seconds, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.setex(key, seconds, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long decrBy(final byte[] key, final long integer) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.decrBy(key, integer);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long decr(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.decr(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long incrBy(final byte[] key, final long integer) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.incrBy(key, integer);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double incrByFloat(final byte[] key, final double value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.incrByFloat(key, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long incr(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.incr(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long append(final byte[] key, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.append(key, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] substr(final byte[] key, final int start, final int end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.substr(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long hset(final byte[] key, final byte[] field, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hset(key, field, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] hget(final byte[] key, final byte[] field) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.hget(key, field);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long hsetnx(final byte[] key, final byte[] field, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hsetnx(key, field, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String hmset(final byte[] key, final Map<byte[], byte[]> hash) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.hmset(key, hash);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> hmget(final byte[] key, final byte[]... fields) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.hmget(key, fields);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long hincrBy(final byte[] key, final byte[] field, final long value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hincrBy(key, field, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double hincrByFloat(final byte[] key, final byte[] field, final double value) {
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.hincrByFloat(key, field, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Boolean hexists(final byte[] key, final byte[] field) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.hexists(key, field);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long hdel(final byte[] key, final byte[]... field) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hdel(key, field);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long hlen(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.hlen(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> hkeys(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.hkeys(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Collection<byte[]> hvals(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Collection<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Collection<byte[]> doExecute(Jedis connection) {
-				return connection.hvals(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Map<byte[], byte[]> hgetAll(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Map<byte[], byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Map<byte[], byte[]> doExecute(Jedis connection) {
-				return connection.hgetAll(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long rpush(final byte[] key, final byte[]... args) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.rpush(key, args);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long lpush(final byte[] key, final byte[]... args) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.lpush(key, args);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long llen(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.llen(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> lrange(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.lrange(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String ltrim(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.ltrim(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] lindex(final byte[] key, final long index) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.lindex(key, index);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String lset(final byte[] key, final long index, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.lset(key, index, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long lrem(final byte[] key, final long count, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.lrem(key, count, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] lpop(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.lpop(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] rpop(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.rpop(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long sadd(final byte[] key, final byte[]... member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sadd(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> smembers(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.smembers(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long srem(final byte[] key, final byte[]... member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.srem(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] spop(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.spop(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> spop(final byte[] key, final long count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.spop(key, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long scard(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.scard(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Boolean sismember(final byte[] key, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
-			@Override
-			public Boolean doExecute(Jedis connection) {
-				return connection.sismember(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] srandmember(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.srandmember(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long strlen(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.strlen(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zadd(final byte[] key, final double score, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, score, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, scoreMembers);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zadd(final byte[] key, final double score, final byte[] member, final ZAddParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, score, member, params);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers, final ZAddParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zadd(key, scoreMembers, params);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrange(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrange(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zrem(final byte[] key, final byte[]... member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zrem(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double zincrby(final byte[] key, final double score, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.zincrby(key, score, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double zincrby(final byte[] key, final double score, final byte[] member, final ZIncrByParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.zincrby(key, score, member, params);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zrank(final byte[] key, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zrank(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zrevrank(final byte[] key, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zrevrank(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrange(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrange(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeWithScores(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeWithScores(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeWithScores(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeWithScores(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zcard(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zcard(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double zscore(final byte[] key, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.zscore(key, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> sort(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.sort(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> sort(final byte[] key, final SortingParams sortingParameters) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.sort(key, sortingParameters);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zcount(final byte[] key, final double min, final double max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zcount(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zcount(final byte[] key, final byte[] min, final byte[] max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zcount(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrangeByScore(key, min, max, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrangeByScore(key, max, min, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrangeByScoreWithScores(key, min, max, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min, final int offset,
-			final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<Tuple> doExecute(Jedis connection) {
-				return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zremrangeByRank(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByRank(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zremrangeByScore(final byte[] key, final double start, final double end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByScore(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zremrangeByScore(final byte[] key, final byte[] start, final byte[] end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByScore(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long linsert(final byte[] key, final Client.LIST_POSITION where, final byte[] pivot, final byte[] value) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.linsert(key, where, pivot, value);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long lpushx(final byte[] key, final byte[]... arg) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.lpushx(key, arg);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long rpushx(final byte[] key, final byte[]... arg) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.rpushx(key, arg);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long del(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.del(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] echo(final byte[] arg) {
-		// note that it'll be run from arbitary node
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.echo(arg);
-			}
-		}.runBinary(arg);
-	}
-
-	@Override
-	public Long bitcount(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitcount(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long bitcount(final byte[] key, final long start, final long end) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitcount(key, start, end);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long pfadd(final byte[] key, final byte[]... elements) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pfadd(key, elements);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public long pfcount(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pfcount(key);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> srandmember(final byte[] key, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.srandmember(key, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zlexcount(final byte[] key, final byte[] min, final byte[] max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zlexcount(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrangeByLex(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrangeByLex(key, min, max, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrangeByLex(key, max, min);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min, final int offset, final int count) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.zrevrangeByLex(key, max, min, offset, count);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long zremrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zremrangeByLex(key, min, max);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Object eval(final byte[] script, final byte[] keyCount, final byte[]... params) {
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script, keyCount, params);
-			}
-		}.runBinary(Integer.parseInt(SafeEncoder.encode(keyCount)), params);
-	}
-
-	@Override
-	public Object eval(final byte[] script, final int keyCount, final byte[]... params) {
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script, keyCount, params);
-			}
-		}.runBinary(keyCount, params);
-	}
-
-	@Override
-	public Object eval(final byte[] script, final List<byte[]> keys, final List<byte[]> args) {
-		RedisProtoUtil.checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script, keys, args);
-			}
-		}.runBinary(keys.size(), keys.toArray(new byte[keys.size()][]));
-	}
-
-	@Override
-	public Object eval(final byte[] script, byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.eval(script);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Object evalsha(final byte[] script, byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.evalsha(script);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Object evalsha(final byte[] sha1, final List<byte[]> keys, final List<byte[]> args) {
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.evalsha(sha1, keys, args);
-			}
-		}.runBinary(keys.size(), keys.toArray(new byte[keys.size()][]));
-	}
-
-	@Override
-	public Object evalsha(final byte[] sha1, final int keyCount, final byte[]... params) {
-		return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
-			@Override
-			public Object doExecute(Jedis connection) {
-				return connection.evalsha(sha1, keyCount, params);
-			}
-		}.runBinary(keyCount, params);
-	}
-
-	@Override
-	public List<Long> scriptExists(final byte[] key, final byte[][] sha1) {
-		return new ConfigurableJedisClusterCommand<List<Long>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<Long> doExecute(Jedis connection) {
-				return connection.scriptExists(sha1);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public byte[] scriptLoad(final byte[] script, final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.scriptLoad(script);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String scriptFlush(final byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.scriptFlush();
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public String scriptKill(byte[] key) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.scriptKill();
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long del(final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.del(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public List<byte[]> blpop(final int timeout, final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.blpop(timeout, keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public List<byte[]> brpop(final int timeout, final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.brpop(timeout, keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public List<byte[]> mget(final byte[]... keys) {
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.mget(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public String mset(final byte[]... keysvalues) {
-		byte[][] keys = new byte[keysvalues.length / 2][];
-
-		for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
-			keys[keyIdx] = keysvalues[keyIdx * 2];
-		}
-
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.mset(keysvalues);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public Long msetnx(final byte[]... keysvalues) {
-		byte[][] keys = new byte[keysvalues.length / 2][];
-
-		for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
-			keys[keyIdx] = keysvalues[keyIdx * 2];
-		}
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.msetnx(keysvalues);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public String rename(final byte[] oldkey, final byte[] newkey) {
-		checkArguments(oldkey, newkey);
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.rename(oldkey, newkey);
-			}
-		}.runBinary(2, oldkey, newkey);
-	}
-
-	@Override
-	public Long renamenx(final byte[] oldkey, final byte[] newkey) {
-		checkArguments(oldkey, newkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.renamenx(oldkey, newkey);
-			}
-		}.runBinary(2, oldkey, newkey);
-	}
-
-	@Override
-	public byte[] rpoplpush(final byte[] srckey, final byte[] dstkey) {
-		checkArguments(srckey, dstkey);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.rpoplpush(srckey, dstkey);
-			}
-		}.runBinary(2, srckey, dstkey);
-	}
-
-	@Override
-	public Set<byte[]> sdiff(final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.sdiff(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public Long sdiffstore(final byte[] dstkey, final byte[]... keys) {
-		checkArguments(dstkey);
-		checkArguments(keys);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sdiffstore(dstkey, keys);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Set<byte[]> sinter(final byte[]... keys) {
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.sinter(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public Long sinterstore(final byte[] dstkey, final byte[]... keys) {
-		checkArguments(dstkey);
-		checkArguments(keys);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sinterstore(dstkey, keys);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
-		checkArguments(srckey, dstkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.smove(srckey, dstkey, member);
-			}
-		}.runBinary(2, srckey, dstkey);
-	}
-
-	@Override
-	public Long sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
-		checkArguments(key, dstkey);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sort(key, sortingParameters, dstkey);
-			}
-		}.runBinary(2, key, dstkey);
-	}
-
-	@Override
-	public Long sort(final byte[] key, final byte[] dstkey) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sort(key, dstkey);
-			}
-		}.runBinary(2, key, dstkey);
-	}
-
-	@Override
-	public Set<byte[]> sunion(final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public Set<byte[]> doExecute(Jedis connection) {
-				return connection.sunion(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public Long sunionstore(final byte[] dstkey, final byte[]... keys) {
-		checkArguments(dstkey);
-		checkArguments(keys);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.sunionstore(dstkey, keys);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long zinterstore(final byte[] dstkey, final byte[]... sets) {
-		checkArguments(dstkey);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zinterstore(dstkey, sets);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long zinterstore(final byte[] dstkey, final ZParams params, final byte[]... sets) {
-		checkArguments(dstkey);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zinterstore(dstkey, params, sets);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long zunionstore(final byte[] dstkey, final byte[]... sets) {
-		checkArguments(dstkey);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zunionstore(dstkey, sets);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long zunionstore(final byte[] dstkey, final ZParams params, final byte[]... sets) {
-		checkArguments(dstkey);
-		byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.zunionstore(dstkey, params, sets);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public byte[] brpoplpush(final byte[] source, final byte[] destination, final int timeout) {
-		checkArguments(source);
-		return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
-			@Override
-			public byte[] doExecute(Jedis connection) {
-				return connection.brpoplpush(source, destination, timeout);
-			}
-		}.runBinary(2, source, destination);
-	}
-
-	@Override
-	public Long publish(final byte[] channel, final byte[] message) {
-		checkArguments(channel);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.publish(channel, message);
-			}
-		}.runWithAnyNode();
-	}
-
-	@Override
-	public void subscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... channels) {
-		new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
-			@Override
-			public Integer doExecute(Jedis connection) {
-				connection.subscribe(jedisPubSub, channels);
-				return 0;
-			}
-		}.runWithAnyNode();
-	}
-
-	@Override
-	public void psubscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... patterns) {
-		new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
-			@Override
-			public Integer doExecute(Jedis connection) {
-				connection.psubscribe(jedisPubSub, patterns);
-				return 0;
-			}
-		}.runWithAnyNode();
-	}
-
-	@Override
-	public Long bitop(final BitOP op, final byte[] destKey, final byte[]... srcKeys) {
-		checkArguments(destKey);
-		checkArguments(srcKeys);
-		byte[][] wholeKeys = KeyMergeUtil.merge(destKey, srcKeys);
-
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.bitop(op, destKey, srcKeys);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public String pfmerge(final byte[] destkey, final byte[]... sourcekeys) {
-		checkArguments(destkey);
-		checkArguments(sourcekeys);
-		byte[][] wholeKeys = KeyMergeUtil.merge(destkey, sourcekeys);
-
-		return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
-			@Override
-			public String doExecute(Jedis connection) {
-				return connection.pfmerge(destkey, sourcekeys);
-			}
-		}.runBinary(wholeKeys.length, wholeKeys);
-	}
-
-	@Override
-	public Long pfcount(final byte[]... keys) {
-		checkArguments(keys);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.pfcount(keys);
-			}
-		}.runBinary(keys.length, keys);
-	}
-
-	@Override
-	public Long geoadd(final byte[] key, final double longitude, final double latitude, final byte[] member) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.geoadd(key, longitude, latitude, member);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Long geoadd(final byte[] key, final Map<byte[], GeoCoordinate> memberCoordinateMap) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
-			@Override
-			public Long doExecute(Jedis connection) {
-				return connection.geoadd(key, memberCoordinateMap);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double geodist(final byte[] key, final byte[] member1, final byte[] member2) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.geodist(key, member1, member2);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public Double geodist(final byte[] key, final byte[] member1, final byte[] member2, final GeoUnit unit) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
-			@Override
-			public Double doExecute(Jedis connection) {
-				return connection.geodist(key, member1, member2, unit);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> geohash(final byte[] key, final byte[]... members) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.geohash(key, members);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<GeoCoordinate> geopos(final byte[] key, final byte[]... members) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoCoordinate>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoCoordinate> doExecute(Jedis connection) {
-				return connection.geopos(key, members);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadius(final byte[] key, final double longitude, final double latitude, final double radius,
-			final GeoUnit unit) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadius(key, longitude, latitude, radius, unit);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadius(final byte[] key, final double longitude, final double latitude, final double radius,
-			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadius(key, longitude, latitude, radius, unit, param);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadiusByMember(final byte[] key, final byte[] member, final double radius,
-			final GeoUnit unit) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadiusByMember(key, member, radius, unit);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<GeoRadiusResponse> georadiusByMember(final byte[] key, final byte[] member, final double radius,
-			final GeoUnit unit, final GeoRadiusParam param) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<GeoRadiusResponse> doExecute(Jedis connection) {
-				return connection.georadiusByMember(key, member, radius, unit, param);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public ScanResult<byte[]> scan(final byte[] cursor, final ScanParams params) {
-		String matchPattern = null;
-		if (params == null || (matchPattern = doScanMatch(params)) == null || matchPattern.isEmpty()) {
-			throw new IllegalArgumentException(
-					BinaryJedisCluster.class.getSimpleName() + " only supports SCAN commands with non-empty MATCH patterns");
-		}
-
-		if (JedisClusterHashTagUtil.isClusterCompliantMatchPattern(matchPattern)) {
-			return new ConfigurableJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
-				@Override
-				public ScanResult<byte[]> doExecute(Jedis connection) {
-					return connection.scan(cursor, params);
-				}
-			}.runBinary(SafeEncoder.encode(matchPattern));
-		} else {
-			throw new IllegalArgumentException(BinaryJedisCluster.class.getSimpleName()
-					+ " only supports SCAN commands with MATCH patterns containing hash-tags ( curly-brackets enclosed strings )");
-		}
-	}
-
-	@Override
-	public ScanResult<Map.Entry<byte[], byte[]>> hscan(final byte[] key, final byte[] cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Map.Entry<byte[], byte[]>>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Map.Entry<byte[], byte[]>> doExecute(Jedis connection) {
-				return connection.hscan(key, cursor);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public ScanResult<Map.Entry<byte[], byte[]>> hscan(final byte[] key, final byte[] cursor, final ScanParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Map.Entry<byte[], byte[]>>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Map.Entry<byte[], byte[]>> doExecute(Jedis connection) {
-				return connection.hscan(key, cursor, params);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public ScanResult<byte[]> sscan(final byte[] key, final byte[] cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<byte[]> doExecute(Jedis connection) {
-				return connection.sscan(key, cursor);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public ScanResult<byte[]> sscan(final byte[] key, final byte[] cursor, final ScanParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<byte[]> doExecute(Jedis connection) {
-				return connection.sscan(key, cursor, params);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public ScanResult<Tuple> zscan(final byte[] key, final byte[] cursor) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Tuple> doExecute(Jedis connection) {
-				return connection.zscan(key, cursor);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public ScanResult<Tuple> zscan(final byte[] key, final byte[] cursor, final ScanParams params) {
-		checkArguments(key);
-		return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
-			@Override
-			public ScanResult<Tuple> doExecute(Jedis connection) {
-				return connection.zscan(key, cursor, params);
-			}
-		}.runBinary(key);
-	}
-
-	@Override
-	public List<byte[]> bitfield(final byte[] key, final byte[]... arguments) {
-		checkArguments(key);
-
-		return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
-			@Override
-			public List<byte[]> doExecute(Jedis connection) {
-				return connection.bitfield(key, arguments);
-			}
-		}.runBinary(key);
-	}
-
-	/**
-	 * Check input argument names specification.
-	 * 
-	 * @param keys
-	 * @throws ParameterCanonicalException
-	 */
-	protected void checkArguments(final byte[]... keys) throws ParameterCanonicalException {
-		if (safeMode) {
-			RedisProtoUtil.checkArguments(asList(keys));
-		}
-	}
-
-	/**
-	 * Check input argument names specification.
-	 * 
-	 * @param keys
-	 * @throws ParameterCanonicalException
-	 */
-	protected void checkArguments(final String... keys) throws ParameterCanonicalException {
-		if (safeMode) {
-			RedisProtoUtil.checkArguments(asList(keys));
-		}
-	}
-
-	/**
-	 * Scan cursor matching.
-	 * 
-	 * @param params
-	 * @return
-	 */
-	protected String doScanMatch(ScanParams params) {
-		try {
-			return (String) PARAMS_MATCH.invoke(params);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	private static final Method PARAMS_MATCH;
-
-	static {
-		Method mothod = null;
-		for (Method m : ScanParams.class.getDeclaredMethods()) {
-			/**
-			 * {@link redis.clients.jedis.ScanParams#match()}
-			 */
-			if (m.getName().equals("match") && m.getParameterCount() == 0) {
-				mothod = m;
-			}
-		}
-		PARAMS_MATCH = mothod;
-		notNullOf(PARAMS_MATCH, "redis.clients.jedis.ScanParams#match()");
-		PARAMS_MATCH.setAccessible(true);
-	}
+    protected final SmartLogger log = getLogger(getClass());
+
+    /** Safety mode, validating storage key. */
+    protected final boolean safeMode;
+
+    @SuppressWarnings("rawtypes")
+    public ConfigurableJedisClusterJedisClient(HostAndPort node, int connectionTimeout, int soTimeout, int maxAttempts,
+            final GenericObjectPoolConfig poolConfig, boolean safeMode) {
+        this(singleton(node), connectionTimeout, soTimeout, maxAttempts, null, poolConfig, safeMode);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public ConfigurableJedisClusterJedisClient(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout,
+            int maxAttempts, final GenericObjectPoolConfig poolConfig, boolean safeMode) {
+        this(jedisClusterNode, connectionTimeout, soTimeout, maxAttempts, null, poolConfig, safeMode);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public ConfigurableJedisClusterJedisClient(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout,
+            int maxAttempts, String password, final GenericObjectPoolConfig poolConfig, boolean safeMode) {
+        super(emptySet(), connectionTimeout, soTimeout, maxAttempts, null, null);
+        // Overly jedisCluster connection handler
+        this.connectionHandler = new ConfigurableJedisClusterConntionHandler(jedisClusterNode, poolConfig, connectionTimeout,
+                soTimeout, (isBlank(password) ? null : password));
+        this.safeMode = safeMode;
+    }
+
+    // ------------------------- JedisCluster ---------------------------
+
+    @Override
+    public String set(final String key, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.set(key, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String set(final String key, final String value, final SetParams params) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.set(key, value, params);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String get(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.get(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Boolean exists(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.exists(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long exists(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.exists(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Long persist(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.persist(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String type(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.type(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public byte[] dump(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.dump(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String restore(final String key, final int ttl, final byte[] serializedValue) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.restore(key, ttl, serializedValue);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long expire(final String key, final int seconds) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.expire(key, seconds);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long pexpire(final String key, final long milliseconds) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pexpire(key, milliseconds);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long expireAt(final String key, final long unixTime) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.expireAt(key, unixTime);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long pexpireAt(final String key, final long millisecondsTimestamp) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pexpireAt(key, millisecondsTimestamp);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long ttl(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.ttl(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long pttl(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pttl(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long touch(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.touch(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long touch(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.touch(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Boolean setbit(final String key, final long offset, final boolean value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.setbit(key, offset, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Boolean setbit(final String key, final long offset, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.setbit(key, offset, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Boolean getbit(final String key, final long offset) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.getbit(key, offset);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long setrange(final String key, final long offset, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.setrange(key, offset, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String getrange(final String key, final long startOffset, final long endOffset) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.getrange(key, startOffset, endOffset);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String getSet(final String key, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.getSet(key, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long setnx(final String key, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.setnx(key, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String setex(final String key, final int seconds, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.setex(key, seconds, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String psetex(final String key, final long milliseconds, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.psetex(key, milliseconds, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long decrBy(final String key, final long decrement) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.decrBy(key, decrement);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long decr(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.decr(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long incrBy(final String key, final long increment) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.incrBy(key, increment);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Double incrByFloat(final String key, final double increment) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.incrByFloat(key, increment);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long incr(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.incr(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long append(final String key, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.append(key, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String substr(final String key, final int start, final int end) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.substr(key, start, end);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hset(final String key, final String field, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hset(key, field, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hset(final String key, final Map<String, String> hash) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hset(key, hash);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String hget(final String key, final String field) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.hget(key, field);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hsetnx(final String key, final String field, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hsetnx(key, field, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String hmset(final String key, final Map<String, String> hash) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.hmset(key, hash);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> hmget(final String key, final String... fields) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.hmget(key, fields);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hincrBy(final String key, final String field, final long value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hincrBy(key, field, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Boolean hexists(final String key, final String field) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.hexists(key, field);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hdel(final String key, final String... field) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hdel(key, field);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hlen(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hlen(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> hkeys(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.hkeys(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> hvals(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.hvals(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Map<String, String> hgetAll(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Map<String, String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Map<String, String> doExecute(Jedis connection) {
+                return connection.hgetAll(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long rpush(final String key, final String... string) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.rpush(key, string);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long lpush(final String key, final String... string) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.lpush(key, string);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long llen(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.llen(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> lrange(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.lrange(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String ltrim(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.ltrim(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String lindex(final String key, final long index) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.lindex(key, index);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String lset(final String key, final long index, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.lset(key, index, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long lrem(final String key, final long count, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.lrem(key, count, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String lpop(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.lpop(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String rpop(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.rpop(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long sadd(final String key, final String... member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sadd(key, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> smembers(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.smembers(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long srem(final String key, final String... member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.srem(key, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String spop(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.spop(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> spop(final String key, final long count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.spop(key, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long scard(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.scard(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Boolean sismember(final String key, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.sismember(key, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String srandmember(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.srandmember(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> srandmember(final String key, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.srandmember(key, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long strlen(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.strlen(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zadd(final String key, final double score, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, score, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, score, member, params);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zadd(final String key, final Map<String, Double> scoreMembers) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, scoreMembers);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, scoreMembers, params);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrange(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrange(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zrem(final String key, final String... members) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zrem(key, members);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Double zincrby(final String key, final double increment, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.zincrby(key, increment, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Double zincrby(final String key, final double increment, final String member, final ZIncrByParams params) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.zincrby(key, increment, member, params);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zrank(final String key, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zrank(key, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zrevrank(final String key, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zrevrank(key, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrange(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrange(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeWithScores(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeWithScores(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeWithScores(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeWithScores(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zcard(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zcard(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Double zscore(final String key, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.zscore(key, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> sort(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.sort(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> sort(final String key, final SortingParams sortingParameters) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.sort(key, sortingParameters);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zcount(final String key, final double min, final double max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zcount(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zcount(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zcount(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrangeByScore(final String key, final double min, final double max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrangeByScore(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrangeByScore(final String key, final String min, final String max, final int offset, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final String key, final double min, final double max, final int offset,
+            final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrangeByScore(final String key, final String max, final String min, final int offset, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final String key, final String min, final String max, final int offset,
+            final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final String key, final double max, final double min, final int offset,
+            final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final String key, final String max, final String min, final int offset,
+            final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zremrangeByRank(final String key, final long start, final long stop) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByRank(key, start, stop);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zremrangeByScore(final String key, final double min, final double max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByScore(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zremrangeByScore(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByScore(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zlexcount(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zlexcount(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrangeByLex(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrangeByLex(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrangeByLex(final String key, final String min, final String max, final int offset, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrangeByLex(key, min, max, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrangeByLex(final String key, final String max, final String min) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrangeByLex(key, max, min);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> zrevrangeByLex(final String key, final String max, final String min, final int offset, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.zrevrangeByLex(key, max, min, offset, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long zremrangeByLex(final String key, final String min, final String max) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByLex(key, min, max);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long linsert(final String key, final ListPosition where, final String pivot, final String value) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.linsert(key, where, pivot, value);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long lpushx(final String key, final String... string) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.lpushx(key, string);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long rpushx(final String key, final String... string) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.rpushx(key, string);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long del(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.del(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long unlink(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.unlink(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long unlink(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.unlink(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public String echo(final String string) {
+        // note that it'll be run from arbitrary node
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.echo(string);
+            }
+        }.run(string);
+    }
+
+    @Override
+    public Long bitcount(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.bitcount(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long bitcount(final String key, final long start, final long end) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.bitcount(key, start, end);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Set<String> keys(final String pattern) {
+        if (pattern == null || pattern.isEmpty()) {
+            throw new IllegalArgumentException(
+                    this.getClass().getSimpleName() + " only supports KEYS commands with non-empty patterns");
+        }
+        if (!JedisClusterHashTagUtil.isClusterCompliantMatchPattern(pattern)) {
+            throw new IllegalArgumentException(this.getClass().getSimpleName()
+                    + " only supports KEYS commands with patterns containing hash-tags ( curly-brackets enclosed strings )");
+        }
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.keys(pattern);
+            }
+        }.run(pattern);
+    }
+
+    @Override
+    public ScanResult<String> scan(final String cursor, final ScanParams params) {
+        String matchPattern = null;
+        if (params == null || (matchPattern = doScanMatch(params)) == null || matchPattern.isEmpty()) {
+            throw new IllegalArgumentException(
+                    JedisCluster.class.getSimpleName() + " only supports SCAN commands with non-empty MATCH patterns");
+        }
+        if (!JedisClusterHashTagUtil.isClusterCompliantMatchPattern(matchPattern)) {
+            throw new IllegalArgumentException(JedisCluster.class.getSimpleName()
+                    + " only supports SCAN commands with MATCH patterns containing hash-tags ( curly-brackets enclosed strings )");
+        }
+
+        return new ConfigurableJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<String> doExecute(Jedis connection) {
+                return connection.scan(cursor, params);
+            }
+        }.run(matchPattern);
+    }
+
+    @Override
+    public ScanResult<Entry<String, String>> hscan(final String key, final String cursor) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<Entry<String, String>>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<Entry<String, String>> doExecute(Jedis connection) {
+                return connection.hscan(key, cursor);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public ScanResult<String> sscan(final String key, final String cursor) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<String> doExecute(Jedis connection) {
+                return connection.sscan(key, cursor);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public ScanResult<Tuple> zscan(final String key, final String cursor) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<Tuple> doExecute(Jedis connection) {
+                return connection.zscan(key, cursor);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long pfadd(final String key, final String... elements) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pfadd(key, elements);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public long pfcount(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pfcount(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> blpop(final int timeout, final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.blpop(timeout, key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> brpop(final int timeout, final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.brpop(timeout, key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long del(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.del(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public List<String> blpop(final int timeout, final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.blpop(timeout, keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public List<String> brpop(final int timeout, final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.brpop(timeout, keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public List<String> mget(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.mget(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public String mset(final String... keysvalues) {
+        String[] keys = new String[keysvalues.length / 2];
+
+        for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
+            keys[keyIdx] = keysvalues[keyIdx * 2];
+        }
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.mset(keysvalues);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Long msetnx(final String... keysvalues) {
+        String[] keys = new String[keysvalues.length / 2];
+
+        for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
+            keys[keyIdx] = keysvalues[keyIdx * 2];
+        }
+
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.msetnx(keysvalues);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public String rename(final String oldkey, final String newkey) {
+        checkArguments(oldkey);
+        checkArguments(newkey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.rename(oldkey, newkey);
+            }
+        }.run(2, oldkey, newkey);
+    }
+
+    @Override
+    public Long renamenx(final String oldkey, final String newkey) {
+        checkArguments(oldkey);
+        checkArguments(newkey);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.renamenx(oldkey, newkey);
+            }
+        }.run(2, oldkey, newkey);
+    }
+
+    @Override
+    public String rpoplpush(final String srckey, final String dstkey) {
+        checkArguments(srckey);
+        checkArguments(dstkey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.rpoplpush(srckey, dstkey);
+            }
+        }.run(2, srckey, dstkey);
+    }
+
+    @Override
+    public Set<String> sdiff(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.sdiff(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Long sdiffstore(final String dstkey, final String... keys) {
+        String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
+
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sdiffstore(dstkey, keys);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public Set<String> sinter(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.sinter(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Long sinterstore(final String dstkey, final String... keys) {
+        checkArguments(dstkey);
+        checkArguments(keys);
+        String[] mergedKeys = KeyMergeUtil.merge(dstkey, keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sinterstore(dstkey, keys);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public Long smove(final String srckey, final String dstkey, final String member) {
+        checkArguments(srckey);
+        checkArguments(dstkey);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.smove(srckey, dstkey, member);
+            }
+        }.run(2, srckey, dstkey);
+    }
+
+    @Override
+    public Long sort(final String key, final SortingParams sortingParameters, final String dstkey) {
+        checkArguments(key);
+        checkArguments(dstkey);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sort(key, sortingParameters, dstkey);
+            }
+        }.run(2, key, dstkey);
+    }
+
+    @Override
+    public Long sort(final String key, final String dstkey) {
+        checkArguments(key);
+        checkArguments(dstkey);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sort(key, dstkey);
+            }
+        }.run(2, key, dstkey);
+    }
+
+    @Override
+    public Set<String> sunion(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Set<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<String> doExecute(Jedis connection) {
+                return connection.sunion(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Long sunionstore(final String dstkey, final String... keys) {
+        checkArguments(dstkey);
+        checkArguments(keys);
+        String[] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sunionstore(dstkey, keys);
+            }
+        }.run(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long zinterstore(final String dstkey, final String... sets) {
+        checkArguments(dstkey);
+        String[] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zinterstore(dstkey, sets);
+            }
+        }.run(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long zinterstore(final String dstkey, final ZParams params, final String... sets) {
+        checkArguments(dstkey);
+        String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zinterstore(dstkey, params, sets);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public Long zunionstore(final String dstkey, final String... sets) {
+        checkArguments(dstkey);
+        String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zunionstore(dstkey, sets);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public Long zunionstore(final String dstkey, final ZParams params, final String... sets) {
+        checkArguments(dstkey);
+        String[] mergedKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zunionstore(dstkey, params, sets);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public String brpoplpush(final String source, final String destination, final int timeout) {
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.brpoplpush(source, destination, timeout);
+            }
+        }.run(2, source, destination);
+    }
+
+    @Override
+    public Long publish(final String channel, final String message) {
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.publish(channel, message);
+            }
+        }.runWithAnyNode();
+    }
+
+    @Override
+    public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
+        new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
+            @Override
+            public Integer doExecute(Jedis connection) {
+                connection.subscribe(jedisPubSub, channels);
+                return 0;
+            }
+        }.runWithAnyNode();
+    }
+
+    @Override
+    public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
+        new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
+            @Override
+            public Integer doExecute(Jedis connection) {
+                connection.psubscribe(jedisPubSub, patterns);
+                return 0;
+            }
+        }.runWithAnyNode();
+    }
+
+    @Override
+    public Long bitop(final BitOP op, final String destKey, final String... srcKeys) {
+        checkArguments(destKey);
+        checkArguments(srcKeys);
+        String[] mergedKeys = KeyMergeUtil.merge(destKey, srcKeys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.bitop(op, destKey, srcKeys);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public String pfmerge(final String destkey, final String... sourcekeys) {
+        checkArguments(destkey);
+        checkArguments(sourcekeys);
+        String[] mergedKeys = KeyMergeUtil.merge(destkey, sourcekeys);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.pfmerge(destkey, sourcekeys);
+            }
+        }.run(mergedKeys.length, mergedKeys);
+    }
+
+    @Override
+    public long pfcount(final String... keys) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pfcount(keys);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Object eval(final String script, final int keyCount, final String... params) {
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script, keyCount, params);
+            }
+        }.run(keyCount, params);
+    }
+
+    @Override
+    public Object eval(final String script, final String sampleKey) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script);
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public Object eval(final String script, final List<String> keys, final List<String> args) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script, keys, args);
+            }
+        }.run(keys.size(), keys.toArray(new String[keys.size()]));
+    }
+
+    @Override
+    public Object evalsha(final String sha1, final int keyCount, final String... params) {
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.evalsha(sha1, keyCount, params);
+            }
+        }.run(keyCount, params);
+    }
+
+    @Override
+    public Object evalsha(final String sha1, final List<String> keys, final List<String> args) {
+        checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.evalsha(sha1, keys, args);
+            }
+        }.run(keys.size(), keys.toArray(new String[keys.size()]));
+    }
+
+    @Override
+    public Object evalsha(final String sha1, final String sampleKey) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.evalsha(sha1);
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public Boolean scriptExists(final String sha1, final String sampleKey) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.scriptExists(sha1);
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public List<Boolean> scriptExists(final String sampleKey, final String... sha1) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<List<Boolean>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<Boolean> doExecute(Jedis connection) {
+                return connection.scriptExists(sha1);
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public String scriptLoad(final String script, final String sampleKey) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.scriptLoad(script);
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public String scriptFlush(final String sampleKey) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.scriptFlush();
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public String scriptKill(final String sampleKey) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.scriptKill();
+            }
+        }.run(sampleKey);
+    }
+
+    @Override
+    public Long geoadd(final String key, final double longitude, final double latitude, final String member) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.geoadd(key, longitude, latitude, member);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long geoadd(final String key, final Map<String, GeoCoordinate> memberCoordinateMap) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.geoadd(key, memberCoordinateMap);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Double geodist(final String key, final String member1, final String member2) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.geodist(key, member1, member2);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Double geodist(final String key, final String member1, final String member2, final GeoUnit unit) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.geodist(key, member1, member2, unit);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<String> geohash(final String key, final String... members) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<String>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<String> doExecute(Jedis connection) {
+                return connection.geohash(key, members);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoCoordinate> geopos(final String key, final String... members) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoCoordinate>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoCoordinate> doExecute(Jedis connection) {
+                return connection.geopos(key, members);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadius(final String key, final double longitude, final double latitude, final double radius,
+            final GeoUnit unit) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadius(key, longitude, latitude, radius, unit);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusReadonly(final String key, final double longitude, final double latitude,
+            final double radius, final GeoUnit unit) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusReadonly(key, longitude, latitude, radius, unit);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadius(final String key, final double longitude, final double latitude, final double radius,
+            final GeoUnit unit, final GeoRadiusParam param) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadius(key, longitude, latitude, radius, unit, param);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusReadonly(final String key, final double longitude, final double latitude,
+            final double radius, final GeoUnit unit, final GeoRadiusParam param) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusReadonly(key, longitude, latitude, radius, unit, param);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMember(final String key, final String member, final double radius,
+            final GeoUnit unit) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMember(key, member, radius, unit);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(final String key, final String member, final double radius,
+            final GeoUnit unit) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMemberReadonly(key, member, radius, unit);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMember(final String key, final String member, final double radius,
+            final GeoUnit unit, final GeoRadiusParam param) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMember(key, member, radius, unit, param);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(final String key, final String member, final double radius,
+            final GeoUnit unit, final GeoRadiusParam param) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMemberReadonly(key, member, radius, unit, param);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<Long> bitfield(final String key, final String... arguments) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<Long>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<Long> doExecute(Jedis connection) {
+                return connection.bitfield(key, arguments);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long hstrlen(final String key, final String field) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hstrlen(key, field);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public StreamEntryID xadd(final String key, final StreamEntryID id, final Map<String, String> hash) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<StreamEntryID>(connectionHandler, maxAttempts) {
+            @Override
+            public StreamEntryID doExecute(Jedis connection) {
+                return connection.xadd(key, id, hash);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public StreamEntryID xadd(final String key, final StreamEntryID id, final Map<String, String> hash, final long maxLen,
+            final boolean approximateLength) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<StreamEntryID>(connectionHandler, maxAttempts) {
+            @Override
+            public StreamEntryID doExecute(Jedis connection) {
+                return connection.xadd(key, id, hash, maxLen, approximateLength);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xlen(final String key) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xlen(key);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<StreamEntry> xrange(final String key, final StreamEntryID start, final StreamEntryID end, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<StreamEntry>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<StreamEntry> doExecute(Jedis connection) {
+                return connection.xrange(key, start, end, count);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public List<StreamEntry> xrevrange(final String key, final StreamEntryID end, final StreamEntryID start, final int count) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<StreamEntry>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<StreamEntry> doExecute(Jedis connection) {
+                return connection.xrevrange(key, end, start, count);
+            }
+        }.run(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Entry<String, List<StreamEntry>>> xread(final int count, final long block,
+            final Entry<String, StreamEntryID>... streams) {
+        String[] keys = new String[streams.length];
+        for (int i = 0; i < streams.length; ++i) {
+            keys[i] = streams[i].getKey();
+        }
+
+        return new ConfigurableJedisClusterCommand<List<Entry<String, List<StreamEntry>>>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<Entry<String, List<StreamEntry>>> doExecute(Jedis connection) {
+                return connection.xread(count, block, streams);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public Long xack(final String key, final String group, final StreamEntryID... ids) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xack(key, group, ids);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xack$JedisClusterCommands(String key, String group, StreamEntryID... ids) {
+        return xack(key, group, ids);
+    }
+
+    @Override
+    public String xgroupCreate(final String key, final String groupname, final StreamEntryID id, final boolean makeStream) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.xgroupCreate(key, groupname, id, makeStream);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public String xgroupSetID(final String key, final String groupname, final StreamEntryID id) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.xgroupSetID(key, groupname, id);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xgroupDestroy(final String key, final String groupname) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xgroupDestroy(key, groupname);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xgroupDestroy$JedisClusterCommands(final String key, final String groupname) {
+        return xgroupDestroy(key, groupname);
+    }
+
+    @Override
+    public String xgroupDelConsumer(final String key, final String groupname, final String consumername) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.xgroupDelConsumer(key, groupname, consumername);
+            }
+        }.run(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Entry<String, List<StreamEntry>>> xreadGroup(final String groupname, final String consumer, final int count,
+            final long block, final boolean noAck, final Entry<String, StreamEntryID>... streams) {
+
+        String[] keys = new String[streams.length];
+        for (int i = 0; i < streams.length; ++i) {
+            keys[i] = streams[i].getKey();
+        }
+        return new ConfigurableJedisClusterCommand<List<Entry<String, List<StreamEntry>>>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<Entry<String, List<StreamEntry>>> doExecute(Jedis connection) {
+                return connection.xreadGroup(groupname, consumer, count, block, noAck, streams);
+            }
+        }.run(keys.length, keys);
+    }
+
+    @Override
+    public List<StreamPendingEntry> xpending(final String key, final String groupname, final StreamEntryID start,
+            final StreamEntryID end, final int count, final String consumername) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<StreamPendingEntry>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<StreamPendingEntry> doExecute(Jedis connection) {
+                return connection.xpending(key, groupname, start, end, count, consumername);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xdel(final String key, final StreamEntryID... ids) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xdel(key, ids);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xtrim(final String key, final long maxLen, final boolean approximateLength) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xtrim(key, maxLen, approximateLength);
+            }
+        }.run(key);
+    }
+
+    @Override
+    public Long xtrim$JedisClusterCommands(final String key, final long maxLen, final boolean approximateLength) {
+        return xtrim(key, maxLen, approximateLength);
+    }
+
+    @Override
+    public List<StreamEntry> xclaim(final String key, final String group, final String consumername, final long minIdleTime,
+            final long newIdleTime, final int retries, final boolean force, final StreamEntryID... ids) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<List<StreamEntry>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<StreamEntry> doExecute(Jedis connection) {
+                return connection.xclaim(key, group, consumername, minIdleTime, newIdleTime, retries, force, ids);
+            }
+        }.run(key);
+    }
+
+    public Long waitReplicas(final String key, final int replicas, final long timeout) {
+        checkArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.waitReplicas(replicas, timeout);
+            }
+        }.run(key);
+    }
+
+    public Object sendCommand(final String sampleKey, final ProtocolCommand cmd, final String... args) {
+        checkArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.sendCommand(cmd, args);
+            }
+        }.run(sampleKey);
+    }
+
+    // ------------------------- BinaryJedisCluster ---------------------------
+
+    @Override
+    public String set(final byte[] key, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.set(key, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String set(final byte[] key, final byte[] value, final SetParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.set(key, value, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] get(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.get(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long exists(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.exists(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Boolean exists(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.exists(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long persist(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.persist(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String type(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.type(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] dump(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.dump(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String restore(final byte[] key, final int ttl, final byte[] serializedValue) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.restore(key, ttl, serializedValue);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long expire(final byte[] key, final int seconds) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.expire(key, seconds);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long pexpire(final byte[] key, final long milliseconds) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pexpire(key, milliseconds);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long expireAt(final byte[] key, final long unixTime) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.expireAt(key, unixTime);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long pexpireAt(final byte[] key, final long millisecondsTimestamp) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pexpireAt(key, millisecondsTimestamp);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long ttl(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.ttl(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long pttl(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pttl(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long touch(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.touch(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long touch(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.touch(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Boolean setbit(final byte[] key, final long offset, final boolean value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.setbit(key, offset, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Boolean setbit(final byte[] key, final long offset, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.setbit(key, offset, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Boolean getbit(final byte[] key, final long offset) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.getbit(key, offset);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long setrange(final byte[] key, final long offset, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.setrange(key, offset, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] getrange(final byte[] key, final long startOffset, final long endOffset) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.getrange(key, startOffset, endOffset);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] getSet(final byte[] key, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.getSet(key, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long setnx(final byte[] key, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.setnx(key, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String psetex(final byte[] key, final long milliseconds, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.psetex(key, milliseconds, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String setex(final byte[] key, final int seconds, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.setex(key, seconds, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long decrBy(final byte[] key, final long decrement) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.decrBy(key, decrement);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long decr(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.decr(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long incrBy(final byte[] key, final long increment) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.incrBy(key, increment);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double incrByFloat(final byte[] key, final double increment) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.incrByFloat(key, increment);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long incr(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.incr(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long append(final byte[] key, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.append(key, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] substr(final byte[] key, final int start, final int end) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.substr(key, start, end);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hset(final byte[] key, final byte[] field, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hset(key, field, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hset(final byte[] key, final Map<byte[], byte[]> hash) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hset(key, hash);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] hget(final byte[] key, final byte[] field) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.hget(key, field);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hsetnx(final byte[] key, final byte[] field, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hsetnx(key, field, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String hmset(final byte[] key, final Map<byte[], byte[]> hash) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.hmset(key, hash);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> hmget(final byte[] key, final byte[]... fields) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.hmget(key, fields);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hincrBy(final byte[] key, final byte[] field, final long value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hincrBy(key, field, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double hincrByFloat(final byte[] key, final byte[] field, final double value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.hincrByFloat(key, field, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Boolean hexists(final byte[] key, final byte[] field) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.hexists(key, field);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hdel(final byte[] key, final byte[]... field) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hdel(key, field);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hlen(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hlen(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> hkeys(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.hkeys(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Collection<byte[]> hvals(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Collection<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Collection<byte[]> doExecute(Jedis connection) {
+                return connection.hvals(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Map<byte[], byte[]> hgetAll(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Map<byte[], byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Map<byte[], byte[]> doExecute(Jedis connection) {
+                return connection.hgetAll(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long rpush(final byte[] key, final byte[]... args) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.rpush(key, args);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long lpush(final byte[] key, final byte[]... args) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.lpush(key, args);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long llen(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.llen(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> lrange(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.lrange(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String ltrim(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.ltrim(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] lindex(final byte[] key, final long index) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.lindex(key, index);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String lset(final byte[] key, final long index, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.lset(key, index, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long lrem(final byte[] key, final long count, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.lrem(key, count, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] lpop(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.lpop(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] rpop(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.rpop(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long sadd(final byte[] key, final byte[]... member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sadd(key, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> smembers(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.smembers(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long srem(final byte[] key, final byte[]... member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.srem(key, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] spop(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.spop(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> spop(final byte[] key, final long count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.spop(key, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long scard(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.scard(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Boolean sismember(final byte[] key, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Boolean>(connectionHandler, maxAttempts) {
+            @Override
+            public Boolean doExecute(Jedis connection) {
+                return connection.sismember(key, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] srandmember(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.srandmember(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long strlen(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.strlen(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zadd(final byte[] key, final double score, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, score, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zadd(final byte[] key, final double score, final byte[] member, final ZAddParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, score, member, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, scoreMembers);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zadd(final byte[] key, final Map<byte[], Double> scoreMembers, final ZAddParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zadd(key, scoreMembers, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrange(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrange(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zrem(final byte[] key, final byte[]... members) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zrem(key, members);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double zincrby(final byte[] key, final double increment, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.zincrby(key, increment, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double zincrby(final byte[] key, final double increment, final byte[] member, final ZIncrByParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.zincrby(key, increment, member, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zrank(final byte[] key, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zrank(key, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zrevrank(final byte[] key, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zrevrank(key, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrange(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrange(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeWithScores(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeWithScores(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeWithScores(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeWithScores(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zcard(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zcard(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double zscore(final byte[] key, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.zscore(key, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> sort(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.sort(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> sort(final byte[] key, final SortingParams sortingParameters) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.sort(key, sortingParameters);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zcount(final byte[] key, final double min, final double max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zcount(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zcount(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zcount(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrangeByScore(final byte[] key, final double min, final double max, final int offset, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrangeByScore(final byte[] key, final byte[] min, final byte[] max, final int offset, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrangeByScore(key, min, max, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrangeByScore(final byte[] key, final double max, final double min, final int offset, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final double min, final double max, final int offset,
+            final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrangeByScore(final byte[] key, final byte[] max, final byte[] min, final int offset, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrangeByScore(key, max, min, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrangeByScoreWithScores(final byte[] key, final byte[] min, final byte[] max, final int offset,
+            final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrangeByScoreWithScores(key, min, max, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final double max, final double min, final int offset,
+            final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<Tuple> zrevrangeByScoreWithScores(final byte[] key, final byte[] max, final byte[] min, final int offset,
+            final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<Tuple> doExecute(Jedis connection) {
+                return connection.zrevrangeByScoreWithScores(key, max, min, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zremrangeByRank(final byte[] key, final long start, final long stop) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByRank(key, start, stop);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zremrangeByScore(final byte[] key, final double min, final double max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByScore(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zremrangeByScore(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByScore(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long linsert(final byte[] key, final ListPosition where, final byte[] pivot, final byte[] value) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.linsert(key, where, pivot, value);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long lpushx(final byte[] key, final byte[]... arg) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.lpushx(key, arg);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long rpushx(final byte[] key, final byte[]... arg) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.rpushx(key, arg);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long del(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.del(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long unlink(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.unlink(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long unlink(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.unlink(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public byte[] echo(final byte[] arg) {
+        // note that it'll be run from arbitary node
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.echo(arg);
+            }
+        }.runBinary(arg);
+    }
+
+    @Override
+    public Long bitcount(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.bitcount(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long bitcount(final byte[] key, final long start, final long end) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.bitcount(key, start, end);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long pfadd(final byte[] key, final byte[]... elements) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pfadd(key, elements);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public long pfcount(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pfcount(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> srandmember(final byte[] key, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.srandmember(key, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zlexcount(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zlexcount(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrangeByLex(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrangeByLex(final byte[] key, final byte[] min, final byte[] max, final int offset, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrangeByLex(key, min, max, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrangeByLex(key, max, min);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> zrevrangeByLex(final byte[] key, final byte[] max, final byte[] min, final int offset, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.zrevrangeByLex(key, max, min, offset, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long zremrangeByLex(final byte[] key, final byte[] min, final byte[] max) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zremrangeByLex(key, min, max);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Object eval(final byte[] script, final byte[] keyCount, final byte[]... params) {
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script, keyCount, params);
+            }
+        }.runBinary(Integer.parseInt(SafeEncoder.encode(keyCount)), params);
+    }
+
+    @Override
+    public Object eval(final byte[] script, final int keyCount, final byte[]... params) {
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script, keyCount, params);
+            }
+        }.runBinary(keyCount, params);
+    }
+
+    @Override
+    public Object eval(final byte[] script, final List<byte[]> keys, final List<byte[]> args) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script, keys, args);
+            }
+        }.runBinary(keys.size(), keys.toArray(new byte[keys.size()][]));
+    }
+
+    @Override
+    public Object eval(final byte[] script, final byte[] sampleKey) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.eval(script);
+            }
+        }.runBinary(sampleKey);
+    }
+
+    @Override
+    public Object evalsha(final byte[] sha1, final byte[] sampleKey) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.evalsha(sha1);
+            }
+        }.runBinary(sampleKey);
+    }
+
+    @Override
+    public Object evalsha(final byte[] sha1, final List<byte[]> keys, final List<byte[]> args) {
+        // checkArguments(keys);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.evalsha(sha1, keys, args);
+            }
+        }.runBinary(keys.size(), keys.toArray(new byte[keys.size()][]));
+    }
+
+    @Override
+    public Object evalsha(final byte[] sha1, final int keyCount, final byte[]... params) {
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.evalsha(sha1, keyCount, params);
+            }
+        }.runBinary(keyCount, params);
+    }
+
+    @Override
+    public List<Long> scriptExists(final byte[] sampleKey, final byte[]... sha1) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<List<Long>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<Long> doExecute(Jedis connection) {
+                return connection.scriptExists(sha1);
+            }
+        }.runBinary(sampleKey);
+    }
+
+    @Override
+    public byte[] scriptLoad(final byte[] script, final byte[] sampleKey) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.scriptLoad(script);
+            }
+        }.runBinary(sampleKey);
+    }
+
+    @Override
+    public String scriptFlush(final byte[] sampleKey) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.scriptFlush();
+            }
+        }.runBinary(sampleKey);
+    }
+
+    @Override
+    public String scriptKill(final byte[] sampleKey) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.scriptKill();
+            }
+        }.runBinary(sampleKey);
+    }
+
+    @Override
+    public Long del(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.del(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public List<byte[]> blpop(final int timeout, final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.blpop(timeout, keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public List<byte[]> brpop(final int timeout, final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.brpop(timeout, keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public List<byte[]> mget(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.mget(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public String mset(final byte[]... keysvalues) {
+        byte[][] keys = new byte[keysvalues.length / 2][];
+
+        for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
+            keys[keyIdx] = keysvalues[keyIdx * 2];
+        }
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.mset(keysvalues);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long msetnx(final byte[]... keysvalues) {
+        byte[][] keys = new byte[keysvalues.length / 2][];
+
+        for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
+            keys[keyIdx] = keysvalues[keyIdx * 2];
+        }
+
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.msetnx(keysvalues);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public String rename(final byte[] oldkey, final byte[] newkey) {
+        checkBinaryArguments(oldkey);
+        checkBinaryArguments(newkey);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.rename(oldkey, newkey);
+            }
+        }.runBinary(2, oldkey, newkey);
+    }
+
+    @Override
+    public Long renamenx(final byte[] oldkey, final byte[] newkey) {
+        checkBinaryArguments(oldkey);
+        checkBinaryArguments(newkey);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.renamenx(oldkey, newkey);
+            }
+        }.runBinary(2, oldkey, newkey);
+    }
+
+    @Override
+    public byte[] rpoplpush(final byte[] srckey, final byte[] dstkey) {
+        checkBinaryArguments(srckey);
+        checkBinaryArguments(dstkey);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.rpoplpush(srckey, dstkey);
+            }
+        }.runBinary(2, srckey, dstkey);
+    }
+
+    @Override
+    public Set<byte[]> sdiff(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.sdiff(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long sdiffstore(final byte[] dstkey, final byte[]... keys) {
+        checkBinaryArguments(keys);
+        checkBinaryArguments(dstkey);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sdiffstore(dstkey, keys);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Set<byte[]> sinter(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.sinter(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long sinterstore(final byte[] dstkey, final byte[]... keys) {
+        checkBinaryArguments(keys);
+        checkBinaryArguments(dstkey);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sinterstore(dstkey, keys);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
+        checkBinaryArguments(srckey);
+        checkBinaryArguments(dstkey);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.smove(srckey, dstkey, member);
+            }
+        }.runBinary(2, srckey, dstkey);
+    }
+
+    @Override
+    public Long sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sort(key, sortingParameters, dstkey);
+            }
+        }.runBinary(2, key, dstkey);
+    }
+
+    @Override
+    public Long sort(final byte[] key, final byte[] dstkey) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sort(key, dstkey);
+            }
+        }.runBinary(2, key, dstkey);
+    }
+
+    @Override
+    public Set<byte[]> sunion(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.sunion(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long sunionstore(final byte[] dstkey, final byte[]... keys) {
+        checkBinaryArguments(dstkey);
+        checkBinaryArguments(keys);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.sunionstore(dstkey, keys);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long zinterstore(final byte[] dstkey, final byte[]... sets) {
+        checkBinaryArguments(dstkey);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zinterstore(dstkey, sets);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long zinterstore(final byte[] dstkey, final ZParams params, final byte[]... sets) {
+        checkBinaryArguments(dstkey);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zinterstore(dstkey, params, sets);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long zunionstore(final byte[] dstkey, final byte[]... sets) {
+        checkBinaryArguments(dstkey);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zunionstore(dstkey, sets);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long zunionstore(final byte[] dstkey, final ZParams params, final byte[]... sets) {
+        checkBinaryArguments(dstkey);
+        byte[][] wholeKeys = KeyMergeUtil.merge(dstkey, sets);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.zunionstore(dstkey, params, sets);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public byte[] brpoplpush(final byte[] source, final byte[] destination, final int timeout) {
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.brpoplpush(source, destination, timeout);
+            }
+        }.runBinary(2, source, destination);
+    }
+
+    @Override
+    public Long publish(final byte[] channel, final byte[] message) {
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.publish(channel, message);
+            }
+        }.runWithAnyNode();
+    }
+
+    @Override
+    public void subscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... channels) {
+        new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
+            @Override
+            public Integer doExecute(Jedis connection) {
+                connection.subscribe(jedisPubSub, channels);
+                return 0;
+            }
+        }.runWithAnyNode();
+    }
+
+    @Override
+    public void psubscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... patterns) {
+        new ConfigurableJedisClusterCommand<Integer>(connectionHandler, maxAttempts) {
+            @Override
+            public Integer doExecute(Jedis connection) {
+                connection.psubscribe(jedisPubSub, patterns);
+                return 0;
+            }
+        }.runWithAnyNode();
+    }
+
+    @Override
+    public Long bitop(final BitOP op, final byte[] destKey, final byte[]... srcKeys) {
+        checkBinaryArguments(destKey);
+        checkBinaryArguments(srcKeys);
+        byte[][] wholeKeys = KeyMergeUtil.merge(destKey, srcKeys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.bitop(op, destKey, srcKeys);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public String pfmerge(final byte[] destkey, final byte[]... sourcekeys) {
+        checkBinaryArguments(destkey);
+        checkBinaryArguments(sourcekeys);
+        byte[][] wholeKeys = KeyMergeUtil.merge(destkey, sourcekeys);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.pfmerge(destkey, sourcekeys);
+            }
+        }.runBinary(wholeKeys.length, wholeKeys);
+    }
+
+    @Override
+    public Long pfcount(final byte[]... keys) {
+        checkBinaryArguments(keys);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.pfcount(keys);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long geoadd(final byte[] key, final double longitude, final double latitude, final byte[] member) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.geoadd(key, longitude, latitude, member);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long geoadd(final byte[] key, final Map<byte[], GeoCoordinate> memberCoordinateMap) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.geoadd(key, memberCoordinateMap);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double geodist(final byte[] key, final byte[] member1, final byte[] member2) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.geodist(key, member1, member2);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Double geodist(final byte[] key, final byte[] member1, final byte[] member2, final GeoUnit unit) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Double>(connectionHandler, maxAttempts) {
+            @Override
+            public Double doExecute(Jedis connection) {
+                return connection.geodist(key, member1, member2, unit);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> geohash(final byte[] key, final byte[]... members) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.geohash(key, members);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoCoordinate> geopos(final byte[] key, final byte[]... members) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoCoordinate>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoCoordinate> doExecute(Jedis connection) {
+                return connection.geopos(key, members);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadius(final byte[] key, final double longitude, final double latitude, final double radius,
+            final GeoUnit unit) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadius(key, longitude, latitude, radius, unit);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusReadonly(final byte[] key, final double longitude, final double latitude,
+            final double radius, final GeoUnit unit) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusReadonly(key, longitude, latitude, radius, unit);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadius(final byte[] key, final double longitude, final double latitude, final double radius,
+            final GeoUnit unit, final GeoRadiusParam param) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadius(key, longitude, latitude, radius, unit, param);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusReadonly(final byte[] key, final double longitude, final double latitude,
+            final double radius, final GeoUnit unit, final GeoRadiusParam param) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusReadonly(key, longitude, latitude, radius, unit, param);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMember(final byte[] key, final byte[] member, final double radius,
+            final GeoUnit unit) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMember(key, member, radius, unit);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(final byte[] key, final byte[] member, final double radius,
+            final GeoUnit unit) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMemberReadonly(key, member, radius, unit);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMember(final byte[] key, final byte[] member, final double radius,
+            final GeoUnit unit, final GeoRadiusParam param) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMember(key, member, radius, unit, param);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMemberReadonly(final byte[] key, final byte[] member, final double radius,
+            final GeoUnit unit, final GeoRadiusParam param) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<GeoRadiusResponse>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<GeoRadiusResponse> doExecute(Jedis connection) {
+                return connection.georadiusByMemberReadonly(key, member, radius, unit, param);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Set<byte[]> keys(final byte[] pattern) {
+        if (pattern == null || pattern.length == 0) {
+            throw new IllegalArgumentException(
+                    this.getClass().getSimpleName() + " only supports KEYS commands with non-empty patterns");
+        }
+        if (!JedisClusterHashTagUtil.isClusterCompliantMatchPattern(pattern)) {
+            throw new IllegalArgumentException(this.getClass().getSimpleName()
+                    + " only supports KEYS commands with patterns containing hash-tags ( curly-brackets enclosed strings )");
+        }
+        return new ConfigurableJedisClusterCommand<Set<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public Set<byte[]> doExecute(Jedis connection) {
+                return connection.keys(pattern);
+            }
+        }.runBinary(pattern);
+    }
+
+    @Override
+    public ScanResult<byte[]> scan(final byte[] cursor, final ScanParams params) {
+        byte[] matchPattern = null;
+        if (params == null || (matchPattern = doScanBinaryMatch(params)) == null || matchPattern.length == 0) {
+            throw new IllegalArgumentException(
+                    BinaryJedisCluster.class.getSimpleName() + " only supports SCAN commands with non-empty MATCH patterns");
+        }
+        if (!JedisClusterHashTagUtil.isClusterCompliantMatchPattern(matchPattern)) {
+            throw new IllegalArgumentException(BinaryJedisCluster.class.getSimpleName()
+                    + " only supports SCAN commands with MATCH patterns containing hash-tags ( curly-brackets enclosed strings )");
+        }
+        return new ConfigurableJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<byte[]> doExecute(Jedis connection) {
+                return connection.scan(cursor, params);
+            }
+        }.runBinary(matchPattern);
+    }
+
+    @Override
+    public ScanResult<Map.Entry<byte[], byte[]>> hscan(final byte[] key, final byte[] cursor) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<Map.Entry<byte[], byte[]>>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<Map.Entry<byte[], byte[]>> doExecute(Jedis connection) {
+                return connection.hscan(key, cursor);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public ScanResult<Map.Entry<byte[], byte[]>> hscan(final byte[] key, final byte[] cursor, final ScanParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<Map.Entry<byte[], byte[]>>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<Map.Entry<byte[], byte[]>> doExecute(Jedis connection) {
+                return connection.hscan(key, cursor, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public ScanResult<byte[]> sscan(final byte[] key, final byte[] cursor) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<byte[]> doExecute(Jedis connection) {
+                return connection.sscan(key, cursor);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public ScanResult<byte[]> sscan(final byte[] key, final byte[] cursor, final ScanParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<byte[]> doExecute(Jedis connection) {
+                return connection.sscan(key, cursor, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public ScanResult<Tuple> zscan(final byte[] key, final byte[] cursor) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<Tuple> doExecute(Jedis connection) {
+                return connection.zscan(key, cursor);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public ScanResult<Tuple> zscan(final byte[] key, final byte[] cursor, final ScanParams params) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<ScanResult<Tuple>>(connectionHandler, maxAttempts) {
+            @Override
+            public ScanResult<Tuple> doExecute(Jedis connection) {
+                return connection.zscan(key, cursor, params);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<Long> bitfield(final byte[] key, final byte[]... arguments) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<Long>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<Long> doExecute(Jedis connection) {
+                return connection.bitfield(key, arguments);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long hstrlen(final byte[] key, final byte[] field) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.hstrlen(key, field);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public byte[] xadd(final byte[] key, final byte[] id, final Map<byte[], byte[]> hash, final long maxLen,
+            final boolean approximateLength) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<byte[]>(connectionHandler, maxAttempts) {
+            @Override
+            public byte[] doExecute(Jedis connection) {
+                return connection.xadd(key, id, hash, maxLen, approximateLength);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long xlen(final byte[] key) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xlen(key);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> xrange(final byte[] key, final byte[] start, final byte[] end, final long count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.xrange(key, start, end, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> xrevrange(final byte[] key, final byte[] end, final byte[] start, final int count) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.xrevrange(key, end, start, count);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> xread(final int count, final long block, final Map<byte[], byte[]> streams) {
+        byte[][] keys = streams.keySet().toArray(new byte[streams.size()][]);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.xread(count, block, streams);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long xack(final byte[] key, final byte[] group, final byte[]... ids) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xack(key, group, ids);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String xgroupCreate(final byte[] key, final byte[] consumer, final byte[] id, final boolean makeStream) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.xgroupCreate(key, consumer, id, makeStream);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String xgroupSetID(final byte[] key, final byte[] consumer, final byte[] id) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.xgroupSetID(key, consumer, id);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long xgroupDestroy(final byte[] key, final byte[] consumer) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xgroupDestroy(key, consumer);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public String xgroupDelConsumer(final byte[] key, final byte[] consumer, final byte[] consumerName) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<String>(connectionHandler, maxAttempts) {
+            @Override
+            public String doExecute(Jedis connection) {
+                return connection.xgroupDelConsumer(key, consumer, consumerName);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> xreadGroup(final byte[] groupname, final byte[] consumer, final int count, final long block,
+            final boolean noAck, final Map<byte[], byte[]> streams) {
+        byte[][] keys = streams.keySet().toArray(new byte[streams.size()][]);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.xreadGroup(groupname, consumer, count, block, noAck, streams);
+            }
+        }.runBinary(keys.length, keys);
+    }
+
+    @Override
+    public Long xdel(final byte[] key, final byte[]... ids) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xdel(key, ids);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long xtrim(final byte[] key, final long maxLen, final boolean approximateLength) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.xtrim(key, maxLen, approximateLength);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> xpending(final byte[] key, final byte[] groupname, final byte[] start, final byte[] end, final int count,
+            final byte[] consumername) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.xpending(key, groupname, start, end, count, consumername);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public List<byte[]> xclaim(final byte[] key, final byte[] groupname, final byte[] consumername, final long minIdleTime,
+            final long newIdleTime, final int retries, final boolean force, final byte[][] ids) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
+            @Override
+            public List<byte[]> doExecute(Jedis connection) {
+                return connection.xclaim(key, groupname, consumername, minIdleTime, newIdleTime, retries, force, ids);
+            }
+        }.runBinary(key);
+    }
+
+    @Override
+    public Long waitReplicas(final byte[] key, final int replicas, final long timeout) {
+        checkBinaryArguments(key);
+        return new ConfigurableJedisClusterCommand<Long>(connectionHandler, maxAttempts) {
+            @Override
+            public Long doExecute(Jedis connection) {
+                return connection.waitReplicas(replicas, timeout);
+            }
+        }.runBinary(key);
+    }
+
+    public Object sendCommand(final byte[] sampleKey, final ProtocolCommand cmd, final byte[]... args) {
+        checkBinaryArguments(sampleKey);
+        return new ConfigurableJedisClusterCommand<Object>(connectionHandler, maxAttempts) {
+            @Override
+            public Object doExecute(Jedis connection) {
+                return connection.sendCommand(cmd, args);
+            }
+        }.runBinary(sampleKey);
+    }
+
+    // ----------------------- Function's ---------------------------
+
+    /**
+     * Check input argument names specification.
+     * 
+     * @param keys
+     * @throws ParameterCanonicalException
+     */
+    protected void checkBinaryArguments(final byte[]... keys) throws ParameterCanonicalException {
+        if (safeMode) {
+            RedisProtoUtil.checkArguments(asList(keys));
+        }
+    }
+
+    /**
+     * Check input argument names specification.
+     * 
+     * @param keys
+     * @throws ParameterCanonicalException
+     */
+    protected void checkBinaryArguments(final List<byte[]> keys) throws ParameterCanonicalException {
+        if (safeMode) {
+            RedisProtoUtil.checkArguments(asList(keys));
+        }
+    }
+
+    /**
+     * Check input argument names specification.
+     * 
+     * @param keys
+     * @throws ParameterCanonicalException
+     */
+    protected void checkArguments(final List<String> keys) throws ParameterCanonicalException {
+        checkArguments(keys.toArray(new String[0]));
+    }
+
+    /**
+     * Check input argument names specification.
+     * 
+     * @param keys
+     * @throws ParameterCanonicalException
+     */
+    protected void checkArguments(final String... keys) throws ParameterCanonicalException {
+        if (safeMode) {
+            RedisProtoUtil.checkArguments(asList(keys));
+        }
+    }
+
+    /**
+     * Scan cursor matching.
+     * 
+     * @param params
+     * @return
+     */
+    protected String doScanMatch(ScanParams params) {
+        try {
+            return (String) PARAMS_MATCH.invoke(params);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Scan cursor matching.
+     * 
+     * @param params
+     * @return
+     */
+    protected byte[] doScanBinaryMatch(ScanParams params) {
+        try {
+            return (byte[]) PARAMS_BINARYMATCH.invoke(params);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static final Method PARAMS_MATCH;
+    private static final Method PARAMS_BINARYMATCH;
+
+    static {
+        Method matchMothod = null;
+        Method binaryMatchMothod = null;
+        for (Method m : ScanParams.class.getDeclaredMethods()) {
+            /**
+             * {@link redis.clients.jedis.ScanParams#match()}
+             */
+            if (m.getName().equals("match") && m.getParameterCount() == 0) {
+                matchMothod = m;
+            }
+            /**
+             * {@link redis.clients.jedis.ScanParams#match()}
+             */
+            if (m.getName().equals("binaryMatch") && m.getParameterCount() == 0) {
+                binaryMatchMothod = m;
+            }
+        }
+        PARAMS_MATCH = matchMothod;
+        PARAMS_BINARYMATCH = binaryMatchMothod;
+        notNullOf(PARAMS_MATCH, "redis.clients.jedis.ScanParams#match()");
+        notNullOf(PARAMS_BINARYMATCH, "redis.clients.jedis.ScanParams#binaryMatch()");
+        PARAMS_MATCH.setAccessible(true);
+        PARAMS_BINARYMATCH.setAccessible(true);
+    }
 
 }
