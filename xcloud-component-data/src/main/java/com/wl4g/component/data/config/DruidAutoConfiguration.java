@@ -15,8 +15,10 @@
  */
 package com.wl4g.component.data.config;
 
+import static com.wl4g.component.common.web.WebUtils2.isTrue;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.lang.System.getenv;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -57,103 +59,104 @@ import lombok.Setter;
 @ConditionalOnMissingBean(HikariDataSource.class)
 public class DruidAutoConfiguration extends BasedMybatisDataSourceConfigurer {
 
-	// @RefreshScope
-	// @ConditionalOnMissingBean
-	@Bean
-	public DruidDataSource druidDataSource(DruidProperties config) {
-		DruidDataSource druid = new DruidDataSource();
-		druid.setUrl(config.getUrl());
-		druid.setUsername(config.getUsername());
-		String plain = config.getPassword();
-		if (valueOf(environment.getProperty("spring.profiles.active")).startsWith("pro")) {
-			try {
-				// TODO using dynamic cipherKey??
-				byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DB_CIPHER_KEY");
-				plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(config.getPassword())).toString();
-			} catch (Throwable th) {
-				throw new IllegalStateException(format("Unable to decryption database password for '%s'", config.getPassword()),
-						th);
-			}
-		}
-		druid.setPassword(plain);
-		druid.setDriverClassName(config.getDriverClassName());
-		druid.setInitialSize(config.getInitialSize());
-		druid.setMinIdle(config.getMinIdle());
-		druid.setMaxActive(config.getMaxActive());
-		druid.setMaxWait(config.getMaxWait());
-		druid.setTimeBetweenEvictionRunsMillis(config.getTimeBetweenEvictionRunsMillis());
-		druid.setMinEvictableIdleTimeMillis(config.getMinEvictableIdleTimeMillis());
-		druid.setValidationQuery(config.getValidationQuery());
-		druid.setTestWhileIdle(config.isTestWhileIdle());
-		druid.setTestOnBorrow(config.isTestOnBorrow());
-		druid.setTestOnReturn(config.isTestOnReturn());
-		try {
-			druid.setFilters(config.getFilters());
-		} catch (SQLException e) {
-			log.error("Cannot initialization druid filter", e);
-		}
-		return druid;
-	}
+    // @RefreshScope
+    // @ConditionalOnMissingBean
+    @Bean
+    public DruidDataSource druidDataSource(DruidProperties config) {
+        DruidDataSource druid = new DruidDataSource();
+        druid.setUrl(config.getUrl());
+        druid.setUsername(config.getUsername());
+        String plain = config.getPassword();
+        String skip = getenv("SKIP_CIPHER_DB_PASSWD");
+        if (valueOf(environment.getProperty("spring.profiles.active")).startsWith("pro") && !isTrue(skip, false)) {
+            try {
+                // TODO using dynamic cipherKey??
+                byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DB_CIPHER_KEY");
+                plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(config.getPassword())).toString();
+            } catch (Throwable th) {
+                throw new IllegalStateException(format("Unable to decryption database password for '%s'", config.getPassword()),
+                        th);
+            }
+        }
+        druid.setPassword(plain);
+        druid.setDriverClassName(config.getDriverClassName());
+        druid.setInitialSize(config.getInitialSize());
+        druid.setMinIdle(config.getMinIdle());
+        druid.setMaxActive(config.getMaxActive());
+        druid.setMaxWait(config.getMaxWait());
+        druid.setTimeBetweenEvictionRunsMillis(config.getTimeBetweenEvictionRunsMillis());
+        druid.setMinEvictableIdleTimeMillis(config.getMinEvictableIdleTimeMillis());
+        druid.setValidationQuery(config.getValidationQuery());
+        druid.setTestWhileIdle(config.isTestWhileIdle());
+        druid.setTestOnBorrow(config.isTestOnBorrow());
+        druid.setTestOnReturn(config.isTestOnReturn());
+        try {
+            druid.setFilters(config.getFilters());
+        } catch (SQLException e) {
+            log.error("Cannot initialization druid filter", e);
+        }
+        return druid;
+    }
 
-	@Bean
-	public SqlSessionFactoryBean druidSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
-			List<Interceptor> interceptors) throws Exception {
-		return createSmartSqlSessionFactoryBean(config, dataSource, interceptors);
-	}
+    @Bean
+    public SqlSessionFactoryBean druidSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
+            List<Interceptor> interceptors) throws Exception {
+        return createSmartSqlSessionFactoryBean(config, dataSource, interceptors);
+    }
 
-	@Bean
-	public ServletRegistrationBean<StatViewServlet> druidStatViewServlet(DruidProperties druidConfig) {
-		ServletRegistrationBean<StatViewServlet> registrar = new ServletRegistrationBean<>();
-		registrar.setServlet(new StatViewServlet());
-		registrar.addUrlMappings("/druid/*");
-		registrar.addInitParameter("loginUsername", druidConfig.getWebLoginUsername());
-		registrar.addInitParameter("loginPassword", druidConfig.getWebLoginPassword());
-		registrar.addInitParameter("logSlowSql", druidConfig.getLogSlowSql());
-		return registrar;
-	}
+    @Bean
+    public ServletRegistrationBean<StatViewServlet> druidStatViewServlet(DruidProperties druidConfig) {
+        ServletRegistrationBean<StatViewServlet> registrar = new ServletRegistrationBean<>();
+        registrar.setServlet(new StatViewServlet());
+        registrar.addUrlMappings("/druid/*");
+        registrar.addInitParameter("loginUsername", druidConfig.getWebLoginUsername());
+        registrar.addInitParameter("loginPassword", druidConfig.getWebLoginPassword());
+        registrar.addInitParameter("logSlowSql", druidConfig.getLogSlowSql());
+        return registrar;
+    }
 
-	@Bean
-	public FilterRegistrationBean<WebStatFilter> druidWebStatFilter() {
-		FilterRegistrationBean<WebStatFilter> registrar = new FilterRegistrationBean<>();
-		registrar.setFilter(new WebStatFilter());
-		registrar.addUrlPatterns("/druid/*");
-		registrar.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
-		registrar.addInitParameter("profileEnable", "true");
-		return registrar;
-	}
+    @Bean
+    public FilterRegistrationBean<WebStatFilter> druidWebStatFilter() {
+        FilterRegistrationBean<WebStatFilter> registrar = new FilterRegistrationBean<>();
+        registrar.setFilter(new WebStatFilter());
+        registrar.addUrlPatterns("/druid/*");
+        registrar.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
+        registrar.addInitParameter("profileEnable", "true");
+        return registrar;
+    }
 
-	@Bean
-	public DruidProperties druidProperties() {
-		return new DruidProperties();
-	}
+    @Bean
+    public DruidProperties druidProperties() {
+        return new DruidProperties();
+    }
 
-	@Getter
-	@Setter
-	@ConfigurationProperties(prefix = "spring.datasource.druid")
-	static class DruidProperties {
-		private String url;
-		private String username;
-		private String password;
-		private String driverClassName;
-		private int initialSize;
-		private int minIdle;
-		private int maxActive;
-		private int maxWait;
-		private int timeBetweenEvictionRunsMillis;
-		private int minEvictableIdleTimeMillis;
-		private String validationQuery;
-		private boolean testWhileIdle;
-		private boolean testOnBorrow;
-		private boolean testOnReturn;
-		private String filters;
-		private String logSlowSql;
-		private String webLoginUsername = "druid";
-		private String webLoginPassword = "druid";
-	}
+    @Getter
+    @Setter
+    @ConfigurationProperties(prefix = "spring.datasource.druid")
+    static class DruidProperties {
+        private String url;
+        private String username;
+        private String password;
+        private String driverClassName;
+        private int initialSize;
+        private int minIdle;
+        private int maxActive;
+        private int maxWait;
+        private int timeBetweenEvictionRunsMillis;
+        private int minEvictableIdleTimeMillis;
+        private String validationQuery;
+        private boolean testWhileIdle;
+        private boolean testOnBorrow;
+        private boolean testOnReturn;
+        private String filters;
+        private String logSlowSql;
+        private String webLoginUsername = "druid";
+        private String webLoginPassword = "druid";
+    }
 
-	static {
-		// com.alibaba.druid.support.logging.LogFactory.static{}
-		System.setProperty("druid.logType", "slf4j");
-	}
+    static {
+        // com.alibaba.druid.support.logging.LogFactory.static{}
+        System.setProperty("druid.logType", "slf4j");
+    }
 
 }

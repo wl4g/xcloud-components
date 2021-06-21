@@ -15,8 +15,10 @@
  */
 package com.wl4g.component.data.config;
 
+import static com.wl4g.component.common.web.WebUtils2.isTrue;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.lang.System.getenv;
 
 import java.util.List;
 
@@ -47,43 +49,44 @@ import com.zaxxer.hikari.HikariDataSource;
 @ConditionalOnExpression("'com.zaxxer.hikari.HikariDataSource'.equalsIgnoreCase('${spring.datasource.type:}')")
 public class HikariAutoConfiguration extends BasedMybatisDataSourceConfigurer {
 
-	// @RefreshScope
-	// @ConditionalOnMissingBean
-	@Bean
-	public HikariDataSource hikariDataSource(HikariProperties config) {
-		HikariDataSource hikari = new HikariDataSource(config);
+    // @RefreshScope
+    // @ConditionalOnMissingBean
+    @Bean
+    public HikariDataSource hikariDataSource(HikariProperties config) {
+        HikariDataSource hikari = new HikariDataSource(config);
 
-		// TODO use config center.
-		// Update database password.
-		String plain = config.getPassword();
-		if (valueOf(environment.getProperty("spring.profiles.active")).startsWith("pro")) {
-			try {
-				// TODO using dynamic cipherKey??
-				byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DB_CIPHER_KEY");
-				plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(config.getPassword())).toString();
-			} catch (Throwable th) {
-				throw new IllegalStateException(format("Unable to decryption database password for '%s'", config.getPassword()),
-						th);
-			}
-		}
-		hikari.setPassword(plain);
+        // TODO use config center.
+        // Update database password.
+        String plain = config.getPassword();
+        String skip = getenv("SKIP_CIPHER_DB_PASSWD");
+        if (valueOf(environment.getProperty("spring.profiles.active")).startsWith("pro") && !isTrue(skip, false)) {
+            try {
+                // TODO using dynamic cipherKey??
+                byte[] cipherKey = AES128ECBPKCS5.getEnvCipherKey("DB_CIPHER_KEY");
+                plain = new AES128ECBPKCS5().decrypt(cipherKey, CodecSource.fromHex(config.getPassword())).toString();
+            } catch (Throwable th) {
+                throw new IllegalStateException(format("Unable to decryption database password for '%s'", config.getPassword()),
+                        th);
+            }
+        }
+        hikari.setPassword(plain);
 
-		return hikari;
-	}
+        return hikari;
+    }
 
-	@Bean
-	public SqlSessionFactoryBean hikariSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
-			List<Interceptor> interceptors) throws Exception {
-		return createSmartSqlSessionFactoryBean(config, dataSource, interceptors);
-	}
+    @Bean
+    public SqlSessionFactoryBean hikariSmartSqlSessionFactoryBean(MybatisProperties config, DataSource dataSource,
+            List<Interceptor> interceptors) throws Exception {
+        return createSmartSqlSessionFactoryBean(config, dataSource, interceptors);
+    }
 
-	@Bean
-	public HikariProperties hikariProperties() {
-		return new HikariProperties();
-	}
+    @Bean
+    public HikariProperties hikariProperties() {
+        return new HikariProperties();
+    }
 
-	@ConfigurationProperties(prefix = "spring.datasource.hikari")
-	static class HikariProperties extends HikariConfig {
-	}
+    @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    static class HikariProperties extends HikariConfig {
+    }
 
 }
