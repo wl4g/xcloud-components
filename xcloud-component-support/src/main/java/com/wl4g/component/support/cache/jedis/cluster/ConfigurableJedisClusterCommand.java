@@ -18,7 +18,9 @@ package com.wl4g.component.support.cache.jedis.cluster;
 import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static redis.clients.jedis.HostAndPort.parseString;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,7 +29,6 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import com.wl4g.component.common.log.SmartLogger;
 
 import redis.clients.jedis.HostAndPort;
-import static redis.clients.jedis.HostAndPort.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisClusterCommand;
 import redis.clients.jedis.JedisClusterConnectionHandler;
@@ -51,6 +52,11 @@ abstract class ConfigurableJedisClusterCommand<T> extends JedisClusterCommand<T>
 
     public ConfigurableJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts) {
         super(connectionHandler, maxAttempts);
+    }
+
+    public ConfigurableJedisClusterCommand(JedisClusterConnectionHandler connectionHandler, int maxAttempts,
+            Duration maxTotalRetriesDuration) {
+        super(connectionHandler, maxAttempts, maxTotalRetriesDuration);
     }
 
     @Override
