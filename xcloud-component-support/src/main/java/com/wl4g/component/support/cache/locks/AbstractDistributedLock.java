@@ -33,37 +33,37 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public abstract class AbstractDistributedLock implements Lock, Serializable {
-	private static final long serialVersionUID = -3633610156752730462L;
+    private static final long serialVersionUID = -3633610156752730462L;
 
-	/** Current locker name. */
-	protected final String name;
+    /** Current locker name. */
+    protected final String name;
 
-	/** Current locker request ID. */
-	protected final String currentProcessId;
+    /** Current locker request ID. */
+    protected final String requestId;
 
-	/** Current locker expired time(MS). */
-	protected final long expiredMs;
+    /** Current locker expired time(MS). */
+    protected final long expiredMs;
 
-	public AbstractDistributedLock(String name, String currentProcessId, long expiredMs) {
-		hasText(name, "Lock name must not be empty.");
-		hasText(currentProcessId, "Lock current processId must not be empty.");
-		isTrue(expiredMs > 0, "Lock expiredMs must greater than 0");
-		this.name = name;
-		this.currentProcessId = currentProcessId;
-		this.expiredMs = expiredMs;
-	}
+    public AbstractDistributedLock(String name, String requestId, long expiredMs) {
+        hasText(name, "Lock name must not be empty.");
+        hasText(requestId, "Lock current processId must not be empty.");
+        isTrue(expiredMs > 0, "Lock expiredMs must greater than 0");
+        this.name = name;
+        this.requestId = requestId;
+        this.expiredMs = expiredMs;
+    }
 
-	/**
-	 * Get current thread unique process ID. </br>
-	 * 
-	 * <pre>
-	 * Host serial + local processId + threadId
-	 * </pre>
-	 * 
-	 * @return
-	 */
-	public final static String getThreadCurrentProcessId() {
-		return GLOBAL_PROCESS_SERIAL + "-" + Thread.currentThread().getId();
-	}
+    /**
+     * Get current thread unique process ID. </br>
+     * 
+     * <pre>
+     * Host serial + local processId + threadId
+     * </pre>
+     * 
+     * @return
+     */
+    public final static String getThreadCurrentProcessId() {
+        return GLOBAL_PROCESS_SERIAL.concat("-") + Thread.currentThread().getId();
+    }
 
 }

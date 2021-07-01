@@ -181,9 +181,9 @@ public class JedisLockManager {
             // Obtain locked processId.
             String acquiredProcessId = jedisService.getJedisClient().get(name);
             // Current thread is holder?
-            if (!currentProcessId.equals(acquiredProcessId)) {
-                log.debug("No need to unlock of currentProcessId: {}, acquiredProcessId: {}, counter: {}", currentProcessId,
-                        acquiredProcessId, counter);
+            if (!requestId.equals(acquiredProcessId)) {
+                log.debug("No need to unlock of requestId: {}, acquiredProcessId: {}, counter: {}", requestId, acquiredProcessId,
+                        counter);
                 return;
             }
 
@@ -192,11 +192,11 @@ public class JedisLockManager {
             log.debug("No need to unlock and reenter the stack lock layer, counter: {}", counter);
 
             if (counter.longValue() == 0L) { // All thread stack layers exited?
-                Object res = jedisService.getJedisClient().eval(UNLOCK_LUA, singletonList(name), singletonList(currentProcessId));
+                Object res = jedisService.getJedisClient().eval(UNLOCK_LUA, singletonList(name), singletonList(requestId));
                 if (!assertValidity(res)) {
-                    log.debug("Failed to unlock for %{}@{}", currentProcessId, name);
+                    log.debug("Failed to unlock for %{}@{}", requestId, name);
                 } else {
-                    log.debug("Unlock successful for %{}@{}", currentProcessId, name);
+                    log.debug("Unlock successful for %{}@{}", requestId, name);
                 }
             }
         }
@@ -214,7 +214,7 @@ public class JedisLockManager {
          */
         private final boolean doTryAcquire() {
             String acquiredProcessId = jedisService.getJedisClient().get(name); // Locked-processId.
-            if (currentProcessId.equals(acquiredProcessId)) {
+            if (requestId.equals(acquiredProcessId)) {
                 // Obtain lock record once cumulatively.
                 counter.incrementAndGet();
                 log.debug("Reuse acquire lock for name: {}, acquiredProcessId: {}, counter: {}", name, acquiredProcessId,
@@ -227,7 +227,7 @@ public class JedisLockManager {
 
             // Try to acquire a new lock from the server.
             SetParams params = SetParams.setParams().nx().px(expiredMs);
-            if (assertValidity(jedisService.getJedisClient().set(name, currentProcessId, params))) {
+            if (assertValidity(jedisService.getJedisClient().set(name, requestId, params))) {
                 // Obtain lock record once cumulatively.
                 counter.incrementAndGet();
                 return true;
