@@ -248,6 +248,8 @@ public class JedisLockManager {
             if (res instanceof String) {
                 String res0 = res.toString().trim();
                 return "1".equals(res0) || "OK".equalsIgnoreCase(res0);
+            } else if (res instanceof Boolean) {
+                return (boolean) res;
             } else if (res instanceof Number) {
                 return ((Number) res).longValue() >= 1L;
             } else {
