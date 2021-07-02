@@ -63,7 +63,7 @@
 		<module>xcloud-component-integration-feign-springcloud</module>
 		<module>xcloud-component-integration-feign-springcloud-dubbo</module>
 		<module>xcloud-component-integration-feign-springcloud-seata</module>
-		<module>xcloud-component-integration-feign-example</module>
+		<!-- <module>xcloud-component-integration-feign-example</module> -->
 		<module>xcloud-component-integration-regcenter-eureka-server</module>
 		<!--<module>xcloud-component-integration-regcenter-nacos</module> -->
 		<!--<module>xcloud-component-integration-regcenter-consul</module> -->
