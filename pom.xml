@@ -56,7 +56,7 @@
 	<modules>
 		<module>xcloud-component-bom</module>
 		<module>xcloud-component-common</module>
-		<!-- <module>xcloud-component-common-shade</module> -->
+		<module>xcloud-component-common-shade</module>
 		<module>xcloud-component-core</module>
 		<module>xcloud-component-data</module>
 		<module>xcloud-component-integration</module>
