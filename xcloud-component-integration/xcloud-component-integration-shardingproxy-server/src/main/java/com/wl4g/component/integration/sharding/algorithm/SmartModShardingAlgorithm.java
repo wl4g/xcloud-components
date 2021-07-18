@@ -39,6 +39,8 @@ import org.apache.shardingsphere.sharding.api.sharding.standard.PreciseShardingV
 import org.apache.shardingsphere.sharding.api.sharding.standard.RangeShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.StandardShardingAlgorithm;
 
+import com.wl4g.component.common.annotation.Reserved;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -52,6 +54,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Reserved
 public class SmartModShardingAlgorithm implements StandardShardingAlgorithm<Comparable<?>>, ShardingAutoTableAlgorithm {
 
     private static final String EXPRESSION_KEY = "algorithm-expression";

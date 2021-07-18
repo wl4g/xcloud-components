@@ -97,6 +97,10 @@
 			<groupId>com.wl4g</groupId>
 			<artifactId>xcloud-component-common</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-dbutils</groupId>
+			<artifactId>commons-dbutils</artifactId>
+		</dependency>
 		<!-- Interagtion with 4.x -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.shardingsphere</groupId> -->
