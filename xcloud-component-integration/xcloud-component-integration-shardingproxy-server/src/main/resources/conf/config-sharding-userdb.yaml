@@ -1,0 +1,145 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+##################### Configuration of 'userdb' by group sharding v5 #######################
+
+# External logical database schema.
+schemaName: userdb
+
+# Default datasource configuration.
+# @see:org.apache.shardingsphere.proxy.config.ProxyConfigurationLoader#loadRuleConfiguration
+#dataSource:
+#  url: jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  username: root
+#  password: 'zzx!@#$%'
+#  connectionTimeoutMilliseconds: 30000
+#  idleTimeoutMilliseconds: 60000
+#  maxLifetimeMilliseconds: 1800000
+#  maxPoolSize: 50
+#  minPoolSize: 1
+#  maintenanceIntervalMilliseconds: 30000
+
+# Datasource configuration.
+dataSources:
+  #userdb_g1db0_schema:
+  #  url: jdbc:mysql://127.0.0.1:3306/information_schema?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g1db0:
+    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    username: root
+    password: 'zzx!@#$%'
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+  userdb_g1db1:
+    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    username: root
+    password: 'zzx!@#$%'
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+  userdb_g1db2:
+    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    username: root
+    password: 'zzx!@#$%'
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+  userdb_g1db0:
+    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    username: root
+    password: 'zzx!@#$%'
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+  userdb_g1db1:
+    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    username: root
+    password: 'zzx!@#$%'
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+  userdb_g1db2:
+    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    username: root
+    password: 'zzx!@#$%'
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+    maintenanceIntervalMilliseconds: 30000
+
+# Proxy rule configuration.
+rules:
+#################################### DB Group1 #########################################
+ - !SHARDING
+  tables:
+    t_user:
+      actualDataNodes: userdb_g1db${0..2}.t_user_${0..2}
+      #actualDataNodes: 'userdb_g1db0.t_user_${0..3},userdb_g1db1.t_user_${0..2},userdb_g1db2.t_user_${0..2},userdb_g1db${0..2}.t_user_${0..2}'
+      #databaseStrategy:
+      tableStrategy:
+        standard:
+          shardingColumn: id
+          shardingAlgorithmName: group1_t_user_volume_range
+      keyGenerateStrategy:
+        column: id
+        keyGeneratorName: snowflake
+  bindingTables:
+    - t_user
+  defaultDatabaseStrategy:
+    standard:
+      shardingColumn: id
+      shardingAlgorithmName: group1_database_inline
+      #shardingAlgorithmName: database_volume_range1
+      #shardingAlgorithmName: group_database_smart_mod1
+  defaultTableStrategy:
+  shardingAlgorithms:
+    #group_database_smart_mod1:
+    #  type: SMART_MOD
+    #  props:
+    #    algorithm-expression: '_g1db0->0,1,2,3|_g1db1->4,5,6|_g1db2->7,8,9'
+    group1_database_inline:
+      type: INLINE
+      props:
+        algorithm-expression: userdb_g1db${(id / 9) as int}
+    group1_t_user_volume_range: # see:org.apache.shardingsphere.sharding.algorithm.sharding.range.VolumeBasedRangeShardingAlgorithm
+      type: VOLUME_RANGE
+      props: # Must use quotation marks(string) or you cannot get them.
+        range-lower: '0'
+        range-upper: '40000000'
+        sharding-volume: '10000000'
+  keyGenerators:
+    snowflake:
+      type: SNOWFLAKE
+      props:
+        worker-id: '1001'
