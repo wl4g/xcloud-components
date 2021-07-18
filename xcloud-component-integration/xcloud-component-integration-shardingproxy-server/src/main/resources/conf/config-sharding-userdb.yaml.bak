@@ -23,7 +23,6 @@ schemaName: userdb
 # Default datasource configuration.
 # @see:org.apache.shardingsphere.proxy.config.ProxyConfigurationLoader#loadRuleConfiguration
 dataSource:
-  url: jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
   username: root
   password: 'zzx!@#$%'
   connectionTimeoutMilliseconds: 30000

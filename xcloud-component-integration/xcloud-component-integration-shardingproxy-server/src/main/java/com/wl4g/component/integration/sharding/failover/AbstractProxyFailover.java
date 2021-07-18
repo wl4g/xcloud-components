@@ -15,6 +15,8 @@
  */
 package com.wl4g.component.integration.sharding.failover;
 
+import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
+
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
 
 /**
@@ -38,6 +40,15 @@ public abstract class AbstractProxyFailover<S extends NodeStats> implements Prox
 
     @Override
     public void stop() {
+    }
+
+    /**
+     * Change read write splitting configuration.
+     * 
+     * @see https://shardingsphere.apache.org/document/current/cn/features/governance/management/registry-center/#metadataschemenamedatasources
+     */
+    protected void doChangeReadWriteSplititingConfiguration() {
+        ProxyContext.getInstance();
     }
 
 }

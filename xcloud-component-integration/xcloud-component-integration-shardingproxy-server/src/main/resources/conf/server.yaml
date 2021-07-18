@@ -21,6 +21,7 @@
 # 
 ######################################################################################################
 
+# Governance configuration.
 governance:
   name: shardingproxy
   overwrite: true
@@ -33,10 +34,12 @@ governance:
       maxRetries: 3
       operationTimeoutMilliseconds: 500
 
+# Scaling configration.
 #scaling:
 #  blockQueueSize: 
 #  workerThread: 
 
+# Global rules configuration.
 # @see:org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration#rules
 # @see:org.apache.shardingsphere.authority.yaml.config.YamlAuthorityRuleConfiguration
 rules:
@@ -48,6 +51,7 @@ rules:
     type: NATIVE
     #props:
 
+# Global properties configuration.
 props:
   max-connections-size-per-query: 1
   acceptor-size: 16  # The default value is available processors count * 2.
