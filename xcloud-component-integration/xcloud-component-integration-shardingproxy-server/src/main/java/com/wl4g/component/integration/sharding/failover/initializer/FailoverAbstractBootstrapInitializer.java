@@ -18,6 +18,7 @@
 package com.wl4g.component.integration.sharding.failover.initializer;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +30,8 @@ import javax.sql.DataSource;
 
 import org.apache.shardingsphere.db.protocol.mysql.constant.MySQLServerInfo;
 import org.apache.shardingsphere.db.protocol.postgresql.constant.PostgreSQLServerInfo;
+import org.apache.shardingsphere.infra.config.RuleConfiguration;
+import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
 import org.apache.shardingsphere.infra.config.datasource.DataSourceParameter;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataAwareEventSubscriber;
@@ -41,6 +44,7 @@ import org.apache.shardingsphere.proxy.backend.communication.jdbc.datasource.fac
 import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
 import org.apache.shardingsphere.proxy.config.ProxyConfiguration;
 import org.apache.shardingsphere.proxy.config.YamlProxyConfiguration;
+import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.database.DatabaseServerInfo;
 import org.apache.shardingsphere.proxy.frontend.ShardingSphereProxy;
 import org.apache.shardingsphere.proxy.initializer.BootstrapInitializer;
@@ -82,8 +86,10 @@ public abstract class FailoverAbstractBootstrapInitializer implements BootstrapI
         setDatabaseServerInfo();
         initScalingWorker(yamlConfig);
 
+        //
         // ADD for failover.
-        ProxyFailoverManager.getInstance().startAll();
+        //
+        ProxyFailoverManager.getInstance().init(this).startAll();
 
         shardingSphereProxy.start(port);
     }
@@ -167,4 +173,15 @@ public abstract class FailoverAbstractBootstrapInitializer implements BootstrapI
             String xaTransactionMangerType);
 
     protected abstract void initScalingWorker(YamlProxyConfiguration yamlConfig);
+
+    //
+    // ADD for failover
+    //
+
+    public abstract Map<String, DataSourceConfiguration> loadDataSourceConfigs(String schemaName);
+
+    public abstract Collection<RuleConfiguration> loadRuleConfigs(String schemaName);
+
+    public abstract void updateSchemaRuleConfiguration(Map<String, YamlProxyRuleConfiguration> schemaRuleConfigs);
+
 }

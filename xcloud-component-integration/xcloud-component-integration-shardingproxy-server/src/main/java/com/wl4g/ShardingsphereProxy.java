@@ -43,6 +43,10 @@ public final class ShardingsphereProxy {
         createBootstrapInitializer(yamlConfig).init(yamlConfig, bootstrapArgs.getPort());
     }
 
+    //
+    // ADD for failover.
+    //
+
     private static BootstrapInitializer createBootstrapInitializer(final YamlProxyConfiguration yamlConfig) {
         return null == yamlConfig.getServerConfiguration().getGovernance() ? new FailoverStandardBootstrapInitializer()
                 : new FailoverGovernanceBootstrapInitializer();

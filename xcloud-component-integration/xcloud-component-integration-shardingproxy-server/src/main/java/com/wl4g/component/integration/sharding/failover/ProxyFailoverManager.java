@@ -15,12 +15,27 @@
  */
 package com.wl4g.component.integration.sharding.failover;
 
+import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static java.lang.String.format;
+
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.shardingsphere.infra.database.type.DatabaseType;
+import org.apache.shardingsphere.infra.database.type.dialect.MariaDBDatabaseType;
+import org.apache.shardingsphere.infra.database.type.dialect.MySQLDatabaseType;
+import org.apache.shardingsphere.infra.database.type.dialect.OracleDatabaseType;
+import org.apache.shardingsphere.infra.database.type.dialect.PostgreSQLDatabaseType;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
+
+import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
-import com.wl4g.component.integration.sharding.failover.mysql.MySQLGroupReplicationProxyFailover;
-import com.wl4g.component.integration.sharding.failover.mysql.MySQLHAProxyFailover;
+import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
+import com.wl4g.component.integration.sharding.failover.mariadb.MariaDBProxyFailover;
+import com.wl4g.component.integration.sharding.failover.mysql.MySQL57GroupReplicationProxyFailover;
+import com.wl4g.component.integration.sharding.failover.oracle.OracleProxyFailover;
 import com.wl4g.component.integration.sharding.failover.postgresql.PostgresqlProxyFailover;
 
 /**
@@ -31,31 +46,66 @@ import com.wl4g.component.integration.sharding.failover.postgresql.PostgresqlPro
  * @since v1.0.0
  */
 public final class ProxyFailoverManager {
-
-    private final List<ProxyFailover<? extends NodeStats>> failovers = new Vector<>();
+    private final SmartLogger log = getLogger(getClass());
+    private final static List<ProxyFailover<? extends NodeStats>> failovers = new Vector<>(4);
 
     private ProxyFailoverManager() {
-        failovers.add(new MySQLGroupReplicationProxyFailover());
-        failovers.add(new MySQLHAProxyFailover());
-        failovers.add(new PostgresqlProxyFailover());
+    }
+
+    public ProxyFailoverManager init(FailoverAbstractBootstrapInitializer initializer) {
+        notNullOf(initializer, "initializer");
+        ProxyContext proxy = ProxyContext.getInstance();
+        for (String schemaName : proxy.getAllSchemaNames()) {
+            ShardingSphereMetaData metadata = proxy.getMetaData(schemaName);
+            DatabaseType databaseType = metadata.getResource().getDatabaseType();
+            if (databaseType instanceof MySQLDatabaseType) {
+                failovers.add(new MySQL57GroupReplicationProxyFailover(initializer, metadata));
+            } else if (databaseType instanceof PostgreSQLDatabaseType) {
+                failovers.add(new PostgresqlProxyFailover(initializer, metadata));
+            } else if (databaseType instanceof OracleDatabaseType) {
+                failovers.add(new OracleProxyFailover(initializer, metadata));
+            } else if (databaseType instanceof MariaDBDatabaseType) {
+                failovers.add(new MariaDBProxyFailover(initializer, metadata));
+            } else {
+                throw new UnsupportedOperationException(format("Not supported failover database type: %s", databaseType));
+            }
+        }
+        return this;
     }
 
     public void startAll() {
         for (ProxyFailover<? extends NodeStats> failover : failovers) {
-            failover.start();
+            try {
+                failover.start();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                stopAll();
+            }
+        });
     }
 
     public void stopAll() {
         for (ProxyFailover<? extends NodeStats> failover : failovers) {
-            failover.stop();
+            try {
+                failover.close();
+            } catch (Exception e) {
+                log.error("Failed to close proxyFailover: {}", failover);
+            }
         }
     }
 
     public static ProxyFailoverManager getInstance() {
-        return instance;
+        return SingletonHolder.INSTANCE;
     }
 
-    private static final ProxyFailoverManager instance = new ProxyFailoverManager();
+    private static class SingletonHolder {
+        private static final ProxyFailoverManager INSTANCE = new ProxyFailoverManager();
+    }
 
 }

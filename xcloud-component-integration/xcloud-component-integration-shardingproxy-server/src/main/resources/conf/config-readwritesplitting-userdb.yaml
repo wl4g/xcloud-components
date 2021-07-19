@@ -49,7 +49,7 @@ dataSources:
   userdb_g1db2:
     url: jdbc:mysql://127.0.0.1:3306/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
 
-# Proxy rule configuration.
+# Schema rule configuration.
 rules:
  - !READWRITE_SPLITTING
   dataSources:

@@ -17,9 +17,15 @@
 
 package com.wl4g.component.integration.sharding.failover.initializer;
 
+import java.util.Collection;
+import java.util.Map;
+
+import org.apache.shardingsphere.infra.config.RuleConfiguration;
+import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
 import org.apache.shardingsphere.proxy.config.ProxyConfiguration;
 import org.apache.shardingsphere.proxy.config.YamlProxyConfiguration;
+import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.config.yaml.swapper.YamlProxyConfigurationSwapper;
 import org.apache.shardingsphere.scaling.core.config.ScalingContext;
 import org.apache.shardingsphere.transaction.context.TransactionContexts;
@@ -50,4 +56,25 @@ public final class FailoverStandardBootstrapInitializer extends FailoverAbstract
         getScalingConfiguration(yamlConfig).ifPresent(optional -> ScalingContext.getInstance().init(optional));
     }
 
+    //
+    // ADD for failover
+    //
+
+    @Override
+    public void updateSchemaRuleConfiguration(Map<String, YamlProxyRuleConfiguration> schemaRuleConfigs) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Map<String, DataSourceConfiguration> loadDataSourceConfigs(String schemaName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Collection<RuleConfiguration> loadRuleConfigs(String schemaName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

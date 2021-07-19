@@ -19,24 +19,34 @@ import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 
 import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
-import com.wl4g.component.integration.sharding.failover.mysql.stats.MySQLHANodeStats;
+import com.wl4g.component.integration.sharding.failover.jdbc.JdbcOperator;
+import com.wl4g.component.integration.sharding.failover.mysql.stats.MySQL57GroupReplicationNodeStats;
+import com.wl4g.component.integration.sharding.failover.mysql.stats.MySQL57GroupReplicationNodeStats.MGRNodeInfo;
 
 /**
- * {@link MySQLHAProxyFailover}
+ * {@link MySQL57GroupReplicationProxyFailover}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
  * @version 2021-07-18 v1.0.0
  * @since v1.0.0
  */
-public class MySQLHAProxyFailover extends AbstractProxyFailover<MySQLHANodeStats> {
+public class MySQL57GroupReplicationProxyFailover extends AbstractProxyFailover<MySQL57GroupReplicationNodeStats> {
 
-    public MySQLHAProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
+    public MySQL57GroupReplicationProxyFailover(FailoverAbstractBootstrapInitializer initializer,
+            ShardingSphereMetaData metadata) {
         super(initializer, metadata);
     }
 
     @Override
-    public MySQLHANodeStats inspect() {
-        throw new UnsupportedOperationException();
+    public MySQL57GroupReplicationNodeStats inspect() throws Exception {
+        try (JdbcOperator operator = new JdbcOperator(getBackendSelectedNodeConnection())) {
+            MySQL57GroupReplicationNodeStats stats = new MySQL57GroupReplicationNodeStats(
+                    operator.findAllBean(MySQL57GroupReplicationNodeStats.SQL_MGR_MEMBERS, new Object[0], MGRNodeInfo.class));
+
+            stats.getNodeInfos();
+
+            return stats;
+        }
     }
 
 }

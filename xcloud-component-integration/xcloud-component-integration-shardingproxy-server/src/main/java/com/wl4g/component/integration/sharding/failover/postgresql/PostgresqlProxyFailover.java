@@ -15,7 +15,10 @@
  */
 package com.wl4g.component.integration.sharding.failover.postgresql;
 
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+
 import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
+import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
 import com.wl4g.component.integration.sharding.failover.postgresql.stats.PostgresqlNodeStats;
 
 /**
@@ -26,6 +29,10 @@ import com.wl4g.component.integration.sharding.failover.postgresql.stats.Postgre
  * @since v1.0.0
  */
 public class PostgresqlProxyFailover extends AbstractProxyFailover<PostgresqlNodeStats> {
+
+    public PostgresqlProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
+        super(initializer, metadata);
+    }
 
     @Override
     public PostgresqlNodeStats inspect() {

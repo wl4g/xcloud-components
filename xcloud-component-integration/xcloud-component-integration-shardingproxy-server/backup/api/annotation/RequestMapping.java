@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.integration.sharding.failover;
+package com.wl4g.component.integration.sharding.api.annotation;
 
-import java.io.Closeable;
-
-import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * {@link ProxyFailover}
+ * {@link RequestMapping}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2021-07-18 v1.0.0
+ * @version 2021-07-19 v1.0.0
  * @since v1.0.0
  */
-public interface ProxyFailover<S extends NodeStats> extends Closeable {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Documented
+public @interface RequestMapping {
 
-    void start() throws Exception;
-
-    S inspect() throws Exception;
-
-    @Getter
-    @Setter
-    public static abstract class NodeStats {
-    }
+    String path();
 
 }

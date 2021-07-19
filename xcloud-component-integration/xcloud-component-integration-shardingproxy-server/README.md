@@ -1,8 +1,8 @@
-## XCloud Component for Sharding Proxy Server
+# XCloud Component for Sharding Proxy Server
 > It's an enhanced package that integrates shardingsphere-proxy and shardingsphere-scaling
 
 
-#### Compile building
+## Compile building
 
 - Step1: First, building of `[shardingsphere](https://github.com/apache/shardingsphere)`
 
@@ -46,4 +46,43 @@ Startup classes:
 com.wl4g.ShardingsphereProxy4
 com.wl4g.ShardingsphereProxy5
 ```
+
+
+## Failover
+
+- `[MySQL5.7 Group Replication](https://dev.mysql.com/doc/refman/5.7/en/group-replication.html)` implementation theory
+
+```sql
+SELECT
+    rgm.CHANNEL_NAME,
+    rgm.MEMBER_ID,
+    rgm.MEMBER_HOST,
+    rgm.MEMBER_PORT,
+    rgm.MEMBER_STATE,
+    @@read_only AS READ_ONLY,
+    @@super_read_only AS SUPER_READ_ONLY,
+    ( CASE (SELECT VARIABLE_VALUE FROM `performance_schema`.`global_status` WHERE VARIABLE_NAME = 'group_replication_primary_member')
+      WHEN rgm.MEMBER_ID THEN 'PRIMARY'
+      ELSE 'SECONDARY' END
+    ) AS MEMBER_ROLE
+FROM
+    `performance_schema`.`replication_group_members` rgm
+
+```
+
+For example result:
+
+```table
+group_replication_applier  05e9eb4f-9dec-11eb-8b2e-c0b5d741e9d5  wanglsir-pro  13307 ONLINE  0  0  SECONDARY
+group_replication_applier  3d4ed671-9dec-11eb-9723-c0b5d741e9d5  wanglsir-pro  13308 ONLINE  0  0  SECONDARY
+group_replication_applier  eb838b34-9deb-11eb-8677-c0b5d741e9d5  wanglsir-pro  13306 ONLINE  0  0  PRIMARY
+```
+
+
+## FQA
+
+- Read write Split or sharding support different types of databases?
+
+> Under the same schemaName, multiple sharding databases must be the same. See source code: [org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData](https://github.com/apache/shardingsphere/blob/5.0.0-beta/shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/ShardingSphereMetaData.java#L35) and [org.apache.shardingsphere.infra.metadata.resource.ShardingSphereResource](https://github.com/apache/shardingsphere/blob/5.0.0-beta/shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/resource/ShardingSphereResource.java#L43)
+
 

@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.integration.sharding.failover.mysql;
+package com.wl4g.component.integration.sharding.failover.oracle;
 
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 
 import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
-import com.wl4g.component.integration.sharding.failover.mysql.stats.MySQLHANodeStats;
+import com.wl4g.component.integration.sharding.failover.oracle.stats.OracleNodeStats;
 
 /**
- * {@link MySQLHAProxyFailover}
+ * {@link OracleProxyFailover}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2021-07-18 v1.0.0
+ * @version 2021-07-19 v1.0.0
  * @since v1.0.0
  */
-public class MySQLHAProxyFailover extends AbstractProxyFailover<MySQLHANodeStats> {
+public class OracleProxyFailover extends AbstractProxyFailover<OracleNodeStats> {
 
-    public MySQLHAProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
+    public OracleProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
         super(initializer, metadata);
     }
 
     @Override
-    public MySQLHANodeStats inspect() {
+    public OracleNodeStats inspect() throws Exception {
         throw new UnsupportedOperationException();
     }
 

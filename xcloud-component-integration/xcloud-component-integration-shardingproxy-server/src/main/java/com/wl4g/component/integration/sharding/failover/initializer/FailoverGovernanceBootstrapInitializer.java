@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.shardingsphere.governance.context.metadata.GovernanceMetaDataContexts;
 import org.apache.shardingsphere.governance.context.transaction.GovernanceTransactionContexts;
 import org.apache.shardingsphere.governance.core.GovernanceFacade;
+import org.apache.shardingsphere.governance.core.registry.config.service.impl.SchemaRuleRegistryService;
 import org.apache.shardingsphere.governance.core.yaml.config.swapper.GovernanceConfigurationYamlSwapper;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
@@ -148,4 +149,25 @@ public final class FailoverGovernanceBootstrapInitializer extends FailoverAbstra
             ScalingWorker.init();
         }
     }
+
+    //
+    // ADD for failover
+    //
+
+    @Override
+    public Map<String, DataSourceConfiguration> loadDataSourceConfigs(String schemaName) {
+        return governanceFacade.getRegistryCenter().getDataSourceService().load(schemaName);
+    }
+
+    @Override
+    public Collection<RuleConfiguration> loadRuleConfigs(String schemaName) {
+        return governanceFacade.getRegistryCenter().getSchemaRuleService().load(schemaName);
+    }
+
+    @Override
+    public void updateSchemaRuleConfiguration(Map<String, YamlProxyRuleConfiguration> schemaRuleConfigs) {
+        SchemaRuleRegistryService schemaRuleService = governanceFacade.getRegistryCenter().getSchemaRuleService();
+        schemaRuleService.persist("", null);
+    }
+
 }

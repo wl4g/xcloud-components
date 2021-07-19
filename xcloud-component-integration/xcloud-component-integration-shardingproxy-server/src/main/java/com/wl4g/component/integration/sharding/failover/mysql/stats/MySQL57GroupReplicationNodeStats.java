@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MySQLGroupReplicationNodeStats extends NodeStats {
+public class MySQL57GroupReplicationNodeStats extends NodeStats {
     public static final String SQL_MGR_MEMBERS = "SELECT rgm.*, @@read_only AS READ_ONLY, @@super_read_only AS SUPER_READ_ONLY, (CASE @@super_read_only WHEN 0 THEN 'PRIMARY' ELSE 'SECONDARY' END) AS MEMBER_ROLE FROM `performance_schema`.`replication_group_members` rgm";
 
     private List<MGRNodeInfo> nodeInfos;

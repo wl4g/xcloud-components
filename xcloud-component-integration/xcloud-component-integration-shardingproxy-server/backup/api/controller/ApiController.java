@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wl4g.component.integration.sharding.failover.mysql;
+package com.wl4g.component.integration.sharding.api.controller;
 
-import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
-import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
+import com.wl4g.component.integration.sharding.api.annotation.RequestMapping;
 
 /**
- * {@link MySQLProxyFailover}
+ * {@link ApiController}
  * 
  * @author Wangl.sir &lt;wanglsir@gmail.com, 983708408@qq.com&gt;
- * @version 2021-07-18 v1.0.0
+ * @version 2021-07-19 v1.0.0
  * @since v1.0.0
  */
-public abstract class MySQLProxyFailover<S extends NodeStats> extends AbstractProxyFailover<S> {
+@RequestMapping(path = "/api")
+public class ApiController {
 
 }

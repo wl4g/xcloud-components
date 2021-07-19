@@ -15,8 +15,12 @@
  */
 package com.wl4g.component.common.task;
 
-import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.common.task.SafeScheduledTaskPoolExecutor;
+import static com.wl4g.component.common.lang.Assert2.notNull;
+import static com.wl4g.component.common.lang.Assert2.state;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -24,12 +28,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.wl4g.component.common.lang.Assert2.notNull;
-import static com.wl4g.component.common.lang.Assert2.state;
-import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import com.wl4g.component.common.log.SmartLogger;
 
 /**
  * Generic local scheduler & task runner.
@@ -44,212 +43,212 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public abstract class GenericTaskRunner<C extends RunnerProperties> implements Closeable, Runnable {
 
-	final protected SmartLogger log = getLogger(getClass());
+    protected final SmartLogger log = getLogger(getClass());
 
-	/** Running state. */
-	final private AtomicBoolean running = new AtomicBoolean(false);
+    /** Running state. */
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
-	/** Runner task properties configuration. */
-	final private C configProperties;
+    /** Runner task properties configuration. */
+    private final C configProperties;
 
-	/** Runner boss thread. */
-	private Thread boss;
+    /** Runner master thread. */
+    private Thread header;
 
-	/** Runner worker thread group pool. */
-	private SafeScheduledTaskPoolExecutor worker;
+    /** Runner worker thread group pool. */
+    private SafeScheduledTaskPoolExecutor worker;
 
-	@SuppressWarnings("unchecked")
-	public GenericTaskRunner() {
-		this((C) new RunnerProperties());
-	}
+    @SuppressWarnings("unchecked")
+    public GenericTaskRunner() {
+        this((C) new RunnerProperties());
+    }
 
-	public GenericTaskRunner(C config) {
-		notNull(config, "GenericTaskRunner properties can't null");
-		this.configProperties = config;
-	}
+    public GenericTaskRunner(C config) {
+        notNull(config, "GenericTaskRunner properties can't null");
+        this.configProperties = config;
+    }
 
-	@Override
-	public void run() {
-		// Ignore
-	}
+    @Override
+    public void run() {
+        // Ignore
+    }
 
-	/**
-	 * Note: It is recommended to use the {@link AtomicBoolean} mechanism to
-	 * avoid using synchronized. </br>
-	 * Error example:
-	 * 
-	 * <pre>
-	 * public abstract class ParentClass implements Closeable, Runnable {
-	 * 	public synchronized void close() {
-	 * 		// Some close or release ...
-	 * 	}
-	 * }
-	 * 
-	 * public class SubClass extends ParentClass {
-	 * 	public synchronized void run() {
-	 * 		// Long-time jobs ...
-	 * 
-	 * 		// For example:
-	 * 		// while(true) {
-	 * 		// ...
-	 * 		// }
-	 * 	}
-	 * }
-	 * </pre>
-	 * 
-	 * At this time, it may lead to deadlock, because SubClass.run() has not
-	 * been executed and is not locked, resulting in the call to
-	 * ParentClass.close() always waiting. </br>
-	 * </br>
-	 */
-	@Override
-	public void close() throws IOException {
-		if (running.compareAndSet(true, false)) {
-			// Call pre close
-			preCloseProperties();
+    /**
+     * Note: It is recommended to use the {@link AtomicBoolean} mechanism to
+     * avoid using synchronized. </br>
+     * Error example:
+     * 
+     * <pre>
+     * public abstract class ParentClass implements Closeable, Runnable {
+     *     public synchronized void close() {
+     *         // Some close or release ...
+     *     }
+     * }
+     * 
+     * public class SubClass extends ParentClass {
+     *     public synchronized void run() {
+     *         // Long-time jobs ...
+     * 
+     *         // For example:
+     *         // while(true) {
+     *         // ...
+     *         // }
+     *     }
+     * }
+     * </pre>
+     * 
+     * At this time, it may lead to deadlock, because SubClass.run() has not
+     * been executed and is not locked, resulting in the call to
+     * ParentClass.close() always waiting. </br>
+     * </br>
+     */
+    @Override
+    public void close() throws IOException {
+        if (running.compareAndSet(true, false)) {
+            // Call pre close
+            preCloseProperties();
 
-			// Close for thread pool worker.
-			if (!isNull(worker)) {
-				try {
-					worker.shutdown();
-					worker = null;
-				} catch (Exception e) {
-					log.error("Runner worker shutdown failed!", e);
-				}
-			}
+            // Close for thread pool worker.
+            if (!isNull(worker)) {
+                try {
+                    worker.shutdown();
+                    worker = null;
+                } catch (Exception e) {
+                    log.error("Runner worker shutdown failed!", e);
+                }
+            }
 
-			// Close for thread-boss.
-			try {
-				if (!isNull(boss)) {
-					boss.interrupt();
-					boss = null;
-				}
-			} catch (Exception e) {
-				log.error("Runner boss interrupt failed!", e);
-			}
+            // Close for thread-boss.
+            try {
+                if (!isNull(header)) {
+                    header.interrupt();
+                    header = null;
+                }
+            } catch (Exception e) {
+                log.error("Runner boss interrupt failed!", e);
+            }
 
-			// Call post close
-			postCloseProperties();
-		}
-	}
+            // Call post close
+            postCloseProperties();
+        }
+    }
 
-	/**
-	 * Auto initialization on startup.
-	 * 
-	 * @throws Exception
-	 */
-	public void start() throws Exception {
-		if (running.compareAndSet(false, true)) {
-			// Call PreStartup
-			preStartupProperties();
+    /**
+     * Auto initialization on startup.
+     * 
+     * @throws Exception
+     */
+    public void start() throws Exception {
+        if (running.compareAndSet(false, true)) {
+            // Call PreStartup
+            preStartupProperties();
 
-			// Create worker(if necessary)
-			if (configProperties.getConcurrency() > 0) {
-				// See:https://www.jianshu.com/p/e7ab1ac8eb4c
-				ThreadFactory tf = new NamedThreadFactory(getClass().getSimpleName().concat("-worker"));
-				worker = new SafeScheduledTaskPoolExecutor(configProperties.getConcurrency(), configProperties.getKeepAliveTime(),
-						tf, configProperties.getAcceptQueue(), configProperties.getReject());
-			} else {
-				log.warn("No start threads worker, because the number of workthreads is less than 0");
-			}
+            // Create worker(if necessary)
+            if (configProperties.getConcurrency() > 0) {
+                // See:https://www.jianshu.com/p/e7ab1ac8eb4c
+                ThreadFactory tf = new NamedThreadFactory(getClass().getSimpleName().concat("-worker"));
+                worker = new SafeScheduledTaskPoolExecutor(configProperties.getConcurrency(), configProperties.getKeepAliveTime(),
+                        tf, configProperties.getAcceptQueue(), configProperties.getReject());
+            } else {
+                log.warn("No start threads worker, because the number of workthreads is less than 0");
+            }
 
-			// Boss asynchronously execution.(if necessary)
-			if (configProperties.isAsyncStartup()) {
-				boss = new NamedThreadFactory(getClass().getSimpleName().concat("-boss")).newThread(this);
-				boss.start();
-			} else {
-				run(); // Sync execution.
-			}
+            // Boss asynchronously execution.(if necessary)
+            if (configProperties.isAsyncStartup()) {
+                header = new NamedThreadFactory(getClass().getSimpleName().concat("-header")).newThread(this);
+                header.start();
+            } else {
+                run(); // Sync execution.
+            }
 
-			// Call post startup
-			postStartupProperties();
-		} else {
-			log.warn("Could not startup runner! because already builders are read-only and do not allow task modification");
-		}
-	}
+            // Call post startup
+            postStartupProperties();
+        } else {
+            log.warn("Could not startup runner! because already builders are read-only and do not allow task modification");
+        }
+    }
 
-	/**
-	 * Gets configuration properties.
-	 * 
-	 * @return
-	 */
-	protected C getConfig() {
-		return configProperties;
-	}
+    /**
+     * Gets configuration properties.
+     * 
+     * @return
+     */
+    protected C getConfig() {
+        return configProperties;
+    }
 
-	/**
-	 * Pre startup properties
-	 */
-	protected void preStartupProperties() throws Exception {
-		// Ignore
-	}
+    /**
+     * Pre startup properties
+     */
+    protected void preStartupProperties() throws Exception {
+        // Ignore
+    }
 
-	/**
-	 * Post startup properties
-	 */
-	protected void postStartupProperties() throws Exception {
-		// Ignore
-	}
+    /**
+     * Post startup properties
+     */
+    protected void postStartupProperties() throws Exception {
+        // Ignore
+    }
 
-	/**
-	 * Pre close properties
-	 */
-	protected void preCloseProperties() throws IOException {
-		// Ignore
-	}
+    /**
+     * Pre close properties
+     */
+    protected void preCloseProperties() throws IOException {
+        // Ignore
+    }
 
-	/**
-	 * Post close properties
-	 */
-	protected void postCloseProperties() throws IOException {
-		// Ignore
-	}
+    /**
+     * Post close properties
+     */
+    protected void postCloseProperties() throws IOException {
+        // Ignore
+    }
 
-	/**
-	 * Is the current runner active.
-	 * 
-	 * @return
-	 */
-	protected boolean isActive() {
-		return nonNull(boss) && !boss.isInterrupted() && running.get();
-	}
+    /**
+     * Is the current runner active.
+     * 
+     * @return
+     */
+    protected boolean isActive() {
+        return nonNull(header) && !header.isInterrupted() && running.get();
+    }
 
-	/**
-	 * Thread pool executor worker.
-	 * 
-	 * @return
-	 */
-	public SafeScheduledTaskPoolExecutor getWorker() {
-		state(nonNull(worker), "Worker thread group is not enabled and can be enabled with concurrency >0");
-		return worker;
-	}
+    /**
+     * Thread pool executor worker.
+     * 
+     * @return
+     */
+    public SafeScheduledTaskPoolExecutor getWorker() {
+        state(nonNull(worker), "Worker thread group is not enabled and can be enabled with concurrency >0");
+        return worker;
+    }
 
-	/**
-	 * The named thread factory
-	 */
-	private class NamedThreadFactory implements ThreadFactory {
-		private final AtomicInteger threads = new AtomicInteger(1);
-		private final ThreadGroup group;
-		private final String prefix;
+    /**
+     * The named thread factory
+     */
+    private class NamedThreadFactory implements ThreadFactory {
+        private final AtomicInteger threads = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final String prefix;
 
-		NamedThreadFactory(String prefix) {
-			SecurityManager s = System.getSecurityManager();
-			this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-			if (isBlank(prefix)) {
-				prefix = GenericTaskRunner.class.getSimpleName() + "-default";
-			}
-			this.prefix = prefix;
-		}
+        NamedThreadFactory(String prefix) {
+            SecurityManager s = System.getSecurityManager();
+            this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            if (isBlank(prefix)) {
+                prefix = GenericTaskRunner.class.getSimpleName() + "-default";
+            }
+            this.prefix = prefix;
+        }
 
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(group, r, prefix + "-" + threads.getAndIncrement(), 0);
-			if (t.isDaemon())
-				t.setDaemon(false);
-			if (t.getPriority() != Thread.NORM_PRIORITY)
-				t.setPriority(Thread.NORM_PRIORITY);
-			return t;
-		}
-	}
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r, prefix + "-" + threads.getAndIncrement(), 0);
+            if (t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    }
 
 }

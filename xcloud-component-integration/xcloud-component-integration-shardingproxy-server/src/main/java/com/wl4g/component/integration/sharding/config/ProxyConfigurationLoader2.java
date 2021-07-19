@@ -111,14 +111,13 @@ public final class ProxyConfigurationLoader2 {
         }
         Preconditions.checkNotNull(result.getSchemaName(), "Property `schemaName` in file `%s` is required.", yamlFile.getName());
 
-        //
-        // ADD for override merge to default dataSource.
-        //
-
         // if (result.getDataSources().isEmpty()&&null!=result.getDataSource()){
         // result.getDataSources().put(DEFAULT_DATASOURCE_NAME,result.getDataSource());
         // }
 
+        //
+        // ADD for merge from default dataSource configuration.
+        //
         YamlDataSourceParameter defaultDS = result.getDataSource();
         if (nonNull(defaultDS)) {
             result.getDataSources().forEach((name, ds) -> {
