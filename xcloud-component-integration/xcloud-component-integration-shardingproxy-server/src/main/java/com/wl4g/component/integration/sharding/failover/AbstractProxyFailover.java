@@ -176,7 +176,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
      * @see https://shardingsphere.apache.org/document/current/cn/features/governance/management/registry-center/#metadataschemenamedatasources
      */
     protected void changeReadwriteSplititingConfiguration(String newPrimaryDataSourceName) {
-        List<ReadwriteSplittingRuleConfiguration> newReadwriteSplittingRuleConfigs = new ArrayList<>(4);
+        List<ReadwriteSplittingRuleConfiguration> newReadwriteSplittingRuleConfigs = new ArrayList<>(2);
 
         Collection<RuleConfiguration> ruleConfigs = initializer.loadRuleConfigs(getSchemaName());
         for (RuleConfiguration ruleConfig : safeList(ruleConfigs)) {
@@ -185,8 +185,6 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
 
                 // New build read-write-splitting dataSources.
                 List<ReadwriteSplittingDataSourceRuleConfiguration> newRwDataSources = new ArrayList<>(4);
-                newReadwriteSplittingRuleConfigs
-                        .add(new ReadwriteSplittingRuleConfiguration(newRwDataSources, rwRuleConfig.getLoadBalancers()));
 
                 for (ReadwriteSplittingDataSourceRuleConfiguration rwDataSource : safeList(rwRuleConfig.getDataSources())) {
                     // Check dataNodes primary changed?
@@ -206,6 +204,11 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                                 "Skiping change readWriteSplitting, becuase primaryDataSourceName it's up to date. {}, actualSchemaName: {}, schemaName: {}",
                                 oldPrimaryDataSourceName, rwDataSource.getName(), getSchemaName());
                     }
+                }
+
+                if (!newRwDataSources.isEmpty()) {
+                    newReadwriteSplittingRuleConfigs
+                            .add(new ReadwriteSplittingRuleConfiguration(newRwDataSources, rwRuleConfig.getLoadBalancers()));
                 }
             }
         }
