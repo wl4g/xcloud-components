@@ -35,7 +35,7 @@ import lombok.NoArgsConstructor;
  * ShardingSphere-Proxy Bootstrap.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShardingsphereProxy {
+public final class ShardingProxy {
 
     public static void main(final String[] args) throws IOException, SQLException {
         BootstrapArguments bootstrapArgs = new BootstrapArguments(args);
@@ -43,11 +43,10 @@ public final class ShardingsphereProxy {
         createBootstrapInitializer(yamlConfig).init(yamlConfig, bootstrapArgs.getPort());
     }
 
-    //
-    // ADD for failover.
-    //
-
     private static BootstrapInitializer createBootstrapInitializer(final YamlProxyConfiguration yamlConfig) {
+        //
+        // ADD for failover.
+        //
         return null == yamlConfig.getServerConfiguration().getGovernance() ? new FailoverStandardBootstrapInitializer()
                 : new FailoverGovernanceBootstrapInitializer();
     }

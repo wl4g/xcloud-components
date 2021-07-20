@@ -16,6 +16,7 @@
 package com.wl4g.component.integration.sharding.failover;
 
 import java.io.Closeable;
+import java.util.List;
 
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
 
@@ -38,6 +39,20 @@ public interface ProxyFailover<S extends NodeStats> extends Closeable {
     @Getter
     @Setter
     public static abstract class NodeStats {
+        public abstract List<? extends NodeInfo> getPrimaryNodes();
+
+        public abstract List<? extends NodeInfo> getStandbyNodes();
+
+        @Getter
+        @Setter
+        public static abstract class NodeInfo {
+            public abstract String getNodeId();
+
+            public abstract String getHost();
+
+            public abstract int getPort();
+        }
+
     }
 
 }

@@ -54,12 +54,17 @@ public final class ProxyFailoverManager {
 
     public ProxyFailoverManager init(FailoverAbstractBootstrapInitializer initializer) {
         notNullOf(initializer, "initializer");
+
         ProxyContext proxy = ProxyContext.getInstance();
         for (String schemaName : proxy.getAllSchemaNames()) {
             ShardingSphereMetaData metadata = proxy.getMetaData(schemaName);
             DatabaseType databaseType = metadata.getResource().getDatabaseType();
+            // CachedDatabaseMetaData
+            // cachedMetaData=metadata.getResource().getCachedDatabaseMetaData();
             if (databaseType instanceof MySQLDatabaseType) {
+                // if(cachedMetaData.getDatabaseProductVersion().equalsIgnoreCase("5.7.28-log")){
                 failovers.add(new MySQL57GroupReplicationProxyFailover(initializer, metadata));
+                // }
             } else if (databaseType instanceof PostgreSQLDatabaseType) {
                 failovers.add(new PostgresqlProxyFailover(initializer, metadata));
             } else if (databaseType instanceof OracleDatabaseType) {
@@ -104,7 +109,7 @@ public final class ProxyFailoverManager {
         return SingletonHolder.INSTANCE;
     }
 
-    private static class SingletonHolder {
+    private static final class SingletonHolder {
         private static final ProxyFailoverManager INSTANCE = new ProxyFailoverManager();
     }
 

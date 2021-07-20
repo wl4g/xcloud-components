@@ -54,28 +54,28 @@ com.wl4g.ShardingsphereProxy5
 
 ```sql
 SELECT
-    rgm.CHANNEL_NAME,
-    rgm.MEMBER_ID,
-    rgm.MEMBER_HOST,
-    rgm.MEMBER_PORT,
-    rgm.MEMBER_STATE,
-    @@read_only AS READ_ONLY,
-    @@super_read_only AS SUPER_READ_ONLY,
-    ( CASE (SELECT VARIABLE_VALUE FROM `performance_schema`.`global_status` WHERE VARIABLE_NAME = 'group_replication_primary_member')
+    rgm.CHANNEL_NAME AS channelName,
+    rgm.MEMBER_ID AS nodeId,
+    rgm.MEMBER_HOST AS nodeHost,
+    rgm.MEMBER_PORT AS nodePort,
+    rgm.MEMBER_STATE AS nodeState,
+    @@read_only AS readOnly,
+    @@super_read_only AS superReadOnly,(
+    CASE (SELECT TRIM(VARIABLE_VALUE) FROM `performance_schema`.`global_status` WHERE VARIABLE_NAME = 'group_replication_primary_member')
+      WHEN '' THEN 'UNKOWN'
       WHEN rgm.MEMBER_ID THEN 'PRIMARY'
-      ELSE 'SECONDARY' END
-    ) AS MEMBER_ROLE
+      ELSE 'STANDBY' END
+    ) AS nodeRole
 FROM
     `performance_schema`.`replication_group_members` rgm
-
 ```
 
 For example result:
 
 ```table
-group_replication_applier  05e9eb4f-9dec-11eb-8b2e-c0b5d741e9d5  wanglsir-pro  13307 ONLINE  0  0  SECONDARY
-group_replication_applier  3d4ed671-9dec-11eb-9723-c0b5d741e9d5  wanglsir-pro  13308 ONLINE  0  0  SECONDARY
 group_replication_applier  eb838b34-9deb-11eb-8677-c0b5d741e9d5  wanglsir-pro  13306 ONLINE  0  0  PRIMARY
+group_replication_applier  05e9eb4f-9dec-11eb-8b2e-c0b5d741e9d5  wanglsir-pro  13307 ONLINE  0  0  STANDBY
+group_replication_applier  3d4ed671-9dec-11eb-9723-c0b5d741e9d5  wanglsir-pro  13308 ONLINE  0  0  STANDBY
 ```
 
 

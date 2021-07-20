@@ -18,13 +18,17 @@ package com.wl4g.component.integration.sharding.failover;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.lang.Assert2.state;
+import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.net.URI;
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +38,6 @@ import javax.sql.DataSource;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
-import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
 import org.apache.shardingsphere.readwritesplitting.api.ReadwriteSplittingRuleConfiguration;
 import org.apache.shardingsphere.readwritesplitting.api.rule.ReadwriteSplittingDataSourceRuleConfiguration;
 
@@ -42,7 +45,12 @@ import com.wl4g.component.common.lang.StringUtils2;
 import com.wl4g.component.common.task.GenericTaskRunner;
 import com.wl4g.component.common.task.RunnerProperties;
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
+import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats.NodeInfo;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
+import com.wl4g.component.integration.sharding.util.HostUtil;
+import com.wl4g.component.integration.sharding.util.JdbcUtil;
+import com.wl4g.component.integration.sharding.util.JdbcUtil.JdbcInformation;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * {@link AbstractProxyFailover}
@@ -53,8 +61,10 @@ import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbst
  */
 public abstract class AbstractProxyFailover<S extends NodeStats> extends GenericTaskRunner<RunnerProperties>
         implements ProxyFailover<S> {
+
     protected final FailoverAbstractBootstrapInitializer initializer;
     protected final ShardingSphereMetaData metadata;
+    private DataSource cachingAdminDataSource;
 
     public AbstractProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
         super(new RunnerProperties(true).withConcurrency(1));
@@ -64,76 +74,167 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
 
     @Override
     protected void postStartupProperties() throws Exception {
-        getWorker().scheduleWithRandomDelay(this, 6_000L, 6_000L, 20_000L, TimeUnit.MILLISECONDS);
+        getWorker().scheduleWithRandomDelay(this, 6_000L, 6_000L, 10_000L, TimeUnit.MILLISECONDS);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         try {
             S result = inspect();
-            System.out.println(result);
+            log.debug("Inspect result information: {}", () -> toJSONString(result));
+
+            // TODO
+            // Selection new primary node.
+            NodeInfo newPrimaryNode = result.getPrimaryNodes().get(0);
+
+            // TODO
+            // Transform database host/port to external(loadBalancer) host/port.
+
+            changeReadwriteSplititingConfiguration(
+                    findMatchingDataSourceName(newPrimaryNode.getHost(), newPrimaryNode.getPort()));
+
         } catch (Exception e) {
             log.error("Failed to failover inspecting.", e);
         }
     }
 
-    protected Connection getBackendSelectedNodeConnection() throws SQLException {
-        for (Entry<String, DataSource> ent : metadata.getResource().getDataSources().entrySet()) {
-            String dataSourceName = ent.getKey();
+    protected DataSource getSelectedBackendNodeAdminDataSource() throws SQLException {
+        if (nonNull(cachingAdminDataSource)) {
+            // Detecting & checking dataSource active?
             try {
-                return ProxyContext.getInstance().getBackendDataSource().getConnection(metadata.getName(), dataSourceName);
+                cachingAdminDataSource.getConnection().close();
+                return cachingAdminDataSource;
             } catch (SQLException e) {
-                log.warn("Unable get backend connection of dataSourceName: {}", dataSourceName);
+                log.warn("Deaded caching dataSource: {}, reason: ", cachingAdminDataSource, e.getMessage());
+                cachingAdminDataSource = null; // reset
             }
         }
-        throw new SQLException(format("Unable get backend connection"));
+
+        log.info("Trying build next admin dataSource ...");
+
+        for (Entry<String, DataSource> ent : metadata.getResource().getDataSources().entrySet()) {
+            String dataSourceName = ent.getKey();
+            DataSource dataSource = ent.getValue();
+            try {
+                // Find backend node business dataSource jdbcUrl.
+                String jdbcUrl = null;
+                if (dataSource instanceof HikariDataSource) {
+                    jdbcUrl = ((HikariDataSource) dataSource).getJdbcUrl();
+                } else {
+                    throw new UnsupportedOperationException(format("No supported dataSource type. %s", dataSource.getClass()));
+                }
+                state(!isBlank(jdbcUrl), "Unable get backend node admin dataSource jdbcUrl.");
+
+                // Build backend node admin connection.
+                HikariDataSource adminDataSource = new HikariDataSource();
+                adminDataSource.setConnectionTimeout(10_000L);
+                adminDataSource.setMaximumPoolSize(2);
+                adminDataSource.setMinimumIdle(1);
+                adminDataSource.setIdleTimeout(6_000L);
+                adminDataSource.setMaxLifetime(180_000L);
+
+                JdbcInformation info = JdbcUtil.resolve(jdbcUrl);
+                decorateAdminBackendDataSource(dataSourceName, info.getHost(), info.getPort(), adminDataSource);
+                return (cachingAdminDataSource = adminDataSource);
+            } catch (Exception e) {
+                log.warn("Cannot build backend connection of dataSourceName: {}", dataSourceName);
+            }
+        }
+
+        throw new SQLException(
+                format("Failed to build backend connection. metadata dataSources: %s", metadata.getResource().getDataSources()));
+    }
+
+    protected abstract void decorateAdminBackendDataSource(String ruleDataSourceName, String ruleDataSourceJdbcHost,
+            int ruldDataSourceJdbcPort, HikariDataSource adminDataSource);
+
+    /**
+     * Find match configuration dataSource name by host and port.
+     * 
+     * @param host
+     * @param port
+     * @return
+     */
+    protected String findMatchingDataSourceName(String host, int port) {
+        Map<String, DataSourceConfiguration> dataSourceConfigs = initializer.loadDataSourceConfigs(getSchemaName());
+        for (Entry<String, DataSourceConfiguration> ent : safeMap(dataSourceConfigs).entrySet()) {
+            String jdbcUrl = valueOf(ent.getValue().getProps().get("jdbcUrl"));
+
+            JdbcInformation info = JdbcUtil.resolve(jdbcUrl);
+            if (info.getPort() == port && HostUtil.isSameHost(info.getHost(), host)) {
+                return ent.getKey(); // Define dataSource name.
+            }
+        }
+        throw new IllegalStateException(format("No found dataSource name by host: %s, port: %s", host, port));
     }
 
     /**
      * Changing read write splitting configuration.(if necessary)
      * 
+     * @param newPrimaryDataSourceName
      * @see https://shardingsphere.apache.org/document/current/cn/features/governance/management/registry-center/#metadataschemenamedatasources
      */
-    protected void changeReadWriteSplititingConfiguration(String newPrimaryDataSourceName) {
-        // Check dataNodes primary changed?
-        Collection<RuleConfiguration> ruleConfigs = initializer.loadRuleConfigs(metadata.getName());
+    protected void changeReadwriteSplititingConfiguration(String newPrimaryDataSourceName) {
+        List<ReadwriteSplittingRuleConfiguration> newReadwriteSplittingRuleConfigs = new ArrayList<>(4);
+
+        Collection<RuleConfiguration> ruleConfigs = initializer.loadRuleConfigs(getSchemaName());
         for (RuleConfiguration ruleConfig : safeList(ruleConfigs)) {
             if (ruleConfig instanceof ReadwriteSplittingRuleConfiguration) {
                 ReadwriteSplittingRuleConfiguration rwRuleConfig = (ReadwriteSplittingRuleConfiguration) ruleConfig;
-                for (ReadwriteSplittingDataSourceRuleConfiguration dataSourceRuleConfig : safeList(
-                        rwRuleConfig.getDataSources())) {
-                    String oldPrimaryDataSourceName = dataSourceRuleConfig.getWriteDataSourceName();
+
+                // New build read-write-splitting dataSources.
+                List<ReadwriteSplittingDataSourceRuleConfiguration> newRwDataSources = new ArrayList<>(4);
+                newReadwriteSplittingRuleConfigs
+                        .add(new ReadwriteSplittingRuleConfiguration(newRwDataSources, rwRuleConfig.getLoadBalancers()));
+
+                for (ReadwriteSplittingDataSourceRuleConfiguration rwDataSource : safeList(rwRuleConfig.getDataSources())) {
+                    // Check dataNodes primary changed?
+                    String oldPrimaryDataSourceName = rwDataSource.getWriteDataSourceName();
                     if (!StringUtils2.equals(oldPrimaryDataSourceName, newPrimaryDataSourceName)) {
                         log.info(
                                 "Changing readWriteSplitting old primaryDataSourceName: {} to new primaryDataSourceName: {}, actualSchemaName: {}, schemaName: {}",
-                                oldPrimaryDataSourceName, newPrimaryDataSourceName, dataSourceRuleConfig.getName(),
-                                metadata.getName());
-                        doChangeReadWriteSplittingRuleConfiguration();
+                                oldPrimaryDataSourceName, newPrimaryDataSourceName, rwDataSource.getName(), getSchemaName());
+
+                        // New build read-write-splitting dataSource.
+                        ReadwriteSplittingDataSourceRuleConfiguration newRwDataSource = new ReadwriteSplittingDataSourceRuleConfiguration(
+                                rwDataSource.getName(), rwDataSource.getAutoAwareDataSourceName(), newPrimaryDataSourceName, null,
+                                rwDataSource.getLoadBalancerName());
+                        newRwDataSources.add(newRwDataSource);
                     } else {
                         log.info(
-                                "Skip change readWriteSplitting, becuase primaryDataSourceName it's up to date. {}, actualSchemaName: {}, schemaName: {}",
-                                oldPrimaryDataSourceName, dataSourceRuleConfig.getName(), metadata.getName());
+                                "Skiping change readWriteSplitting, becuase primaryDataSourceName it's up to date. {}, actualSchemaName: {}, schemaName: {}",
+                                oldPrimaryDataSourceName, rwDataSource.getName(), getSchemaName());
                     }
                 }
             }
         }
-    }
 
-    protected String findMatchingDataSourceName(String host, int port) {
-        Map<String, DataSourceConfiguration> dataSourceConfigs = initializer.loadDataSourceConfigs(metadata.getName());
-        for (Entry<String, DataSourceConfiguration> ent : safeMap(dataSourceConfigs).entrySet()) {
-            String url = valueOf(ent.getValue().getProps().get("url"));
-            // e.g:jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-            URI uri = URI.create(url);
-            if (StringUtils2.equals(uri.getHost(), host) && uri.getPort() == port) {
-                return ent.getKey(); // Define dataSource name.
-            }
+        if (!newReadwriteSplittingRuleConfigs.isEmpty()) {
+            doChangeReadwriteSplittingRuleConfiguration(newReadwriteSplittingRuleConfigs);
         }
-        throw new IllegalStateException(format("Not found dataSource name by host: %s, port: %s", host, port));
     }
 
-    protected void doChangeReadWriteSplittingRuleConfiguration() {
-        initializer.updateSchemaRuleConfiguration(null);
+    /**
+     * Do changing readWriteSplitting rule configuration.
+     * 
+     * @param newReadWriteSplittingRuleConfigs
+     */
+    protected void doChangeReadwriteSplittingRuleConfiguration(
+            List<ReadwriteSplittingRuleConfiguration> newReadWriteSplittingRuleConfigs) {
+        initializer.updateSchemaRuleConfiguration(getSchemaName(), newReadWriteSplittingRuleConfigs);
+    }
+
+    /**
+     * Gets the schema name of the target to be processed by the current
+     * failover.
+     * 
+     * Notes: a failover instance is responsible for monitoring a schema.
+     * 
+     * @return
+     */
+    protected String getSchemaName() {
+        return metadata.getName();
     }
 
 }

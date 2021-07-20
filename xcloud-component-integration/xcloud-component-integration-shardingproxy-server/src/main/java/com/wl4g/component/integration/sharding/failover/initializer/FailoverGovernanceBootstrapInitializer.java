@@ -17,6 +17,9 @@
 
 package com.wl4g.component.integration.sharding.failover.initializer;
 
+import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -165,9 +168,9 @@ public final class FailoverGovernanceBootstrapInitializer extends FailoverAbstra
     }
 
     @Override
-    public void updateSchemaRuleConfiguration(Map<String, YamlProxyRuleConfiguration> schemaRuleConfigs) {
+    public void updateSchemaRuleConfiguration(String schemaName, Collection<? extends RuleConfiguration> schemaRuleConfigs) {
         SchemaRuleRegistryService schemaRuleService = governanceFacade.getRegistryCenter().getSchemaRuleService();
-        schemaRuleService.persist("", null);
+        schemaRuleService.persist(schemaName, safeList(schemaRuleConfigs).stream().map(c -> c).collect(toList()));
     }
 
 }

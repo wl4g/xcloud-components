@@ -44,7 +44,6 @@ import org.apache.shardingsphere.proxy.backend.communication.jdbc.datasource.fac
 import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
 import org.apache.shardingsphere.proxy.config.ProxyConfiguration;
 import org.apache.shardingsphere.proxy.config.YamlProxyConfiguration;
-import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.database.DatabaseServerInfo;
 import org.apache.shardingsphere.proxy.frontend.ShardingSphereProxy;
 import org.apache.shardingsphere.proxy.initializer.BootstrapInitializer;
@@ -182,6 +181,7 @@ public abstract class FailoverAbstractBootstrapInitializer implements BootstrapI
 
     public abstract Collection<RuleConfiguration> loadRuleConfigs(String schemaName);
 
-    public abstract void updateSchemaRuleConfiguration(Map<String, YamlProxyRuleConfiguration> schemaRuleConfigs);
+    public abstract void updateSchemaRuleConfiguration(String schemaName,
+            Collection<? extends RuleConfiguration> schemaRuleConfigs);
 
 }

@@ -16,14 +16,20 @@
 package com.wl4g.component.integration.sharding.failover.jdbc;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
+import static com.wl4g.component.common.reflect.ReflectionUtils2.makeAccessible;
 import static java.util.Objects.nonNull;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.GenerousBeanProcessor;
@@ -44,10 +50,10 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
  */
 public class JdbcOperator implements Closeable {
 
-    private Connection connection;
+    private DataSource dataSource;
 
-    public JdbcOperator(Connection connection) {
-        this.connection = notNullOf(connection, "connection");
+    public JdbcOperator(DataSource dataSource) {
+        this.dataSource = notNullOf(dataSource, "dataSource");
     }
 
     public Map<String, Object> findOneMap(String sql, Object[] params) throws SQLException {
@@ -118,18 +124,21 @@ public class JdbcOperator implements Closeable {
     }
 
     private Connection getConnection() throws SQLException {
-        return connection;
+        return dataSource.getConnection();
     }
 
     @Override
     public void close() throws IOException {
-        if (nonNull(connection)) {
+        if (nonNull(dataSource)) {
             try {
-                connection.close();
-            } catch (SQLException e) {
+                makeAccessible(CLOSE_METHOD);
+                invokeMethod(CLOSE_METHOD, dataSource);
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
     }
+
+    private static final Method CLOSE_METHOD = findMethod(Closeable.class, "close");
 
 }

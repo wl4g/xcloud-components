@@ -20,6 +20,7 @@ import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
 import com.wl4g.component.integration.sharding.failover.postgresql.stats.PostgresqlNodeStats;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * {@link PostgresqlProxyFailover}
@@ -39,4 +40,10 @@ public class PostgresqlProxyFailover extends AbstractProxyFailover<PostgresqlNod
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    protected void decorateAdminBackendDataSource(String ruleDataSourceName, String ruleDataSourceJdbcHost,
+            int ruldDataSourceJdbcPort, HikariDataSource adminDataSource) {
+        // TODO Auto-generated method stub
+
+    }
 }

@@ -59,6 +59,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<final.name>shardingproxy</final.name>
+		<bootstrap-classname>com.wl4g.ShardingProxy</bootstrap-classname>
 		<!-- Interagtion with 4.x -->
 		<!-- <curator.version>2.10.0</curator.version> -->
 		<!-- <guava.version>18.0</guava.version> -->
@@ -115,13 +117,16 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<finalName>${final.name}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**</include>
-				</includes>
+				<!-- When true and will check file encoding, causes the picture file 
+					copy to fail. -->
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>script/**</exclude>
+				</excludes>
 			</resource>
 		</resources>
 		<plugins>
@@ -131,6 +136,15 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Tests.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -146,65 +160,156 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<configuration>
+					<configLocation>/../checkstyle/google_checks.xml</configLocation>
+				</configuration>
+				<executions>
+					<!-- Solutions to maven checkstyle errors in Eclipse: https://gitee.com/wl4g/xcloud-blogs/blob/master/articles/maven.checkstyle-eclipse-error/README_CN.md -->
+					<!-- <execution> -->
+					<!-- <id>checkstyle</id> -->
+					<!-- <phase>validate</phase> -->
+					<!-- <goals> -->
+					<!-- <goal>check</goal> -->
+					<!-- </goals> -->
+					<!-- <configuration> -->
+					<!-- <failOnViolation>true</failOnViolation> -->
+					<!-- </configuration> -->
+					<!-- </execution> -->
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>mvnAssTar</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<build>
 				<plugins>
-					<!-- Source -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<finalName>shardingproxy-${project.version}-bin</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>src/main/assemble/package.xml</descriptor>
+							</descriptors>
+						</configuration>
 						<executions>
 							<execution>
+								<id>make-assembly</id>
 								<phase>package</phase>
 								<goals>
-									<goal>jar-no-fork</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<!-- Javadoc -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<!-- GPG -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
+									<goal>single</goal>
 								</goals>
 							</execution>
 						</executions>
 					</plugin>
 				</plugins>
 			</build>
-			<distributionManagement>
-				<snapshotRepository>
-					<id>sonatype-nexus-snapshots</id>
-					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-				</snapshotRepository>
-				<repository>
-					<id>sonatype-nexus-staging</id>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-				</repository>
-			</distributionManagement>
+		</profile>
+		<profile>
+			<id>springExecJar</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<configuration>
+							<mainClass>${bootstrap-classname}</mainClass>
+							<finalName>iam-web-${project.version}-bin</finalName>
+							<!-- for using: java -cp myapp.jar -Dloader.main=com.MyApp org.springframework.boot.loader.PropertiesLauncher -->
+							<!-- @see:https://www.baeldung.com/spring-boot-main-class -->
+							<!-- @see:https://www.jianshu.com/p/66a101c85485 -->
+							<layout>ZIP</layout>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>repackage</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>docker:build:mvnAssTar</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<finalName>${final.name}-${project.version}-bin</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>src/main/assemble/package.xml</descriptor>
+							</descriptors>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- Usages: -->
+					<!-- [build]: mvn -Pdocker:build:mvnAssTar -->
+					<!-- [push]: mvn -Pdocker:build:mvnAssTar -->
+					<!-- [push]: mvn -Pdocker:build:mvnAssTar dockerfile:build dockerfile:push 
+						-Ddockerfile.username=wl4g -Ddockerfile.password=123456 -->
+					<plugin>
+						<groupId>com.spotify</groupId>
+						<artifactId>dockerfile-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>default</id>
+								<goals>
+									<goal>build</goal>
+									<!-- <goal>push</goal> -->
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<contextDirectory>${project.basedir}</contextDirectory>
+							<repository>wl4g/${project.build.finalName}</repository>
+							<useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+							<tag>${project.version}</tag>
+							<readTimeoutMillis>60000</readTimeoutMillis>
+							<connectTimeoutMillis>20000</connectTimeoutMillis>
+							<buildArgs>
+								<SHARDING_NAME>${project.build.finalName}</SHARDING_NAME>
+								<SHARDING_VERSION>${project.version}</SHARDING_VERSION>
+								<SHARDING_MAINCLASS>${bootstrap-classname}</SHARDING_MAINCLASS>
+							</buildArgs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>

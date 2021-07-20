@@ -24,7 +24,8 @@ schemaName: userdb
 # @see:org.apache.shardingsphere.proxy.config.ProxyConfigurationLoader#loadRuleConfiguration
 dataSource:
   username: root
-  password: 'zzx!@#$%'
+  #password: 'zzx!@#$%'
+  password: root
   connectionTimeoutMilliseconds: 30000
   idleTimeoutMilliseconds: 60000
   maxLifetimeMilliseconds: 1800000
@@ -34,30 +35,30 @@ dataSource:
 
 # Datasource configuration.
 dataSources:
-  #userdb_g1db0_schema:
+  #userdb_g0db0_schema:
   #  url: jdbc:mysql://127.0.0.1:3306/information_schema?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db0:
-    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db1:
-    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db2:
-    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db0:
-    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db1:
-    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db2:
-    url: jdbc:mysql://127.0.0.1:3306/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g0db0:
+    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g0db1:
+    url: jdbc:mysql://127.0.0.1:13307/userdb_g0db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  userdb_g0db2:
+    url: jdbc:mysql://127.0.0.1:13308/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  userdb_g1db0:
+#    url: jdbc:mysql://127.0.0.1:13306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  userdb_g1db1:
+#    url: jdbc:mysql://127.0.0.1:13307/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  userdb_g1db2:
+#    url: jdbc:mysql://127.0.0.1:13308/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
 
 # Schema rule configuration.
 rules:
  - !READWRITE_SPLITTING
   dataSources:
-    userdb_g1db0:
-      writeDataSourceName: userdb_g1db0
+    rw_userdb_g0db0:
+      writeDataSourceName: userdb_g0db0
       readDataSourceNames:
-        - userdb_g1db1
-        - userdb_g1db2
+        - userdb_g0db1
+        - userdb_g0db2
       loadBalancerName: randomBalancer1
   loadBalancers:
     randomBalancer1:

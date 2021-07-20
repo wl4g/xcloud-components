@@ -25,7 +25,6 @@ import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
 import org.apache.shardingsphere.proxy.config.ProxyConfiguration;
 import org.apache.shardingsphere.proxy.config.YamlProxyConfiguration;
-import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.config.yaml.swapper.YamlProxyConfigurationSwapper;
 import org.apache.shardingsphere.scaling.core.config.ScalingContext;
 import org.apache.shardingsphere.transaction.context.TransactionContexts;
@@ -61,12 +60,6 @@ public final class FailoverStandardBootstrapInitializer extends FailoverAbstract
     //
 
     @Override
-    public void updateSchemaRuleConfiguration(Map<String, YamlProxyRuleConfiguration> schemaRuleConfigs) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public Map<String, DataSourceConfiguration> loadDataSourceConfigs(String schemaName) {
         // TODO Auto-generated method stub
         return null;
@@ -77,4 +70,11 @@ public final class FailoverStandardBootstrapInitializer extends FailoverAbstract
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public void updateSchemaRuleConfiguration(String schemaName, Collection<? extends RuleConfiguration> schemaRuleConfigs) {
+        // TODO Auto-generated method stub
+
+    }
+
 }

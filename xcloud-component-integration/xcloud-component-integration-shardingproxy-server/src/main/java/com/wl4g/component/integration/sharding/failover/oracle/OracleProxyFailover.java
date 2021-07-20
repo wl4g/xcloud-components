@@ -20,6 +20,7 @@ import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
 import com.wl4g.component.integration.sharding.failover.oracle.stats.OracleNodeStats;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * {@link OracleProxyFailover}
@@ -37,6 +38,13 @@ public class OracleProxyFailover extends AbstractProxyFailover<OracleNodeStats> 
     @Override
     public OracleNodeStats inspect() throws Exception {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void decorateAdminBackendDataSource(String ruleDataSourceName, String ruleDataSourceJdbcHost,
+            int ruldDataSourceJdbcPort, HikariDataSource adminDataSource) {
+        // TODO Auto-generated method stub
+
     }
 
 }
