@@ -38,26 +38,26 @@ dataSources:
   #userdb_g0db0_schema:
   #  url: jdbc:mysql://127.0.0.1:13306/information_schema?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
   userdb_g0db0:
-    url: jdbc:mysql://127.0.0.1:13306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
   userdb_g0db1:
-    url: jdbc:mysql://127.0.0.1:13307/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:13307/userdb_g0db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
   userdb_g0db2:
-    url: jdbc:mysql://127.0.0.1:13308/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db0:
-    url: jdbc:mysql://127.0.0.1:13306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db1:
-    url: jdbc:mysql://127.0.0.1:13307/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g1db2:
-    url: jdbc:mysql://127.0.0.1:13308/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:13308/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  userdb_g1db0:
+#    url: jdbc:mysql://127.0.0.1:13306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  userdb_g1db1:
+#    url: jdbc:mysql://127.0.0.1:13307/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+#  userdb_g1db2:
+#    url: jdbc:mysql://127.0.0.1:13308/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
 
 # Schema rule configuration.
 rules:
-#################################### DB Group1 #########################################
+#################################### DB Group0 #########################################
  - !SHARDING
   tables:
     t_user:
-      actualDataNodes: userdb_g1db${0..2}.t_user_${0..2}
-      #actualDataNodes: 'userdb_g1db0.t_user_${0..3},userdb_g1db1.t_user_${0..2},userdb_g1db2.t_user_${0..2},userdb_g1db${0..2}.t_user_${0..2}'
+      actualDataNodes: userdb_g0db${0..2}.t_user_${0..2}
+      #actualDataNodes: 'userdb_g0db0.t_user_${0..3},userdb_g0db1.t_user_${0..2},userdb_g0db2.t_user_${0..2},userdb_g0db${0..2}.t_user_${0..2}'
       #databaseStrategy:
       tableStrategy:
         standard:
@@ -78,11 +78,11 @@ rules:
     #composite_smart_mod1:
     #  type: SMART_MOD
     #  props:
-    #    algorithm-expression: '_g1db0->0,1,2,3|_g1db1->4,5,6|_g1db2->7,8,9'
+    #    algorithm-expression: '_g0db0->0,1,2,3|_g0db1->4,5,6|_g0db2->7,8,9'
     group1_database_inline:
       type: INLINE
       props:
-        algorithm-expression: userdb_g1db${(id / 9) as int}
+        algorithm-expression: userdb_g0db${(id / 9) as int}
     group1_table_volume_range: # see:org.apache.shardingsphere.sharding.algorithm.sharding.range.VolumeBasedRangeShardingAlgorithm
       type: VOLUME_RANGE
       props: # Must use quotation marks(string) or you cannot get them.

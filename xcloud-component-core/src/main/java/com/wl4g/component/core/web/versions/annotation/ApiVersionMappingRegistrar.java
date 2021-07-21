@@ -44,8 +44,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
+import com.wl4g.component.common.lang.SimpleVersionComparator;
 import com.wl4g.component.common.log.SmartLogger;
-import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 import com.wl4g.component.core.web.versions.reactive.ApiVersionRequestHandlerMapping;
 
 import static com.wl4g.component.core.web.versions.annotation.EnableApiVersionManagement.*;

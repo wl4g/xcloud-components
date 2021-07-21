@@ -18,7 +18,7 @@
 ##################### Configuration of 'userdb' by group sharding v5 #######################
 
 # External logical database schema.
-schemaName: userdb
+schemaName: userdb_g0db2
 
 # Default datasource configuration.
 # @see:org.apache.shardingsphere.proxy.config.ProxyConfigurationLoader#loadRuleConfiguration
@@ -35,32 +35,23 @@ dataSource:
 
 # Datasource configuration.
 dataSources:
-  #userdb_g0db0_schema:
-  #  url: jdbc:mysql://127.0.0.1:3306/information_schema?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g0db0:
-    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g0db1:
-    url: jdbc:mysql://127.0.0.1:13307/userdb_g0db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-  userdb_g0db2:
+  primary_userdb_g0db2_1:
+    url: jdbc:mysql://127.0.0.1:13306/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  standby_userdb_g0db2_1:
+    url: jdbc:mysql://127.0.0.1:13307/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
+  standby_userdb_g0db2_2:
     url: jdbc:mysql://127.0.0.1:13308/userdb_g0db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-#  userdb_g1db0:
-#    url: jdbc:mysql://127.0.0.1:13306/userdb_g1db0?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-#  userdb_g1db1:
-#    url: jdbc:mysql://127.0.0.1:13307/userdb_g1db1?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
-#  userdb_g1db2:
-#    url: jdbc:mysql://127.0.0.1:13308/userdb_g1db2?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8
 
 # Schema rule configuration.
 rules:
  - !READWRITE_SPLITTING
   dataSources:
-    rw_userdb_g0db0:
-      writeDataSourceName: userdb_g0db0
+    ha_userdb_g0db2:
+      writeDataSourceName: primary_userdb_g0db2_1
       readDataSourceNames:
-        - userdb_g0db1
-        - userdb_g0db2
+        - standby_userdb_g0db2_1
+        - standby_userdb_g0db2_2
       loadBalancerName: randomBalancer1
   loadBalancers:
     randomBalancer1:
       type: RANDOM
-

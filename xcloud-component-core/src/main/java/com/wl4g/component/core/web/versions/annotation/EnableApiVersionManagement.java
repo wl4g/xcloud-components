@@ -25,8 +25,8 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Indexed;
 
+import com.wl4g.component.common.lang.SimpleVersionComparator;
 import com.wl4g.component.core.web.mapping.annotation.EnableSmartRequestMapping;
-import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
 /**
  * When enabled, the API multi version request control mapping processor is

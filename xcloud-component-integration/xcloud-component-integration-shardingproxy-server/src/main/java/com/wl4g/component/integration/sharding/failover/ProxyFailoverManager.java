@@ -28,8 +28,10 @@ import org.apache.shardingsphere.infra.database.type.dialect.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.database.type.dialect.OracleDatabaseType;
 import org.apache.shardingsphere.infra.database.type.dialect.PostgreSQLDatabaseType;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.resource.CachedDatabaseMetaData;
 import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
 
+import com.wl4g.component.common.lang.SimpleVersionComparator;
 import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
@@ -59,12 +61,10 @@ public final class ProxyFailoverManager {
         for (String schemaName : proxy.getAllSchemaNames()) {
             ShardingSphereMetaData metadata = proxy.getMetaData(schemaName);
             DatabaseType databaseType = metadata.getResource().getDatabaseType();
-            // CachedDatabaseMetaData
-            // cachedMetaData=metadata.getResource().getCachedDatabaseMetaData();
+            CachedDatabaseMetaData cachedMetaData = metadata.getResource().getCachedDatabaseMetaData();
             if (databaseType instanceof MySQLDatabaseType) {
-                // if(cachedMetaData.getDatabaseProductVersion().equalsIgnoreCase("5.7.28-log")){
+                checkMySQLVersionSupport(cachedMetaData);
                 failovers.add(new MySQL57GroupReplicationProxyFailover(initializer, metadata));
-                // }
             } else if (databaseType instanceof PostgreSQLDatabaseType) {
                 failovers.add(new PostgresqlProxyFailover(initializer, metadata));
             } else if (databaseType instanceof OracleDatabaseType) {
@@ -102,6 +102,13 @@ public final class ProxyFailoverManager {
             } catch (Exception e) {
                 log.error("Failed to close proxyFailover: {}", failover);
             }
+        }
+    }
+
+    public static void checkMySQLVersionSupport(CachedDatabaseMetaData cachedMetaData) {
+        if (SimpleVersionComparator.INSTANCE.compare(cachedMetaData.getDatabaseProductVersion(), "5.7") < 0) {
+            throw new UnsupportedOperationException(
+                    format("The supported version range must be greater than or equal to mysql 5.7"));
         }
     }
 

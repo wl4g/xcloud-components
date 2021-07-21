@@ -16,8 +16,11 @@
 package com.wl4g.component.integration.sharding.util;
 
 import static com.wl4g.component.common.lang.StringUtils2.eqIgnCase;
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
 
 import java.net.InetAddress;
+
+import com.wl4g.component.common.log.SmartLogger;
 
 /**
  * {@link HostUtil}
@@ -27,6 +30,7 @@ import java.net.InetAddress;
  * @since v1.0.0
  */
 public abstract class HostUtil {
+    protected static final SmartLogger log = getLogger(HostUtil.class);
 
     public static boolean isSameHost(String host1, String host2) {
         if (eqIgnCase(host1, host2)) {
@@ -43,6 +47,8 @@ public abstract class HostUtil {
                 return false;
             }
         } catch (Exception e) {
+            // log.error(format("Unable to compare hosts. '%s' and
+            // '%s'",host1,host2),e);
             throw new IllegalStateException(e);
         }
     }

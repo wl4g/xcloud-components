@@ -17,6 +17,7 @@ package com.wl4g.component.integration.sharding.failover;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
 import static com.wl4g.component.common.collection.CollectionUtils2.safeMap;
+import static com.wl4g.component.common.lang.Assert2.notEmpty;
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
 import static com.wl4g.component.common.lang.Assert2.state;
 import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
@@ -84,9 +85,9 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
             S result = inspect();
             log.debug("Inspect result information: {}", () -> toJSONString(result));
 
-            // TODO
             // Selection new primary node.
-            NodeInfo newPrimaryNode = result.getPrimaryNodes().get(0);
+            notEmpty(result.getPrimaryNodes(), "Not found latest master node information");
+            NodeInfo newPrimaryNode = selectionNewPrimary(result.getPrimaryNodes());
 
             // TODO
             // Transform database host/port to external(loadBalancer) host/port.
@@ -95,8 +96,19 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                     findMatchingDataSourceName(newPrimaryNode.getHost(), newPrimaryNode.getPort()));
 
         } catch (Exception e) {
-            log.error("Failed to failover inspecting.", e);
+            log.error("Failed to process backend nodes primary-standby failover.", e);
         }
+    }
+
+    /**
+     * Selection new primary {@link NodeInfo}
+     * 
+     * @param newPrimaryNodes
+     * @return
+     */
+    protected NodeInfo selectionNewPrimary(List<? extends NodeInfo> newPrimaryNodes) {
+        // Default strategy
+        return newPrimaryNodes.get(0);
     }
 
     protected DataSource getSelectedBackendNodeAdminDataSource() throws SQLException {
@@ -191,7 +203,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                     String oldPrimaryDataSourceName = rwDataSource.getWriteDataSourceName();
                     if (!StringUtils2.equals(oldPrimaryDataSourceName, newPrimaryDataSourceName)) {
                         log.info(
-                                "Changing readWriteSplitting old primaryDataSourceName: {} to new primaryDataSourceName: {}, actualSchemaName: {}, schemaName: {}",
+                                "Changing read-write-splitting old primary dataSourceName: {} to new primary dataSourceName: {}, actualSchemaName: {}, schemaName: {}",
                                 oldPrimaryDataSourceName, newPrimaryDataSourceName, rwDataSource.getName(), getSchemaName());
 
                         // New build read-write-splitting dataSource.
@@ -200,8 +212,8 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                                 rwDataSource.getLoadBalancerName());
                         newRwDataSources.add(newRwDataSource);
                     } else {
-                        log.info(
-                                "Skiping change readWriteSplitting, becuase primaryDataSourceName it's up to date. {}, actualSchemaName: {}, schemaName: {}",
+                        log.debug(
+                                "Skiping change read-write-splitting, becuase primary dataSourceName it's up to date. {}, actualSchemaName: {}, schemaName: {}",
                                 oldPrimaryDataSourceName, rwDataSource.getName(), getSchemaName());
                     }
                 }

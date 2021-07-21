@@ -16,14 +16,7 @@
 package com.wl4g.component.integration.sharding.failover.jdbc;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.findMethod;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.invokeMethod;
-import static com.wl4g.component.common.reflect.ReflectionUtils2.makeAccessible;
-import static java.util.Objects.nonNull;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,9 +41,8 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
  * @version 2021-07-18 v1.0.0
  * @since v1.0.0
  */
-public class JdbcOperator implements Closeable {
-
-    private DataSource dataSource;
+public class JdbcOperator {
+    private final DataSource dataSource;
 
     public JdbcOperator(DataSource dataSource) {
         this.dataSource = notNullOf(dataSource, "dataSource");
@@ -126,19 +118,5 @@ public class JdbcOperator implements Closeable {
     private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
-
-    @Override
-    public void close() throws IOException {
-        if (nonNull(dataSource)) {
-            try {
-                makeAccessible(CLOSE_METHOD);
-                invokeMethod(CLOSE_METHOD, dataSource);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
-        }
-    }
-
-    private static final Method CLOSE_METHOD = findMethod(Closeable.class, "close");
 
 }

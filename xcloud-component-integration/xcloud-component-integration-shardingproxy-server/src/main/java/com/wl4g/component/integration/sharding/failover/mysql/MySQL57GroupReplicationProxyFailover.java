@@ -48,21 +48,21 @@ public class MySQL57GroupReplicationProxyFailover extends AbstractProxyFailover<
 
     @Override
     public MySQL57GroupReplicationNodeStats inspect() throws Exception {
-        try (JdbcOperator operator = new JdbcOperator(getSelectedBackendNodeAdminDataSource())) {
-            // Find group replication members information.
-            List<GroupReplicationNodeInfo> nodes = operator.findAllBean(SQL_MGR_MEMBERS, new Object[0],
-                    GroupReplicationNodeInfo.class);
+        JdbcOperator operator = new JdbcOperator(getSelectedBackendNodeAdminDataSource());
 
-            MySQL57GroupReplicationNodeStats stats = new MySQL57GroupReplicationNodeStats();
-            stats.setNodes(safeList(nodes));
-            // Single primary / multiple primary.
-            stats.setPrimaryNodes(
-                    stats.getNodes().stream().filter(n -> equalsIgnoreCase(n.getNodeRole(), "PRIMARY")).collect(toList()));
-            // Salve nodes.
-            stats.setStandbyNodes(
-                    stats.getNodes().stream().filter(n -> equalsIgnoreCase(n.getNodeRole(), "STANDBY")).collect(toList()));
-            return stats;
-        }
+        // Find group replication members information.
+        List<GroupReplicationNodeInfo> nodes = operator.findAllBean(SQL_MGR_MEMBERS, new Object[0],
+                GroupReplicationNodeInfo.class);
+
+        MySQL57GroupReplicationNodeStats stats = new MySQL57GroupReplicationNodeStats();
+        stats.setNodes(safeList(nodes));
+        // Single primary / multiple primary.
+        stats.setPrimaryNodes(
+                stats.getNodes().stream().filter(n -> equalsIgnoreCase(n.getNodeRole(), "PRIMARY")).collect(toList()));
+        // Salve nodes.
+        stats.setStandbyNodes(
+                stats.getNodes().stream().filter(n -> equalsIgnoreCase(n.getNodeRole(), "STANDBY")).collect(toList()));
+        return stats;
     }
 
     @Override
@@ -70,6 +70,7 @@ public class MySQL57GroupReplicationProxyFailover extends AbstractProxyFailover<
             int ruleDataSourceJdbcPort, HikariDataSource adminDataSource) {
         adminDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         adminDataSource.setJdbcUrl(format(MYSQL57_ADM_JDBC_URL_TPL, ruleDataSourceJdbcHost, ruleDataSourceJdbcPort));
+        // TODO use configuration username/password
         adminDataSource.setUsername("root");
         adminDataSource.setPassword("root");
     }

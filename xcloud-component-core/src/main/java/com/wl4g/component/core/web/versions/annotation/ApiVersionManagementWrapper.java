@@ -20,8 +20,9 @@ import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import com.wl4g.component.common.lang.SimpleVersionComparator;
+
 import static com.wl4g.component.common.lang.ClassUtils2.getPackageName;
-import com.wl4g.component.core.web.versions.SimpleVersionComparator;
 
 /**
  * {@link ApiVersionManagementWrapper}
