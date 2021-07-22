@@ -55,9 +55,9 @@ $MYSQL_HOME/bin/mysql -h10.0.0.114 -P3307 -uroot -p123456
 ```sql
 use userdb;
 SELECT * FROM userdb.t_user;
-INSERT INTO userdb.t_user (id, name) VALUES (100000000000, 'user-insert-1111');
-UPDATE userdb.t_user SET name='user-update-2222' WHERE id=100000000000;
-DELETE FROM userdb.t_user WHERE id=100000000000;
+INSERT INTO userdb.t_user (id, name) VALUES (10000000, 'user-insert-1111');
+UPDATE userdb.t_user SET name='user-update-2222' WHERE id=10000000;
+DELETE FROM userdb.t_user WHERE id=10000000;
 ```
 
 ## 3. Failover
