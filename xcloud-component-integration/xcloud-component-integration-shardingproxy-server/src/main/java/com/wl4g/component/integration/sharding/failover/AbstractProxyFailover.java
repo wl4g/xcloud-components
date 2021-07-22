@@ -189,7 +189,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
      * @see https://shardingsphere.apache.org/document/current/cn/features/governance/management/registry-center/#metadataschemenamedatasources
      */
     protected void changeReadwriteSplititingConfiguration(String newPrimaryDataSourceName) {
-        List<ReadwriteSplittingRuleConfiguration> newReadwriteSplittingRuleConfigs = new ArrayList<>(2);
+        List<RuleConfiguration> newRuleConfigs = new ArrayList<>(2);
 
         Collection<RuleConfiguration> ruleConfigs = initializer.loadRuleConfigs(getSchemaName());
         for (RuleConfiguration ruleConfig : safeList(ruleConfigs)) {
@@ -212,7 +212,8 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                                 rwDataSource.getName(), rwDataSource.getAutoAwareDataSourceName(), newPrimaryDataSourceName, null,
                                 rwDataSource.getLoadBalancerName());
                         newRwDataSources.add(newRwDataSource);
-                    } else {
+                    } else { // Not changed
+                        newRwDataSources.add(rwDataSource);
                         log.debug(
                                 "Skiping change read-write-splitting, becuase primary dataSourceName it's up to date. {}, actualSchemaName: {}, schemaName: {}",
                                 oldPrimaryDataSourceName, rwDataSource.getName(), getSchemaName());
@@ -220,14 +221,16 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                 }
 
                 if (!newRwDataSources.isEmpty()) {
-                    newReadwriteSplittingRuleConfigs
+                    newRuleConfigs
                             .add(new ReadwriteSplittingRuleConfiguration(newRwDataSources, rwRuleConfig.getLoadBalancers()));
                 }
+            } else {
+                newRuleConfigs.add(ruleConfig);
             }
         }
 
-        if (!newReadwriteSplittingRuleConfigs.isEmpty()) {
-            doChangeReadwriteSplittingRuleConfiguration(newReadwriteSplittingRuleConfigs);
+        if (!newRuleConfigs.isEmpty()) {
+            doChangeReadwriteSplittingRuleConfiguration(newRuleConfigs);
         }
     }
 
@@ -236,8 +239,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
      * 
      * @param newReadWriteSplittingRuleConfigs
      */
-    protected void doChangeReadwriteSplittingRuleConfiguration(
-            List<ReadwriteSplittingRuleConfiguration> newReadWriteSplittingRuleConfigs) {
+    protected void doChangeReadwriteSplittingRuleConfiguration(List<RuleConfiguration> newReadWriteSplittingRuleConfigs) {
         initializer.updateSchemaRuleConfiguration(getSchemaName(), newReadWriteSplittingRuleConfigs);
     }
 
