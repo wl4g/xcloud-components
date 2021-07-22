@@ -26,6 +26,7 @@
 	<root>
 		<level value="info" />
 		<appender-ref ref="rollingFile" />
+		<appender-ref ref="console" />
 	</root>
 	<logger name="org.apache.shardingsphere" level="info" additivity="false">
 		<appender-ref ref="console" />

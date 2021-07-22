@@ -12,7 +12,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class MySQL57GroupReplicationNodeStats extends NodeStats {
-    public static final String SQL_MGR_MEMBERS = "SELECT rgm.CHANNEL_NAME AS channelName,rgm.MEMBER_ID AS nodeId,rgm.MEMBER_HOST AS nodeHost,rgm.MEMBER_PORT AS nodePort,rgm.MEMBER_STATE AS nodeState,@@read_only AS readOnly,@@super_read_only AS superReadOnly,(CASE(SELECT VARIABLE_VALUE FROM `performance_schema`.`global_status` WHERE VARIABLE_NAME='group_replication_primary_member') WHEN '' THEN 'UNKOWN' WHEN rgm.MEMBER_ID THEN 'PRIMARY' ELSE 'STANDBY' END ) AS nodeRole FROM `performance_schema`.`replication_group_members` rgm";
 
     private List<GroupReplicationNodeInfo> nodes;
 

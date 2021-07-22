@@ -65,7 +65,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
 
     protected final FailoverAbstractBootstrapInitializer initializer;
     protected final ShardingSphereMetaData metadata;
-    private DataSource cachingAdminDataSource;
+    private HikariDataSource cachingAdminDataSource;
 
     public AbstractProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
         super(new RunnerProperties(true).withConcurrency(1));
@@ -118,7 +118,8 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                 cachingAdminDataSource.getConnection().close();
                 return cachingAdminDataSource;
             } catch (SQLException e) {
-                log.warn("Deaded caching dataSource: {}, reason: ", cachingAdminDataSource, e.getMessage());
+                log.warn("Deaded caching dataSource: {}({}), reason: {}", cachingAdminDataSource,
+                        cachingAdminDataSource.getJdbcUrl(), e.getMessage());
                 cachingAdminDataSource = null; // reset
             }
         }

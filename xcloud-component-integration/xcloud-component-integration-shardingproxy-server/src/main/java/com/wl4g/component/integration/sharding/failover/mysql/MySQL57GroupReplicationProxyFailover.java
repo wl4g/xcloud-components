@@ -16,7 +16,6 @@
 package com.wl4g.component.integration.sharding.failover.mysql;
 
 import static com.wl4g.component.common.collection.CollectionUtils2.safeList;
-import static com.wl4g.component.integration.sharding.failover.mysql.stats.MySQL57GroupReplicationNodeStats.SQL_MGR_MEMBERS;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -75,5 +74,6 @@ public class MySQL57GroupReplicationProxyFailover extends AbstractProxyFailover<
         adminDataSource.setPassword("root");
     }
 
+    private static final String SQL_MGR_MEMBERS = "SELECT rgm.CHANNEL_NAME AS channelName,rgm.MEMBER_ID AS nodeId,rgm.MEMBER_HOST AS nodeHost,rgm.MEMBER_PORT AS nodePort,rgm.MEMBER_STATE AS nodeState,@@read_only AS readOnly,@@super_read_only AS superReadOnly,(CASE(SELECT VARIABLE_VALUE FROM `performance_schema`.`global_status` WHERE VARIABLE_NAME='group_replication_primary_member') WHEN '' THEN 'UNKOWN' WHEN rgm.MEMBER_ID THEN 'PRIMARY' ELSE 'STANDBY' END ) AS nodeRole FROM `performance_schema`.`replication_group_members` rgm";
     private static final String MYSQL57_ADM_JDBC_URL_TPL = "jdbc:mysql://%s:%s/performance_schema?serverTimezone=UTC&useSSL=false&allowMultiQueries=true&characterEncoding=utf-8";
 }

@@ -2,7 +2,7 @@
 > It's an enhanced package that integrates shardingsphere-proxy and shardingsphere-scaling
 
 
-## Compile building
+## 1. Compile building
 
 - Step1: First, building of `[shardingsphere](https://github.com/apache/shardingsphere)`
 
@@ -40,15 +40,27 @@ Directories:
 
 - Step4: Startup shardingsphere proxy(v4 and v5 Choose one)  
 
-Startup classes:
-
 ```
-com.wl4g.ShardingsphereProxy4
-com.wl4g.ShardingsphereProxy5
+java -jar shardingproxy-{version}-bin.jar 3307 /example-conf/readwrite
+# or:
+# java -cp xxx com.wl4g.ShardingProxy 3307 /example-conf/readwrite
 ```
 
+## 2. Testing scripts
 
-## Failover
+```bash
+$MYSQL_HOME/bin/mysql -h10.0.0.114 -P3307 -uroot -p123456
+```
+
+```sql
+use userdb;
+SELECT * FROM userdb.t_user;
+INSERT INTO userdb.t_user (id, name) VALUES (100000000000, 'user-insert-1111');
+UPDATE userdb.t_user SET name='user-update-2222' WHERE id=100000000000;
+DELETE FROM userdb.t_user WHERE id=100000000000;
+```
+
+## 3. Failover
 
 - `[MySQL5.7 Group Replication](https://dev.mysql.com/doc/refman/5.7/en/group-replication.html)` implementation theory
 
@@ -79,7 +91,7 @@ group_replication_applier  3d4ed671-9dec-11eb-9723-c0b5d741e9d5  wanglsir-pro  1
 ```
 
 
-## FQA
+## 4. FQA
 
 - Read write Split or sharding support different types of databases?
 

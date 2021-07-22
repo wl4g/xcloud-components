@@ -52,8 +52,6 @@ import org.apache.shardingsphere.transaction.ShardingTransactionManagerEngine;
 import org.apache.shardingsphere.transaction.context.TransactionContexts;
 import org.apache.shardingsphere.transaction.context.impl.StandardTransactionContexts;
 
-import com.wl4g.component.integration.sharding.failover.ProxyFailoverManager;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -88,7 +86,7 @@ public abstract class FailoverAbstractBootstrapInitializer implements BootstrapI
         //
         // ADD for failover.
         //
-        ProxyFailoverManager.getInstance().init(this).startAll();
+        // ProxyFailoverManager.getInstance().init(this).startAll();
 
         shardingSphereProxy.start(port);
     }
