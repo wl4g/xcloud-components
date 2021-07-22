@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-com.wl4g.component.integration.sharding.algorithm.SmartModShardingAlgorithm
+com.wl4g.component.integration.sharding.algorithm.VolumeBasedRangeShardingAlgorithm2

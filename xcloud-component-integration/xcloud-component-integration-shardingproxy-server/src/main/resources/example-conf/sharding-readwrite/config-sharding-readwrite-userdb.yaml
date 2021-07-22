@@ -88,11 +88,11 @@ rules:
       props:
         algorithm-expression: ha_userdb_g0db${(id % 9) as int}
     group0_table_volume_range: # see:org.apache.shardingsphere.sharding.algorithm.sharding.range.VolumeBasedRangeShardingAlgorithm
-      type: VOLUME_RANGE
+      type: VOLUME_RANGE2
       props: # Must use quotation marks(string) or you cannot get them.
         range-lower: '0'
-        range-upper: '400000000000'
-        sharding-volume: '100000000000'
+        range-upper: '40000000'
+        sharding-volume: '10000000'
   keyGenerators:
     group0_snowflake1:
       type: SNOWFLAKE
