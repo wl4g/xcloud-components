@@ -46,9 +46,7 @@ public class MySQL57GroupReplicationProxyFailover extends AbstractProxyFailover<
     }
 
     @Override
-    public MySQL57GroupReplicationNodeStats inspect() throws Exception {
-        JdbcOperator operator = new JdbcOperator(getSelectedBackendNodeAdminDataSource());
-
+    public MySQL57GroupReplicationNodeStats inspect(JdbcOperator operator) throws Exception {
         // Find group replication members information.
         List<GroupReplicationNodeInfo> nodes = operator.findAllBean(SQL_MGR_MEMBERS, new Object[0],
                 GroupReplicationNodeInfo.class);

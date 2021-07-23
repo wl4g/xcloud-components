@@ -17,8 +17,8 @@ package com.wl4g.component.support.cli;
 
 import static com.wl4g.component.common.lang.Exceptions.getRootCausesString;
 import static com.wl4g.component.common.lang.ThreadUtils2.sleepRandom;
-import static com.wl4g.component.support.cache.jedis.util.RedisSpecUtil.*;
-import static com.wl4g.component.support.cli.destroy.DestroySignalMessage.DestroyState.*;
+import static com.wl4g.component.support.cache.jedis.util.RedisSpecUtil.safeFormat;
+import static com.wl4g.component.support.cli.destroy.DestroySignalMessage.DestroyState.DESTROY_FAIL;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
 
 import com.wl4g.component.support.cache.jedis.JedisService;
 import com.wl4g.component.support.cache.locks.JedisLockManager;
-import com.wl4g.component.support.cli.TimeoutDestroyProcessException;
 import com.wl4g.component.support.cli.destroy.DestroySignal;
 import com.wl4g.component.support.cli.destroy.DestroySignalMessage;
 import com.wl4g.component.support.cli.process.DestroableProcess;
@@ -89,7 +88,6 @@ public class NodeProcessManagerImpl extends GenericProcessManager {
             throw new IllegalStateException(
                     String.format("Failed to destory process for %s, caused by: %s", signal.getProcessId(), ret.getMessage()));
         }
-
     }
 
     @Override
@@ -192,7 +190,7 @@ public class NodeProcessManagerImpl extends GenericProcessManager {
     }
 
     /**
-     * Get processId destory signal key.
+     * Gets processId destory signal key.
      * 
      * @param processId
      * @return
@@ -203,7 +201,7 @@ public class NodeProcessManagerImpl extends GenericProcessManager {
     }
 
     /**
-     * Get processId destory signal result key.
+     * Gets processId destory signal result key.
      * 
      * @param processId
      * @return
@@ -214,22 +212,15 @@ public class NodeProcessManagerImpl extends GenericProcessManager {
     }
 
     /** Command-line process watcher locker. */
-    final public static String LOCK_CLI_PROCESS_DESTROY = "cli.process.destroy";
+    public static final String LOCK_CLI_PROCESS_DESTROY = "cli.process.destroy";
+    /** Command-line process destroy signal. */
+    public static final String SIGNAL_PROCESS_DESTROY = "cli.process.destroy_";
+    /** Command-line process destroy signal result. */
+    public static final String SIGNAL_PROCESS_DESTROY_RET = "cli.process.destroy.ret_";
 
-    /**
-     * Command-line process destroy signal.
-     */
-    final public static String SIGNAL_PROCESS_DESTROY = "cli.process.destroy_";
-
-    /**
-     * Command-line process destroy signal result.
-     */
-    final public static String SIGNAL_PROCESS_DESTROY_RET = "cli.process.destroy.ret_";
-
-    final public static long DEFAULT_MIN_WATCH_MS = 2_00L;
-    final public static long DEFAULT_MAX_WATCH_MS = 2_000L;
-
+    public static final long DEFAULT_MIN_WATCH_MS = 2_00L;
+    public static final long DEFAULT_MAX_WATCH_MS = 2_000L;
     /** Default destruction signal expired seconds. */
-    final public static int DEFAULT_SIGNAL_EXPIRED_SEC = (int) (3 * TimeUnit.MILLISECONDS.toSeconds(DEFAULT_MAX_WATCH_MS));
+    public static final int DEFAULT_SIGNAL_EXPIRED_SEC = (int) (3 * TimeUnit.MILLISECONDS.toSeconds(DEFAULT_MAX_WATCH_MS));
 
 }

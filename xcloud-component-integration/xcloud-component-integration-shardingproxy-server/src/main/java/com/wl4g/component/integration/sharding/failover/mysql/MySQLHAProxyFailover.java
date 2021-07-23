@@ -19,6 +19,7 @@ import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 
 import com.wl4g.component.integration.sharding.failover.AbstractProxyFailover;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
+import com.wl4g.component.integration.sharding.failover.jdbc.JdbcOperator;
 import com.wl4g.component.integration.sharding.failover.mysql.stats.MySQLHANodeStats;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -36,7 +37,7 @@ public class MySQLHAProxyFailover extends AbstractProxyFailover<MySQLHANodeStats
     }
 
     @Override
-    public MySQLHANodeStats inspect() {
+    public MySQLHANodeStats inspect(JdbcOperator operator) {
         throw new UnsupportedOperationException();
     }
 

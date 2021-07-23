@@ -15,10 +15,13 @@
  */
 package com.wl4g.component.support.task;
 
+import static com.wl4g.component.common.log.SmartLoggerFactory.getLogger;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 
+import com.wl4g.component.common.log.SmartLogger;
 import com.wl4g.component.common.task.GenericTaskRunner;
 import com.wl4g.component.common.task.RunnerProperties;
 
@@ -34,24 +37,25 @@ import com.wl4g.component.common.task.RunnerProperties;
  *      Retry task OOM resolution</a>
  */
 public abstract class ApplicationTaskRunner<C extends RunnerProperties> extends GenericTaskRunner<C>
-		implements ApplicationRunner, DisposableBean {
+        implements ApplicationRunner, DisposableBean {
+    protected final SmartLogger log = getLogger(getClass());
 
-	public ApplicationTaskRunner() {
-		super();
-	}
+    public ApplicationTaskRunner() {
+        super();
+    }
 
-	public ApplicationTaskRunner(C config) {
-		super(config);
-	}
+    public ApplicationTaskRunner(C config) {
+        super(config);
+    }
 
-	@Override
-	public void destroy() throws Exception {
-		super.close();
-	}
+    @Override
+    public void destroy() throws Exception {
+        super.close();
+    }
 
-	@Override
-	public void run(ApplicationArguments args) throws Exception {
-		super.start();
-	}
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        super.start();
+    }
 
 }

@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.util.List;
 
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
+import com.wl4g.component.integration.sharding.failover.jdbc.JdbcOperator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +35,7 @@ public interface ProxyFailover<S extends NodeStats> extends Closeable {
 
     void start() throws Exception;
 
-    S inspect() throws Exception;
+    S inspect(JdbcOperator operator) throws Exception;
 
     @Getter
     @Setter

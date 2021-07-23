@@ -42,7 +42,6 @@ import com.wl4g.component.common.log.SmartLogger;
  *      Retry task OOM resolution</a>
  */
 public abstract class GenericTaskRunner<C extends RunnerProperties> implements Closeable, Runnable {
-
     protected final SmartLogger log = getLogger(getClass());
 
     /** Running state. */
@@ -70,6 +69,103 @@ public abstract class GenericTaskRunner<C extends RunnerProperties> implements C
     @Override
     public void run() {
         // Ignore
+    }
+
+    /**
+     * Auto initialization on startup.
+     * 
+     * @throws Exception
+     */
+    public void start() throws Exception {
+        if (running.compareAndSet(false, true)) {
+            // Call PreStartup
+            preStartupProperties();
+
+            // Create worker(if necessary)
+            if (configProperties.getConcurrency() > 0) {
+                // See:https://www.jianshu.com/p/e7ab1ac8eb4c
+                ThreadFactory tf = new NamedThreadFactory(getClass().getSimpleName().concat("-worker"));
+                worker = new SafeScheduledTaskPoolExecutor(configProperties.getConcurrency(), configProperties.getKeepAliveTime(),
+                        tf, configProperties.getAcceptQueue(), configProperties.getReject());
+            } else {
+                log.warn("No start threads worker, because the number of workthreads is less than 0");
+            }
+
+            // Header asynchronously execution.(if necessary)
+            switch (configProperties.getStartupMode()) {
+            case SYNC:
+                run(); // Sync execution.
+                break;
+            case ASYNC:
+                header = new NamedThreadFactory(getClass().getSimpleName().concat("-header")).newThread(this);
+                header.start();
+                break;
+            default:
+                break;
+            }
+
+            // Call post startup
+            postStartupProperties();
+        } else {
+            log.warn("Could not startup runner! because already builders are read-only and do not allow task modification");
+        }
+    }
+
+    /**
+     * Pre startup properties
+     */
+    protected void preStartupProperties() throws Exception {
+        // Ignore
+    }
+
+    /**
+     * Post startup properties
+     */
+    protected void postStartupProperties() throws Exception {
+        // Ignore
+    }
+
+    /**
+     * Pre close properties
+     */
+    protected void preCloseProperties() throws IOException {
+        // Ignore
+    }
+
+    /**
+     * Post close properties
+     */
+    protected void postCloseProperties() throws IOException {
+        // Ignore
+    }
+
+    /**
+     * Is the current runner active.
+     * 
+     * @return
+     */
+    protected boolean isActive() {
+        return nonNull(header) && !header.isInterrupted() && running.get();
+    }
+
+    /**
+     * Gets configuration properties.
+     * 
+     * @return
+     */
+    protected C getConfig() {
+        return configProperties;
+    }
+
+    /**
+     * Thread pool executor worker.
+     * 
+     * @return
+     */
+    public SafeScheduledTaskPoolExecutor getWorker() {
+        state(nonNull(worker),
+                "The worker thread group is not enabled(must concurrency>0)? or  it has not been initialized yet, it must be called at least in the after #postStartupProperties().");
+        return worker;
     }
 
     /**
@@ -130,97 +226,6 @@ public abstract class GenericTaskRunner<C extends RunnerProperties> implements C
             // Call post close
             postCloseProperties();
         }
-    }
-
-    /**
-     * Auto initialization on startup.
-     * 
-     * @throws Exception
-     */
-    public void start() throws Exception {
-        if (running.compareAndSet(false, true)) {
-            // Call PreStartup
-            preStartupProperties();
-
-            // Create worker(if necessary)
-            if (configProperties.getConcurrency() > 0) {
-                // See:https://www.jianshu.com/p/e7ab1ac8eb4c
-                ThreadFactory tf = new NamedThreadFactory(getClass().getSimpleName().concat("-worker"));
-                worker = new SafeScheduledTaskPoolExecutor(configProperties.getConcurrency(), configProperties.getKeepAliveTime(),
-                        tf, configProperties.getAcceptQueue(), configProperties.getReject());
-            } else {
-                log.warn("No start threads worker, because the number of workthreads is less than 0");
-            }
-
-            // Boss asynchronously execution.(if necessary)
-            if (configProperties.isAsyncStartup()) {
-                header = new NamedThreadFactory(getClass().getSimpleName().concat("-header")).newThread(this);
-                header.start();
-            } else {
-                run(); // Sync execution.
-            }
-
-            // Call post startup
-            postStartupProperties();
-        } else {
-            log.warn("Could not startup runner! because already builders are read-only and do not allow task modification");
-        }
-    }
-
-    /**
-     * Gets configuration properties.
-     * 
-     * @return
-     */
-    protected C getConfig() {
-        return configProperties;
-    }
-
-    /**
-     * Pre startup properties
-     */
-    protected void preStartupProperties() throws Exception {
-        // Ignore
-    }
-
-    /**
-     * Post startup properties
-     */
-    protected void postStartupProperties() throws Exception {
-        // Ignore
-    }
-
-    /**
-     * Pre close properties
-     */
-    protected void preCloseProperties() throws IOException {
-        // Ignore
-    }
-
-    /**
-     * Post close properties
-     */
-    protected void postCloseProperties() throws IOException {
-        // Ignore
-    }
-
-    /**
-     * Is the current runner active.
-     * 
-     * @return
-     */
-    protected boolean isActive() {
-        return nonNull(header) && !header.isInterrupted() && running.get();
-    }
-
-    /**
-     * Thread pool executor worker.
-     * 
-     * @return
-     */
-    public SafeScheduledTaskPoolExecutor getWorker() {
-        state(nonNull(worker), "Worker thread group is not enabled and can be enabled with concurrency >0");
-        return worker;
     }
 
     /**

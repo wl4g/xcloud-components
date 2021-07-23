@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.wl4g.component.common.task.RunnerProperties;
-import com.wl4g.component.support.task.ApplicationTaskRunner;
 
 /**
  * {@link ApplicationTaskRunner} tests.
@@ -33,128 +32,128 @@ import com.wl4g.component.support.task.ApplicationTaskRunner;
  */
 public class GenericTaskRunnerTests {
 
-	public static void main(String[] args) throws Exception {
-		// submitForCompleteTest1();
-		// scheduleQueueRejectedTest2();
-		scheduleWithFixedErrorInterruptedTest3();
-		// scheduleWithRandomErrorInterruptedTest4();
-	}
+    public static void main(String[] args) throws Exception {
+        // submitForCompleteTest1();
+        // scheduleQueueRejectedTest2();
+        scheduleWithFixedErrorInterruptedTest3();
+        // scheduleWithRandomErrorInterruptedTest4();
+    }
 
-	@SuppressWarnings({ "rawtypes" })
-	public static void submitForCompleteTest1() throws Exception {
-		// Add testing jobs.
-		List<Runnable> jobs = new ArrayList<>();
-		for (int i = 0; i < 3; i++) {
-			final String idStr = "testjob-" + i;
-			jobs.add(new Runnable() {
-				private String id = idStr;
+    @SuppressWarnings({ "rawtypes" })
+    public static void submitForCompleteTest1() throws Exception {
+        // Add testing jobs.
+        List<Runnable> jobs = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            final String idStr = "testjob-" + i;
+            jobs.add(new Runnable() {
+                private String id = idStr;
 
-				@Override
-				public void run() {
-					try {
-						System.out.println("Starting... testjob-" + id);
-						Thread.sleep(3000L);
-						System.out.println("Completed. testjob-" + id);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		}
+                @Override
+                public void run() {
+                    try {
+                        System.out.println("Starting... testjob-" + id);
+                        Thread.sleep(3000L);
+                        System.out.println("Completed. testjob-" + id);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
 
-		// Create runner.
-		ApplicationTaskRunner runner = createGenericTaskRunner(2);
-		System.out.println(runner);
+        // Create runner.
+        ApplicationTaskRunner runner = createGenericTaskRunner(2);
+        System.out.println(runner);
 
-		// Submit jobs & listen job timeout.
-		runner.getWorker().submitForComplete(jobs, (ex, completed, uncompleted) -> {
-			ex.printStackTrace();
-			System.out.println(String.format("Completed: %s, uncompleted sets: %s", completed, uncompleted));
-		}, 4 * 1000l); // > 3*3000
+        // Submit jobs & listen job timeout.
+        runner.getWorker().submitForComplete(jobs, (ex, completed, uncompleted) -> {
+            ex.printStackTrace();
+            System.out.println(String.format("Completed: %s, uncompleted sets: %s", completed, uncompleted));
+        }, 4 * 1000l); // > 3*3000
 
-		// runner.close();
-	}
+        // runner.close();
+    }
 
-	@SuppressWarnings({ "rawtypes" })
-	public static void scheduleQueueRejectedTest2() throws Exception {
-		// Create runner.
-		ApplicationTaskRunner runner = createGenericTaskRunner(2);
+    @SuppressWarnings({ "rawtypes" })
+    public static void scheduleQueueRejectedTest2() throws Exception {
+        // Create runner.
+        ApplicationTaskRunner runner = createGenericTaskRunner(2);
 
-		for (int i = 0; i < 100; i++) {
-			final String idStr = "testjob-" + i;
-			runner.getWorker().submit(new Runnable() {
-				private String id = idStr;
+        for (int i = 0; i < 100; i++) {
+            final String idStr = "testjob-" + i;
+            runner.getWorker().submit(new Runnable() {
+                private String id = idStr;
 
-				@Override
-				public void run() {
-					try {
-						System.out.println("Starting... testjob-" + id);
-						Thread.sleep(3000L);
-						System.out.println("Completed. testjob-" + id);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		}
+                @Override
+                public void run() {
+                    try {
+                        System.out.println("Starting... testjob-" + id);
+                        Thread.sleep(3000L);
+                        System.out.println("Completed. testjob-" + id);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
 
-		// runner.close();
-	}
+        // runner.close();
+    }
 
-	@SuppressWarnings({ "rawtypes" })
-	public static void scheduleWithFixedErrorInterruptedTest3() throws Exception {
-		// Create runner.
-		ApplicationTaskRunner runner = createGenericTaskRunner(2);
+    @SuppressWarnings({ "rawtypes" })
+    public static void scheduleWithFixedErrorInterruptedTest3() throws Exception {
+        // Create runner.
+        ApplicationTaskRunner runner = createGenericTaskRunner(2);
 
-		// Task1(Error):
-		runner.getWorker().scheduleAtFixedRate(() -> {
-			System.out.println(currentTimeMillis() + " - Error of task1..." + runner.getWorker());
-			throw new RuntimeException(currentTimeMillis() + " - Error of task1...");
-		}, 1, 2, TimeUnit.SECONDS);
+        // Task1(Error):
+        runner.getWorker().scheduleAtFixedRate(() -> {
+            System.out.println(currentTimeMillis() + " - Error of task1..." + runner.getWorker());
+            throw new RuntimeException(currentTimeMillis() + " - Error of task1...");
+        }, 1, 2, TimeUnit.SECONDS);
 
-		// Task2(Normal):
-		runner.getWorker().scheduleAtFixedRate(() -> {
-			System.out.println(currentTimeMillis() + " - Normal of task2..." + runner.getWorker());
-		}, 1, 2, TimeUnit.SECONDS);
+        // Task2(Normal):
+        runner.getWorker().scheduleAtFixedRate(() -> {
+            System.out.println(currentTimeMillis() + " - Normal of task2..." + runner.getWorker());
+        }, 1, 2, TimeUnit.SECONDS);
 
-		// Task3(Normal):
-		runner.getWorker().scheduleAtFixedRate(() -> {
-			System.out.println(currentTimeMillis() + " - Normal of task3..." + runner.getWorker());
-		}, 1, 2, TimeUnit.SECONDS);
+        // Task3(Normal):
+        runner.getWorker().scheduleAtFixedRate(() -> {
+            System.out.println(currentTimeMillis() + " - Normal of task3..." + runner.getWorker());
+        }, 1, 2, TimeUnit.SECONDS);
 
-		// runner.close();
-	}
+        // runner.close();
+    }
 
-	@SuppressWarnings({ "rawtypes" })
-	public static void scheduleWithRandomErrorInterruptedTest4() throws Exception {
-		// Create runner.
-		ApplicationTaskRunner runner = createGenericTaskRunner(2);
+    @SuppressWarnings({ "rawtypes" })
+    public static void scheduleWithRandomErrorInterruptedTest4() throws Exception {
+        // Create runner.
+        ApplicationTaskRunner runner = createGenericTaskRunner(2);
 
-		// Task1(Error):
-		runner.getWorker().scheduleAtRandomRate(() -> {
-			System.out.println(currentTimeMillis() + " - Error of task1..." + runner.getWorker());
-			throw new RuntimeException(currentTimeMillis() + " - Error of task1...");
-		}, 1, 1, 2, TimeUnit.SECONDS);
+        // Task1(Error):
+        runner.getWorker().scheduleAtRandomRate(() -> {
+            System.out.println(currentTimeMillis() + " - Error of task1..." + runner.getWorker());
+            throw new RuntimeException(currentTimeMillis() + " - Error of task1...");
+        }, 1, 1, 2, TimeUnit.SECONDS);
 
-		// Task2(Normal):
-		runner.getWorker().scheduleAtRandomRate(() -> {
-			System.out.println(currentTimeMillis() + " - Normal of task2..." + runner.getWorker());
-		}, 1, 1, 6, TimeUnit.SECONDS);
+        // Task2(Normal):
+        runner.getWorker().scheduleAtRandomRate(() -> {
+            System.out.println(currentTimeMillis() + " - Normal of task2..." + runner.getWorker());
+        }, 1, 1, 6, TimeUnit.SECONDS);
 
-		// Task3(Normal):
-		runner.getWorker().scheduleAtRandomRate(() -> {
-			System.out.println(currentTimeMillis() + " - Normal of task3..." + runner.getWorker());
-		}, 1, 1, 6, TimeUnit.SECONDS);
+        // Task3(Normal):
+        runner.getWorker().scheduleAtRandomRate(() -> {
+            System.out.println(currentTimeMillis() + " - Normal of task3..." + runner.getWorker());
+        }, 1, 1, 6, TimeUnit.SECONDS);
 
-		// runner.close();
-	}
+        // runner.close();
+    }
 
-	private static ApplicationTaskRunner<RunnerProperties> createGenericTaskRunner(int concurrencyPoolSize) throws Exception {
-		ApplicationTaskRunner<RunnerProperties> runner = new ApplicationTaskRunner<RunnerProperties>(
-				new RunnerProperties(false, concurrencyPoolSize)) {
-		};
-		runner.run(null);
-		return runner;
-	}
+    private static ApplicationTaskRunner<RunnerProperties> createGenericTaskRunner(int concurrencyPoolSize) throws Exception {
+        ApplicationTaskRunner<RunnerProperties> runner = new ApplicationTaskRunner<RunnerProperties>(
+                new RunnerProperties(concurrencyPoolSize)) {
+        };
+        runner.run(null);
+        return runner;
+    }
 
 }

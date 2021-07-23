@@ -45,9 +45,11 @@ import org.apache.shardingsphere.readwritesplitting.api.rule.ReadwriteSplittingD
 import com.wl4g.component.common.lang.StringUtils2;
 import com.wl4g.component.common.task.GenericTaskRunner;
 import com.wl4g.component.common.task.RunnerProperties;
+import com.wl4g.component.common.task.RunnerProperties.StartupMode;
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats;
 import com.wl4g.component.integration.sharding.failover.ProxyFailover.NodeStats.NodeInfo;
 import com.wl4g.component.integration.sharding.failover.initializer.FailoverAbstractBootstrapInitializer;
+import com.wl4g.component.integration.sharding.failover.jdbc.JdbcOperator;
 import com.wl4g.component.integration.sharding.util.HostUtil;
 import com.wl4g.component.integration.sharding.util.JdbcUtil;
 import com.wl4g.component.integration.sharding.util.JdbcUtil.JdbcInformation;
@@ -68,7 +70,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
     private HikariDataSource cachingAdminDataSource;
 
     public AbstractProxyFailover(FailoverAbstractBootstrapInitializer initializer, ShardingSphereMetaData metadata) {
-        super(new RunnerProperties(true).withConcurrency(1));
+        super(new RunnerProperties(StartupMode.NOSTARTUP, 1));
         this.initializer = notNullOf(initializer, "initializer");
         this.metadata = notNullOf(metadata, "metadata");
     }
@@ -82,7 +84,8 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
     @Override
     public void run() {
         try {
-            S result = inspect();
+            JdbcOperator operator = new JdbcOperator(getSelectedBackendNodeAdminDataSource());
+            S result = inspect(operator);
             log.debug("Inspect result information: {}", () -> toJSONString(result));
 
             // Selection new primary node.

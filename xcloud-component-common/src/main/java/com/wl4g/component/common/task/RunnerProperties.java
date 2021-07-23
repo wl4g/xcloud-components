@@ -16,6 +16,7 @@
 package com.wl4g.component.common.task;
 
 import static com.wl4g.component.common.lang.Assert2.isTrue;
+import static java.lang.String.format;
 
 import java.io.Serializable;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -29,136 +30,143 @@ import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
  * @since
  */
 public class RunnerProperties implements Serializable {
-	final private static long serialVersionUID = -1996272636830701232L;
+    private static final long serialVersionUID = -1996272636830701232L;
 
-	/** Whether to start the boss thread asynchronously. */
-	private boolean asyncStartup = DEFAULT_ASYNCSTARTUP;
+    /**
+     * The application is started, startup mode of this
+     * instance(Synchronous/Asynchronous/NoStartup).
+     */
+    private StartupMode startupMode = DEFAULT_STARTUP_MODE;
 
-	/**
-	 * When the concurrency is less than 0, it means that the worker thread
-	 * group is not enabled (only the boss asynchronous thread is started)
-	 */
-	private int concurrency = DEFAULT_CONCURRENCY;
+    /**
+     * When the concurrency is less than 0, it means that the worker thread
+     * group is not enabled (only the boss asynchronous thread is started)
+     */
+    private int concurrency = DEFAULT_CONCURRENCY;
 
-	/** Watch dog delay */
-	private long keepAliveTime = DEFAULT_KEEP_ALIVE_TIME;
+    /** Watch dog delay */
+    private long keepAliveTime = DEFAULT_KEEP_ALIVE_TIME;
 
-	/**
-	 * When all threads are busy, consumption receive queue count.
-	 */
-	private int acceptQueue = DEFAULT_ACCEPT_QUEUE;
+    /**
+     * When all threads are busy, consumption receive queue count.
+     */
+    private int acceptQueue = DEFAULT_ACCEPT_QUEUE;
 
-	/** Rejected execution handler. */
-	private RejectedExecutionHandler reject = new AbortPolicy();
+    /** Rejected execution handler. */
+    private RejectedExecutionHandler reject = new AbortPolicy();
 
-	public RunnerProperties() {
-		super();
-	}
+    public RunnerProperties() {
+        super();
+    }
 
-	public RunnerProperties(boolean asyncStartup) {
-		this(asyncStartup, DEFAULT_CONCURRENCY);
-	}
+    public RunnerProperties(StartupMode startupMode) {
+        this(startupMode, DEFAULT_CONCURRENCY);
+    }
 
-	public RunnerProperties(int concurrency) {
-		this(DEFAULT_ASYNCSTARTUP, concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
-	}
+    public RunnerProperties(int concurrency) {
+        this(DEFAULT_STARTUP_MODE, concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
+    }
 
-	public RunnerProperties(boolean asyncStartup, int concurrency) {
-		this(asyncStartup, concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
-	}
+    public RunnerProperties(StartupMode startupMode, int concurrency) {
+        this(startupMode, concurrency, DEFAULT_KEEP_ALIVE_TIME, DEFAULT_ACCEPT_QUEUE, null);
+    }
 
-	public RunnerProperties(boolean asyncStartup, int concurrency, long keepAliveTime, int acceptQueue,
-			RejectedExecutionHandler reject) {
-		setAsyncStartup(asyncStartup);
-		setConcurrency(concurrency);
-		setKeepAliveTime(keepAliveTime);
-		setAcceptQueue(acceptQueue);
-		setReject(reject);
-	}
+    public RunnerProperties(StartupMode startupMode, int concurrency, long keepAliveTime, int acceptQueue,
+            RejectedExecutionHandler reject) {
+        setStartupMode(startupMode);
+        setConcurrency(concurrency);
+        setKeepAliveTime(keepAliveTime);
+        setAcceptQueue(acceptQueue);
+        setReject(reject);
+    }
 
-	public boolean isAsyncStartup() {
-		return asyncStartup;
-	}
+    public StartupMode getStartupMode() {
+        return startupMode;
+    }
 
-	public void setAsyncStartup(boolean asyncStartup) {
-		this.asyncStartup = asyncStartup;
-	}
+    public void setStartupMode(StartupMode startupMode) {
+        this.startupMode = startupMode;
+    }
 
-	public RunnerProperties withAsyncStartup(boolean asyncStartup) {
-		setAsyncStartup(asyncStartup);
-		return this;
-	}
+    public RunnerProperties withStartupMode(StartupMode startupMode) {
+        setStartupMode(startupMode);
+        return this;
+    }
 
-	public int getConcurrency() {
-		return concurrency;
-	}
+    public int getConcurrency() {
+        return concurrency;
+    }
 
-	public void setConcurrency(int concurrency) {
-		// isTrue(concurrency > 0, "Concurrency must be greater than 0");
-		this.concurrency = concurrency;
-	}
+    public void setConcurrency(int concurrency) {
+        // isTrue(concurrency > 0, "Concurrency must be greater than 0");
+        this.concurrency = concurrency;
+    }
 
-	public RunnerProperties withConcurrency(int concurrency) {
-		setConcurrency(concurrency);
-		return this;
-	}
+    public RunnerProperties withConcurrency(int concurrency) {
+        setConcurrency(concurrency);
+        return this;
+    }
 
-	public long getKeepAliveTime() {
-		return keepAliveTime;
-	}
+    public long getKeepAliveTime() {
+        return keepAliveTime;
+    }
 
-	public void setKeepAliveTime(long keepAliveTime) {
-		if (getConcurrency() > 0) {
-			isTrue(keepAliveTime >= 0, "keepAliveTime must be greater than or equal to 0");
-		}
-		this.keepAliveTime = keepAliveTime;
-	}
+    public void setKeepAliveTime(long keepAliveTime) {
+        if (getConcurrency() > 0) {
+            isTrue(keepAliveTime >= 0, "keepAliveTime must be greater than or equal to 0");
+        }
+        this.keepAliveTime = keepAliveTime;
+    }
 
-	public RunnerProperties withKeepAliveTime(long keepAliveTime) {
-		setKeepAliveTime(keepAliveTime);
-		return this;
-	}
+    public RunnerProperties withKeepAliveTime(long keepAliveTime) {
+        setKeepAliveTime(keepAliveTime);
+        return this;
+    }
 
-	public int getAcceptQueue() {
-		return acceptQueue;
-	}
+    public int getAcceptQueue() {
+        return acceptQueue;
+    }
 
-	public void setAcceptQueue(int acceptQueue) {
-		if (getConcurrency() > 0) {
-			isTrue(acceptQueue >= 0, "acceptQueue must be greater than or equal to 0");
-		}
-		this.acceptQueue = acceptQueue;
-	}
+    public void setAcceptQueue(int acceptQueue) {
+        if (getConcurrency() > 0) {
+            isTrue(acceptQueue >= 0, "acceptQueue must be greater than or equal to 0");
+        }
+        this.acceptQueue = acceptQueue;
+    }
 
-	public RunnerProperties withAcceptQueue(int acceptQueue) {
-		setAcceptQueue(acceptQueue);
-		return this;
-	}
+    public RunnerProperties withAcceptQueue(int acceptQueue) {
+        setAcceptQueue(acceptQueue);
+        return this;
+    }
 
-	public RejectedExecutionHandler getReject() {
-		return reject;
-	}
+    public RejectedExecutionHandler getReject() {
+        return reject;
+    }
 
-	public void setReject(RejectedExecutionHandler reject) {
-		if (reject != null) {
-			this.reject = reject;
-		}
-	}
+    public void setReject(RejectedExecutionHandler reject) {
+        if (reject != null) {
+            this.reject = reject;
+        }
+    }
 
-	public RunnerProperties withReject(RejectedExecutionHandler reject) {
-		setReject(reject);
-		return this;
-	}
+    public RunnerProperties withReject(RejectedExecutionHandler reject) {
+        setReject(reject);
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		return "TaskProperties [concurrency=" + concurrency + ", keepAliveTime=" + keepAliveTime + ", acceptQueue=" + acceptQueue
-				+ ", reject=" + reject + "]";
-	}
+    @Override
+    public String toString() {
+        return getClass().getSimpleName().concat(format("[concurrency=%s, keepAliveTime=%s, acceptQueue=%s, reject=%s]",
+                concurrency, keepAliveTime, acceptQueue, reject));
+    }
 
-	final private static boolean DEFAULT_ASYNCSTARTUP = false;
-	final private static int DEFAULT_CONCURRENCY = -1;
-	final private static long DEFAULT_KEEP_ALIVE_TIME = 0L;
-	final private static int DEFAULT_ACCEPT_QUEUE = 1;
+    public static enum StartupMode {
+        SYNC, ASYNC, NOSTARTUP;
+    }
+
+    private static final StartupMode DEFAULT_STARTUP_MODE = StartupMode.SYNC;
+    private static final int DEFAULT_CONCURRENCY = -1;
+    private static final long DEFAULT_KEEP_ALIVE_TIME = 0L;
+    private static final int DEFAULT_ACCEPT_QUEUE = 1;
 
 }
