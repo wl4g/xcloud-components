@@ -97,7 +97,7 @@ rules:
     group0_snowflake1:
       type: SNOWFLAKE
       props:
-        worker-id: '1' # Range[0, 1024), see:org.apache.shardingsphere.sharding.algorithm.keygen.SnowflakeKeyGenerateAlgorithm#getWorkerId()
+        worker-id: '1' # Range[0,1024),see:org.apache.shardingsphere.sharding.algorithm.keygen.SnowflakeKeyGenerateAlgorithm#getWorkerId()
  - !READWRITE_SPLITTING
   dataSources:
     ha_userdb_g0db0:

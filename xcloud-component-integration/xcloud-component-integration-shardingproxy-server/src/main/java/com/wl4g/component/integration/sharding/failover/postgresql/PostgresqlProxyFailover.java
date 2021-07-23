@@ -37,7 +37,7 @@ public class PostgresqlProxyFailover extends AbstractProxyFailover<PostgresqlNod
     }
 
     @Override
-    public PostgresqlNodeStats inspect(JdbcOperator operator) {
+    public PostgresqlNodeStats inspecting(JdbcOperator operator) {
         throw new UnsupportedOperationException();
     }
 

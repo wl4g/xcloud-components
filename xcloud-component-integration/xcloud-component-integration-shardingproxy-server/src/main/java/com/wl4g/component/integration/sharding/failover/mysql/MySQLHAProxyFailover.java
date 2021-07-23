@@ -37,7 +37,7 @@ public class MySQLHAProxyFailover extends AbstractProxyFailover<MySQLHANodeStats
     }
 
     @Override
-    public MySQLHANodeStats inspect(JdbcOperator operator) {
+    public MySQLHANodeStats inspecting(JdbcOperator operator) {
         throw new UnsupportedOperationException();
     }
 

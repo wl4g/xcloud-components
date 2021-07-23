@@ -17,6 +17,7 @@ package com.wl4g.component.integration.sharding.util;
 
 import static com.wl4g.component.common.lang.Assert2.isTrue;
 import static com.wl4g.component.common.lang.Assert2.notNull;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 
 import java.net.URI;
 
@@ -38,7 +39,9 @@ public abstract class JdbcUtil {
         URI uri = URI.create(jdbcUrl.substring(jdbcUrl.indexOf("jdbc:") + 5));
         notNull(uri.getHost(), "Unable resolve jdbc url host from: %s", jdbcUrl);
         isTrue(uri.getPort() > 0, "Unable resolve jdbc url port from: %s", jdbcUrl);
-        return new JdbcInformation("jdbc:".concat(uri.getScheme()), uri.getHost(), uri.getPort(), uri.getPath());
+        String dbname = uri.getPath();
+        dbname = startsWith(dbname, "/") ? dbname.substring(1) : dbname;
+        return new JdbcInformation("jdbc:".concat(uri.getScheme()), uri.getHost(), uri.getPort(), dbname);
     }
 
     @Getter

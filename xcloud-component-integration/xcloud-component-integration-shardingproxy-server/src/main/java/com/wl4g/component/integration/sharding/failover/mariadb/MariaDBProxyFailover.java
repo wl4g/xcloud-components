@@ -37,7 +37,7 @@ public class MariaDBProxyFailover extends AbstractProxyFailover<OracleNodeStats>
     }
 
     @Override
-    public OracleNodeStats inspect(JdbcOperator operator) throws Exception {
+    public OracleNodeStats inspecting(JdbcOperator operator) throws Exception {
         throw new UnsupportedOperationException();
     }
 

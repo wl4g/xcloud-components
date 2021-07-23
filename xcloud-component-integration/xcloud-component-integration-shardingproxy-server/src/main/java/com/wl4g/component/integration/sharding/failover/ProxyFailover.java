@@ -35,7 +35,7 @@ public interface ProxyFailover<S extends NodeStats> extends Closeable {
 
     void start() throws Exception;
 
-    S inspect(JdbcOperator operator) throws Exception;
+    S inspecting(JdbcOperator operator) throws Exception;
 
     @Getter
     @Setter
