@@ -24,6 +24,7 @@ import static com.wl4g.component.common.serialize.JacksonUtils.toJSONString;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.sql.SQLException;
@@ -128,7 +129,7 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
                         if (isChangedPrimaryNode(newPrimaryNode, newPrimaryDataSourceName, oldPrimaryDataSourceName)) {
                             // Gets changed new read dataSourceNames
                             List<String> newReadDataSourceNames = getChangedNewReadDataSourceNames(
-                                    oldRwDataSource.getReadDataSourceNames(), newPrimaryDataSourceName);
+                                    oldFailoverConfig.getAllDataSourceConfigs(), oldRwDataSource, result.getStandbyNodes());
 
                             // New read-write-splitting dataSource.
                             ReadwriteSplittingDataSourceRuleConfiguration newRwDataSource = new ReadwriteSplittingDataSourceRuleConfiguration(
@@ -259,13 +260,17 @@ public abstract class AbstractProxyFailover<S extends NodeStats> extends Generic
     /**
      * Gets changed new read dataSource names.
      * 
-     * @param oldReadDataSourceNames
-     * @param newPrimaryDataSourceName
+     * @param allDataSourceConfigs
+     * @param oldRwDataSource
+     * @param newStandbyNodes
      * @return
      */
-    private List<String> getChangedNewReadDataSourceNames(List<String> oldReadDataSourceNames, String newPrimaryDataSourceName) {
-        List<String> newReadDataSourceNames = new ArrayList<>(oldReadDataSourceNames);
-        newReadDataSourceNames.remove(newPrimaryDataSourceName);
+    private List<String> getChangedNewReadDataSourceNames(Map<String, DataSourceConfiguration> allDataSourceConfigs,
+            ReadwriteSplittingDataSourceRuleConfiguration oldRwDataSource, List<? extends NodeInfo> newStandbyNodes) {
+
+        List<String> newReadDataSourceNames = safeList(newStandbyNodes).stream()
+                .map(n -> findMatchingNewPrimaryDataSourceName(allDataSourceConfigs, oldRwDataSource, n)).collect(toList());
+
         return newReadDataSourceNames;
     }
 
