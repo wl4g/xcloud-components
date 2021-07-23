@@ -26,8 +26,12 @@
 			<excludes>
 				<exclude>script/**</exclude>
 				<exclude>static/**</exclude>
+				<exclude>META-INF/**</exclude>
 			</excludes>
 			<includes>
+				<include>**/**</include>
+				<include>example-conf/**.*</include>
+				<include>*.xml</include>
 				<include>*.yml</include>
 				<include>*.yaml</include>
 				<include>*.properties</include>

@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xcloud-component-integration-shardingproxy-server</artifactId>
@@ -121,8 +120,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<!-- When true and will check file encoding, causes the picture file 
-					copy to fail. -->
+				<!-- When true and will check file encoding, causes the picture file copy to fail. -->
 				<filtering>false</filtering>
 				<excludes>
 					<exclude>script/**</exclude>
@@ -266,8 +264,7 @@
 					<!-- Usages: -->
 					<!-- [build]: mvn -Pdocker:build:mvnAssTar -->
 					<!-- [push]: mvn -Pdocker:build:mvnAssTar -->
-					<!-- [push]: mvn -Pdocker:build:mvnAssTar dockerfile:build dockerfile:push 
-						-Ddockerfile.username=wl4g -Ddockerfile.password=123456 -->
+					<!-- [push]: mvn -Pdocker:build:mvnAssTar dockerfile:build dockerfile:push -Ddockerfile.username=wl4g -Ddockerfile.password=123456 -->
 					<plugin>
 						<groupId>com.spotify</groupId>
 						<artifactId>dockerfile-maven-plugin</artifactId>

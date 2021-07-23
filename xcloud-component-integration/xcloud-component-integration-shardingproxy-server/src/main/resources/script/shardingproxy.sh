@@ -16,4 +16,4 @@
 # * limitations under the License.
 # */
 
-/etc/init.d/shardingsphere-proxy5.service "$@"
+/etc/init.d/shardingproxy.service "$@"

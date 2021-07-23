@@ -1,0 +1,32 @@
+# See:http://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-commands.html
+[Unit]
+Description=shardingproxy - lightweight high availability database sharding service base on shardingsphere.
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=simple
+PIDFile=/mnt/disk1/shardingproxy/shardingproxy.pid
+Environment=SHARDING_LOG_DIR=/mnt/disk1/log/shardingproxy
+ExecStartPre=/bin/rm -f /mnt/disk1/shardingproxy/shardingproxy.pid
+ExecStart=/bin/bash -c ". /etc/bashrc && . /etc/profile && exec java -server -Xms256M -Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC -Djava.awt.headless=true -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/mnt/disk1/log/shardingproxy/jvm_dump.hprof -Xloggc:/mnt/disk1/log/shardingproxy/shardingproxy-gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M  -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom -cp .:/opt/apps/shardingproxy-2.0.0-bin/conf:/opt/apps/shardingproxy-2.0.0-bin/ext-lib/*:/opt/apps/shardingproxy-2.0.0-bin/lib/* com.wl4g.ShardingProxy 3307 example-conf/sharding-readwrite > /dev/null 2>&1"
+ExecStartPost=/bin/bash -c "/bin/echo $MAINPID >/mnt/disk1/shardingproxy/shardingproxy.pid"
+ExecReload=/bin/kill -s HUP $MAINPID
+
+# Will it cause 'Restart=on-abnormal' to be invalid?
+#ExecStop=/bin/kill -s TERM $MAINPID
+#StandardOutput=null
+StandardError=journal
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+TimeoutStartSec=5
+Restart=on-abnormal
+KillMode=process
+#KillSignal=SIGQUIT
+#PrivateTmp=true # Will move the JVM default hsperfdata file
+User=shardingproxy
+Group=shardingproxy
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
