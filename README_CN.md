@@ -12,12 +12,14 @@
 ├── xcloud-component-rpc # 基于springboot/cloud分布式架构的集成与封装, 支持多种框架如dubbo/springcloud-feign/springboot-servicemesh快速切换等
 │   ├── xcloud-component-integration-example # 基于springboot/cloud分布式架构示例项目
 │   ├── xcloud-component-integration-feign-common # 为使如下springboot+feign、springcloud+feign等不同整合架构可轻易切换,可能会共用一些如@HystrixCommand/@FeignClient注解等公共部分
+│   ├── xcloud-component-integration-circuitbreaker-hystrix-turbine-server # springcloud+hystrix+turbine整合封装
 │   ├── xcloud-component-integration-feign-core # springboot+feign架构整合封装
 │   ├── xcloud-component-integration-feign-istio # springboot+istio架构整合封装
 │   ├── xcloud-component-integration-feign-springcloud # springcloud+feign架构整合封装
 │   ├── xcloud-component-integration-feign-springcloud-dubbo # springcloud+feign+dubbo架构整合封装
-│   ├── xcloud-component-integration-springcloud-eureka-server # springcloud+eureka-server架构整合封装
-│   └── xcloud-component-integration-springcloud-hystrix-turbine-server # springcloud+hystrix+turbine整合封装
+│   ├── xcloud-component-integration-feign-springcloud-seata # springcloud+feign+seata架构整合封装
+│   ├── xcloud-component-integration-regcenter-eureka-server # springcloud+eureka-server架构整合封装
+│   └── xcloud-component-integration-shardingproxy-server # shardingsphere 定制增强版，如:支持故障转移(主从自动切换)等
 └── xcloud-component-support # 常用springboot应用组件封装, 如redisOperator(支持单机集群并存)、支持超时的分布式命令行器等
 ```
 
