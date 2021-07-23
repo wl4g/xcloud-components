@@ -16,7 +16,10 @@
 package com.wl4g.component.integration.sharding.failover.jdbc;
 
 import static com.wl4g.component.common.lang.Assert2.notNullOf;
+import static java.util.Objects.nonNull;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -41,11 +44,16 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
  * @version 2021-07-18 v1.0.0
  * @since v1.0.0
  */
-public class JdbcOperator {
-    private final DataSource dataSource;
+public class JdbcOperator implements Closeable {
+    private final Connection connection;
 
     public JdbcOperator(DataSource dataSource) {
-        this.dataSource = notNullOf(dataSource, "dataSource");
+        notNullOf(dataSource, "dataSource");
+        try {
+            this.connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public Map<String, Object> findOneMap(String sql, Object[] params) throws SQLException {
@@ -116,7 +124,18 @@ public class JdbcOperator {
     }
 
     private Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        return connection;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (nonNull(connection)) {
+            try {
+                getConnection().close();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
     }
 
 }
